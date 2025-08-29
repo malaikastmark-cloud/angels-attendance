@@ -6,6 +6,10 @@
     <title>اجتماع خدام ملايكة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -74,7 +78,7 @@
             border-radius: 12px;
             margin-bottom: 20px;
             background: #fff;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 3px 极速快3
         }
         
         .admin-section {
@@ -114,7 +118,7 @@
         }
         
         tr:hover {
-            background: #f1f3f5;
+            background: #f1f3极速快3
             transition: background 0.2s;
         }
         
@@ -142,13 +146,13 @@
         }
         
         .btn-primary:hover {
-            background: linear-gradient(to right, #27ae60, #219653);
+            background: linear-gradient(to right, #27ae极速快3
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .btn-success {
-            background: linear-gradient(to right, #3498db, #2980b9);
+            background: linear-gradient(to right极速快3
             color: white;
         }
         
@@ -188,7 +192,7 @@
         .btn-info:hover {
             background: linear-gradient(to right, #8e44ad, #7d3c98);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4极速快3
         }
         
         .controls {
@@ -240,7 +244,7 @@
         .tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 15极速快3
             flex-wrap: wrap;
         }
         
@@ -315,7 +319,7 @@
             padding: 18px;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
+            z极速快3
             display: none;
             animation: slideIn 0.5s;
             max-width: 350px;
@@ -434,6 +438,27 @@
             background: #e74c3c;
         }
         
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -474,20 +499,22 @@
             <p class="subtitle"><span class="status-indicator status-online"></span> متصل بالنظام</p>
         </header>
 
+        <div class="loading" id="loading">
+            <div class极速快3
+            <p>جاري تحميل البيانات...</p>
+        </div>
+
         <!-- قسم المستخدم العادي -->
         <div class="user-section">
             <h2>تسجيل الحضور</h2>
             <div class="controls">
                 <label>اختر اسمك: </label>
                 <select id="selectMember">
-                    <option value="1">🧒 Mary Karam</option>
-                    <option value="2">👦 Eman Makin</option>
-                    <option value="3">👧 Rizk Gerges</option>
+                    <!-- سيتم ملؤها بالبيانات -->
                 </select>
                 <label>اختر الأسبوع: </label>
                 <select id="weekSelect">
-                    <option value="1">الاسبوع الاول</option>
-                    <option value="2">الاسبوع الثاني</option>
+                    <!-- سيتم ملؤها بالبيانات -->
                 </select>
             </div>
             <div class="controls">
@@ -500,42 +527,19 @@
                     <tr>
                         <th>#</th>
                         <th>الصورة</th>
-                        <th>اسم العضو</th>
+                        <极速快3
                         <th>الأسبوع</th>
                         <th>الحضور</th>
                         <th>النقاط</th>
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
-                    <tr>
-                        <td>1</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
-                        <td>🧒 Mary Karam</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">1</td>
-                        <td class="points">1</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
-                        <td>👦 Eman Makin</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
-                        <td>👧 Rizk Gerges</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">1</td>
-                        <td class="points">1</td>
-                    </tr>
+                    <!-- سيتم ملؤها بالبيانات -->
                 </tbody>
             </table>
-            <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">2</span>/<span id="totalMembers">3</span></span>
-                <span>النقاط: <span id="totalPoints">2</span></span>
+            <极速快3
+                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
+                <span>النقاط: <span id="totalPoints">0</span></span>
             </div>
             
             <div class="controls" style="margin-top:20px;">
@@ -565,7 +569,7 @@
                 <div class="controls">
                     <input type="text" id="newMemberName" placeholder="اسم العضو">
                     <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
-                    <button class="btn btn-primary" id="addMemberBtn">
+                    <button class="btn btn-primary极速快3
                         <i class="fas fa-plus"></i> إضافة عضو
                     </button>
                 </div>
@@ -581,30 +585,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
-                            <td>🧒 Mary Karam</td>
-                            <td>5</td>
-                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
-                            <td>👦 Eman Makin</td>
-                            <td>3</td>
-                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
-                            <td>👧 Rizk Gerges</td>
-                            <td>4</td>
-                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم ملؤها بالبيانات -->
                     </tbody>
                 </table>
             </div>
@@ -612,7 +593,7 @@
             <div class="tab-content" id="weeks">
                 <h2>إدارة الأسابيع</h2>
                 <div class="controls">
-                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                    <input type="text" id="newWeekName" placeholder极速快3
                     <input type="date" id="newWeekStart">
                     <input type="date" id="newWeekEnd">
                     <button class="btn btn-primary" id="addWeekBtn">
@@ -622,8 +603,8 @@
                 <table id="weeksTable">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>اسم الأسبوع</th>
+                            <th极速快3
+                            <th>اسم الأسبوع</极速快3
                             <th>من</th>
                             <th>إلى</th>
                             <th>تعديل</th>
@@ -631,22 +612,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>الاسبوع الاول</td>
-                            <td>2023-08-01</td>
-                            <td>2023-08-07</td>
-                            <td><button class='btn btn-primary editWeek'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>الاسبوع الثاني</td>
-                            <td>2023-08-08</td>
-                            <td>2023-08-14</td>
-                            <td><button class='btn btn-primary editWeek'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم ملؤها بالبيانات -->
                     </tbody>
                 </table>
             </div>
@@ -656,8 +622,7 @@
                 <div class="controls">
                     <label>اختر أسبوع: </label>
                     <select id="deleteWeekSelect">
-                        <option value="1">الاسبوع الاول</option>
-                        <option value="2">الاسبوع الثاني</option>
+                        <!-- سيتم ملؤها بالبيانات -->
                     </select>
                     <button class="btn btn-danger" id="deleteAttendanceBtn">
                         <i class="fas fa-trash"></i> حذف كل حضور هذا الأسبوع
@@ -674,20 +639,7 @@
                         </tr>
                     </thead>
                     <tbody id="attendanceRecordsBody">
-                        <tr>
-                            <td>1</td>
-                            <td>Mary Karam</td>
-                            <td>الاسبوع الاول</td>
-                            <td>٢٩‏/٨‏/٢٠٢٣, ١٠:٣٠:٠٨ ص</td>
-                            <td><button class='btn btn-danger deleteAttendance'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Rizk Gerges</td>
-                            <td>الاسبوع الاول</td>
-                            <td>٢٨‏/٨‏/٢٠٢٣, ٠٩:١٥:٢٢ ص</td>
-                            <td><button class='btn btn-danger deleteAttendance'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم ملؤها بالبيانات -->
                     </tbody>
                 </table>
             </div>
@@ -696,7 +648,7 @@
                 <h2>التقارير والإحصائيات</h2>
                 
                 <div class="export-buttons">
-                    <button class="btn btn-info" id="printReportBtn">
+                    <button class="btn极速快3
                         <i class="fas fa-print"></i> طباعة التقرير
                     </button>
                     <button class="btn btn-success" id="exportExcelBtn">
@@ -708,23 +660,23 @@
                     <h3>📊 إحصائيات عامة</h3>
                     <div class="card-container">
                         <div class="summary-card">
-                            <h3>إجمالي الحضور</h3>
-                            <div class="summary-value" id="reportAttendance">12</div>
+                            <h3极速快3
+                            <div class="summary-value" id="reportAttendance">0</div>
                             <div class="summary-subtitle">حضور جميع الأسابيع</div>
                         </div>
                         <div class="summary-card">
                             <h3>النقاط الممنوحة</h3>
-                            <div class="summary-value" id="reportPoints">12</div>
+                            <div class="summary-value" id="reportPoints">0</div>
                             <div class="summary-subtitle">مجموع النقاط</div>
                         </div>
                         <div class="summary-card">
                             <h3>عدد الأعضاء</h3>
-                            <div class="summary-value" id="reportMembers">3</div>
+                            <div class="summary-value" id="reportMembers">0</div>
                             <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
                         </div>
                         <div class="summary-card">
                             <h3>عدد الأسابيع</h3>
-                            <div class="summary-value" id="reportWeeks">2</div>
+                            <div class="summary-value" id="reportWeeks">0</div>
                             <div class="summary-subtitle">إجمالي الأسابيع</div>
                         </div>
                     </div>
@@ -733,27 +685,7 @@
                 <div class="report-section">
                     <h3>🏆 الـ 10 الأوائل في الحضور</h3>
                     <div class="top-members-list" id="topMembersList">
-                        <div class="top-member-item">
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam">
-                                <div class="top-member-name"><span class="medal medal-gold">🥇</span> Mary Karam</div>
-                            </div>
-                            <div class="top-member-points">5 نقطة</div>
-                        </div>
-                        <div class="top-member-item">
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges">
-                                <div class="top-member-name"><span class="medal medal-silver">🥈</span> Rizk Gerges</div>
-                            </div>
-                            <div class="top-member-points">4 نقطة</div>
-                        </div>
-                        <div class="top-member-item">
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin">
-                                <div class="top-member-name"><span class="medal medal-bronze">🥉</span> Eman Makin</div>
-                            </div>
-                            <div class="top-member-points">3 نقطة</div>
-                        </div>
+                        <p>جاري تحميل البيانات...</p>
                     </div>
                 </div>
 
@@ -781,30 +713,102 @@
     </div>
 
     <script>
+    // ====== إعدادات Firebase - يجب استبدالها بإعداداتك ======
+    const firebaseConfig = {
+        apiKey: "AIzaSyBCQIqdCsxSvhf极速快3
+        authDomain: "angels-attendance.firebaseapp.com",
+        databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+        projectId: "angels-attendance",
+        storageBucket: "angels-attendance.firebasestorage.app",
+        messagingSenderId: "157249026489",
+        appId: "1:157249026489:web:db2b420203bd81d9a19e68"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     // بيانات التطبيق
-    let members = [
-        {id: 1, name: '🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
-        {id: 2, name: '👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
-        {id: 3, name: '👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
-    ];
-    
-    let weeks = [
-        {id: 1, name: 'الاسبوع الاول', from: '2023-08-01', to: '2023-08-07'},
-        {id: 2, name: 'الاسبوع الثاني', from: '2023-08-08', to: '2023-08-14'}
-    ];
-    
-    let attendanceRecords = [
-        {memberId: 1, weekId: 1, present: true, date: '2023-08-29T10:30:08'},
-        {memberId: 3, weekId: 1, present: true, date: '2023-08-28T09:15:22'}
-    ];
-    
+    let members = [];
+    let weeks = [];
+    let attendanceRecords = [];
     let isAdmin = false;
     const adminPass = 'admin123';
+    
+    // وظائف Firebase
+    function showLoading() {
+        document.getElementById('loading').style.display = 'block';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function showNotification(message, isSuccess = true) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    function loadData() {
+        showLoading();
+        const dataRef = database.ref('angelsAttendance');
+        
+        dataRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                members = data.members || [];
+                weeks = data.weeks || [];
+                attendanceRecords = data.attendanceRecords || [];
+            } else {
+                // البيانات الأولية إذا لم توجد بيانات
+                members = [
+                    {id: 1, name: '🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
+                    {id: 2, name: '👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
+                    {id: 3, name: '👧 Rizk Gerges', image: 'https://ui-avatars极速快3
+                ];
+                weeks = [
+                    {id: 1, name: 'الاسبوع الاول', from: '2023-08-01', to: '2023-08-07'},
+                    {id: 2, name: 'الاسبوع الثاني', from: '2023-08-08', to: '2023-08-14'}
+                ];
+                attendanceRecords = [];
+                saveData();
+            }
+            populateData();
+            updateReports();
+            hideLoading();
+        }, (error) => {
+            console.error('Error loading data:', error);
+            hideLoading();
+            alert('حدث خطأ في تحميل البيانات. تأكد من اتصال الإنترنت.');
+        });
+    }
+
+    function saveData() {
+        showLoading();
+        const dataRef = database.ref('angelsAttendance');
+        dataRef.set({
+            members: members,
+            weeks: weeks,
+            attendanceRecords: attendanceRecords
+        }).then(() => {
+            hideLoading();
+        }).catch((error) => {
+            console.error('Error saving data:', error);
+            hideLoading();
+            alert('حدث خطأ في حفظ البيانات. تأكد من اتصال الإنترنت.');
+        });
+    }
     
     // تهيئة التطبيق
     function initApp() {
         setupEventListeners();
-        updateChart();
+        loadData();
     }
     
     // إعداد مستمعي الأحداث
@@ -821,7 +825,7 @@
         document.getElementById('logoutBtn').addEventListener('click', logout);
         
         // التبويبات
-        document.querySelectorAll('#mainTabs .tab').forEach(tab => {
+        document.querySelectorAll('#main极速快3
             tab.addEventListener('click', () => {
                 const tabId = tab.dataset.tab;
                 activateTab(tabId);
@@ -841,8 +845,216 @@
         document.getElementById('printReportBtn').addEventListener('click', printReport);
         document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
         
+        // تحديث عند تغيير الأسبوع
+        document.getElementById('weekSelect').addEventListener('change', updateAttendanceStats);
+    }
+    
+    // تعبئة البيانات في الجداول
+    function populateData() {
+        const selectMember = document.getElementById('selectMember');
+        selectMember.innerHTML = '';
+        members.forEach(m => {
+            let option = document.createElement('option');
+            option.value = m.id;
+            option.textContent = m.name;
+            selectMember.appendChild(option);
+        });
+
+        const weekSelect = document.getElementById('weekSelect');
+        weekSelect.innerHTML = '';
+        weeks.forEach(w => {
+            let option = document.createElement('option');
+            option.value = w.id;
+            option.textContent = w.name;
+            weekSelect.appendChild(option);
+        });
+
+        // تعبئة قائمة الأسابيع في إدارة الحضور
+        const deleteWeekSelect = document.getElementById('deleteWeekSelect');
+        deleteWeekSelect.innerHTML = '';
+        weeks.forEach(w => {
+            let option = document.createElement('option');
+            option.value = w.id;
+            option.textContent = w.name;
+            deleteWeekSelect.appendChild(option);
+        });
+
+        // تعبئة جدول الحضور
+        const tbody = document.getElementById('attendanceTableBody');
+        tbody.innerHTML = '';
+        
+        const selectedWeekId = document.getElementById('weekSelect').value;
+        const selectedWeek = weeks.find(w => w.id == selectedWeekId);
+        
+        members.forEach((m, i) => {
+            // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
+            const attendanceRecord = attendanceRecords.find(ar => 
+                ar.memberId === m.id && ar.weekId == selected极速快3
+            );
+            
+            const isPresent = attendanceRecord ? attendanceRecord.present : false;
+            
+            let tr = document.createElement('tr');
+            tr.dataset.member = m.id;
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
+                <td>${m.name}</td>
+                <td>${selectedWeek ? selectedWeek.name : ''}</td>
+                <td class="attendance-value">${isPresent ? '1' : '0极速快3
+                <td class="points">${isPresent ? '1' : '0'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        document.getElementById('totalMembers').textContent = members.length;
+        updateAttendanceStats();
+        populateAdminTables();
+        populateAttendanceRecords();
+        updateReports();
+    }
+    
+    // تعبئة الجداول الإدارية
+    function populateAdminTables() {
+        const membersTbody = document.querySelector('#membersTable tbody');
+        members极速快3
+        members.forEach((m, i) => {
+            // حساب النقاط الإجمالية لكل عضو
+            const totalPoints = attendanceRecords.filter(ar => 
+                ar.memberId === m.id && ar.present
+            ).length;
+            
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></极速快3
+                <td>${m.name}</td>
+                <td>${totalPoints}</极速快3
+                <td><button class='btn btn-primary editMember' data-id='${m.id}'>تعديل</button></td>
+                <td><button class='btn btn-danger deleteMember' data-id='${m.id}'>حذف</button></td>
+            `;
+            membersTbody.appendChild(tr);
+        });
+        
+        const weeksTbody = document.querySelector('#weeksTable tbody');
+        weeksTbody.innerHTML = '';
+        weeks.forEach((w, i) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td>${w.name}</td>
+                <td>${w.from}</td>
+                <td>${w.to}</td>
+                <td><button class='btn btn-primary editWeek' data-id='${w.id}'>تعديل</button></td>
+                <td><button class='btn btn-danger deleteWeek' data-id='${w.id}'>حذف</button></td>
+            `;
+            weeksTbody.appendChild(tr);
+        });
+        
         // إضافة مستمعي الأحداث للأزرار الجديدة
         attachEditDeleteListeners();
+    }
+    
+    // عرض سجلات الحضور
+    function populateAttendanceRecords() {
+        const tbody = document.querySelector('#attendanceRecordsBody');
+        tbody.innerHTML = '';
+        
+        attendanceRecords.forEach((record, index) => {
+            const member = members.find(m => m.id === record.memberId);
+            const week = weeks.find(w => w.id == record.weekId);
+            
+            if (member && week) {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${member.name}</td>
+                    <td>${week.name}</td>
+                    <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
+                    <td><button class='btn btn-danger deleteAttendance' data-index='${index}'>حذف</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+        
+        // إضافة مستمعي الأحداث لأزرار حذف الحضور
+        document.querySelectorAll('.deleteAttendance').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                deleteAttendanceRecord(index);
+            });
+        });
+    }
+    
+    // إضافة مستمعي الأحداث لأزرار التعديل والحذف
+    function attachEditDeleteListeners() {
+        // تعديل وحذف أعضاء
+        document.querySelectorAll('.editMember').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const memberId = parseInt(e.target.dataset.id);
+                const member = members.find(m => m.id === memberId);
+                const index = members.findIndex(m => m.id === memberId);
+                
+                const newName = prompt('عدل اسم العضو:', member.name);
+                const newImage = prompt('عدل رابط الصورة (اتركه فارغاً إذا لا تريد تغييره):', member.image);
+                if (newName) {
+                    members[index].name = newName;
+                    if (newImage) members[index].image = newImage;
+                    saveData();
+                    showNotification('تم تعديل بيانات العضو بنجاح');
+                }
+            });
+        });
+        
+        document.querySelectorAll('.deleteMember').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const memberId = parseInt(e.target.dataset.id);
+                const member = members.find极速快3
+                
+                if (confirm(`هل تريد حذف العضو ${member.name}؟`)) {
+                    // حذف سجلات الحضور الخاصة بهذا العضو أولاً
+                    attendanceRecords = attendanceRecords.filter(ar => ar.memberId !== memberId);
+                    
+                    members = members.filter(m => m.id !== memberId);
+                    saveData();
+                    showNotification('تم حذف العضو بنجاح');
+                }
+            });
+        });
+        
+        // تعديل وحذف أسابيع
+        document.querySelectorAll('.editWeek').forEach(btn => {
+            btn.addEventListener('click', (极速快3
+                const weekId = parseInt(e.target.dataset.id);
+                const week = weeks.find(w => w.id === weekId);
+                const index = weeks.findIndex(w => w.id === weekId);
+                
+                const newName = prompt('عدل اسم الأسبوع:', week.name);
+                const newFrom = prompt('عدل تاريخ البداية:', week.from);
+                const newTo = prompt('عدل تاريخ النهاية:', week.to);
+                if (newName && newFrom && newTo) {
+                    weeks[index] = {...weeks[index], name: newName, from: newFrom, to: newTo};
+                    saveData();
+                    showNotification('تم تعديل بيانات الأسبوع بنجاح');
+                }
+            });
+        });
+        
+        document.querySelectorAll('.deleteWeek').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const weekId = parseInt(e.target.dataset.id);
+                const week = weeks.find(w => w.id === weekId);
+                
+                if (confirm(`هل تريد حذف الأسبوع ${week.name}؟`)) {
+                    // حذف سجلات الحضور الخاصة بهذا الأسبوع أولاً
+                    attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
+                    
+                    weeks = weeks.filter(w => w.id !== weekId);
+                    saveData();
+                    showNotification('تم حذف الأسبوع بنجاح');
+                }
+            });
+        });
     }
     
     // تفعيل تبويب
@@ -860,61 +1072,85 @@
         // تفعيل التبويب المحدد
         document.getElementById(tabId).classList.add('active');
         document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        
+        // إذا كان تبويب التقارير، قم بتحديثها
+        if (tabId === 'reports') {
+            updateReports();
+        }
     }
     
-    // إضافة مستمعي الأحداث لأزرار التعديل والحذف
-    function attachEditDeleteListeners() {
-        // تعديل وحذف أعضاء
-        document.querySelectorAll('.editMember').forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                const newName = prompt('عدل اسم العضو:', members[index].name);
-                const newImage = prompt('عدل رابط الصورة (اتركه فارغاً إذا لا تريد تغييره):', members[index].image);
-                if (newName) {
-                    members[index].name = newName;
-                    if (newImage) members[index].image = newImage;
-                    showNotification('تم تعديل بيانات العضو بنجاح');
-                }
-            });
+    // تحديث إحصائيات الحضور
+    function updateAttendanceStats() {
+        const selectedWeekId = document.getElementById('weekSelect').value;
+        let count = 0;
+        
+        // حساب الحضور لهذا الأسبوع فقط
+        const weekAttendance = attendanceRecords.filter(ar => 
+            ar.weekId == selectedWeekId && ar.present
+        );
+        
+        count = weekAttendance.length;
+        
+        document.getElementById('attendanceCount').textContent = count;
+        document.getElementById('totalPoints').textContent = count;
+        updateChart();
+    }
+    
+    // تحديث التقارير
+    function updateReports() {
+        // الإحصائيات العامة
+        const totalAttendance = attendanceRecords.filter(ar => ar.present).length;
+        
+        document.getElementById('reportAttendance').textContent = totalAttendance;
+        document.getElementById('reportPoints').textContent = totalAttendance;
+        document.getElementById('reportMembers').textContent = members.length;
+        document.getElementById('reportWeeks').textContent = weeks.length;
+        
+        // الـ 10 الأوائل
+        updateTopMembers();
+    }
+    
+    // تحديث قائمة الـ 10 الأوائل
+    function updateTopMembers() {
+        // حساب النقاط لكل عضو
+        const memberPoints = members.map(member => {
+            const points = attendanceRecords.filter(ar => 
+                ar.memberId === member.id && ar.present
+            ).length;
+            return { name: member.name, points: points, image: member.image };
         });
         
-        document.querySelectorAll('.deleteMember').forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                if (confirm('هل تريد حذف العضو؟')) {
-                    members.splice(index, 1);
-                    showNotification('تم حذف العضو بنجاح');
-                }
-            });
-        });
+        // ترتيب تنازلي حسب النقاط
+        memberPoints.sort((a, b极速快3
+        // أخذ أول 10 فقط
+        const top10 = memberPoints.slice(0, 10);
         
-        // تعديل وحذف أسابيع
-        document.querySelectorAll('.editWeek').forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                const newName = prompt('عدل اسم الأسبوع:', weeks[index].name);
-                const newFrom = prompt('عدل تاريخ البداية:', weeks[index].from);
-                const newTo = prompt('عدل تاريخ النهاية:', weeks[index].to);
-                if (newName && newFrom && newTo) {
-                    weeks[index] = {...weeks[index], name: newName, from: newFrom, to: newTo};
-                    showNotification('تم تعديل بيانات الأسبوع بنجاح');
-                }
-            });
-        });
+        // عرض النتائج
+        const topMembersList = document.getElementById('topMembersList');
+        topMembersList.innerHTML = '';
         
-        document.querySelectorAll('.deleteWeek').forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                if (confirm('هل تريد حذف الأسبوع؟')) {
-                    weeks.splice(index, 1);
-                    showNotification('تم حذف الأسبوع بنجاح');
-                }
-            });
-        });
+        if (top10.length === 0) {
+            topMembersList.innerHTML = '<极速快3
+            return;
+        }
         
-        // حذف الحضور
-        document.querySelectorAll('.deleteAttendance').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
-                    showNotification('تم حذف تسجيل الحضور');
-                }
-            });
+        top10.forEach((member, index) => {
+            const item = document.createElement('div');
+            item.className = 'top-member-item';
+            
+            let medal = '';
+            if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+            else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+            else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
+            
+            item.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
+                    <div class="top-member-name">${medal} ${member.name}</div>
+                </div>
+                <div class="top-member-points">${member.points} نقطة</div>
+            `;
+            topMembersList.appendChild(item);
         });
     }
     
@@ -937,14 +1173,14 @@
         } else {
             // إضافة سجل جديد
             attendanceRecords.push({
-                memberId: memberId,
+                member极速快3
                 weekId: weekId,
                 present: true,
                 date: new Date().toISOString()
             });
             
+            saveData();
             showNotification('تم تسجيل الحضور بنجاح!', true);
-            updateAttendanceStats();
         }
     }
     
@@ -965,6 +1201,7 @@
             image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`
         });
         
+        saveData();
         showNotification('تم إضافة العضو بنجاح');
         
         // مسح الحقول
@@ -978,7 +1215,7 @@
         const from = document.getElementById('newWeekStart').value;
         const to = document.getElementById('newWeekEnd').value;
         
-        if (!name || !from || !to) {
+        if (!name || !from || !极速快3
             alert('املأ كل الحقول');
             return;
         }
@@ -986,12 +1223,22 @@
         const id = weeks.length ? Math.max(...weeks.map(w => w.id)) + 1 : 1;
         weeks.push({ id, name, from, to });
         
+        saveData();
         showNotification('تم إضافة الأسبوع بنجاح');
         
         // مسح الحقول
         document.getElementById('newWeekName').value = '';
         document.getElementById('newWeekStart').value = '';
         document.getElementById('newWeekEnd').value = '';
+    }
+    
+    // حذف تسجيل حضور محدد
+    function deleteAttendanceRecord(index) {
+        if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
+            attendanceRecords.splice(index, 1);
+            saveData();
+            showNotification('تم حذف تسجيل الحضور');
+        }
     }
     
     // حذف كل الحضور لأسبوع محدد
@@ -1005,6 +1252,7 @@
         
         if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
             attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
+            saveData();
             showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
         }
     }
@@ -1025,7 +1273,7 @@
         if (pwd === adminPass) {
             isAdmin = true;
             document.getElementById('adminLoginModal').style.display = 'none';
-            document.getElementById('adminSection').style.display = 'block';
+            document.getElementById('adminSection').极速快3
             document.getElementById('adminLoginBtn').style.display = 'none';
             showNotification('تم تسجيل الدخول كمسؤول');
         } else {
@@ -1041,22 +1289,6 @@
         showNotification('تم تسجيل الخروج');
     }
     
-    // تحديث إحصائيات الحضور
-    function updateAttendanceStats() {
-        const selectedWeekId = document.getElementById('weekSelect').value;
-        let count = 0;
-        
-        const weekAttendance = attendanceRecords.filter(ar => 
-            ar.weekId == selectedWeekId && ar.present
-        );
-        
-        count = weekAttendance.length;
-        
-        document.getElementById('attendanceCount').textContent = count;
-        document.getElementById('totalPoints').textContent = count;
-        updateChart();
-    }
-    
     // طباعة التقرير
     function printReport() {
         window.print();
@@ -1067,28 +1299,16 @@
         showNotification('تم تصدير البيانات إلى Excel');
     }
     
-    // عرض الإشعارات
-    function showNotification(message, isSuccess = true) {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-        notification.style.display = 'block';
-        
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
-    }
-    
     // الرسم البياني
     const ctx = document.getElementById('attendanceChart').getContext('2d');
     let chart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Mary Karam', 'Eman Makin', 'Rizk Gerges'],
+            labels: [],
             datasets: [{
                 label: 'الحضور',
-                data: [1, 0, 1],
-                backgroundColor: ['#3498db', '#2ecc71', '#f39c12']
+                data: [],
+                backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#f1c40f', '#d35400', '#7f8c8d']
             }]
         },
         options: {
@@ -1106,11 +1326,11 @@
                 }
             },
             scales: {
-                y: {
+                y极速快3
                     beginAtZero: true,
                     max: 1,
                     ticks: {
-                        stepSize: 1
+                        step极速快3
                     }
                 }
             }
@@ -1127,6 +1347,7 @@
             return record && record.present ? 1 : 0;
         });
         
+        chart.data.labels = members.map(m => m.name);
         chart.data.datasets[0].data = data;
         chart.update();
     }

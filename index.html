@@ -70,7 +70,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
             <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
         </div>
         <table>
-            <thead><tr><th>#</th><th>اسم العضو</th><th>الحضور</th><th>النقاط</th></tr></thead>
+            <thead><tr><th>#</th><th>اسم العضو</th><th>الأسبوع</th><th>الحضور</th><th>النقاط</th></tr></thead>
             <tbody id="attendanceTableBody"></tbody>
         </table>
         <div class="controls">
@@ -98,6 +98,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
         <div class="tabs">
             <div class="tab active" data-tab="members">إدارة الأعضاء</div>
             <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
+            <div class="tab" data-tab="attendance">إدارة الحضور</div>
             <div class="tab" data-tab="reports">التقارير</div>
         </div>
 
@@ -124,6 +125,19 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
             <table id="weeksTable">
                 <thead><tr><th>#</th><th>اسم الأسبوع</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead>
                 <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="tab-content" id="attendance">
+            <h2>إدارة تسجيلات الحضور</h2>
+            <div class="controls">
+                <label>اختر أسبوع: </label>
+                <select id="deleteWeekSelect"></select>
+                <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
+            </div>
+            <table id="attendanceTable">
+                <thead><tr><th>#</th><th>العضو</th><th>الأسبوع</th><th>تاريخ التسجيل</th><th>حذف</th></tr></thead>
+                <tbody id="attendanceRecordsBody"></tbody>
             </table>
         </div>
 
@@ -157,6 +171,7 @@ const database = firebase.database();
 // بيانات التطبيق
 let members = [];
 let weeks = [];
+let attendanceRecords = [];
 
 // وظائف Firebase
 function showLoading() {
@@ -176,10 +191,12 @@ function loadData() {
         if (data) {
             members = data.members || [];
             weeks = data.weeks || [];
+            attendanceRecords = data.attendanceRecords || [];
         } else {
             // البيانات الأولية إذا لم توجد بيانات
             members = [{id:1,name:'🧒 Mary Karam'},{id:2,name:'👦 Eman Makin'},{id:3,name:'👧 Rizk Gerges'}];
             weeks = [{id:1,name:'الاسبوع الاول',from:'2025-08-29',to:'2025-08-29'}];
+            attendanceRecords = [];
             saveData();
         }
         populateData();
@@ -196,7 +213,8 @@ function saveData() {
     const dataRef = database.ref('angelsAttendance');
     dataRef.set({
         members: members,
-        weeks: weeks
+        weeks: weeks,
+        attendanceRecords: attendanceRecords
     }).then(() => {
         hideLoading();
     }).catch((error) => {
@@ -216,22 +234,54 @@ function populateData(){
     weekSelect.innerHTML='';
     weeks.forEach(w=>{let o=document.createElement('option'); o.value=w.id; o.textContent=w.name; weekSelect.appendChild(o);});
 
-    const tbody=document.getElementById('attendanceTableBody'); tbody.innerHTML='';
+    // تعبئة قائمة الأسابيع في إدارة الحضور
+    const deleteWeekSelect=document.getElementById('deleteWeekSelect');
+    deleteWeekSelect.innerHTML='';
+    weeks.forEach(w=>{let o=document.createElement('option'); o.value=w.id; o.textContent=w.name; deleteWeekSelect.appendChild(o);});
+
+    const tbody=document.getElementById('attendanceTableBody'); 
+    tbody.innerHTML='';
+    
+    const selectedWeekId = document.getElementById('weekSelect').value;
+    const selectedWeek = weeks.find(w => w.id == selectedWeekId);
+    
     members.forEach((m,i)=>{
-        let tr=document.createElement('tr'); tr.dataset.member=m.id;
-        tr.innerHTML=`<td>${i+1}</td><td>${m.name}</td><td><input type="checkbox" class="attendance-check"></td><td class="points">0</td>`;
+        // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
+        const attendanceRecord = attendanceRecords.find(ar => 
+            ar.memberId === m.id && ar.weekId == selectedWeekId
+        );
+        
+        const isPresent = attendanceRecord ? attendanceRecord.present : false;
+        
+        let tr=document.createElement('tr'); 
+        tr.dataset.member=m.id;
+        tr.innerHTML=`
+            <td>${i+1}</td>
+            <td>${m.name}</td>
+            <td>${selectedWeek ? selectedWeek.name : ''}</td>
+            <td class="attendance-value">${isPresent ? '1' : '0'}</td>
+            <td class="points">${isPresent ? '1' : '0'}</td>
+        `;
         tbody.appendChild(tr);
     });
+    
     document.getElementById('totalMembers').textContent=members.length;
+    updateAttendanceStats();
     populateAdminTables();
+    populateAttendanceRecords(); // تحديث سجلات الحضور
 }
 
 function populateAdminTables(){
     const membersTbody=document.querySelector('#membersTable tbody');
     membersTbody.innerHTML='';
     members.forEach((m,i)=>{
+        // حساب النقاط الإجمالية لكل عضو
+        const totalPoints = attendanceRecords.filter(ar => 
+            ar.memberId === m.id && ar.present
+        ).length;
+        
         let tr=document.createElement('tr');
-        tr.innerHTML=`<td>${i+1}</td><td>${m.name}</td><td>0</td><td><button class='btn btn-primary editMember'>تعديل</button></td><td><button class='btn btn-danger deleteMember'>حذف</button></td>`;
+        tr.innerHTML=`<td>${i+1}</td><td>${m.name}</td><td>${totalPoints}</td><td><button class='btn btn-primary editMember'>تعديل</button></td><td><button class='btn btn-danger deleteMember'>حذف</button></td>`;
         membersTbody.appendChild(tr);
     });
     const weeksTbody=document.querySelector('#weeksTable tbody');
@@ -243,13 +293,42 @@ function populateAdminTables(){
     });
 }
 
+// عرض سجلات الحضور
+function populateAttendanceRecords() {
+    const tbody = document.querySelector('#attendanceRecordsBody');
+    tbody.innerHTML = '';
+    
+    attendanceRecords.forEach((record, index) => {
+        const member = members.find(m => m.id === record.memberId);
+        const week = weeks.find(w => w.id == record.weekId);
+        
+        if (member && week) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${member.name}</td>
+                <td>${week.name}</td>
+                <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
+                <td><button class='btn btn-danger deleteAttendance' data-index='${index}'>حذف</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    });
+}
+
 function updateAttendanceStats(){
+    const selectedWeekId = document.getElementById('weekSelect').value;
     let count=0;
     let totalPoints=0;
-    document.querySelectorAll('.attendance-check').forEach(cb=>{
-        const pointsTd=cb.closest('tr').querySelector('.points');
-        if(cb.checked){pointsTd.textContent='1'; count++; totalPoints+=1;} else pointsTd.textContent='0';
-    });
+    
+    // حساب الحضور لهذا الأسبوع فقط
+    const weekAttendance = attendanceRecords.filter(ar => 
+        ar.weekId == selectedWeekId && ar.present
+    );
+    
+    count = weekAttendance.length;
+    totalPoints = count;
+    
     document.getElementById('attendanceCount').textContent=count;
     document.getElementById('totalPoints').textContent=totalPoints;
     document.getElementById('reportAttendance').textContent=count;
@@ -273,6 +352,66 @@ function addWeek(name,from,to){
     populateData();
 }
 
+// تسجيل الحضور للعضو المحدد
+function markAttendance() {
+    const memberId = parseInt(document.getElementById('selectMember').value);
+    const weekId = parseInt(document.getElementById('weekSelect').value);
+    
+    if (!memberId || !weekId) {
+        alert('يجب اختيار العضو والأسبوع أولاً');
+        return;
+    }
+    
+    const index = attendanceRecords.findIndex(ar => 
+        ar.memberId === memberId && ar.weekId == weekId
+    );
+    
+    if (index !== -1) {
+        // إذا كان موجوداً بالفعل، لا نفعل شيئاً (لا نسمح بالتسجيل المتكرر)
+        alert('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع');
+    } else {
+        // إضافة سجل جديد
+        attendanceRecords.push({
+            memberId: memberId,
+            weekId: weekId,
+            present: true,
+            date: new Date().toISOString()
+        });
+        
+        saveData();
+        populateData();
+        alert('تم تسجيل الحضور بنجاح!');
+    }
+}
+
+// حذف تسجيل حضور محدد
+function deleteAttendanceRecord(index) {
+    if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
+        attendanceRecords.splice(index, 1);
+        saveData();
+        populateAttendanceRecords();
+        populateData(); // تحديث الجدول الرئيسي
+    }
+}
+
+// حذف كل الحضور لأسبوع محدد
+function deleteAllWeekAttendance() {
+    const weekId = parseInt(document.getElementById('deleteWeekSelect').value);
+    
+    if (!weekId) {
+        alert('يجب اختيار أسبوع أولاً');
+        return;
+    }
+    
+    if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
+        attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
+        saveData();
+        populateAttendanceRecords();
+        populateData(); // تحديث الجدول الرئيسي
+        alert('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
+    }
+}
+
 // تبويبات الأدمن
 document.querySelectorAll('#adminTabs .tab').forEach(tab=>{
     tab.addEventListener('click',()=>{
@@ -280,6 +419,11 @@ document.querySelectorAll('#adminTabs .tab').forEach(tab=>{
         document.querySelectorAll('#adminTabs .tab-content').forEach(c=>c.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById(tab.dataset.tab).classList.add('active');
+        
+        // إذا كان تبويب إدارة الحضور، قم بتحديث البيانات
+        if (tab.dataset.tab === 'attendance') {
+            populateAttendanceRecords();
+        }
     });
 });
 
@@ -307,7 +451,13 @@ document.addEventListener('click',e=>{
     if(e.target.classList.contains('deleteMember')){
         if(confirm('هل تريد حذف العضو؟')){
             const tr=e.target.closest('tr'); const idx=tr.rowIndex-1;
-            members.splice(idx,1); saveData(); populateData();
+            
+            // حذف سجلات الحضور الخاصة بهذا العضو أولاً
+            attendanceRecords = attendanceRecords.filter(ar => ar.memberId !== members[idx].id);
+            
+            members.splice(idx,1); 
+            saveData(); 
+            populateData();
         }
     }
     if(e.target.classList.contains('editWeek')){
@@ -320,8 +470,20 @@ document.addEventListener('click',e=>{
     if(e.target.classList.contains('deleteWeek')){
         if(confirm('هل تريد حذف الأسبوع؟')){
             const tr=e.target.closest('tr'); const idx=tr.rowIndex-1;
-            weeks.splice(idx,1); saveData(); populateData();
+            
+            // حذف سجلات الحضور الخاصة بهذا الأسبوع أولاً
+            attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weeks[idx].id);
+            
+            weeks.splice(idx,1); 
+            saveData(); 
+            populateData();
         }
+    }
+    
+    // النقر على أزرار حذف الحضور
+    if(e.target.classList.contains('deleteAttendance')){
+        const index = parseInt(e.target.dataset.index);
+        deleteAttendanceRecord(index);
     }
 });
 
@@ -329,13 +491,24 @@ document.addEventListener('click',e=>{
 const ctx=document.getElementById('attendanceChart').getContext('2d');
 let chart=new Chart(ctx,{type:'bar',data:{labels:members.map(m=>m.name),datasets:[{label:'الحضور',data:Array(members.length).fill(0),backgroundColor:['#3498db','#2ecc71','#f39c12']}]},options:{responsive:true,plugins:{legend:{display:false}}}});
 function updateChart(){
+    const selectedWeekId = document.getElementById('weekSelect').value;
+    
+    const data = members.map(member => {
+        const record = attendanceRecords.find(ar => 
+            ar.memberId === member.id && ar.weekId == selectedWeekId
+        );
+        return record && record.present ? 1 : 0;
+    });
+    
     chart.data.labels=members.map(m=>m.name);
-    chart.data.datasets[0].data=Array.from(document.querySelectorAll('.attendance-check')).map(cb=>cb.checked?1:0);
+    chart.data.datasets[0].data=data;
     chart.update();
 }
 
 // أحداث الأزرار
-document.getElementById('markPresent').addEventListener('click',updateAttendanceStats);
+document.getElementById('markPresent').addEventListener('click', markAttendance);
+document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
+
 document.getElementById('addMemberBtn').addEventListener('click',()=>{
     const name=document.getElementById('newMemberName').value;
     if(!name){alert('ادخل اسم العضو');return;}
@@ -349,6 +522,9 @@ document.getElementById('addWeekBtn').addEventListener('click',()=>{
     addWeek(name,from,to);
     document.getElementById('newWeekName').value=''; document.getElementById('newWeekStart').value=''; document.getElementById('newWeekEnd').value='';
 });
+
+// تحديث البيانات عند تغيير الأسبوع
+document.getElementById('weekSelect').addEventListener('change', populateData);
 
 // تحميل البيانات عند بدء التشغيل
 loadData();

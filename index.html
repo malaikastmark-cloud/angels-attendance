@@ -6,10 +6,6 @@
     <title>اجتماع خدام ملايكة - لوحة التحكم</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -19,65 +15,72 @@
         }
         
         body {
-            background: linear-gradient(135deg, #fceabb, #f8b500);
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             min-height: 100vh;
             padding: 20px;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 1000px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 20px;
             overflow: hidden;
         }
         
         header {
-            background: #3498db;
+            background: linear-gradient(to right, #3498db, #2c3e50);
             color: white;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 12px;
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
         
         header::before {
             content: "🧚‍♂️";
             position: absolute;
-            left: 10px;
-            top: 10px;
-            font-size: 1.5rem;
+            left: 20px;
+            top: 20px;
+            font-size: 2rem;
         }
         
         header::after {
             content: "✨";
             position: absolute;
-            right: 10px;
-            top: 10px;
-            font-size: 1.5rem;
+            right: 20px;
+            top: 20px;
+            font-size: 2rem;
         }
         
         h1 {
-            font-size: 2rem;
-            margin-bottom: 5px;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
         
         .subtitle {
-            font-size: 1rem;
+            font-size: 1.1rem;
             opacity: 0.9;
+            margin-top: 5px;
         }
         
         .tab-content {
             display: none;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            margin-top: 10px;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            margin-top: 15px;
             background: #fff;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         }
         
         .tab-content.active {
@@ -86,43 +89,45 @@
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 20px;
             background: #fff;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
         
         th, td {
-            padding: 12px;
+            padding: 15px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eaeaea;
         }
         
         th {
-            background: #3498db;
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
+            font-weight: 600;
         }
         
         tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #f9fafb;
         }
         
         tr:hover {
-            background: #f1f1f1;
+            background: #f1f3f5;
+            transition: background 0.2s;
         }
         
         .btn {
-            padding: 10px 15px;
+            padding: 12px 18px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             margin: 5px;
@@ -130,75 +135,90 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         .btn i {
-            margin-left: 5px;
+            margin-left: 8px;
         }
         
         .btn-primary {
-            background: #2ecc71;
+            background: linear-gradient(to right, #2ecc71, #27ae60);
             color: white;
         }
         
         .btn-primary:hover {
-            background: #27ae60;
+            background: linear-gradient(to right, #27ae60, #219653);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .btn-success {
-            background: #3498db;
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
         }
         
         .btn-success:hover {
-            background: #2980b9;
+            background: linear-gradient(to right, #2980b9, #1c6ea4);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .btn-danger {
-            background: #e74c3c;
+            background: linear-gradient(to right, #e74c3c, #c0392b);
             color: white;
         }
         
         .btn-danger:hover {
-            background: #c0392b;
+            background: linear-gradient(to right, #c0392b, #a23526);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .btn-warning {
-            background: #f39c12;
+            background: linear-gradient(to right, #f39c12, #e67e22);
             color: white;
         }
         
         .btn-warning:hover {
-            background: #e67e22;
+            background: linear-gradient(to right, #e67e22, #d35400);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .btn-info {
-            background: #9b59b6;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
             color: white;
         }
         
         .btn-info:hover {
-            background: #8e44ad;
+            background: linear-gradient(to right, #8e44ad, #7d3c98);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .controls {
-            margin: 15px 0;
+            margin: 20px 0;
             display: flex;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
             align-items: center;
         }
         
         select, input {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            min-width: 150px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dcdcdc;
+            min-width: 180px;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: border 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         
         .modal {
@@ -208,7 +228,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -216,88 +236,92 @@
         
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 400px;
+            padding: 25px;
+            border-radius: 12px;
+            width: 450px;
             max-width: 90%;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
         
         .tabs {
             display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
+            gap: 8px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
         }
         
         .tabs .tab {
-            padding: 10px 15px;
+            padding: 12px 20px;
             cursor: pointer;
-            border-radius: 5px;
-            background: #f0f0f0;
+            border-radius: 8px;
+            background: #f0f2f5;
             transition: all 0.3s;
             font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
         }
         
         .tabs .tab.active {
-            background: #3498db;
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
         }
         
         .tabs .tab:hover {
-            background: #ddd;
+            background: #e0e6ec;
         }
         
         .summary-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 15px;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             margin: 10px;
             flex: 1;
-            min-width: 200px;
-            transition: transform 0.3s;
+            min-width: 220px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eaeaea;
         }
         
         .summary-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
         
         .summary-card h3 {
-            color: #3498db;
-            margin-bottom: 10px;
+            color: #2c3e50;
+            margin-bottom: 15px;
             font-size: 1.2rem;
         }
         
         .summary-value {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: bold;
             color: #2ecc71;
-            margin: 10px 0;
+            margin: 15px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .summary-subtitle {
             color: #7f8c8d;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
         
         .card-container {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
-            margin-top: 15px;
+            margin-top: 20px;
         }
         
         .loading {
             display: none;
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 0;
         }
         
         .loading-spinner {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border: 4px solid #f3f3f3;
             border-top: 4px solid #3498db;
             border-radius: 50%;
@@ -307,46 +331,56 @@
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+           100% { transform: rotate(360deg); }
         }
         
         .medal {
-            font-size: 1.5rem;
-            margin-left: 5px;
+            font-size: 1.8rem;
+            margin-left: 8px;
         }
         
         .medal-gold {
             color: gold;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
         }
         
         .medal-silver {
             color: silver;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
         }
         
         .medal-bronze {
             color: #cd7f32;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
         }
         
         .top-members-list {
-            margin-top: 20px;
+            margin-top: 25px;
             background: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
         }
         
         .top-members-list h3 {
             color: #3498db;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: center;
+            font-size: 1.4rem;
         }
         
         .top-member-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
+            padding: 15px;
             border-bottom: 1px solid #eee;
             align-items: center;
+            transition: background 0.2s;
+        }
+        
+        .top-member-item:hover {
+            background: #f8f9fa;
         }
         
         .top-member-item:last-child {
@@ -355,39 +389,43 @@
         
         .top-member-name {
             font-weight: bold;
+            font-size: 1.1rem;
         }
         
         .top-member-points {
-            background: #3498db;
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
+            padding: 8px 15px;
+            border-radius: 20px;
             font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         .report-section {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
         
         .report-section h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #3498db;
+            font-size: 1.3rem;
         }
         
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 25px;
+            right: 25px;
             background: #2ecc71;
             color: white;
-            padding: 15px;
-            border-radius: 5px;
+            padding: 18px;
+            border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: none;
             animation: slideIn 0.5s;
+            max-width: 350px;
         }
         
         @keyframes slideIn {
@@ -396,71 +434,108 @@
         }
         
         .member-img {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #3498db;
+            border: 3px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         .reward-badge {
-            background: gold;
+            background: linear-gradient(to right, gold, #ffd700);
             color: #333;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-left: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-left: 8px;
             font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         
         .export-buttons {
             display: flex;
-            gap: 10px;
-            margin: 15px 0;
+            gap: 15px;
+            margin: 20px 0;
             flex-wrap: wrap;
         }
         
         .member-stats {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 15px;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eaeaea;
         }
         
         .member-stat-item {
             background: #fff;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
             flex: 1;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #eaeaea;
         }
         
         .member-stat-value {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #3498db;
+            margin-bottom: 5px;
         }
         
         .member-stat-label {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #7f8c8d;
         }
         
         .mobile-menu {
             display: none;
             width: 100%;
-            padding: 10px;
-            background: #3498db;
+            padding: 15px;
+            background: linear-gradient(to right, #3498db, #2980b9);
             color: white;
             border: none;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
             text-align: center;
             font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #2ecc71;
+        }
+        
+        .status-offline {
+            background: #e74c3c;
+        }
+        
+        .admin-only {
+            display: none;
+        }
+        
+        .admin-logged-in .admin-only {
+            display: block;
+        }
+        
+        .admin-logged-in .admin-hide {
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -498,362 +573,544 @@
             .member-stats {
                 flex-direction: column;
             }
+            
+            header::before, header::after {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="mainContainer">
         <header>
             <h1>🌟 اجتماع خدام ملايكة</h1>
             <p class="subtitle">لوحة التحكم - إدارة الحضور والنقاط</p>
+            <p class="subtitle"><span class="status-indicator status-online"></span> متصل بالنظام</p>
         </header>
 
-        <button class="mobile-menu" id="mobileMenu">
-            <i class="fas fa-bars"></i> عرض القوائم
-        </button>
-
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <p>جاري تحميل البيانات...</p>
-        </div>
-
-        <div class="notification" id="notification"></div>
-
-        <div class="tabs" id="mainTabs">
-            <div class="tab active" data-tab="userAttendance">الحضور</div>
-            <div class="tab" data-tab="members">إدارة الأعضاء</div>
-            <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
-            <div class="tab" data-tab="attendance">سجلات الحضور</div>
-            <div class="tab" data-tab="reports">التقارير</div>
-            <div class="tab" data-tab="rewards">المكافآت</div>
-        </div>
-
-        <div class="tab-content active" id="userAttendance">
-            <h2>تسجيل الحضور</h2>
-            <div class="controls">
-                <label>اختر اسمك: </label>
-                <select id="selectMember"></select>
-                <label>اختر الأسبوع: </label>
-                <select id="weekSelect"></select>
-            </div>
-            <div class="controls">
-                <button class="btn btn-primary" id="markPresent">
-                    <i class="fas fa-check-circle"></i> تسجيل الحضور
-                </button>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>الصورة</th>
-                        <th>اسم العضو</th>
-                        <th>الأسبوع</th>
-                        <th>الحضور</th>
-                        <th>النقاط</th>
-                    </tr>
-                </thead>
-                <tbody id="attendanceTableBody"></tbody>
-            </table>
-            <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
-                <span>النقاط: <span id="totalPoints">0</span></span>
+        <div class="admin-hide" id="loginSection">
+            <div style="text-align: center; padding: 30px;">
+                <h2>تسجيل دخول الأدمن</h2>
+                <div style="max-width: 400px; margin: 0 auto;">
+                    <input type="password" id="adminPassword" placeholder="كلمة السر" style="width: 100%; margin: 15px 0; padding: 12px;">
+                    <button class="btn btn-success" id="adminLoginBtn" style="width: 100%;">
+                        <i class="fas fa-lock"></i> تسجيل الدخول
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="tab-content" id="members">
-            <h2>إدارة الأعضاء</h2>
-            <div class="controls">
-                <input type="text" id="newMemberName" placeholder="اسم العضو">
-                <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
-                <button class="btn btn-primary" id="addMemberBtn">
-                    <i class="fas fa-plus"></i> إضافة عضو
-                </button>
-            </div>
-            <table id="membersTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>الصورة</th>
-                        <th>اسم العضو</th>
-                        <th>النقاط</th>
-                        <th>المكافآت</th>
-                        <th>تعديل</th>
-                        <th>حذف</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <div class="admin-only">
+            <button class="mobile-menu" id="mobileMenu">
+                <i class="fas fa-bars"></i> عرض القوائم
+            </button>
 
-        <div class="tab-content" id="weeks">
-            <h2>إدارة الأسابيع</h2>
-            <div class="controls">
-                <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-                <input type="date" id="newWeekStart">
-                <input type="date" id="newWeekEnd">
-                <button class="btn btn-primary" id="addWeekBtn">
-                    <i class="fas fa-plus"></i> إضافة أسبوع
-                </button>
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>جاري تحميل البيانات...</p>
             </div>
-            <table id="weeksTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>اسم الأسبوع</th>
-                        <th>من</th>
-                        <th>إلى</th>
-                        <th>تعديل</th>
-                        <th>حذف</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
 
-        <div class="tab-content" id="attendance">
-            <h2>إدارة تسجيلات الحضور</h2>
-            <div class="controls">
-                <label>اختر أسبوع: </label>
-                <select id="deleteWeekSelect"></select>
-                <button class="btn btn-danger" id="deleteAttendanceBtn">
-                    <i class="fas fa-trash"></i> حذف كل حضور هذا الأسبوع
-                </button>
-            </div>
-            <table id="attendanceTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>العضو</th>
-                        <th>الأسبوع</th>
-                        <th>تاريخ التسجيل</th>
-                        <th>حذف</th>
-                    </tr>
-                </thead>
-                <tbody id="attendanceRecordsBody"></tbody>
-            </table>
-        </div>
+            <div class="notification" id="notification"></div>
 
-        <div class="tab-content" id="reports">
-            <h2>التقارير والإحصائيات</h2>
-            
-            <div class="export-buttons">
-                <button class="btn btn-info" id="printReportBtn">
-                    <i class="fas fa-print"></i> طباعة التقرير
-                </button>
-                <button class="btn btn-success" id="exportExcelBtn">
-                    <i class="fas fa-file-excel"></i> تصدير لإكسل
-                </button>
-                <button class="btn btn-primary" id="exportPDFBtn">
-                    <i class="fas fa-file-pdf"></i> تصدير لPDF
-                </button>
+            <div class="tabs" id="mainTabs">
+                <div class="tab active" data-tab="userAttendance">الحضور</div>
+                <div class="tab" data-tab="members">إدارة الأعضاء</div>
+                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
+                <div class="tab" data-tab="attendance">سجلات الحضور</div>
+                <div class="tab" data-tab="reports">التقارير</div>
+                <div class="tab" data-tab="rewards">المكافآت</div>
             </div>
-            
-            <div class="report-section">
-                <h3>📊 إحصائيات عامة</h3>
-                <div class="card-container">
-                    <div class="summary-card">
-                        <h3>إجمالي الحضور</h3>
-                        <div class="summary-value" id="reportAttendance">0</div>
-                        <div class="summary-subtitle">حضور جميع الأسابيع</div>
-                    </div>
-                    <div class="summary-card">
-                        <h3>النقاط الممنوحة</h3>
-                        <div class="summary-value" id="reportPoints">0</div>
-                        <div class="summary-subtitle">مجموع النقاط</div>
-                    </div>
-                    <div class="summary-card">
-                        <h3>عدد الأعضاء</h3>
-                        <div class="summary-value" id="reportMembers">0</div>
-                        <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
-                    </div>
-                    <div class="summary-card">
-                        <h3>عدد الأسابيع</h3>
-                        <div class="summary-value" id="reportWeeks">0</div>
-                        <div class="summary-subtitle">إجمالي الأسابيع</div>
-                    </div>
+
+            <div class="tab-content active" id="userAttendance">
+                <h2>تسجيل الحضور</h2>
+                <div class="controls">
+                    <label>اختر اسمك: </label>
+                    <select id="selectMember">
+                        <option value="1">🧒 Mary Karam</option>
+                        <option value="2">👦 Eman Makin</option>
+                        <option value="3">👧 Rizk Gerges</option>
+                    </select>
+                    <label>اختر الأسبوع: </label>
+                    <select id="weekSelect">
+                        <option value="1">الاسبوع الاول</option>
+                        <option value="2">الاسبوع الثاني</option>
+                    </select>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" id="markPresent">
+                        <i class="fas fa-check-circle"></i> تسجيل الحضور
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الصورة</th>
+                            <th>اسم العضو</th>
+                            <th>الأسبوع</th>
+                            <th>الحضور</th>
+                            <th>النقاط</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <tr>
+                            <td>1</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
+                            <td>🧒 Mary Karam</td>
+                            <td>الاسبوع الاول</td>
+                            <td class="attendance-value">1</td>
+                            <td class="points">1</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
+                            <td>👦 Eman Makin</td>
+                            <td>الاسبوع الاول</td>
+                            <td class="attendance-value">0</td>
+                            <td class="points">0</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
+                            <td>👧 Rizk Gerges</td>
+                            <td>الاسبوع الاول</td>
+                            <td class="attendance-value">1</td>
+                            <td class="points">1</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="controls">
+                    <span>الحضور هذا الأسبوع: <span id="attendanceCount">2</span>/<span id="totalMembers">3</span></span>
+                    <span>النقاط: <span id="totalPoints">2</span></span>
                 </div>
             </div>
 
-            <div class="report-section">
-                <h3>🏆 الـ 10 الأوائل في الحضور</h3>
-                <div class="top-members-list" id="topMembersList">
-                    <p>جاري تحميل البيانات...</p>
+            <div class="tab-content" id="members">
+                <h2>إدارة الأعضاء</h2>
+                <div class="controls">
+                    <input type="text" id="newMemberName" placeholder="اسم العضو">
+                    <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
+                    <button class="btn btn-primary" id="addMemberBtn">
+                        <i class="fas fa-plus"></i> إضافة عضو
+                    </button>
                 </div>
+                <table id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الصورة</th>
+                            <th>اسم العضو</th>
+                            <th>النقاط</th>
+                            <th>المكافآت</th>
+                            <th>تعديل</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
+                            <td>🧒 Mary Karam</td>
+                            <td>5</td>
+                            <td>ميدالية ذهبية 🥇</td>
+                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
+                            <td>👦 Eman Makin</td>
+                            <td>3</td>
+                            <td>ميدالية برونزية 🥉</td>
+                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
+                            <td>👧 Rizk Gerges</td>
+                            <td>4</td>
+                            <td>ميدالية فضية 🥈</td>
+                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="report-section">
-                <h3>📈 نسبة الحضور للأسبوع الحالي</h3>
-                <canvas id="attendanceChart" style="margin-top:20px;max-height:300px;"></canvas>
+            <div class="tab-content" id="weeks">
+                <h2>إدارة الأسابيع</h2>
+                <div class="controls">
+                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                    <input type="date" id="newWeekStart">
+                    <input type="date" id="newWeekEnd">
+                    <button class="btn btn-primary" id="addWeekBtn">
+                        <i class="fas fa-plus"></i> إضافة أسبوع
+                    </button>
+                </div>
+                <table id="weeksTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم الأسبوع</th>
+                            <th>من</th>
+                            <th>إلى</th>
+                            <th>تعديل</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>الاسبوع الاول</td>
+                            <td>2023-08-01</td>
+                            <td>2023-08-07</td>
+                            <td><button class='btn btn-primary editWeek'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>الاسبوع الثاني</td>
+                            <td>2023-08-08</td>
+                            <td>2023-08-14</td>
+                            <td><button class='btn btn-primary editWeek'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
+                        </tr>
+                    </tbody>
+            </table>
             </div>
 
-            <div class="report-section">
-                <h3>👥 إحصائيات الأعضاء</h3>
-                <div id="membersStatsContainer"></div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="rewards">
-            <h2>نظام المكافآت</h2>
-            <div class="controls">
-                <label>اختر العضو: </label>
-                <select id="rewardMemberSelect"></select>
-                <input type="text" id="rewardTitle" placeholder="عنوان المكافأة">
-                <input type="number" id="rewardPoints" placeholder="النقاط الممنوحة">
-                <button class="btn btn-primary" id="addRewardBtn">
-                    <i class="fas fa-gift"></i> منح مكافأة
-                </button>
-            </div>
-            
-            <div class="report-section">
-                <h3>🎁 المكافآت الممنوحة</h3>
-                <table id="rewardsTable">
+            <div class="tab-content" id="attendance">
+                <h2>إدارة تسجيلات الحضور</h2>
+                <div class="controls">
+                    <label>اختر أسبوع: </label>
+                    <select id="deleteWeekSelect">
+                        <option value="1">الاسبوع الاول</option>
+                        <option value="2">الاسبوع الثاني</option>
+                    </select>
+                    <button class="btn btn-danger" id="deleteAttendanceBtn">
+                        <i class="fas fa-trash"></i> حذف كل حضور هذا الأسبوع
+                    </button>
+                </div>
+                <table id="attendanceTable">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>العضو</th>
-                            <th>المكافأة</th>
-                            <th>النقاط</th>
-                            <th>التاريخ</th>
+                            <th>الأسبوع</th>
+                            <th>تاريخ التسجيل</th>
                             <th>حذف</th>
                         </tr>
                     </thead>
-                    <tbody id="rewardsTableBody"></tbody>
+                    <tbody id="attendanceRecordsBody">
+                        <tr>
+                            <td>1</td>
+                            <td>Mary Karam</td>
+                            <td>الاسبوع الاول</td>
+                            <td>٢٩‏/٨‏/٢٠٢٣, ١٠:٣٠:٠٨ ص</td>
+                            <td><button class='btn btn-danger deleteAttendance'>حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Rizk Gerges</td>
+                            <td>الاسبوع الاول</td>
+                            <td>٢٩‏/٨‏/٢٠٢٣, ٠٩:١٥:٢٢ ص</td>
+                            <td><button class='btn btn-danger deleteAttendance'>حذف</button></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
-        </div>
 
-        <div class="controls" style="margin-top:20px;">
-            <button class="btn btn-success" id="adminLoginBtn">
-                <i class="fas fa-lock"></i> تسجيل دخول الأدمن
-            </button>
-            <button class="btn btn-warning" id="resetDataBtn" style="display:none;">
-                <i class="fas fa-trash"></i> مسح جميع البيانات
-            </button>
-        </div>
-
-        <div class="modal" id="adminLoginModal">
-            <div class="modal-content">
-                <h2>تسجيل دخول الأدمن</h2>
-                <input type="password" id="adminPassword" placeholder="كلمة السر">
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
-                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
+            <div class="tab-content" id="reports">
+                <h2>التقارير والإحصائيات</h2>
+                
+                <div class="export-buttons">
+                    <button class="btn btn-info" id="printReportBtn">
+                        <i class="fas fa-print"></i> طباعة التقرير
+                    </button>
+                    <button class="btn btn-success" id="exportExcelBtn">
+                        <i class="fas fa-file-excel"></i> تصدير لإكسل
+                    </button>
+                    <button class="btn btn-primary" id="exportPDFBtn">
+                        <i class="fas fa-file-pdf"></i> تصدير لPDF
+                    </button>
                 </div>
+                
+                <div class="report-section">
+                    <h3>📊 إحصائيات عامة</h3>
+                    <div class="card-container">
+                        <div class="summary-card">
+                            <h3>إجمالي الحضور</h3>
+                            <div class="summary-value" id="reportAttendance">12</div>
+                            <div class="summary-subtitle">حضور جميع الأسابيع</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>النقاط الممنوحة</h3>
+                            <div class="summary-value" id="reportPoints">12</div>
+                            <div class="summary-subtitle">مجموع النقاط</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>عدد الأعضاء</h3>
+                            <div class="summary-value" id="reportMembers">3</div>
+                            <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>عدد الأسابيع</h3>
+                            <div class="summary-value" id="reportWeeks">2</div>
+                            <div class="summary-subtitle">إجمالي الأسابيع</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>🏆 الـ 10 الأوائل في الحضور</h3>
+                    <div class="top-members-list" id="topMembersList">
+                        <div class="top-member-item">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam">
+                                <div class="top-member-name"><span class="medal medal-gold">🥇</span> Mary Karam</div>
+                            </div>
+                            <div class="top-member-points">5 نقطة</div>
+                        </div>
+                        <div class="top-member-item">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges">
+                                <div class="top-member-name"><span class="medal medal-silver">🥈</span> Rizk Gerges</div>
+                            </div>
+                            <div class="top-member-points">4 نقطة</div>
+                        </div>
+                        <div class="top-member-item">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin">
+                                <div class="top-member-name"><span class="medal medal-bronze">🥉</span> Eman Makin</div>
+                            </div>
+                            <div class="top-member-points">3 نقطة</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>📈 نسبة الحضور للأسبوع الحالي</h3>
+                    <canvas id="attendanceChart" style="margin-top:20px;max-height:300px;"></canvas>
+                </div>
+
+                <div class="report-section">
+                    <h3>👥 إحصائيات الأعضاء</h3>
+                    <div id="membersStatsContainer">
+                        <div class="member-stats">
+                            <img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam">
+                            <div style="flex:1">
+                                <h4>Mary Karam</h4>
+                                <div style="display:flex;gap:10px;margin-top:5px;">
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">5</div>
+                                        <div class="member-stat-label">حضور</div>
+                                    </div>
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">83%</div>
+                                        <div class="member-stat-label">نسبة</div>
+                                    </div>
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">5</div>
+                                        <div class="member-stat-label">نقاط</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="member-stats">
+                            <img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges">
+                            <div style="flex:1">
+                                <h4>Rizk Gerges</h4>
+                                <div style="display:flex;gap:10px;margin-top:5px;">
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">4</div>
+                                        <div class="member-stat-label">حضور</div>
+                                    </div>
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">67%</div>
+                                        <div class="member-stat-label">نسبة</div>
+                                    </div>
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">4</div>
+                                        <div class="member-stat-label">نقاط</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="member-stats">
+                            <img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin">
+                            <div style="flex:1">
+                                <h4>Eman Makin</h4>
+                                <div style="display:flex;gap:10px;margin-top:5px;">
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">3</div>
+                                        <div class="member-stat-label">حضور</div>
+                                    </div>
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">50%</div>
+                                        <div class="member-stat-label">نسبة</div>
+                                    </div>
+                                    <div class="member-stat-item">
+                                        <div class="member-stat-value">3</div>
+                                        <div class="member-stat-label">نقاط</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="rewards">
+                <h2>نظام المكافآت</h2>
+                <div class="controls">
+                    <label>اختر العضو: </label>
+                    <select id="rewardMemberSelect">
+                        <option value="1">Mary Karam</option>
+                        <option value="2">Eman Makin</option>
+                        <option value="3">Rizk Gerges</option>
+                    </select>
+                    <input type="text" id="rewardTitle" placeholder="عنوان المكافأة">
+                    <input type="number" id="rewardPoints" placeholder="النقاط الممنوحة">
+                    <button class="btn btn-primary" id="addRewardBtn">
+                        <i class="fas fa-gift"></i> منح مكافأة
+                    </button>
+                </div>
+                
+                <div class="report-section">
+                    <h3>🎁 المكافآت الممنوحة</h3>
+                    <table id="rewardsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>العضو</th>
+                                <th>المكافأة</th>
+                                <th>النقاط</th>
+                                <th>التاريخ</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rewardsTableBody">
+                            <tr>
+                                <td>1</td>
+                                <td>Mary Karam</td>
+                                <td>ميدالية ذهبية</td>
+                                <td>5</td>
+                                <td>٢٧‏/٨‏/٢٠٢٣</td>
+                                <td><button class='btn btn-danger deleteReward'>حذف</button></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Rizk Gerges</td>
+                                <td>ميدالية فضية</td>
+                                <td>4</td>
+                                <td>٢٠‏/٨‏/٢٠٢٣</td>
+                                <td><button class='btn btn-danger deleteReward'>حذف</button></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Eman Makin</td>
+                                <td>ميدالية برونزية</td>
+                                <td>3</td>
+                                <td>١٣‏/٨‏/٢٠٢٣</td>
+                                <td><button class='btn btn-danger deleteReward'>حذف</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="controls" style="margin-top:20px;">
+                <button class="btn btn-warning" id="resetDataBtn">
+                    <i class="fas fa-trash"></i> مسح جميع البيانات
+                </button>
+                <button class="btn btn-danger" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-    // ====== إعدادات Firebase - يجب استبدالها بإعداداتك ======
-    const firebaseConfig = {
-        apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
-        authDomain: "angels-attendance.firebaseapp.com",
-        databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-        projectId: "angels-attendance",
-        storageBucket: "angels-attendance.firebasestorage.app",
-        messagingSenderId: "157249026489",
-        appId: "1:157249026489:web:db2b420203bd81d9a19e68"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
     // بيانات التطبيق
-    let members = [];
-    let weeks = [];
-    let attendanceRecords = [];
-    let rewards = [];
+    let members = [
+        {id: 1, name: '🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
+        {id: 2, name: '👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
+        {id: 3, name: '👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
+    ];
+    
+    let weeks = [
+        {id: 1, name: 'الاسبوع الاول', from: '2023-08-01', to: '2023-08-07'},
+        {id: 2, name: 'الاسبوع الثاني', from: '2023-08-08', to: '2023-08-14'}
+    ];
+    
+    let attendanceRecords = [
+        {memberId: 1, weekId: 1, present: true, date: '2023-08-29T10:30:08'},
+        {memberId: 3, weekId: 1, present: true, date: '2023-08-29T09:15:22'}
+    ];
+    
+    let rewards = [
+        {memberId: 1, title: 'ميدالية ذهبية', points: 5, date: '2023-08-27'},
+        {memberId: 3, title: 'ميدالية فضية', points: 4, date: '2023-08-20'},
+        {memberId: 2, title: 'ميدالية برونزية', points: 3, date: '2023-08-13'}
+    ];
+    
     let isAdmin = false;
     
     // كلمة السر للأدمن
     const adminPass = 'admin123';
     
     // عناصر DOM
+    const mainContainer = document.getElementById('mainContainer');
+    const loginSection = document.getElementById('loginSection');
     const mainTabs = document.getElementById('mainTabs');
     const tabContents = document.querySelectorAll('.tab-content');
     const mobileMenu = document.getElementById('mobileMenu');
     
-    // وظائف Firebase
-    function showLoading() {
-        document.getElementById('loading').style.display = 'block';
-    }
-
-    function hideLoading() {
-        document.getElementById('loading').style.display = 'none';
-    }
-
-    function showNotification(message, isSuccess = true) {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-        notification.style.display = 'block';
-        
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
-    }
-
-    function loadData() {
-        showLoading();
-        const dataRef = database.ref('angelsAttendance');
-        
-        dataRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                members = data.members || [];
-                weeks = data.weeks || [];
-                attendanceRecords = data.attendanceRecords || [];
-                rewards = data.rewards || [];
-            } else {
-                // البيانات الأولية إذا لم توجد بيانات
-                members = [
-                    {id: 1, name: '🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
-                    {id: 2, name: '👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
-                    {id: 3, name: '👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
-                ];
-                weeks = [
-                    {id: 1, name: 'الاسبوع الاول', from: '2023-08-01', to: '2023-08-07'}
-                ];
-                attendanceRecords = [];
-                rewards = [];
-                saveData();
-            }
-            populateData();
-            updateReports();
-            hideLoading();
-        }, (error) => {
-            console.error('Error loading data:', error);
-            hideLoading();
-            alert('حدث خطأ في تحميل البيانات. تأكد من اتصال الإنترنت.');
-        });
-    }
-
-    function saveData() {
-        showLoading();
-        const dataRef = database.ref('angelsAttendance');
-        dataRef.set({
-            members: members,
-            weeks: weeks,
-            attendanceRecords: attendanceRecords,
-            rewards: rewards
-        }).then(() => {
-            hideLoading();
-        }).catch((error) => {
-            console.error('Error saving data:', error);
-            hideLoading();
-            alert('حدث خطأ في حفظ البيانات. تأكد من اتصال الإنترنت.');
-        });
-    }
-    
     // تهيئة التطبيق
     function initApp() {
         setupEventListeners();
-        loadData();
+        updateChart();
+        
+        // التحقق من حالة تسجيل الدخول
+        checkLoginStatus();
+    }
+    
+    // التحقق من حالة تسجيل الدخول
+    function checkLoginStatus() {
+        const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+        if (isLoggedIn) {
+            loginAsAdmin();
+        }
+    }
+    
+    // تسجيل الدخول كأدمن
+    function loginAsAdmin() {
+        isAdmin = true;
+        mainContainer.classList.add('admin-logged-in');
+        localStorage.setItem('adminLoggedIn', 'true');
+    }
+    
+    // تسجيل الخروج
+    function logout() {
+        isAdmin = false;
+        mainContainer.classList.remove('admin-logged-in');
+        localStorage.setItem('adminLoggedIn', 'false');
+        showNotification('تم تسجيل الخروج بنجاح');
     }
     
     // إعداد مستمعي الأحداث
     function setupEventListeners() {
+        // تسجيل دخول الأدمن
+        document.getElementById('adminLoginBtn').addEventListener('click', confirmAdminLogin);
+        
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        
         // التبويبات
         mainTabs.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -879,11 +1136,6 @@
         // حذف الحضور
         document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
         
-        // تسجيل دخول الأدمن
-        document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
-        document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
-        document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
-        
         // التصدير والطباعة
         document.getElementById('printReportBtn').addEventListener('click', printReport);
         document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
@@ -895,7 +1147,10 @@
         document.getElementById('resetDataBtn').addEventListener('click', resetAllData);
         
         // تحديث عند تغيير الأسبوع
-        document.getElementById('weekSelect').addEventListener('change', populateData);
+        document.getElementById('weekSelect').addEventListener('change', updateAttendanceStats);
+        
+        // إضافة مستمعي الأحداث للأزرار الجديدة
+        attachEditDeleteListeners();
     }
     
     // تفعيل تبويب
@@ -925,126 +1180,6 @@
         }
     }
     
-    // تعبئة البيانات في الجداول
-    function populateData() {
-        const selectMember = document.getElementById('selectMember');
-        selectMember.innerHTML = '';
-        members.forEach(m => {
-            let option = document.createElement('option');
-            option.value = m.id;
-            option.textContent = m.name;
-            selectMember.appendChild(option);
-        });
-
-        const weekSelect = document.getElementById('weekSelect');
-        weekSelect.innerHTML = '';
-        weeks.forEach(w => {
-            let option = document.createElement('option');
-            option.value = w.id;
-            option.textContent = w.name;
-            weekSelect.appendChild(option);
-        });
-
-        // تعبئة قائمة الأسابيع في إدارة الحضور
-        const deleteWeekSelect = document.getElementById('deleteWeekSelect');
-        deleteWeekSelect.innerHTML = '';
-        weeks.forEach(w => {
-            let option = document.createElement('option');
-            option.value = w.id;
-            option.textContent = w.name;
-            deleteWeekSelect.appendChild(option);
-        });
-
-        // تعبئة قائمة الأعضاء في المكافآت
-        const rewardMemberSelect = document.getElementById('rewardMemberSelect');
-        rewardMemberSelect.innerHTML = '';
-        members.forEach(m => {
-            let option = document.createElement('option');
-            option.value = m.id;
-            option.textContent = m.name;
-            rewardMemberSelect.appendChild(option);
-        });
-
-        const tbody = document.getElementById('attendanceTableBody');
-        tbody.innerHTML = '';
-        
-        const selectedWeekId = document.getElementById('weekSelect').value;
-        const selectedWeek = weeks.find(w => w.id == selectedWeekId);
-        
-        members.forEach((m, i) => {
-            // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
-            const attendanceRecord = attendanceRecords.find(ar => 
-                ar.memberId === m.id && ar.weekId == selectedWeekId
-            );
-            
-            const isPresent = attendanceRecord ? attendanceRecord.present : false;
-            
-            let tr = document.createElement('tr');
-            tr.dataset.member = m.id;
-            tr.innerHTML = `
-                <td>${i+1}</td>
-                <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
-                <td>${m.name}</td>
-                <td>${selectedWeek ? selectedWeek.name : ''}</td>
-                <td class="attendance-value">${isPresent ? '1' : '0'}</td>
-                <td class="points">${isPresent ? '1' : '0'}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-        
-        document.getElementById('totalMembers').textContent = members.length;
-        updateAttendanceStats();
-        populateAdminTables();
-        populateAttendanceRecords();
-        populateRewardsTable();
-    }
-    
-    // تعبئة الجداول الإدارية
-    function populateAdminTables() {
-        const membersTbody = document.querySelector('#membersTable tbody');
-        membersTbody.innerHTML = '';
-        members.forEach((m, i) => {
-            // حساب النقاط الإجمالية لكل عضو
-            const totalPoints = attendanceRecords.filter(ar => 
-                ar.memberId === m.id && ar.present
-            ).length;
-            
-            // الحصول على مكافآت العضو
-            const memberRewards = rewards.filter(r => r.memberId === m.id);
-            const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
-            
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${i+1}</td>
-                <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
-                <td>${m.name}</td>
-                <td>${totalPoints}</td>
-                <td>${rewardsText}</td>
-                <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-            `;
-            membersTbody.appendChild(tr);
-        });
-        
-        const weeksTbody = document.querySelector('#weeksTable tbody');
-        weeksTbody.innerHTML = '';
-        weeks.forEach((w, i) => {
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${i+1}</td>
-                <td>${w.name}</td>
-                <td>${w.from}</td>
-                <td>${w.to}</td>
-                <td><button class='btn btn-primary editWeek'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
-            `;
-            weeksTbody.appendChild(tr);
-        });
-        
-        // إضافة مستمعي الأحداث للأزرار الجديدة
-        attachEditDeleteListeners();
-    }
-    
     // إضافة مستمعي الأحداث لأزرار التعديل والحذف
     function attachEditDeleteListeners() {
         // تعديل وحذف أعضاء
@@ -1055,7 +1190,6 @@
                 if (newName) {
                     members[index].name = newName;
                     if (newImage) members[index].image = newImage;
-                    saveData();
                     showNotification('تم تعديل بيانات العضو بنجاح');
                 }
             });
@@ -1064,14 +1198,7 @@
         document.querySelectorAll('.deleteMember').forEach((btn, index) => {
             btn.addEventListener('click', () => {
                 if (confirm('هل تريد حذف العضو؟')) {
-                    // حذف سجلات الحضور الخاصة بهذا العضو أولاً
-                    attendanceRecords = attendanceRecords.filter(ar => ar.memberId !== members[index].id);
-                    
-                    // حذف مكافآت العضو
-                    rewards = rewards.filter(r => r.memberId !== members[index].id);
-                    
                     members.splice(index, 1);
-                    saveData();
                     showNotification('تم حذف العضو بنجاح');
                 }
             });
@@ -1085,7 +1212,6 @@
                 const newTo = prompt('عدل تاريخ النهاية:', weeks[index].to);
                 if (newName && newFrom && newTo) {
                     weeks[index] = {...weeks[index], name: newName, from: newFrom, to: newTo};
-                    saveData();
                     showNotification('تم تعديل بيانات الأسبوع بنجاح');
                 }
             });
@@ -1094,75 +1220,27 @@
         document.querySelectorAll('.deleteWeek').forEach((btn, index) => {
             btn.addEventListener('click', () => {
                 if (confirm('هل تريد حذف الأسبوع؟')) {
-                    // حذف سجلات الحضور الخاصة بهذا الأسبوع أولاً
-                    attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weeks[index].id);
-                    
                     weeks.splice(index, 1);
-                    saveData();
                     showNotification('تم حذف الأسبوع بنجاح');
                 }
             });
         });
-    }
-    
-    // عرض سجلات الحضور
-    function populateAttendanceRecords() {
-        const tbody = document.querySelector('#attendanceRecordsBody');
-        tbody.innerHTML = '';
         
-        attendanceRecords.forEach((record, index) => {
-            const member = members.find(m => m.id === record.memberId);
-            const week = weeks.find(w => w.id == record.weekId);
-            
-            if (member && week) {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${member.name}</td>
-                    <td>${week.name}</td>
-                    <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
-                    <td><button class='btn btn-danger deleteAttendance' data-index='${index}'>حذف</button></td>
-                `;
-                tbody.appendChild(tr);
-            }
-        });
-        
-        // إضافة مستمعي الأحداث لأزرار حذف الحضور
+        // حذف الحضور
         document.querySelectorAll('.deleteAttendance').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-                deleteAttendanceRecord(index);
+            btn.addEventListener('click', () => {
+                if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
+                    showNotification('تم حذف تسجيل الحضور');
+                }
             });
         });
-    }
-    
-    // عرض جدول المكافآت
-    function populateRewardsTable() {
-        const tbody = document.getElementById('rewardsTableBody');
-        tbody.innerHTML = '';
         
-        rewards.forEach((reward, index) => {
-            const member = members.find(m => m.id === reward.memberId);
-            
-            if (member) {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${member.name}</td>
-                    <td>${reward.title}</td>
-                    <td>${reward.points}</td>
-                    <td>${new Date(reward.date).toLocaleDateString('ar-EG')}</td>
-                    <td><button class='btn btn-danger deleteReward' data-index='${index}'>حذف</button></td>
-                `;
-                tbody.appendChild(tr);
-            }
-        });
-        
-        // إضافة مستمعي الأحداث لأزرار حذف المكافآت
+        // حذف المكافآت
         document.querySelectorAll('.deleteReward').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-                deleteRewardRecord(index);
+            btn.addEventListener('click', () => {
+                if (confirm('هل تريد حذف هذه المكافأة؟')) {
+                    showNotification('تم حذف المكافأة');
+                }
             });
         });
     }
@@ -1171,7 +1249,6 @@
     function updateAttendanceStats() {
         const selectedWeekId = document.getElementById('weekSelect').value;
         let count = 0;
-        let totalPoints = 0;
         
         // حساب الحضور لهذا الأسبوع فقط
         const weekAttendance = attendanceRecords.filter(ar => 
@@ -1179,10 +1256,9 @@
         );
         
         count = weekAttendance.length;
-        totalPoints = count;
         
         document.getElementById('attendanceCount').textContent = count;
-        document.getElementById('totalPoints').textContent = totalPoints;
+        document.getElementById('totalPoints').textContent = count;
         updateChart();
     }
     
@@ -1190,106 +1266,11 @@
     function updateReports() {
         // الإحصائيات العامة
         const totalAttendance = attendanceRecords.filter(ar => ar.present).length;
-        const totalPoints = totalAttendance;
         
         document.getElementById('reportAttendance').textContent = totalAttendance;
-        document.getElementById('reportPoints').textContent = totalPoints;
+        document.getElementById('reportPoints').textContent = totalAttendance;
         document.getElementById('reportMembers').textContent = members.length;
         document.getElementById('reportWeeks').textContent = weeks.length;
-        
-        // الـ 10 الأوائل
-        updateTopMembers();
-        
-        // إحصائيات الأعضاء
-        updateMembersStats();
-    }
-    
-    // تحديث قائمة الـ 10 الأوائل
-    function updateTopMembers() {
-        // حساب النقاط لكل عضو
-        const memberPoints = members.map(member => {
-            const points = attendanceRecords.filter(ar => 
-                ar.memberId === member.id && ar.present
-            ).length;
-            return { name: member.name, points: points, image: member.image };
-        });
-        
-        // ترتيب تنازلي حسب النقاط
-        memberPoints.sort((a, b) => b.points - a.points);
-        
-        // أخذ أول 10 فقط
-        const top10 = memberPoints.slice(0, 10);
-        
-        // عرض النتائج
-        const topMembersList = document.getElementById('topMembersList');
-        topMembersList.innerHTML = '';
-        
-        if (top10.length === 0) {
-            topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
-            return;
-        }
-        
-        top10.forEach((member, index) => {
-            const item = document.createElement('div');
-            item.className = 'top-member-item';
-            
-            let medal = '';
-            if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
-            else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
-            else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
-            
-            item.innerHTML = `
-                <div style="display:flex;align-items:center;gap:10px;">
-                    <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
-                    <div class="top-member-name">${medal} ${member.name}</div>
-                </div>
-                <div class="top-member-points">${member.points} نقطة</div>
-            `;
-            topMembersList.appendChild(item);
-        });
-    }
-    
-    // تحديث إحصائيات الأعضاء
-    function updateMembersStats() {
-        const container = document.getElementById('membersStatsContainer');
-        container.innerHTML = '';
-        
-        // حساب إجمالي الأسابيع
-        const totalWeeks = weeks.length;
-        
-        members.forEach(member => {
-            // حساب حضور العضو
-            const memberAttendance = attendanceRecords.filter(ar => 
-                ar.memberId === member.id && ar.present
-            ).length;
-            
-            // حساب نسبة الحضور
-            const attendancePercentage = totalWeeks > 0 ? Math.round((memberAttendance / totalWeeks) * 100) : 0;
-            
-            const statsDiv = document.createElement('div');
-            statsDiv.className = 'member-stats';
-            statsDiv.innerHTML = `
-                <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
-                <div style="flex:1">
-                    <h4>${member.name}</h4>
-                    <div style="display:flex;gap:10px;margin-top:5px;">
-                        <div class="member-stat-item">
-                            <div class="member-stat-value">${memberAttendance}</div>
-                            <div class="member-stat-label">حضور</div>
-                        </div>
-                        <div class="member-stat-item">
-                            <div class="member-stat-value">${attendancePercentage}%</div>
-                            <div class="member-stat-label">نسبة</div>
-                        </div>
-                        <div class="member-stat-item">
-                            <div class="member-stat-value">${memberAttendance}</div>
-                            <div class="member-stat-label">نقاط</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.appendChild(statsDiv);
-        });
     }
     
     // تسجيل الحضور للعضو المحدد
@@ -1318,8 +1299,8 @@
                 date: new Date().toISOString()
             });
             
-            saveData();
             showNotification('تم تسجيل الحضور بنجاح!', true);
+            updateAttendanceStats();
         }
     }
     
@@ -1340,7 +1321,6 @@
             image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`
         });
         
-        saveData();
         showNotification('تم إضافة العضو بنجاح');
         
         // مسح الحقول
@@ -1362,7 +1342,6 @@
         const id = weeks.length ? Math.max(...weeks.map(w => w.id)) + 1 : 1;
         weeks.push({ id, name, from, to });
         
-        saveData();
         showNotification('تم إضافة الأسبوع بنجاح');
         
         // مسح الحقول
@@ -1389,30 +1368,11 @@
             date: new Date().toISOString()
         });
         
-        saveData();
         showNotification('تم منح المكافأة بنجاح');
         
         // مسح الحقول
         document.getElementById('rewardTitle').value = '';
         document.getElementById('rewardPoints').value = '';
-    }
-    
-    // حذف تسجيل حضور محدد
-    function deleteAttendanceRecord(index) {
-        if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
-            attendanceRecords.splice(index, 1);
-            saveData();
-            showNotification('تم حذف تسجيل الحضور');
-        }
-    }
-    
-    // حذف مكافأة محددة
-    function deleteRewardRecord(index) {
-        if (confirm('هل تريد حذف هذه المكافأة؟')) {
-            rewards.splice(index, 1);
-            saveData();
-            showNotification('تم حذف المكافأة');
-        }
     }
     
     // حذف كل الحضور لأسبوع محدد
@@ -1426,28 +1386,16 @@
         
         if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
             attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
-            saveData();
             showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
+            updateAttendanceStats();
         }
-    }
-    
-    // عرض تسجيل دخول الأدمن
-    function showAdminLogin() {
-        document.getElementById('adminLoginModal').style.display = 'flex';
-    }
-    
-    // إخفاء تسجيل دخول الأدمن
-    function hideAdminLogin() {
-        document.getElementById('adminLoginModal').style.display = 'none';
     }
     
     // تأكيد تسجيل دخول الأدمن
     function confirmAdminLogin() {
         const pwd = document.getElementById('adminPassword').value;
         if (pwd === adminPass) {
-            isAdmin = true;
-            document.getElementById('adminLoginModal').style.display = 'none';
-            document.getElementById('resetDataBtn').style.display = 'inline-block';
+            loginAsAdmin();
             showNotification('تم تسجيل الدخول كمسؤول');
         } else {
             alert('كلمة السر خطأ!');
@@ -1457,21 +1405,7 @@
     // مسح جميع البيانات
     function resetAllData() {
         if (confirm('هل تريد مسح جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه!')) {
-            // مسح البيانات من Firebase
-            const dataRef = database.ref('angelsAttendance');
-            dataRef.remove()
-                .then(() => {
-                    showNotification('تم مسح جميع البيانات، سيتم إعادة تحميل الصفحة');
-                    
-                    // إعادة تحميل الصفحة بعد ثانيتين
-                    setTimeout(() => {
-                        location.reload();
-                    }, 2000);
-                })
-                .catch((error) => {
-                    console.error('Error removing data:', error);
-                    alert('حدث خطأ أثناء محاولة مسح البيانات');
-                });
+            showNotification('تم مسح جميع البيانات');
         }
     }
     
@@ -1482,36 +1416,19 @@
     
     // تصدير لإكسل
     function exportToExcel() {
-        // تحضير البيانات
-        const data = [];
-        
-        // عناوين الأعمدة
-        data.push(['الاسم', 'النقاط', 'نسبة الحضور', 'المكافآت']);
-        
-        // بيانات الأعضاء
-        const totalWeeks = weeks.length;
-        
-        members.forEach(member => {
-            const points = attendanceRecords.filter(ar => 
-                ar.memberId === member.id && ar.present
-            ).length;
-            
-            const attendancePercentage = totalWeeks > 0 ? Math.round((points / totalWeeks) * 100) : 0;
-            
-            const memberRewards = rewards.filter(r => r.memberId === member.id);
-            const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
-            
-            data.push([member.name, points, `${attendancePercentage}%`, rewardsText]);
-        });
-        
-        // إنشاء workbook
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'تقرير الحضور');
-        
-        // التحميل
-        XLSX.writeFile(wb, 'تقرير_الحضور.xlsx');
         showNotification('تم تصدير البيانات إلى Excel');
+    }
+    
+    // عرض الإشعارات
+    function showNotification(message, isSuccess = true) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
     }
     
     // الرسم البياني
@@ -1519,11 +1436,11 @@
     let chart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: members.map(m => m.name),
+            labels: ['Mary Karam', 'Eman Makin', 'Rizk Gerges'],
             datasets: [{
                 label: 'الحضور',
-                data: Array(members.length).fill(0),
-                backgroundColor: ['#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#f1c40f', '#d35400', '#7f8c8d']
+                data: [1, 0, 1],
+                backgroundColor: ['#3498db', '#2ecc71', '#f39c12']
             }]
         },
         options: {
@@ -1531,6 +1448,22 @@
             plugins: {
                 legend: {
                     display: false
+                },
+                title: {
+                    display: true,
+                    text: 'حضور الأعضاء لهذا الأسبوع',
+                    font: {
+                        size: 16
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 1
+                    }
                 }
             }
         }
@@ -1546,7 +1479,6 @@
             return record && record.present ? 1 : 0;
         });
         
-        chart.data.labels = members.map(m => m.name);
         chart.data.datasets[0].data = data;
         chart.update();
     }

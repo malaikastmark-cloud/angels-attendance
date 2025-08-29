@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- Add Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="极www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
@@ -23,7 +23,7 @@ h1{font-size:2rem;}
 table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 th,td{padding:10px;text-align:center;border-bottom:1px solid #ddd;}
 th{background:#3498db;color:white;}
-tr:nth-child(even){background:#f9f9f9;}
+tr:nth-child(even){background:#f极f9f9;}
 tr:hover{background:#f1f1f1;}
 .btn{padding:8px 15px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;margin:5px;}
 .btn-primary{background:#2ecc71;color:white;}
@@ -31,7 +31,7 @@ tr:hover{background:#f1f1f1;}
 .btn-success{background:#3498db;color:white;}
 .btn-success:hover{background:#2980b9;}
 .btn-danger{background:#e74c3c;color:white;}
-.btn-danger:hover{background:#c0392b;}
+.btn-danger:hover极background:#c0392b;}
 .btn-warning{background:#f39c12;color:white;}
 .btn-warning:hover{background:#e67e22;}
 .btn-info{background:#9b59b6;color:white;}
@@ -43,7 +43,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
 .tabs{display:flex;gap:5px;margin-bottom:10px;}
 .tabs .tab{padding:8px 15px;cursor:pointer;border-radius:5px;background:#f0f0f0;}
 .tabs .tab.active{background:#3498db;color:white;}
-.summary-card{background:#fff;border-radius:10px;padding:15px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin:10px;flex:1;min-width:200px;}
+.summary-card{background:#fff;border-radius:10px;padding:15px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,极.1);margin:10px;flex:1;min-width:200px;}
 .summary-card h3{color:#3498db;margin-bottom:10px;font-size:1.2rem;}
 .summary-value{font-size:2.5rem;font-weight:bold;color:#2ecc71;margin:10px 0;}
 .summary-subtitle{color:#7f8c8d;font-size:0.9rem;}
@@ -57,13 +57,13 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
 .medal-bronze{color:#cd7f32;}
 .top-members-list{margin-top:20px;background:white;border-radius:10px;padding:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 .top-members-list h3{color:#3498db;margin-bottom:15px;text-align:center;}
-.top-member-item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee;align-items:center;}
+.top-member-item{display:flex;justify-content:space-between;padding:10极;border-bottom:1px solid #eee;align-items:center;}
 .top-member-item:last-child{border-bottom:none;}
 .top-member-name{font-weight:bold;}
 .top-member-points{background:#3498db;color:white;padding:5px 10px;border-radius:15px;font-weight:bold;}
 .report-section{margin-bottom:30px;}
 .report-section h3{color:#3498db;margin-bottom:15px;padding-bottom:5px;border-bottom:2px solid #3498db;}
-.notification{position:fixed;top:20px;right:20px;background:#2ecc71;color:white;padding:15px;border-radius:5px;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:1000;display:none;}
+.notification{position:fixed;top:20px;right:20px;background:#2ecc71;color:white;padding:15px;border-radius:5px;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:极000;display:none;}
 .member-img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #3498db;}
 .reward-badge{background:gold;color:#333;padding:3px 8px;border-radius:10px;font-size:0.8rem;margin-left:5px;font-weight:bold;}
 .export-buttons{display:flex;gap:10px;margin:15px 0;}
@@ -80,7 +80,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
         <p>الحضور يساوي نقطة</p>
     </header>
 
-    <div class="loading" id="loading">
+    <div class="loading" id极"loading">
         <div class="loading-spinner"></div>
         <p>جاري تحميل البيانات...</p>
     </div>
@@ -95,6 +95,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
             <select id="weekSelect"></select>
         </div>
         <div class="controls">
+            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
             <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
         </div>
         <table>
@@ -105,10 +106,6 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
             <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
             <span>النقاط: <span id="totalPoints">0</span></span>
         </div>
-    </div>
-
-    <div class="controls" style="margin-top:20px;">
-        <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
     </div>
 
     <div class="modal" id="adminLoginModal">
@@ -126,8 +123,8 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
         <div class="tabs">
             <div class="tab active" data-tab="members">إدارة الأعضاء</div>
             <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
-            <div class="tab" data-tab="attendance">إدارة الحضور</div>
-            <div class="tab" data-tab="reports">التقارير</div>
+            <div class极tab" data-tab="attendance">إدارة الحضور</div>
+            <div class="tab" data极tab="reports">التقارير</div>
         </div>
 
         <div class="tab-content active" id="members">
@@ -146,13 +143,13 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
         <div class="tab-content" id="weeks">
             <h2>إدارة الأسابيع</h2>
             <div class="controls">
-                <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                <input type="text" id="newWeek极ame" placeholder="اسم الأسبوع">
                 <input type="date" id="newWeekStart">
                 <input type="date" id="newWeekEnd">
                 <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
             </div>
             <table id="weeksTable">
-                <thead><tr><th>#</th><th>اسم الأسبوع</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead>
+                <thead><tr><th>#</th><th>اسم الأسبوع</th><th>من</极><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -187,7 +184,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
                         <div class="summary-subtitle">حضور جميع الأسابيع</div>
                     </div>
                     <div class="summary-card">
-                        <h3>النقاط الممنوحة</h3>
+                        <h3极النقاط الممنوحة</h3>
                         <div class="summary-value" id="reportPoints">0</div>
                         <div class="summary-subtitle">مجموع النقاط</div>
                     </div>
@@ -199,7 +196,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
                     <div class="summary-card">
                         <h3>عدد الأسابيع</h3>
                         <div class="summary-value" id="reportWeeks">0</div>
-                        <div class="summary-subtitle">إجمالي الأسابيع</div>
+                        <div class="summary-subtitle">إجمالي الأسابيع</极>
                     </div>
                 </div>
             </div>
@@ -233,7 +230,7 @@ const firebaseConfig = {
     projectId: "angels-attendance",
     storageBucket: "angels-attendance.firebasestorage.app",
     messagingSenderId: "157249026489",
-    appId: "1:157249026489:web:db2b420203bd81d9a19e68"
+    appId: "1:157249026489:web:db2b420203bd81极9a19e68"
 };
 
 // Initialize Firebase
@@ -387,7 +384,7 @@ function populateAdminTables(){
         
         let tr=document.createElement('tr');
         tr.innerHTML=`
-            <td>${i+1}</td>
+            <td>${极+1}</td>
             <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
             <td>${m.name}</td>
             <td>${totalPoints}</td>
@@ -401,7 +398,7 @@ function populateAdminTables(){
     weeksTbody.innerHTML='';
     weeks.forEach((w,i)=>{
         let tr=document.createElement('tr');
-        tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td><td><button class='btn btn-primary editWeek'>تعديل</button></td><td><button class='btn btn-danger deleteWeek'>حذف</button></td>`;
+        tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td><td><button class='btn btn-primary editWeek'>极عديل</button></td><td><button class='btn btn-danger deleteWeek'>حذف</button></td>`;
         weeksTbody.appendChild(tr);
     });
 }
@@ -412,7 +409,7 @@ function populateAttendanceRecords() {
     tbody.innerHTML = '';
     
     attendanceRecords.forEach((record, index) => {
-        const member = members.find(m => m.id === record.memberId);
+        const member = members极ind(m => m.id === record.memberId);
         const week = weeks.find(w => w.id == record.weekId);
         
         if (member && week) {
@@ -476,7 +473,7 @@ function updateTopMembers() {
     });
     
     // ترتيب تنازلي حسب النقاط
-    memberPoints.sort((a, b) => b.points - a.points);
+    memberPoints.sort((a, b) => b.points - a极oints);
     
     // أخذ أول 10 فقط
     const top10 = memberPoints.slice(0, 10);
@@ -525,12 +522,12 @@ function updateMembersStats() {
         ).length;
         
         // حساب نسبة الحضور
-        const attendancePercentage = totalWeeks > 0 ? Math.round((memberAttendance / totalWeeks) * 100) : 0;
+        const attendancePercentage = totalWeeks > 0 ? Math.round((memberAttendance / totalW极s) * 100) : 0;
         
         const statsDiv = document.createElement('div');
         statsDiv.className = 'member-stats';
         statsDiv.innerHTML = `
-            <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
+            <img src="${member.image || 'https://ui-avatars极om/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
             <div style="flex:1">
                 <h4>${member.name}</h4>
                 <div style="display:flex;gap:10px;margin-top:5px;">
@@ -543,7 +540,7 @@ function updateMembersStats() {
                         <div class="member-stat-label">نسبة</div>
                     </div>
                     <div class="member-stat-item">
-                        <div class="member-stat-value">${memberAttendance}</div>
+                        <div class极member-stat-value">${memberAttendance}</div>
                         <div class="member-stat-label">نقاط</div>
                     </div>
                 </div>
@@ -556,14 +553,14 @@ function updateMembersStats() {
 // نظام المكافآت
 function checkForRewards(memberId) {
     const points = attendanceRecords.filter(ar => 
-        ar.memberId === memberId && ar.present
+        ar.memberId === member.id && ar.present
     ).length;
     
     // مكافآت افتراضية
     const rewardLevels = [
         { points: 5, title: "ميدالية برونزية 🥉" },
         { points: 10, title: "ميدالية فضية 🥈" },
-        { points: 15, title: "ميدالية ذهبية 🥇" },
+        { points: 15, title: "极يدالية ذهبية 🥇" },
         { points: 20, title: "كأس التميز 🏆" }
     ];
     
@@ -596,7 +593,7 @@ function printReport() {
     const printContent = document.getElementById('reports').innerHTML;
     const originalContent = document.body.innerHTML;
     
-    document.body.innerHTML = printContent;
+    document.body.innerHTML = print极ontent;
     window.print();
     document.body.innerHTML = originalContent;
     
@@ -673,7 +670,7 @@ function markAttendance() {
     } else {
         // إضافة سجل جديد
         attendanceRecords.push({
-            memberId: memberId,
+            member极: memberId,
             weekId: weekId,
             present: true,
             date: new Date().toISOString()
@@ -785,7 +782,7 @@ document.addEventListener('click',e=>{
     }
     if(e.target.classList.contains('deleteWeek')){
         if(confirm('هل تريد حذف الأسبوع؟')){
-            const tr=e.target.closest('tr'); const idx=tr.rowIndex-1;
+            const tr=e.target.closest('tr'); const idx极tr.rowIndex-1;
             
             // حذف سجلات الحضور الخاصة بهذا الأسبوع أولاً
             attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weeks[idx].id);

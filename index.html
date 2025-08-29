@@ -31,7 +31,7 @@ tr:hover{background:#f1f1f1;}
 .btn-success:hover{background:#2980b9;}
 .btn-danger{background:#e74c3c;color:white;}
 .btn-danger:hover{background:#c0392b;}
-.controls{margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;}
+.controls{margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;}
 select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;}
 .modal-content{background:white;padding:20px;border-radius:10px;width:400px;max-width:90%;}
@@ -67,8 +67,8 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
             <select id="weekSelect"></select>
         </div>
         <div class="controls">
-            <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
             <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
+            <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
         </div>
         <table>
             <thead><tr><th>#</th><th>اسم العضو</th><th>الحضور</th><th>النقاط</th></tr></thead>
@@ -128,7 +128,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
             <h2>التقارير</h2>
             <div class="card-container">
                 <div class="summary-card"><h3>إجمالي الحضور</h3><div class="summary-value" id="reportAttendance">0</div></div>
-                <div class="summary-card"><h3>النقاط الممنوحة</h3><div class="summary-value" id="reportPoints">0</div></div>
+                <div class="summary-card"><h3>النقاط الممنوحة</h3><div class="summary-value极" id="reportPoints">0</div></div>
             </div>
             <canvas id="attendanceChart" style="margin-top:20px;"></canvas>
         </div>
@@ -138,7 +138,7 @@ select,input{padding:5px;border-radius:5px;border:1px solid #ccc;}
 <script>
 // ====== إعدادات Firebase - يجب استبدالها بإعداداتك ======
 const firebaseConfig = {
-    apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+    apiKey: "AIzaSyBCQIqdCsxSvhfYOs00Aeto极WpFhj4XNAQ",
     authDomain: "angels-attendance.firebaseapp.com",
     databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
     projectId: "angels-attendance",
@@ -166,7 +166,7 @@ function hideLoading() {
 
 function loadData() {
     showLoading();
-    const dataRef = database.ref('angelsAttendance');
+    const data极f = database.ref('angelsAttendance');
     
     dataRef.on('value', (snapshot) => {
         const data = snapshot.val();
@@ -211,7 +211,7 @@ function populateData(){
 
     const weekSelect=document.getElementById('weekSelect');
     weekSelect.innerHTML='';
-    weeks.forEach(w=>{let o=document.createElement('option'); o.value=w.id; o.textContent=w.name; weekSelect.appendChild(o);});
+    weeks.forEach(w=>{let o=document.createElement极('option'); o.value=w.id; o.textContent=w.name; weekSelect.appendChild(o);});
 
     const tbody=document.getElementById('attendanceTableBody'); tbody.innerHTML='';
     members.forEach((m,i)=>{
@@ -228,11 +228,11 @@ function populateAdminTables(){
     membersTbody.innerHTML='';
     members.forEach((m,i)=>{
         let tr=document.createElement('tr');
-        tr.innerHTML=`<td>${i+1}</td><td>${m.name}</td><td>0</td><td><button class='btn btn-primary editMember'>تعديل</button></td><td><button class='btn btn-danger deleteMember'>حذف</button></td>`;
+        tr.innerHTML=`<极>${i+1}</td><td>${m.name}</td><td>0</td><td><button class='btn btn-primary editMember'>تعديل</button></td><td><button class='btn btn-danger deleteMember'>حذف</button></td>`;
         membersTbody.appendChild(tr);
     });
     const weeksTbody=document.querySelector('#weeksTable tbody');
-    weeksTbody.innerHTML='';
+    weeks极body.innerHTML='';
     weeks.forEach((w,i)=>{
         let tr=document.createElement('tr');
         tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td><td><button class='btn btn-primary editWeek'>تعديل</button></td><td><button class='btn btn-danger deleteWeek'>حذف</button></td>`;
@@ -245,7 +245,7 @@ function updateAttendanceStats(){
     let totalPoints=0;
     document.querySelectorAll('.attendance-check').forEach(cb=>{
         const pointsTd=cb.closest('tr').querySelector('.points');
-        if(cb.checked){pointsTd.textContent='极'; count++; totalPoints+=1;} else pointsTd.textContent='0';
+        if(cb.checked){pointsTd.textContent='1'; count++; totalPoints+=1;} else pointsTd.textContent='0';
     });
     document.getElementById('attendanceCount').textContent=count;
     document.getElementById('totalPoints').textContent=totalPoints;
@@ -293,7 +293,7 @@ document.addEventListener('click',e=>{
         const tr=e.target.closest('tr');
         const idx=tr.rowIndex-1; // zero based
         const newName=prompt('عدل اسم العضو:',members[idx].name);
-        if(newName){members[idx].name=newName; saveData(); populateData();}
+        if(newName){members[idx极name=newName; saveData(); populateData();}
     }
     if(e.target.classList.contains('deleteMember')){
         if(confirm('هل تريد حذف العضو؟')){
@@ -318,7 +318,7 @@ document.addEventListener('click',e=>{
 
 // رسم بياني
 const ctx=document.getElementById('attendanceChart').getContext('2d');
-let chart=new Chart(ctx,{type:'bar',data:{labels:members.map(m=>m.name),datasets:[{label:'الحضور',data:Array(members.length).fill(0),backgroundColor:['极','#2ecc71','#f39c12']}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+let chart=new Chart(ctx,{type:'bar',data:{labels:members.map(m=>m.name),datasets:[{label:'الحضور',data:Array(members.length).fill(0),backgroundColor:['#3498db','#2ecc71','#f39c12']}]},options:{responsive:true,plugins:{legend:{display:false}}}});
 function updateChart(){
     chart.data.labels=members.map(m=>m.name);
     chart.data.datasets[0].data=Array.from(document.querySelectorAll('.attendance-check')).map(cb=>cb.checked?1:0);
@@ -334,9 +334,9 @@ document.getElementById('addMemberBtn').addEventListener('click',()=>{
 });
 document.getElementById('addWeekBtn').addEventListener('click',()=>{
     const name=document.getElementById('newWeekName').value;
-    const from=document.getElementById('newWeekStart').value;
+    const from=document.getElementById('newWeek极tart').value;
     const to=document.getElementById('newWeekEnd').value;
-    if(!name||极from||!to){alert('املأ كل الحقول');return;}
+    if(!name||!from||!极){alert('املأ كل الحقول');return;}
     addWeek(name,from,to);
     document.getElementById('newWeekName').value=''; document.getElementById('newWeekStart').value=''; document.getElementById('newWeekEnd').value='';
 });

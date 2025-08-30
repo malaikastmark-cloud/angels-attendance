@@ -7,7 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- إضافة Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
+        /* الحفاظ على أنماط CSS الحالية مع إضافة بعض التحسينات البسيطة */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -301,7 +305,7 @@
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
         
         .medal {
@@ -468,6 +472,25 @@
             background: #2980b9;
         }
         
+        .firebase-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            background: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .firebase-connected {
+            color: #2ecc71;
+        }
+        
+        .firebase-disconnected {
+            color: #e74c3c;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -497,6 +520,10 @@
             header h1 {
                 font-size: 1.8rem;
             }
+            
+            .firebase-status {
+                bottom: 80px;
+            }
         }
     </style>
 </head>
@@ -513,6 +540,8 @@
         </div>
 
         <div class="notification" id="notification"></div>
+        
+        <div class="firebase-status" id="firebaseStatus">جاري الاتصال بقاعدة البيانات...</div>
 
         <div class="tab-content active" id="userAttendance">
             <h2>تسجيل الحضور</h2>
@@ -597,6 +626,7 @@
                 <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
                 <div class="tab" data-tab="attendance">إدارة الحضور</div>
                 <div class="tab" data-tab="reports">التقارير</div>
+                <div class="tab" data-tab="settings">الإعدادات</div>
             </div>
 
             <div class="tab-content active" id="members">
@@ -713,6 +743,7 @@
                 <div class="export-buttons">
                     <button class="btn btn-info" id="printReportBtn"><i class="fas fa-print"></i> طباعة التقرير</button>
                     <button class="btn btn-success" id="exportExcelBtn"><i class="fas fa-file-excel"></i> تصدير لإكسل</button>
+                    <button class="btn btn-warning" id="exportBackupBtn"><i class="fas fa-download"></i> إنشاء نسخة احتياطية</button>
                 </div>
                 
                 <div class="report-section">
@@ -760,6 +791,27 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="tab-content" id="settings">
+                <h2>إعدادات النظام</h2>
+                <div class="controls">
+                    <button class="btn btn-warning" id="clearLocalDataBtn">مسح البيانات المحلية</button>
+                    <button class="btn btn-info" id="syncDataBtn">مزامنة البيانات مع السحابة</button>
+                    <button class="btn btn-danger" id="resetAllBtn">إعادة تعيين النظام</button>
+                </div>
+                <div class="report-section">
+                    <h3>🔧 إعدادات Firebase</h3>
+                    <div class="controls">
+                        <input type="text" id="firebaseConfigApiKey" placeholder="API Key">
+                        <input type="text" id="firebaseConfigAuthDomain" placeholder="Auth Domain">
+                        <input type="text" id="firebaseConfigProjectId" placeholder="Project ID">
+                        <input type="text" id="firebaseConfigStorageBucket" placeholder="Storage Bucket">
+                        <input type="text" id="firebaseConfigMessagingSenderId" placeholder="Messaging Sender ID">
+                        <input type="text" id="firebaseConfigAppId" placeholder="App ID">
+                        <button class="btn btn-primary" id="saveFirebaseConfigBtn">حفظ إعدادات Firebase</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -782,6 +834,144 @@
         
         // كلمة السر
         const adminPass = 'admin123';
+        
+        // تهيئة Firebase
+        let db = null;
+        let isFirebaseConnected = false;
+        
+        function initializeFirebase() {
+            try {
+                const firebaseConfig = getFirebaseConfig();
+                
+                if (firebaseConfig && firebaseConfig.apiKey) {
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                    isFirebaseConnected = true;
+                    document.getElementById('firebaseStatus').textContent = 'متصل بقاعدة البيانات';
+                    document.getElementById('firebaseStatus').className = 'firebase-status firebase-connected';
+                    
+                    // تحميل البيانات من Firebase
+                    loadDataFromFirebase();
+                } else {
+                    document.getElementById('firebaseStatus').textContent = 'إعدادات Firebase غير مكتملة';
+                    document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+                    loadFromLocalStorage();
+                }
+            } catch (error) {
+                console.error('خطأ في تهيئة Firebase:', error);
+                document.getElementById('firebaseStatus').textContent = 'خطأ في الاتصال بقاعدة البيانات';
+                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+                loadFromLocalStorage();
+            }
+        }
+        
+        function getFirebaseConfig() {
+            const config = localStorage.getItem('firebaseConfig');
+            return config ? JSON.parse(config) : {};
+        }
+        
+        function saveFirebaseConfig(config) {
+            localStorage.setItem('firebaseConfig', JSON.stringify(config));
+            showNotification('تم حفظ إعدادات Firebase');
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+        
+        async function loadDataFromFirebase() {
+            if (!isFirebaseConnected) return;
+            
+            showLoading();
+            
+            try {
+                // جلب البيانات من Firebase
+                const membersSnapshot = await db.collection('members').get();
+                const weeksSnapshot = await db.collection('weeks').get();
+                const attendanceSnapshot = await db.collection('attendance').get();
+                const rewardsSnapshot = await db.collection('rewards').get();
+                
+                // تحديث البيانات المحلية
+                members = membersSnapshot.docs.map(doc => doc.data());
+                weeks = weeksSnapshot.docs.map(doc => doc.data());
+                attendanceRecords = attendanceSnapshot.docs.map(doc => doc.data());
+                rewards = rewardsSnapshot.docs.map(doc => doc.data());
+                
+                // حفظ نسخة محلية للاستخدام دون اتصال
+                saveToLocalStorage();
+                
+                // تحديث الواجهة
+                populateData();
+                updateReports();
+                hideLoading();
+                
+                showNotification('تم تحميل البيانات من السحابة');
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات من Firebase:', error);
+                document.getElementById('firebaseStatus').textContent = 'خطأ في تحميل البيانات';
+                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+                
+                // استخدام البيانات المحلية في حالة الخطأ
+                loadFromLocalStorage();
+                hideLoading();
+            }
+        }
+        
+        async function saveToFirebase() {
+            if (!isFirebaseConnected) return;
+            
+            try {
+                // حذف جميع المستندات الحالية
+                const deletePromises = [];
+                
+                // حذف الأعضاء
+                const membersSnapshot = await db.collection('members').get();
+                membersSnapshot.forEach(doc => deletePromises.push(doc.ref.delete()));
+                
+                // حذف الأسابيع
+                const weeksSnapshot = await db.collection('weeks').get();
+                weeksSnapshot.forEach(doc => deletePromises.push(doc.ref.delete()));
+                
+                // حذف سجلات الحضور
+                const attendanceSnapshot = await db.collection('attendance').get();
+                attendanceSnapshot.forEach(doc => deletePromises.push(doc.ref.delete()));
+                
+                // حذف المكافآت
+                const rewardsSnapshot = await db.collection('rewards').get();
+                rewardsSnapshot.forEach(doc => deletePromises.push(doc.ref.delete()));
+                
+                await Promise.all(deletePromises);
+                
+                // إضافة البيانات الجديدة
+                const addPromises = [];
+                
+                // إضافة الأعضاء
+                members.forEach(member => {
+                    addPromises.push(db.collection('members').add(member));
+                });
+                
+                // إضافة الأسابيع
+                weeks.forEach(week => {
+                    addPromises.push(db.collection('weeks').add(week));
+                });
+                
+                // إضافة سجلات الحضور
+                attendanceRecords.forEach(record => {
+                    addPromises.push(db.collection('attendance').add(record));
+                });
+                
+                // إضافة المكافآت
+                rewards.forEach(reward => {
+                    addPromises.push(db.collection('rewards').add(reward));
+                });
+                
+                await Promise.all(addPromises);
+                
+                showNotification('تم حفظ البيانات في السحابة');
+            } catch (error) {
+                console.error('خطأ في حفظ البيانات إلى Firebase:', error);
+                showNotification('خطأ في حفظ البيانات إلى السحابة', false);
+            }
+        }
         
         // وظائف المساعدة
         function showLoading() {
@@ -1109,6 +1299,10 @@
                         // إشعار بالمكافأة
                         const member = members.find(m => m.id === memberId);
                         showNotification(`مبروك! ${member.name} حصل على ${reward.title}`, true);
+                        
+                        // حفظ البيانات
+                        saveToLocalStorage();
+                        if (isFirebaseConnected) saveToFirebase();
                     }
                 }
             });
@@ -1160,11 +1354,33 @@
             XLSX.writeFile(wb, 'تقرير_الحضور.xlsx');
         }
         
+        // إنشاء نسخة احتياطية
+        function createBackup() {
+            const data = {
+                members: members,
+                weeks: weeks,
+                attendanceRecords: attendanceRecords,
+                rewards: rewards,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `نسخة_احتياطية_نظام_الحضور_${new Date().toISOString().slice(0,10)}.json`;
+            link.click();
+            
+            showNotification('تم إنشاء النسخة الاحتياطية');
+        }
+        
         // إضافة أعضاء
         function addMember(name, image = ''){
             const id = members.length ? Math.max(...members.map(m => m.id)) + 1 : 1;
             members.push({id, name, image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`});
             saveToLocalStorage();
+            if (isFirebaseConnected) saveToFirebase();
             populateData();
             showNotification('تم إضافة العضو بنجاح');
         }
@@ -1174,6 +1390,7 @@
             const id = weeks.length ? Math.max(...weeks.map(w => w.id)) + 1 : 1;
             weeks.push({id, name, from, to}); 
             saveToLocalStorage(); 
+            if (isFirebaseConnected) saveToFirebase();
             populateData();
             showNotification('تم إضافة الأسبوع بنجاح');
         }
@@ -1208,6 +1425,7 @@
                 checkForRewards(memberId);
                 
                 saveToLocalStorage();
+                if (isFirebaseConnected) saveToFirebase();
                 populateData();
                 showNotification('تم تسجيل الحضور بنجاح!', true);
             }
@@ -1218,6 +1436,7 @@
             if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
                 attendanceRecords.splice(index, 1);
                 saveToLocalStorage();
+                if (isFirebaseConnected) saveToFirebase();
                 populateAttendanceRecords();
                 populateData(); // تحديث الجدول الرئيسي
                 showNotification('تم حذف تسجيل الحضور');
@@ -1236,9 +1455,70 @@
             if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
                 attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
                 saveToLocalStorage();
+                if (isFirebaseConnected) saveToFirebase();
                 populateAttendanceRecords();
                 populateData(); // تحديث الجدول الرئيسي
                 showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
+            }
+        }
+        
+        // مسح البيانات المحلية
+        function clearLocalData() {
+            if (confirm('هل تريد مسح جميع البيانات المحلية؟ سيتم الاحتفاظ بالبيانات على السحابة إذا كانت متصلة.')) {
+                localStorage.removeItem('angelsAttendance');
+                showNotification('تم مسح البيانات المحلية');
+                
+                // إعادة تحميل البيانات من السحابة إذا كانت متصلة
+                if (isFirebaseConnected) {
+                    loadDataFromFirebase();
+                } else {
+                    // إعادة تعيين البيانات الافتراضية
+                    members = [
+                        {id:1, name:'🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
+                        {id:2, name:'👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
+                        {id:3, name:'👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
+                    ];
+                    
+                    weeks = [
+                        {id:1, name:'الاسبوع الاول', from:'2025-08-29', to:'2025-08-29'}
+                    ];
+                    
+                    attendanceRecords = [];
+                    rewards = [];
+                    
+                    populateData();
+                }
+            }
+        }
+        
+        // إعادة تعيين النظام بالكامل
+        function resetSystem() {
+            if (confirm('تحذير: هذا الإجراء سيعيد تعيين النظام بالكامل ويمسح جميع البيانات! هل تريد المتابعة؟')) {
+                localStorage.clear();
+                
+                // إعادة تعيين البيانات الافتراضية
+                members = [
+                    {id:1, name:'🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
+                    {id:2, name:'👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
+                    {id:3, name:'👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
+                ];
+                
+                weeks = [
+                    {id:1, name:'الاسبوع الاول', from:'2025-08-29', to:'2025-08-29'}
+                ];
+                
+                attendanceRecords = [];
+                rewards = [];
+                
+                saveToLocalStorage();
+                
+                // إذا كان متصلاً بـ Firebase، حذف البيانات هناك أيضاً
+                if (isFirebaseConnected && confirm('هل تريد أيضاً حذف جميع البيانات من السحابة؟')) {
+                    saveToFirebase(); // هذه الدالة تحذف ثم تعيد الإضافة
+                }
+                
+                showNotification('تم إعادة تعيين النظام');
+                populateData();
             }
         }
         
@@ -1294,6 +1574,7 @@
                     members[idx].name = newName;
                     if (newImage) members[idx].image = newImage;
                     saveToLocalStorage(); 
+                    if (isFirebaseConnected) saveToFirebase();
                     populateData();
                     showNotification('تم تعديل بيانات العضو');
                 }
@@ -1312,6 +1593,7 @@
                     
                     members.splice(idx, 1); 
                     saveToLocalStorage(); 
+                    if (isFirebaseConnected) saveToFirebase();
                     populateData();
                     showNotification('تم حذف العضو');
                 }
@@ -1326,6 +1608,7 @@
                 if (newName && newFrom && newTo) {
                     weeks[idx] = {...weeks[idx], name: newName, from: newFrom, to: newTo}; 
                     saveToLocalStorage(); 
+                    if (isFirebaseConnected) saveToFirebase();
                     populateData();
                     showNotification('تم تعديل بيانات الأسبوع');
                 }
@@ -1341,6 +1624,7 @@
                     
                     weeks.splice(idx, 1); 
                     saveToLocalStorage(); 
+                    if (isFirebaseConnected) saveToFirebase();
                     populateData();
                     showNotification('تم حذف الأسبوع');
                 }
@@ -1395,6 +1679,16 @@
         document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
         document.getElementById('printReportBtn').addEventListener('click', printReport);
         document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+        document.getElementById('exportBackupBtn').addEventListener('click', createBackup);
+        document.getElementById('clearLocalDataBtn').addEventListener('click', clearLocalData);
+        document.getElementById('syncDataBtn').addEventListener('click', () => {
+            if (isFirebaseConnected) {
+                saveToFirebase();
+            } else {
+                showNotification('غير متصل بقاعدة البيانات', false);
+            }
+        });
+        document.getElementById('resetAllBtn').addEventListener('click', resetSystem);
         
         document.getElementById('addMemberBtn').addEventListener('click', () => {
             const name = document.getElementById('newMemberName').value;
@@ -1422,6 +1716,31 @@
             document.getElementById('newWeekEnd').value = '';
         });
         
+        // حفظ إعدادات Firebase
+        document.getElementById('saveFirebaseConfigBtn').addEventListener('click', () => {
+            const config = {
+                apiKey: document.getElementById('firebaseConfigApiKey').value,
+                authDomain: document.getElementById('firebaseConfigAuthDomain').value,
+                projectId: document.getElementById('firebaseConfigProjectId').value,
+                storageBucket: document.getElementById('firebaseConfigStorageBucket').value,
+                messagingSenderId: document.getElementById('firebaseConfigMessagingSenderId').value,
+                appId: document.getElementById('firebaseConfigAppId').value
+            };
+            
+            saveFirebaseConfig(config);
+        });
+        
+        // تحميل إعدادات Firebase الحالية عند فتح تبويب الإعدادات
+        document.querySelector('[data-tab="settings"]').addEventListener('click', () => {
+            const config = getFirebaseConfig();
+            document.getElementById('firebaseConfigApiKey').value = config.apiKey || '';
+            document.getElementById('firebaseConfigAuthDomain').value = config.authDomain || '';
+            document.getElementById('firebaseConfigProjectId').value = config.projectId || '';
+            document.getElementById('firebaseConfigStorageBucket').value = config.storageBucket || '';
+            document.getElementById('firebaseConfigMessagingSenderId').value = config.messagingSenderId || '';
+            document.getElementById('firebaseConfigAppId').value = config.appId || '';
+        });
+        
         // تحديث البيانات عند تغيير الأسبوع
         document.getElementById('weekSelect').addEventListener('change', populateData);
         
@@ -1432,7 +1751,7 @@
         
         // تحميل البيانات عند بدء التشغيل
         document.addEventListener('DOMContentLoaded', () => {
-            loadFromLocalStorage();
+            initializeFirebase();
         });
     </script>
 </body>

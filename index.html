@@ -1,243 +1,144 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <title>نظام حضور Angels</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
-        header { background:#3498db; color:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
-        header h1 { margin:0; }
-        .tab { cursor:pointer; padding:10px 20px; display:inline-block; background:#2980b9; color:#fff; margin-right:5px; border-radius:5px 5px 0 0; }
-        .tab.active { background:#1abc9c; }
-        .tab-content { display:none; padding:20px; background:#fff; border-radius:0 5px 5px 5px; margin-top:-5px; }
-        .tab-content.active { display:block; }
-        .btn { padding:5px 10px; border:none; border-radius:5px; cursor:pointer; }
-        .btn-primary { background:#3498db; color:#fff; }
-        .btn-danger { background:#e74c3c; color:#fff; }
-        .btn-success { background:#2ecc71; color:#fff; }
-        input, select { padding:5px; margin:5px 0; }
-        table { width:100%; border-collapse:collapse; margin-top:10px; }
-        th, td { border:1px solid #ccc; padding:5px; text-align:center; }
-        .member-img { width:40px; height:40px; border-radius:50%; }
-        .notification { position:fixed; top:10px; right:10px; padding:10px 20px; color:#fff; display:none; border-radius:5px; z-index:1000; }
-        .calendar-day { width:40px; height:40px; display:inline-block; margin:2px; line-height:40px; background:#ecf0f1; text-align:center; border-radius:5px; cursor:pointer; }
-        .calendar-day.today { background:#1abc9c; color:#fff; }
-        .calendar-day.event { border:2px solid #e74c3c; }
-        .admin-mode .admin-only { display:table-cell; }
-        .admin-only { display:none; }
-    </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الحضور</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-auth.js";
+
+    // إعدادات Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+      authDomain: "angels-attendance.firebaseapp.com",
+      databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+      projectId: "angels-attendance",
+      storageBucket: "angels-attendance.appspot.com",
+      messagingSenderId: "157249026489",
+      appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+      measurementId: "G-2YDPSFPQYT"
+    };
+
+    // تهيئة Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const database = getDatabase(app);
+
+    // التحقق من حالة المستخدم
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("adminPanel").style.display = "block";
+        document.getElementById("loginForm").style.display = "none";
+      } else {
+        document.getElementById("adminPanel").style.display = "none";
+        document.getElementById("loginForm").style.display = "block";
+      }
+    });
+
+    // تسجيل الدخول
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .catch((error) => {
+          alert("فشل تسجيل الدخول: " + error.message);
+        });
+    }
+
+    // إضافة عضو جديد
+    function addMember() {
+      const name = document.getElementById("newMemberName").value;
+      const week = document.getElementById("newMemberWeek").value;
+      const memberRef = ref(database, 'members/' + name);
+      set(memberRef, {
+        name: name,
+        week: week
+      });
+    }
+
+    // إضافة أسبوع جديد
+    function addWeek() {
+      const weekName = document.getElementById("newWeekName").value;
+      const weekRef = ref(database, 'weeks/' + weekName);
+      set(weekRef, {
+        name: weekName
+      });
+    }
+
+    // تحميل الأعضاء
+    function loadMembers() {
+      const membersRef = ref(database, 'members/');
+      get(membersRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const members = snapshot.val();
+          const membersList = document.getElementById("membersList");
+          membersList.innerHTML = "";
+          for (const key in members) {
+            const li = document.createElement("li");
+            li.textContent = members[key].name + " - " + members[key].week;
+            membersList.appendChild(li);
+          }
+        } else {
+          alert("لا توجد أعضاء.");
+        }
+      }).catch((error) => {
+        alert("فشل تحميل الأعضاء: " + error.message);
+      });
+    }
+
+    // تحميل الأسابيع
+    function loadWeeks() {
+      const weeksRef = ref(database, 'weeks/');
+      get(weeksRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const weeks = snapshot.val();
+          const weeksList = document.getElementById("weeksList");
+          weeksList.innerHTML = "";
+          for (const key in weeks) {
+            const li = document.createElement("li");
+            li.textContent = weeks[key].name;
+            weeksList.appendChild(li);
+          }
+        } else {
+          alert("لا توجد أسابيع.");
+        }
+      }).catch((error) => {
+        alert("فشل تحميل الأسابيع: " + error.message);
+      });
+    }
+  </script>
 </head>
 <body>
-<header>
-    <h1>نظام حضور Angels</h1>
-    <div>
-        <button id="adminLoginBtn" class="btn btn-success">تسجيل دخول الأدمن</button>
-        <button id="adminLogoutBtn" class="btn btn-danger" style="display:none;">تسجيل خروج الأدمن</button>
-    </div>
-</header>
+  <!-- نموذج تسجيل الدخول -->
+  <div id="loginForm">
+    <h2>تسجيل الدخول</h2>
+    <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+    <input type="password" id="password" placeholder="كلمة المرور" required>
+    <button onclick="login()">تسجيل الدخول</button>
+  </div>
 
-<div id="notification" class="notification"></div>
+  <!-- لوحة تحكم الأدمن -->
+  <div id="adminPanel" style="display:none;">
+    <h2>لوحة تحكم الأدمن</h2>
+    <h3>إضافة عضو جديد</h3>
+    <input type="text" id="newMemberName" placeholder="اسم العضو" required>
+    <input type="text" id="newMemberWeek" placeholder="اسم الأسبوع" required>
+    <button onclick="addMember()">إضافة عضو</button>
 
-<div id="tabs">
-    <div class="tab active" data-tab="userAttendance">تسجيل الحضور</div>
-    <div class="tab admin-tab" data-tab="adminPanel">لوحة الإدارة</div>
-    <div class="tab admin-tab" data-tab="leaderboard">لوحة النقاط</div>
-</div>
+    <h3>إضافة أسبوع جديد</h3>
+    <input type="text" id="newWeekName" placeholder="اسم الأسبوع" required>
+    <button onclick="addWeek()">إضافة أسبوع</button>
 
-<div id="userAttendance" class="tab-content active">
-    <h3>تسجيل الحضور</h3>
-    <select id="selectMember"><option value="">-- اختر اسمك --</option></select>
-    <select id="weekSelect"><option value="">-- اختر الأسبوع --</option></select>
-    <button id="markPresent" class="btn btn-primary">تسجيل الحضور</button>
-    <p>إجمالي الحضور: <span id="attendanceCount">0</span></p>
-    <p>إجمالي النقاط: <span id="totalPoints">0</span></p>
-</div>
+    <h3>الأعضاء</h3>
+    <ul id="membersList"></ul>
 
-<div id="adminPanel" class="tab-content">
-    <h3>لوحة الإدارة</h3>
+    <h3>الأسابيع</h3>
+    <ul id="weeksList"></ul>
 
-    <h4>الأعضاء</h4>
-    <input type="text" id="newMemberName" placeholder="اسم العضو">
-    <input type="text" id="newMemberImage" placeholder="رابط الصورة">
-    <button id="addMemberBtn" class="btn btn-primary">إضافة عضو</button>
-    <table>
-        <thead>
-            <tr><th>#</th><th>صورة</th><th>الاسم</th><th>تعديل</th><th>حذف</th></tr>
-        </thead>
-        <tbody id="membersList"></tbody>
-    </table>
-
-    <h4>الأسابيع</h4>
-    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-    <input type="date" id="newWeekStart">
-    <input type="date" id="newWeekEnd">
-    <button id="addWeekBtn" class="btn btn-primary">إضافة أسبوع</button>
-    <table>
-        <thead>
-            <tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr>
-        </thead>
-        <tbody id="weeksList"></tbody>
-    </table>
-</div>
-
-<div id="leaderboard" class="tab-content">
-    <h3>لوحة النقاط</h3>
-    <table>
-        <thead>
-            <tr><th>#</th><th>صورة</th><th>الاسم</th><th>عدد الحضور</th><th>النقاط</th></tr>
-        </thead>
-        <tbody id="leaderboardList"></tbody>
-    </table>
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
-        authDomain: "angels-attendance.firebaseapp.com",
-        databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-        projectId: "angels-attendance",
-        storageBucket: "angels-attendance.firebasestorage.app",
-        messagingSenderId: "157249026489",
-        appId: "1:157249026489:web:db2b420203bd81d9a19e68",
-        measurementId: "G-2YDPSFPQYT"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let isAdmin=false;
-    const adminPass='admin123';
-
-    const notificationEl=document.getElementById('notification');
-
-    function showNotification(msg,success=true){
-        notificationEl.textContent=msg;
-        notificationEl.style.background=success?'#2ecc71':'#e74c3c';
-        notificationEl.style.display='block';
-        setTimeout(()=>notificationEl.style.display='none',3000);
-    }
-
-    function setAdminMode(on){
-        isAdmin=on;
-        document.body.classList.toggle('admin-mode',on);
-        document.getElementById('adminLoginBtn').style.display=on?'none':'inline-block';
-        document.getElementById('adminLogoutBtn').style.display=on?'inline-block':'none';
-    }
-
-    document.getElementById('adminLoginBtn').addEventListener('click',()=>{
-        const pwd=prompt('أدخل كلمة سر الأدمن:');
-        if(pwd===adminPass){ setAdminMode(true); showNotification('تم تسجيل دخول الأدمن'); }
-        else showNotification('كلمة السر خطأ',false);
-    });
-    document.getElementById('adminLogoutBtn').addEventListener('click',()=>setAdminMode(false));
-
-    document.querySelectorAll('.tab').forEach(tab=>{
-        tab.addEventListener('click',()=>{
-            if(tab.classList.contains('admin-tab')&&!isAdmin){ showNotification('تسجيل دخول الأدمن مطلوب',false); return; }
-            document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.tab).classList.add('active');
-            if(tab.dataset.tab==='leaderboard') updateLeaderboard();
-        });
-    });
-
-    let members=[],weeks=[],attendanceRecords=[];
-
-    function loadData(){
-        db.ref('members').on('value',snap=>{ members=snap.val()||[]; populateMembers(); });
-        db.ref('weeks').on('value',snap=>{ weeks=snap.val()||[]; populateWeeks(); });
-        db.ref('attendance').on('value',snap=>{ attendanceRecords=snap.val()||[]; updateAttendanceUI(); });
-    }
-
-    document.getElementById('addMemberBtn').addEventListener('click',()=>{
-        const name=document.getElementById('newMemberName').value.trim();
-        const img=document.getElementById('newMemberImage').value.trim()||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`;
-        if(!name){ alert('ادخل اسم العضو'); return; }
-        const id=Date.now();
-        db.ref('members/'+id).set({id,name,image:img});
-        document.getElementById('newMemberName').value=''; document.getElementById('newMemberImage').value='';
-    });
-
-    document.getElementById('addWeekBtn').addEventListener('click',()=>{
-        const name=document.getElementById('newWeekName').value.trim();
-        const from=document.getElementById('newWeekStart').value;
-        const to=document.getElementById('newWeekEnd').value;
-        if(!name||!from||!to){ alert('أدخل جميع بيانات الأسبوع'); return; }
-        const id=Date.now();
-        db.ref('weeks/'+id).set({id,name,from,to});
-        document.getElementById('newWeekName').value=''; document.getElementById('newWeekStart').value=''; document.getElementById('newWeekEnd').value='';
-    });
-
-    function populateMembers(){
-        const select=document.getElementById('selectMember');
-        const list=document.getElementById('membersList');
-        select.innerHTML='<option value="">-- اختر اسمك --</option>';
-        list.innerHTML='';
-        Object.values(members).forEach((m,i)=>{
-            let option=document.createElement('option'); option.value=m.id; option.textContent=m.name; select.appendChild(option);
-            let tr=document.createElement('tr');
-            tr.innerHTML=`<td>${i+1}</td><td><img src="${m.image}" class="member-img"></td><td>${m.name}</td>
-            <td><button class="btn btn-primary" onclick="editMember(${m.id})">تعديل</button></td>
-            <td><button class="btn btn-danger" onclick="deleteMember(${m.id})">حذف</button></td>`;
-            list.appendChild(tr);
-        });
-    }
-
-    function populateWeeks(){
-        const select=document.getElementById('weekSelect');
-        const list=document.getElementById('weeksList');
-        select.innerHTML='<option value="">-- اختر الأسبوع --</option>';
-        list.innerHTML='';
-        Object.values(weeks).forEach((w,i)=>{
-            let option=document.createElement('option'); option.value=w.id; option.textContent=w.name; select.appendChild(option);
-            let tr=document.createElement('tr');
-            tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td>
-            <td><button class="btn btn-primary" onclick="editWeek(${w.id})">تعديل</button></td>
-            <td><button class="btn btn-danger" onclick="deleteWeek(${w.id})">حذف</button></td>`;
-            list.appendChild(tr);
-        });
-    }
-
-    document.getElementById('markPresent').addEventListener('click',()=>{
-        const memberId=document.getElementById('selectMember').value;
-        const weekId=document.getElementById('weekSelect').value;
-        if(!memberId||!weekId){ alert('اختر العضو والأسبوع'); return; }
-        const key=`${memberId}_${weekId}`;
-        db.ref('attendance/'+key).set({memberId,weekId,present:true});
-        showNotification('تم تسجيل الحضور');
-    });
-
-    function updateAttendanceUI(){
-        let count=Object.values(attendanceRecords).filter(a=>a.present).length;
-        document.getElementById('attendanceCount').textContent=count;
-        document.getElementById('totalPoints').textContent=count;
-    }
-
-    function deleteMember(id){ if(confirm('هل تريد حذف العضو؟')) db.ref('members/'+id).remove(); }
-    function editMember(id){ let name=prompt('عدل الاسم'); if(name) db.ref('members/'+id+'/name').set(name); }
-
-    function deleteWeek(id){ if(confirm('هل تريد حذف الأسبوع؟')) db.ref('weeks/'+id).remove(); }
-    function editWeek(id){ let name=prompt('عدل اسم الأسبوع'); if(name) db.ref('weeks/'+id+'/name').set(name); }
-
-    function updateLeaderboard(){
-        const tbody=document.getElementById('leaderboardList');
-        tbody.innerHTML='';
-        const pointsMap={};
-        Object.values(attendanceRecords).forEach(a=>{ if(a.present) pointsMap[a.memberId]=(pointsMap[a.memberId]||0)+1; });
-        const sorted=Object.entries(pointsMap).sort((a,b)=>b[1]-a[1]);
-        sorted.forEach(([id,pts],i)=>{
-            const m=members[id]; if(!m) return;
-            let tr=document.createElement('tr');
-            tr.innerHTML=`<td>${i+1}</td><td><img src="${m.image}" class="member-img"></td><td>${m.name}</td><td>${pts}</td><td>${pts}</td>`;
-            tbody.appendChild(tr);
-        });
-    }
-
-    loadData();
-</script>
+    <button onclick="loadMembers()">تحميل الأعضاء</button>
+    <button onclick="loadWeeks()">تحميل الأسابيع</button>
+  </div>
 </body>
 </html>

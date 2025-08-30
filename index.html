@@ -1,430 +1,100 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>نظام حضور - Angels Attendance</title>
-  <style>
-    body{font-family: Arial, sans-serif;max-width:1100px;margin:18px auto;color:#222}
-    header{display:flex;align-items:center;justify-content:space-between}
-    h1{font-size:20px}
-    .card{border:1px solid #ddd;padding:12px;border-radius:8px;margin:10px 0;background:#fafafa}
-    label{display:block;margin:6px 0}
-    select,input,button,textarea{padding:8px;border-radius:6px;border:1px solid #ccc}
-    table{width:100%;border-collapse:collapse;margin-top:8px}
-    th,td{padding:6px;border:1px solid #eee;text-align:center}
-    .row{display:flex;gap:10px}
-    .col{flex:1}
-    .small{width:140px}
-    .muted{color:#666;font-size:13px}
-    .danger{background:#ffefef}
-  </style>
-</head>
-<body>
-  <header>
-    <h1>نظام حضور — Angels Attendance</h1>
-    <div class="muted">واجهة جاهزة للعمل مع Firebase Realtime DB</div>
-  </header>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام الحضور - ملايكة</title>
 
-  <section class="card">
-    <h3>تهيئة Firebase</h3>
-    <p class="muted">انسخ بيانات التهيئة من لوحة Firebase وأدخلها في الكود أدناه داخل متغير <code>firebaseConfig</code>.</p>
-    <pre style="background:#fff;padding:8px;border-radius:6px;border:1px solid #eee;overflow:auto;">// مثال: ضع هنا firebaseConfig من Firebase Console
-const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "...",
-  databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
-};</pre>
-  </section>
-
-  <section class="card">
-    <h3>تسجيل الحضور</h3>
-    <div class="row">
-      <div class="col">
-        <label>اختر العضو</label>
-        <select id="memberSelect"></select>
-      </div>
-      <div class="col">
-        <label>اختر الأسبوع</label>
-        <select id="weekSelect"></select>
-      </div>
-      <div class="col small">
-        <label>حالة الحضور</label>
-        <select id="statusSelect">
-          <option value="حاضر">حاضر</option>
-          <option value="متأخر">متأخر</option>
-          <option value="غائب">غائب</option>
-        </select>
-      </div>
-      <div class="col small" style="display:flex;align-items:end">
-        <button id="btnCheckIn">تسجيل الحضور</button>
-      </div>
-    </div>
-    <div class="muted">نقاط: حاضر=1, متأخر=0.5, غائب=0</div>
-  </section>
-
-  <section class="card">
-    <h3>إدارة الأسابيع</h3>
-    <div class="row">
-      <input id="newWeekName" placeholder="اسم الأسبوع (مثال: الأسبوع 1 أو 1 سبتمبر)" />
-      <button id="btnAddWeek">إنشاء أسبوع</button>
-    </div>
-    <div id="weeksList"></div>
-  </section>
-
-  <section class="card">
-    <h3>قائمة الأعضاء</h3>
-    <div class="row">
-      <input id="newMemberName" placeholder="اسم عضو جديد" />
-      <button id="btnAddMember">إضافة عضو</button>
-    </div>
-    <div style="margin-top:8px">
-      <input type="file" id="csvInput" accept=".csv" />
-      <button id="btnImportCsv">استيراد CSV</button>
-      <button id="btnExportCsv">تصدير تقرير CSV</button>
-      <button id="btnRecalc">إعادة احتساب النقاط</button>
-    </div>
-    <div id="membersTable"></div>
-  </section>
-
-  <section class="card">
-    <h3>سجل الحضور (معاينة)</h3>
-    <div id="attendancePreview"></div>
-  </section>
-
-  <!-- Firebase v8 CDN (الأسهل للتكامل مع db.ref) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+  <!-- مكتبة QR -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; direction: rtl; text-align: center; }
+    .member { border: 1px solid #ccc; padding: 10px; margin: 10px; border-radius: 10px; }
+    .qrcode { margin-top: 10px; }
+    button { padding: 5px 10px; margin-top: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>📋 نظام حضور ملايكة</h1>
+  <div id="members"></div>
+
+  <div id="qrcode-popup" style="display:none;">
+    <h3>امسح الكود لتسجيل الحضور</h3>
+    <div id="qrcode"></div>
+  </div>
+
   <script>
-    // --- ضع هنا بيانات firebaseConfig الخاصة بمشروعك ---
+    // Firebase Config
     const firebaseConfig = {
-      apiKey: "REPLACE_ME",
-      authDomain: "REPLACE_ME",
-      databaseURL: "REPLACE_ME",
-      projectId: "REPLACE_ME",
-      storageBucket: "REPLACE_ME",
-      messagingSenderId: "REPLACE_ME",
-      appId: "REPLACE_ME"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "angels-attendance.firebaseapp.com",
+      databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+      projectId: "angels-attendance",
+      storageBucket: "angels-attendance.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
-
-    // نقاط لكل حالة
-    const POINTS = { "حاضر": 1, "متأخر": 0.5, "غائب": 0 };
-
-    // تهيئة Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // عناصر DOM
-    const memberSelect = document.getElementById('memberSelect');
-    const weekSelect = document.getElementById('weekSelect');
-    const statusSelect = document.getElementById('statusSelect');
-    const btnCheckIn = document.getElementById('btnCheckIn');
-    const btnAddWeek = document.getElementById('btnAddWeek');
-    const newWeekName = document.getElementById('newWeekName');
-    const weeksList = document.getElementById('weeksList');
-    const membersTable = document.getElementById('membersTable');
-    const btnAddMember = document.getElementById('btnAddMember');
-    const newMemberName = document.getElementById('newMemberName');
-    const csvInput = document.getElementById('csvInput');
-    const btnImportCsv = document.getElementById('btnImportCsv');
-    const btnExportCsv = document.getElementById('btnExportCsv');
-    const btnRecalc = document.getElementById('btnRecalc');
-    const attendancePreview = document.getElementById('attendancePreview');
+    // تحميل الأعضاء من Firebase
+    function loadMembers() {
+      db.ref("members").once("value", (snapshot) => {
+        let container = document.getElementById("members");
+        container.innerHTML = "";
+        snapshot.forEach((child) => {
+          let memberId = child.key;
+          let member = child.val();
 
-    // تحميل البيانات وعرضها
-    function start() {
-      loadMembersAndRender();
-      loadWeeksAndRender();
-      watchAttendancePreview();
-    }
-
-    // تحميل الأعضاء
-    async function loadMembersAndRender() {
-      const snap = await db.ref('members').get();
-      memberSelect.innerHTML = '';
-      membersTable.innerHTML = '';
-
-      const rows = [`<table><thead><tr><th>الاسم</th><th>النقاط</th><th>تحرير</th></tr></thead><tbody>`];
-
-      if (snap.exists()) {
-        snap.forEach(s => {
-          const id = s.key;
-          const data = s.val();
-          const name = data.name || '';
-          const points = typeof data.points === 'number' ? data.points : (data.points ? parseFloat(data.points) : 0);
-
-          // Select
-          const opt = document.createElement('option');
-          opt.value = id; opt.textContent = name; memberSelect.appendChild(opt);
-
-          // Table row
-          rows.push(`<tr><td>${escapeHtml(name)}</td><td>${points}</td><td><button onclick="deleteMember('${id}')">حذف</button></td></tr>`);
-        });
-      }
-
-      rows.push(`</tbody></table>`);
-      membersTable.innerHTML = rows.join('\n');
-    }
-
-    // تحميل الأسابيع
-    async function loadWeeksAndRender() {
-      const snap = await db.ref('weeks').get();
-      weekSelect.innerHTML = '';
-      weeksList.innerHTML = '';
-
-      if (snap.exists()) {
-        snap.forEach(s => {
-          const id = s.key; const d = s.val();
-          const name = d.name || id;
-
-          // select
-          const opt = document.createElement('option'); opt.value = id; opt.textContent = name; weekSelect.appendChild(opt);
-
-          // weeks list row
-          const locked = !!d.locked;
-          const row = document.createElement('div');
-          row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px'; row.style.marginTop = '6px';
-          row.innerHTML = `
-            <div style="flex:1">${escapeHtml(name)}</div>
-            <div class="small">${d.startDate ? d.startDate : ''}</div>
-            <div class="small">${d.endDate ? d.endDate : ''}</div>
-            <div><label><input type=\"checkbox\" ${locked? 'checked': ''} onchange="toggleWeekLock('${id}', this.checked)">قفل الأسبوع</label></div>
-            <div><button onclick="deleteWeek('${id}')">حذف</button></div>
+          let div = document.createElement("div");
+          div.className = "member";
+          div.innerHTML = `
+            <h3>${member.name}</h3>
+            <button onclick="generateQR('${memberId}')">عرض QR</button>
+            <div class="qrcode" id="qrcode-${memberId}"></div>
           `;
-          weeksList.appendChild(row);
+          container.appendChild(div);
         });
-      }
-    }
-
-    // إضافة أسبوع
-    btnAddWeek.addEventListener('click', async () => {
-      const name = newWeekName.value.trim();
-      if (!name) return alert('اكتب اسم الأسبوع أولاً');
-      const key = db.ref('weeks').push().key;
-      await db.ref(`weeks/${key}`).set({ name, createdAt: Date.now() });
-      newWeekName.value = '';
-      loadWeeksAndRender();
-      alert('تم إنشاء الأسبوع');
-    });
-
-    // إضافة عضو يدوي
-    btnAddMember.addEventListener('click', async () => {
-      const name = newMemberName.value.trim();
-      if (!name) return alert('اكتب اسم العضو');
-      const key = db.ref('members').push().key;
-      await db.ref(`members/${key}`).set({ name, points: 0 });
-      newMemberName.value = '';
-      loadMembersAndRender();
-      alert('تم إضافة العضو');
-    });
-
-    // حذف عضو
-    window.deleteMember = async function(memberId) {
-      if (!confirm('هل أنت متأكد من حذف العضو؟ هذا سيحذف نقاطه وسجلاته.')) return;
-      await db.ref(`members/${memberId}`).remove();
-      // احذف حضور العضو من كل الأسابيع
-      const attSnap = await db.ref('attendance').get();
-      if (attSnap.exists()) {
-        const updates = {};
-        attSnap.forEach(weekNode => {
-          if (weekNode.child(memberId).exists()) updates[`attendance/${weekNode.key}/${memberId}`] = null;
-        });
-        if (Object.keys(updates).length) await db.ref().update(updates);
-      }
-      loadMembersAndRender();
-      loadWeeksAndRender();
-    }
-
-    // حذف أسبوع
-    window.deleteWeek = async function(weekId) {
-      if (!confirm('حذف الأسبوع سيحذف جميع سجلات الحضور المتعلقة به. موافق؟')) return;
-      await db.ref(`weeks/${weekId}`).remove();
-      await db.ref(`attendance/${weekId}`).remove();
-      loadWeeksAndRender();
-    }
-
-    // تبديل قفل الأسبوع
-    window.toggleWeekLock = async function(weekId, locked) {
-      await db.ref(`weeks/${weekId}/locked`).set(!!locked);
-      alert(locked ? 'تم قفل الأسبوع' : 'تم فتح الأسبوع');
-      loadWeeksAndRender();
-    }
-
-    // تسجيل/تحديث حالة الحضور مع تعديل النقاط بطريقة transaction
-    btnCheckIn.addEventListener('click', async () => {
-      const memberId = memberSelect.value;
-      const weekId = weekSelect.value;
-      const status = statusSelect.value;
-      if (!memberId || !weekId) return alert('اختر العضو والأسبوع');
-
-      // تحقق من قفل الأسبوع
-      const lockedSnap = await db.ref(`weeks/${weekId}/locked`).get();
-      if (lockedSnap.exists() && lockedSnap.val() === true) return alert('الأسبوع مقفول، لا يمكن التعديل');
-
-      await setAttendanceStatus(weekId, memberId, status);
-      loadMembersAndRender();
-      watchAttendancePreview();
-      alert('تم تسجيل الحالة');
-    });
-
-    async function setAttendanceStatus(weekId, memberId, status) {
-      const attRef = db.ref(`attendance/${weekId}/${memberId}`);
-      const pointsRef = db.ref(`members/${memberId}/points`);
-
-      const prevSnap = await attRef.get();
-      const prevStatus = prevSnap.exists() && prevSnap.val().status ? prevSnap.val().status : null;
-
-      await attRef.set({ status, timestamp: Date.now() });
-
-      const prevPoints = prevStatus ? POINTS[prevStatus] : 0;
-      const newPoints = POINTS[status];
-      const delta = (newPoints - prevPoints);
-
-      await pointsRef.transaction(curr => {
-        const base = (typeof curr === 'number') ? curr : (curr ? parseFloat(curr) : 0);
-        return +(base + delta).toFixed(2);
       });
     }
 
-    // إعادة احتساب كامل النقاط من السجل
-    btnRecalc.addEventListener('click', recalcAllPoints);
-    async function recalcAllPoints() {
-      if (!confirm('هل تريد إعادة احتساب النقاط من كل ملفات الحضور؟')) return;
-      const membersSnap = await db.ref('members').get();
-      const attSnap = await db.ref('attendance').get();
-      const totals = {};
+    // توليد QR Code للعضو
+    function generateQR(memberId) {
+      let div = document.getElementById("qrcode");
+      document.getElementById("qrcode-popup").style.display = "block";
+      div.innerHTML = "";
+      new QRCode(div, {
+        text: window.location.origin + window.location.pathname + "?checkin=" + memberId,
+        width: 200,
+        height: 200
+      });
+    }
 
-      if (membersSnap.exists()) membersSnap.forEach(m => { totals[m.key] = 0; });
+    // تسجيل الحضور لو فيه checkin باللينك
+    function getQueryParam(param) {
+      let urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
 
-      if (attSnap.exists()) {
-        attSnap.forEach(weekNode => {
-          weekNode.forEach(memberNode => {
-            const id = memberNode.key; const data = memberNode.val();
-            if (!data || !data.status) return;
-            const pts = POINTS[data.status] || 0;
-            if (!totals[id]) totals[id] = 0;
-            totals[id] += pts;
-          });
+    window.onload = function () {
+      loadMembers();
+
+      let memberId = getQueryParam("checkin");
+      if (memberId) {
+        let today = new Date().toISOString().split("T")[0];
+        db.ref("attendance/" + today + "/" + memberId).set({
+          status: "حاضر",
+          time: new Date().toLocaleTimeString()
+        }).then(() => {
+          alert("✅ تم تسجيل حضور العضو: " + memberId);
         });
       }
-
-      const updates = {};
-      Object.keys(totals).forEach(id => updates[`members/${id}/points`] = +totals[id].toFixed(2));
-      await db.ref().update(updates);
-      alert('تمت إعادة الحساب بنجاح');
-      loadMembersAndRender();
     }
-
-    // استيراد CSV
-    btnImportCsv.addEventListener('click', () => {
-      const file = csvInput.files[0];
-      if (!file) return alert('اختَر ملف CSV أولاً');
-      importMembersFromCSV(file);
-    });
-
-    function importMembersFromCSV(file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const text = e.target.result;
-        const lines = text.split(/\r?\n/).filter(l => l.trim().length);
-        if (lines.length <= 1) return alert('الملف فارغ أو لا يحتوي على رؤوس');
-        const header = lines[0].split(',').map(h => h.trim());
-        const nameIdx = header.indexOf('name');
-        const photoIdx = header.indexOf('photoUrl');
-        if (nameIdx === -1) return alert('لازم يكون في عمود باسم "name" في رأس الملف');
-
-        const updates = {};
-        for (let i=1;i<lines.length;i++){
-          const cols = lines[i].split(',').map(c=>c.trim());
-          if (!cols[nameIdx]) continue;
-          const newKey = db.ref('members').push().key;
-          updates[`members/${newKey}`] = { name: cols[nameIdx], photoUrl: photoIdx!==-1?cols[photoIdx]:'', points: 0 };
-        }
-        if (Object.keys(updates).length===0) return alert('لا يوجد أعضاء للاستيراد');
-        await db.ref().update(updates);
-        alert('تم الاستيراد');
-        loadMembersAndRender();
-      };
-      reader.readAsText(file, 'utf-8');
-    }
-
-    // تصدير CSV
-    btnExportCsv.addEventListener('click', exportAttendanceCSV);
-    async function exportAttendanceCSV() {
-      const [membersSnap, weeksSnap, attSnap] = await Promise.all([
-        db.ref('members').get(),
-        db.ref('weeks').get(),
-        db.ref('attendance').get()
-      ]);
-
-      const members = {};
-      const weeks = {};
-      if (membersSnap.exists()) membersSnap.forEach(m=>members[m.key]=m.val().name||m.key);
-      if (weeksSnap.exists()) weeksSnap.forEach(w=>weeks[w.key]=w.val().name||w.key);
-
-      const rows = [['memberId','memberName','weekId','weekName','status','timestamp']];
-      if (attSnap.exists()) {
-        attSnap.forEach(weekNode=>{
-          const weekId = weekNode.key;
-          const weekName = weeks[weekId]||weekId;
-          weekNode.forEach(memberNode=>{
-            const memberId = memberNode.key;
-            const data = memberNode.val();
-            rows.push([memberId, members[memberId]||memberId, weekId, weekName, data.status||'', data.timestamp||'']);
-          });
-        });
-      }
-
-      const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
-      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'attendance-report.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-    }
-
-    // مشاهدة معاينة السجل
-    async function watchAttendancePreview() {
-      const [membersSnap, weeksSnap, attSnap] = await Promise.all([
-        db.ref('members').get(),
-        db.ref('weeks').get(),
-        db.ref('attendance').get()
-      ]);
-      const members = {}; const weeks = {};
-      if (membersSnap.exists()) membersSnap.forEach(m=>members[m.key]=m.val().name||m.key);
-      if (weeksSnap.exists()) weeksSnap.forEach(w=>weeks[w.key]=w.val().name||w.key);
-
-      const rows = [`<table><thead><tr><th>العضو</th><th>الأسبوع</th><th>الحالة</th><th>الوقت</th></tr></thead><tbody>`];
-      if (attSnap.exists()) {
-        attSnap.forEach(weekNode=>{
-          const weekId = weekNode.key;
-          weekNode.forEach(memberNode=>{
-            const data = memberNode.val();
-            const name = members[memberNode.key] || memberNode.key;
-            const weekName = weeks[weekId] || weekId;
-            const t = data.timestamp ? new Date(data.timestamp).toLocaleString('ar-EG') : '';
-            rows.push(`<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(weekName)}</td><td>${data.status||''}</td><td>${t}</td></tr>`);
-          });
-        });
-      }
-      rows.push(`</tbody></table>`);
-      attendancePreview.innerHTML = rows.join('\n');
-    }
-
-    // مساعدة - فرار HTML
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-    // تشغيل عند التحميل
-    start();
-
-    // استمع لتغيّر البيانات مباشرة (اختياري) لتحسين التزامن
-    db.ref('members').on('value', start);
-    db.ref('weeks').on('value', start);
-    db.ref('attendance').on('value', watchAttendancePreview);
-
   </script>
 </body>
 </html>

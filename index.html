@@ -385,6 +385,7 @@
             z-index: 1000;
             display: none;
             animation: notify 0.5s;
+            max-width: 350px;
         }
         
         @keyframes notify {
@@ -574,6 +575,22 @@
             color: white;
         }
         
+        .admin-only {
+            display: none;
+        }
+        
+        .admin-mode .admin-only {
+            display: block;
+        }
+        
+        .admin-mode .admin-tab {
+            display: block;
+        }
+        
+        .admin-tab {
+            display: none;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -617,8 +634,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌟 نظام حضور خدام ملايكة - المحسّن</h1>
-            <p>الحضور يساوي نقطة | نظام متكامل للمتابعة والإنجازات</p>
+            <h1>🌟 نظام حضور خدام ملايكة</h1>
+            <p>الحضور يساوي نقطة</p>
         </header>
 
         <div class="loading" id="loading">
@@ -632,10 +649,10 @@
 
         <div class="tabs">
             <div class="tab active" data-tab="userAttendance">الحضور</div>
-            <div class="tab" data-tab="tasks">المهام والإنجازات</div>
-            <div class="tab" data-tab="calendar">تقويم الاجتماعات</div>
+            <div class="tab admin-tab" data-tab="tasks">المهام والإنجازات</div>
+            <div class="tab admin-tab" data-tab="calendar">تقويم الاجتماعات</div>
             <div class="tab" data-tab="leaderboard">التصنيف</div>
-            <div class="tab" data-tab="reports">التقارير</div>
+            <div class="tab admin-tab" data-tab="reports">التقارير</div>
         </div>
 
         <div class="tab-content active" id="userAttendance">
@@ -655,7 +672,7 @@
             </div>
             <div class="controls">
                 <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
-                <button class="btn btn-info" id="addCustomPoint">إضافة نقاط إضافية</button>
+                <button class="btn btn-info admin-only" id="addCustomPoint">إضافة نقاط إضافية</button>
             </div>
             <table>
                 <thead>
@@ -666,7 +683,7 @@
                         <th>الأسبوع</th>
                         <th>الحضور</th>
                         <th>النقاط</th>
-                        <th>الإنجازات</th>
+                        <th class="admin-only">الإنجازات</th>
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
@@ -677,7 +694,7 @@
                         <td>الاسبوع الاول</td>
                         <td class="attendance-value">0</td>
                         <td class="points">0</td>
-                        <td><span class="badge badge-primary">0 إنجاز</span></td>
+                        <td class="admin-only"><span class="badge badge-primary">0 إنجاز</span></td>
                     </tr>
                     <tr>
                         <td>2</td>
@@ -686,7 +703,7 @@
                         <td>الاسبوع الاول</td>
                         <td class="attendance-value">0</td>
                         <td class="points">0</td>
-                        <td><span class="badge badge-primary">0 إنجاز</span></td>
+                        <td class="admin-only"><span class="badge badge-primary">0 إنجاز</span></td>
                     </tr>
                     <tr>
                         <td>3</td>
@@ -695,7 +712,7 @@
                         <td>الاسبوع الاول</td>
                         <td class="attendance-value">0</td>
                         <td class="points">0</td>
-                        <td><span class="badge badge-primary">0 إنجاز</span></td>
+                        <td class="admin-only"><span class="badge badge-primary">0 إنجاز</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -705,7 +722,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="tasks">
+        <div class="tab-content admin-only" id="tasks">
             <h2>المهام والإنجازات</h2>
             <div class="controls">
                 <input type="text" id="newTaskTitle" placeholder="عنوان المهمة">
@@ -770,7 +787,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="calendar">
+        <div class="tab-content admin-only" id="calendar">
             <h2>تقويم الاجتماعات والمناسبات</h2>
             <div class="controls">
                 <input type="text" id="newEventTitle" placeholder="عنوان المناسبة">
@@ -895,7 +912,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="reports">
+        <div class="tab-content admin-only" id="reports">
             <h2>التقارير والإحصائيات</h2>
             
             <div class="export-buttons">
@@ -951,6 +968,7 @@
 
         <div class="controls" style="margin-top:20px;">
             <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
+            <button class="btn btn-danger admin-only" id="adminLogoutBtn" style="display:none;">تسجيل خروج</button>
         </div>
 
         <!-- نموذج تسجيل دخول الأدمن -->
@@ -982,6 +1000,9 @@
         let rewards = [];
         let tasks = [];
         let events = [];
+        
+        // حالة النظام
+        let isAdmin = false;
         
         // كلمة السر
         const adminPass = 'admin123';
@@ -1018,9 +1039,49 @@
             }
         }
         
+        async function loadDataFromFirebase() {
+            if (!isFirebaseConnected) return;
+            
+            showLoading();
+            
+            try {
+                // جلب البيانات من Firebase
+                const membersSnapshot = await db.collection('members').get();
+                const weeksSnapshot = await db.collection('weeks').get();
+                const attendanceSnapshot = await db.collection('attendance').get();
+                const rewardsSnapshot = await db.collection('rewards').get();
+                
+                // تحديث البيانات المحلية
+                members = membersSnapshot.docs.map(doc => doc.data());
+                weeks = weeksSnapshot.docs.map(doc => doc.data());
+                attendanceRecords = attendanceSnapshot.docs.map(doc => doc.data());
+                rewards = rewardsSnapshot.docs.map(doc => doc.data());
+                
+                // حفظ نسخة محلية للاستخدام دون اتصال
+                saveToLocalStorage();
+                
+                // تحديث الواجهة
+                populateData();
+                updateReports();
+                hideLoading();
+                
+                showNotification('تم تحميل البيانات من السحابة');
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات من Firebase:', error);
+                document.getElementById('firebaseStatus').textContent = '✗ خطأ في تحميل البيانات (وضع عدم الاتصال)';
+                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+                
+                // استخدام البيانات المحلية في حالة الخطأ
+                loadFromLocalStorage();
+                hideLoading();
+            }
+        }
+        
         // وظائف إضافية للمميزات الجديدة
         function generateCalendar() {
             const calendarEl = document.getElementById('calendarView');
+            if (!calendarEl) return;
+            
             calendarEl.innerHTML = '';
             
             const days = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
@@ -1062,40 +1123,43 @@
         
         function setupTaskSystem() {
             // إضافة مهمة جديدة
-            document.getElementById('addTaskBtn').addEventListener('click', () => {
-                const title = document.getElementById('newTaskTitle').value;
-                const description = document.getElementById('newTaskDescription').value;
-                const assignee = document.getElementById('newTaskAssignee').value;
-                const points = document.getElementById('newTaskPoints').value;
-                
-                if (!title) {
-                    alert('يرجى إدخال عنوان المهمة');
-                    return;
-                }
-                
-                const newTask = {
-                    id: tasks.length + 1,
-                    title,
-                    description,
-                    assignee: parseInt(assignee),
-                    points: parseInt(points),
-                    completed: false,
-                    createdAt: new Date().toISOString()
-                };
-                
-                tasks.push(newTask);
-                saveToLocalStorage();
-                showNotification('تم إضافة المهمة بنجاح');
-                
-                // تحديث واجهة المستخدم
-                updateTasksUI();
-                
-                // مسح الحقول
-                document.getElementById('newTaskTitle').value = '';
-                document.getElementById('newTaskDescription').value = '';
-                document.getElementById('newTaskAssignee').value = '0';
-                document.getElementById('newTaskPoints').value = '5';
-            });
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            if (addTaskBtn) {
+                addTaskBtn.addEventListener('click', () => {
+                    const title = document.getElementById('newTaskTitle').value;
+                    const description = document.getElementById('newTaskDescription').value;
+                    const assignee = document.getElementById('newTaskAssignee').value;
+                    const points = document.getElementById('newTaskPoints').value;
+                    
+                    if (!title) {
+                        alert('يرجى إدخال عنوان المهمة');
+                        return;
+                    }
+                    
+                    const newTask = {
+                        id: tasks.length + 1,
+                        title,
+                        description,
+                        assignee: parseInt(assignee),
+                        points: parseInt(points),
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    tasks.push(newTask);
+                    saveToLocalStorage();
+                    showNotification('تم إضافة المهمة بنجاح');
+                    
+                    // تحديث واجهة المستخدم
+                    updateTasksUI();
+                    
+                    // مسح الحقول
+                    document.getElementById('newTaskTitle').value = '';
+                    document.getElementById('newTaskDescription').value = '';
+                    document.getElementById('newTaskAssignee').value = '0';
+                    document.getElementById('newTaskPoints').value = '5';
+                });
+            }
         }
         
         function updateTasksUI() {
@@ -1105,36 +1169,39 @@
         
         function setupEventSystem() {
             // إضافة مناسبة جديدة
-            document.getElementById('addEventBtn').addEventListener('click', () => {
-                const title = document.getElementById('newEventTitle').value;
-                const date = document.getElementById('newEventDate').value;
-                const description = document.getElementById('newEventDescription').value;
-                
-                if (!title || !date) {
-                    alert('يرجى إدخال عنوان وتاريخ المناسبة');
-                    return;
-                }
-                
-                const newEvent = {
-                    id: events.length + 1,
-                    title,
-                    date,
-                    description,
-                    createdAt: new Date().toISOString()
-                };
-                
-                events.push(newEvent);
-                saveToLocalStorage();
-                showNotification('تم إضافة المناسبة بنجاح');
-                
-                // تحديث التقويم
-                generateCalendar();
-                
-                // مسح الحقول
-                document.getElementById('newEventTitle').value = '';
-                document.getElementById('newEventDate').value = '';
-                document.getElementById('newEventDescription').value = '';
-            });
+            const addEventBtn = document.getElementById('addEventBtn');
+            if (addEventBtn) {
+                addEventBtn.addEventListener('click', () => {
+                    const title = document.getElementById('newEventTitle').value;
+                    const date = document.getElementById('newEventDate').value;
+                    const description = document.getElementById('newEventDescription').value;
+                    
+                    if (!title || !date) {
+                        alert('يرجى إدخال عنوان وتاريخ المناسبة');
+                        return;
+                    }
+                    
+                    const newEvent = {
+                        id: events.length + 1,
+                        title,
+                        date,
+                        description,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    events.push(newEvent);
+                    saveToLocalStorage();
+                    showNotification('تم إضافة المناسبة بنجاح');
+                    
+                    // تحديث التقويم
+                    generateCalendar();
+                    
+                    // مسح الحقول
+                    document.getElementById('newEventTitle').value = '';
+                    document.getElementById('newEventDate').value = '';
+                    document.getElementById('newEventDescription').value = '';
+                });
+            }
         }
         
         // وظائف المساعدة
@@ -1184,9 +1251,200 @@
             generateCalendar();
         }
         
+        function populateData(){
+            const selectMember = document.getElementById('selectMember');
+            if (selectMember) {
+                selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
+                members.forEach(m => {
+                    let option = document.createElement('option'); 
+                    option.value = m.id; 
+                    option.textContent = m.name; 
+                    selectMember.appendChild(option);
+                });
+            }
+        
+            const weekSelect = document.getElementById('weekSelect');
+            if (weekSelect) {
+                weekSelect.innerHTML = '';
+                weeks.forEach(w => {
+                    let option = document.createElement('option'); 
+                    option.value = w.id; 
+                    option.textContent = w.name; 
+                    weekSelect.appendChild(option);
+                });
+            }
+        
+            const tbody = document.getElementById('attendanceTableBody'); 
+            if (tbody) {
+                tbody.innerHTML = '';
+                
+                const selectedWeekId = document.getElementById('weekSelect').value;
+                const selectedWeek = weeks.find(w => w.id == selectedWeekId);
+                
+                members.forEach((m, i) => {
+                    // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
+                    const attendanceRecord = attendanceRecords.find(ar => 
+                        ar.memberId === m.id && ar.weekId == selectedWeekId
+                    );
+                    
+                    const isPresent = attendanceRecord ? attendanceRecord.present : false;
+                    
+                    let tr = document.createElement('tr'); 
+                    tr.dataset.member = m.id;
+                    tr.innerHTML = `
+                        <td>${i+1}</td>
+                        <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
+                        <td>${m.name}</td>
+                        <td>${selectedWeek ? selectedWeek.name : ''}</td>
+                        <td class="attendance-value">${isPresent ? '1' : '0'}</td>
+                        <td class="points">${isPresent ? '1' : '0'}</td>
+                        <td class="admin-only"><span class="badge badge-primary">0 إنجاز</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                document.getElementById('totalMembers').textContent = members.length;
+                updateAttendanceStats();
+            }
+        }
+        
+        function updateAttendanceStats(){
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            let count = 0;
+            let totalPoints = 0;
+            
+            // حساب الحضور لهذا الأسبوع فقط
+            const weekAttendance = attendanceRecords.filter(ar => 
+                ar.weekId == selectedWeekId && ar.present
+            );
+            
+            count = weekAttendance.length;
+            totalPoints = count;
+            
+            document.getElementById('attendanceCount').textContent = count;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            updateChart();
+        }
+        
+        // تحديث التقارير
+        function updateReports() {
+            // الإحصائيات العامة
+            const totalAttendance = attendanceRecords.filter(ar => ar.present).length;
+            const totalPoints = totalAttendance;
+            
+            document.getElementById('reportAttendance').textContent = totalAttendance;
+            document.getElementById('reportPoints').textContent = totalPoints;
+            document.getElementById('reportMembers').textContent = members.length;
+            document.getElementById('reportWeeks').textContent = weeks.length;
+        }
+        
+        // نظام المكافآت
+        function checkForRewards(memberId) {
+            const points = attendanceRecords.filter(ar => 
+                ar.memberId === memberId && ar.present
+            ).length;
+            
+            // مكافآت افتراضية
+            const rewardLevels = [
+                { points: 5, title: "ميدالية برونزية 🥉" },
+                { points: 10, title: "ميدالية فضية 🥈" },
+                { points: 15, title: "ميدالية ذهبية 🥇" },
+                { points: 20, title: "كأس التميز 🏆" }
+            ];
+            
+            rewardLevels.forEach(reward => {
+                // التحقق إذا وصل العضو لهذه النقاط ولم يحصل على المكافأة بعد
+                if (points >= reward.points) {
+                    const hasReward = rewards.some(r => 
+                        r.memberId === memberId && r.pointsRequired === reward.points
+                    );
+                    
+                    if (!hasReward) {
+                        // منح المكافأة
+                        rewards.push({
+                            memberId: memberId,
+                            pointsRequired: reward.points,
+                            title: reward.title,
+                            date: new Date().toISOString()
+                        });
+                        
+                        // إشعار بالمكافأة
+                        const member = members.find(m => m.id === memberId);
+                        showNotification(`مبروك! ${member.name} حصل على ${reward.title}`, true);
+                        
+                        // حفظ البيانات
+                        saveToLocalStorage();
+                        if (isFirebaseConnected) saveToFirebase();
+                    }
+                }
+            });
+        }
+        
+        // تسجيل الحضور للعضو المحدد
+        function markAttendance() {
+            const memberId = parseInt(document.getElementById('selectMember').value);
+            const weekId = parseInt(document.getElementById('weekSelect').value);
+            
+            if (!memberId || !weekId) {
+                alert('يجب اختيار العضو والأسبوع أولاً');
+                return;
+            }
+            
+            const index = attendanceRecords.findIndex(ar => 
+                ar.memberId === memberId && ar.weekId == weekId
+            );
+            
+            if (index !== -1) {
+                // إذا كان موجوداً بالفعل، لا نفعل شيئاً (لا نسمح بالتسجيل المتكرر)
+                showNotification('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع', false);
+            } else {
+                // إضافة سجل جديد
+                attendanceRecords.push({
+                    memberId: memberId,
+                    weekId: weekId,
+                    present: true,
+                    date: new Date().toISOString()
+                });
+                
+                // التحقق من المكافآت
+                checkForRewards(memberId);
+                
+                saveToLocalStorage();
+                if (isFirebaseConnected) saveToFirebase();
+                populateData();
+                showNotification('تم تسجيل الحضور بنجاح!', true);
+            }
+        }
+        
+        // إدارة وضع الأدمن
+        function setAdminMode(isAdminMode) {
+            isAdmin = isAdminMode;
+            if (isAdminMode) {
+                document.body.classList.add('admin-mode');
+                document.getElementById('adminLoginBtn').style.display = 'none';
+                document.getElementById('adminLogoutBtn').style.display = 'inline-block';
+                showNotification('تم تسجيل دخول الأدمن بنجاح');
+            } else {
+                document.body.classList.remove('admin-mode');
+                document.getElementById('adminLoginBtn').style.display = 'inline-block';
+                document.getElementById('adminLogoutBtn').style.display = 'none';
+                // العودة إلى تبويب الحضور عند تسجيل الخروج
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('[data-tab="userAttendance"]').classList.add('active');
+                document.getElementById('userAttendance').classList.add('active');
+            }
+        }
+        
         // تبويبات النظام
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
+                // إذا كان تبويب أدمن ولم يكن المستخدم مسجلاً دخولاً، لا تفعل anything
+                if (tab.classList.contains('admin-tab') && !isAdmin) {
+                    showNotification('يجب تسجيل دخول الأدمن للوصول إلى هذا القسم', false);
+                    return;
+                }
+                
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 tab.classList.add('active');
@@ -1203,12 +1461,42 @@
             });
         });
         
+        // تسجيل دخول الأدمن
+        document.getElementById('adminLoginBtn').addEventListener('click', () => {
+            document.getElementById('adminLoginModal').style.display = 'flex';
+        });
+        
+        document.getElementById('cancelAdminLogin').addEventListener('click', () => {
+            document.getElementById('adminLoginModal').style.display = 'none';
+        });
+        
+        document.getElementById('confirmAdminLogin').addEventListener('click', () => {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === adminPass) {
+                document.getElementById('adminLoginModal').style.display = 'none';
+                setAdminMode(true);
+            } else {
+                alert('كلمة السر خطأ!');
+            }
+        });
+        
+        // تسجيل خروج الأدمن
+        document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+            setAdminMode(false);
+        });
+        
+        // زر تسجيل الحضور
+        document.getElementById('markPresent').addEventListener('click', markAttendance);
+        
         // تحميل البيانات عند بدء التشغيل
         document.addEventListener('DOMContentLoaded', () => {
             initializeFirebase();
             setupTaskSystem();
             setupEventSystem();
             generateCalendar();
+            
+            // إخفاء العناصر الإدارية في البداية
+            setAdminMode(false);
         });
     </script>
 </body>

@@ -1,12 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>نظام حضور خدام ملايكة</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=2">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js?v=2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js?v=2"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -468,100 +472,6 @@
             background: #2980b9;
         }
         
-        .back-btn {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-weight: bold;
-            display: none;
-        }
-        
-        .reward-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            z-index: 2000;
-            text-align: center;
-            display: none;
-            animation: pop 0.5s;
-        }
-        
-        @keyframes pop {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-        
-        .reward-title {
-            font-size: 2rem;
-            color: #e74c3c;
-            margin-bottom: 15px;
-        }
-        
-        .reward-desc {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-        }
-        
-        .member-detail-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .member-detail-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .detail-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .detail-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .detail-stat {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .detail-chart {
-            margin: 20px 0;
-            height: 200px;
-        }
-        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -591,20 +501,12 @@
             header h1 {
                 font-size: 1.8rem;
             }
-            
-            .back-btn {
-                position: relative;
-                left: 0;
-                top: 0;
-                margin-bottom: 15px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <button class="back-btn" id="backToMain"><i class="fas fa-arrow-left"></i> العودة</button>
             <h1>🌟 اجتماع خدام ملايكة</h1>
             <p>الحضور يساوي نقطة</p>
         </header>
@@ -716,7 +618,6 @@
                             <th>اسم العضو</th>
                             <th>النقاط</th>
                             <th>المكافآت</th>
-                            <th>تفاصيل</th>
                             <th>تعديل</th>
                             <th>حذف</th>
                         </tr>
@@ -728,7 +629,6 @@
                             <td>🧒 Mary Karam</td>
                             <td>0</td>
                             <td>لا يوجد</td>
-                            <td><button class='btn btn-info viewMember' data-id="1">تفاصيل</button></td>
                             <td><button class='btn btn-primary editMember'>تعديل</button></td>
                             <td><button class='btn btn-danger deleteMember'>حذف</button></td>
                         </tr>
@@ -738,7 +638,6 @@
                             <td>👦 Eman Makin</td>
                             <td>0</td>
                             <td>لا يوجد</td>
-                            <td><button class='btn btn-info viewMember' data-id="2">تفاصيل</button></td>
                             <td><button class='btn btn-primary editMember'>تعديل</button></td>
                             <td><button class='btn btn-danger deleteMember'>حذف</button></td>
                         </tr>
@@ -748,7 +647,6 @@
                             <td>👧 Rizk Gerges</td>
                             <td>0</td>
                             <td>لا يوجد</td>
-                            <td><button class='btn btn-info viewMember' data-id="3">تفاصيل</button></td>
                             <td><button class='btn btn-primary editMember'>تعديل</button></td>
                             <td><button class='btn btn-danger deleteMember'>حذف</button></td>
                         </tr>
@@ -871,48 +769,6 @@
 
     <div class="floating-btn" id="helpBtn">?</div>
 
-    <!-- إضافة نافذة المكافآت -->
-    <div class="reward-popup" id="rewardPopup">
-        <div class="reward-title">🎉 مبروك! 🎉</div>
-        <div class="reward-desc" id="rewardDesc">لقد حصلت على مكافأة جديدة!</div>
-        <button class="btn btn-primary" id="closeReward">موافق</button>
-    </div>
-
-    <!-- إضافة نافذة تفاصيل العضو -->
-    <div class="member-detail-modal" id="memberDetailModal">
-        <div class="member-detail-content">
-            <div class="detail-header">
-                <img id="detailImage" src="" class="member-img" alt="">
-                <h2 id="detailName"></h2>
-            </div>
-            
-            <div class="detail-stats">
-                <div class="detail-stat">
-                    <div class="member-stat-value" id="detailPoints">0</div>
-                    <div class="member-stat-label">النقاط الكلية</div>
-                </div>
-                <div class="detail-stat">
-                    <div class="member-stat-value" id="detailAttendance">0</div>
-                    <div class="member-stat-label">أيام الحضور</div>
-                </div>
-                <div class="detail-stat">
-                    <div class="member-stat-value" id="detailPercentage">0%</div>
-                    <div class="member-stat-label">نسبة الحضور</div>
-                </div>
-            </div>
-            
-            <h3>المكافآت المكتسبة</h3>
-            <ul id="detailRewardsList"></ul>
-            
-            <h3>توزيع الحضور</h3>
-            <div class="detail-chart">
-                <canvas id="memberChart"></canvas>
-            </div>
-            
-            <button class="btn btn-danger" id="closeDetail">إغلاق</button>
-        </div>
-    </div>
-
     <script>
         // بيانات التطبيق
         let members = [
@@ -930,9 +786,6 @@
         
         // كلمة السر
         const adminPass = 'admin123';
-        
-        // إضافة متغير للرسم البياني للأعضاء
-        let memberChart = null;
         
         // وظائف المساعدة
         function showLoading() {
@@ -1058,7 +911,6 @@
                     <td>${m.name}</td>
                     <td>${totalPoints}</td>
                     <td>${rewardsText}</td>
-                    <td><button class='btn btn-info viewMember' data-id="${m.id}">تفاصيل</button></td>
                     <td><button class='btn btn-primary editMember'>تعديل</button></td>
                     <td><button class='btn btn-danger deleteMember'>حذف</button></td>
                 `;
@@ -1261,9 +1113,6 @@
                         // إشعار بالمكافأة
                         const member = members.find(m => m.id === memberId);
                         showNotification(`مبروك! ${member.name} حصل على ${reward.title}`, true);
-                        
-                        // إظهار نافذة المكافأة
-                        showRewardPopup(memberId, reward.title);
                     }
                 }
             });
@@ -1397,111 +1246,6 @@
             }
         }
         
-        // وظيفة للعودة للواجهة الرئيسية
-        function backToMain() {
-            document.getElementById('adminTabs').style.display = 'none';
-            document.getElementById('userAttendance').style.display = 'block';
-            document.getElementById('adminLoginBtn').style.display = 'block';
-            document.getElementById('backToMain').style.display = 'none';
-        }
-        
-        // وظيفة لعرض مكافأة جديدة
-        function showRewardPopup(memberId, rewardTitle) {
-            const member = members.find(m => m.id === memberId);
-            document.getElementById('rewardDesc').textContent = `مبروك ${member.name}! لقد حصلت على ${rewardTitle}`;
-            document.getElementById('rewardPopup').style.display = 'block';
-        }
-        
-        // وظيفة لعرض تفاصيل العضو
-        function showMemberDetails(memberId) {
-            const member = members.find(m => m.id === memberId);
-            if (!member) return;
-            
-            // حساب النقاط والإحصائيات
-            const totalPoints = attendanceRecords.filter(ar => 
-                ar.memberId === memberId && ar.present
-            ).length;
-            
-            const totalWeeks = weeks.length;
-            const attendancePercentage = totalWeeks > 0 ? Math.round((totalPoints / totalWeeks) * 100) : 0;
-            
-            // تعبئة البيانات
-            document.getElementById('detailImage').src = member.image;
-            document.getElementById('detailName').textContent = member.name;
-            document.getElementById('detailPoints').textContent = totalPoints;
-            document.getElementById('detailAttendance').textContent = totalPoints;
-            document.getElementById('detailPercentage').textContent = `${attendancePercentage}%`;
-            
-            // تعبئة المكافآت
-            const rewardsList = document.getElementById('detailRewardsList');
-            rewardsList.innerHTML = '';
-            
-            const memberRewards = rewards.filter(r => r.memberId === memberId);
-            if (memberRewards.length === 0) {
-                rewardsList.innerHTML = '<li>لا توجد مكافآت حتى الآن</li>';
-            } else {
-                memberRewards.forEach(reward => {
-                    const li = document.createElement('li');
-                    li.textContent = `${reward.title} (تم الحصول عليها في ${new Date(reward.date).toLocaleDateString('ar-EG')})`;
-                    rewardsList.appendChild(li);
-                });
-            }
-            
-            // إعداد الرسم البياني
-            setupMemberChart(memberId);
-            
-            // عرض النافذة
-            document.getElementById('memberDetailModal').style.display = 'flex';
-        }
-        
-        // إعداد الرسم البياني للعضو
-        function setupMemberChart(memberId) {
-            const ctx = document.getElementById('memberChart').getContext('2d');
-            
-            // إذا كان هناك رسم بياني موجود، قم بتدميره أولاً
-            if (memberChart) {
-                memberChart.destroy();
-            }
-            
-            // تجهيز بيانات الحضور لكل أسبوع
-            const labels = weeks.map(w => w.name);
-            const data = weeks.map(week => {
-                const record = attendanceRecords.find(ar => 
-                    ar.memberId === memberId && ar.weekId == week.id && ar.present
-                );
-                return record ? 1 : 0;
-            });
-            
-            // إنشاء الرسم البياني
-            memberChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'الحضور',
-                        data: data,
-                        backgroundColor: '#3498db'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 1,
-                            ticks: {
-                                stepSize: 1,
-                                callback: function(value) {
-                                    return value === 1 ? 'حاضر' : 'غائب';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
         // تبويبات الأدمن
         document.querySelectorAll('#adminTabs .tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -1537,7 +1281,6 @@
                 document.getElementById('adminTabs').style.display = 'block';
                 document.getElementById('userAttendance').style.display = 'none';
                 document.getElementById('adminLoginBtn').style.display = 'none';
-                document.getElementById('backToMain').style.display = 'block';
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
                 alert('كلمة السر خطأ!');
@@ -1612,12 +1355,6 @@
                 const index = parseInt(e.target.dataset.index);
                 deleteAttendanceRecord(index);
             }
-            
-            // النقر على أزرار التفاصيل
-            if (e.target.classList.contains('viewMember')) {
-                const memberId = parseInt(e.target.dataset.id);
-                showMemberDetails(memberId);
-            }
         });
         
         // رسم بياني
@@ -1662,13 +1399,6 @@
         document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
         document.getElementById('printReportBtn').addEventListener('click', printReport);
         document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
-        document.getElementById('backToMain').addEventListener('click', backToMain);
-        document.getElementById('closeReward').addEventListener('click', () => {
-            document.getElementById('rewardPopup').style.display = 'none';
-        });
-        document.getElementById('closeDetail').addEventListener('click', () => {
-            document.getElementById('memberDetailModal').style.display = 'none';
-        });
         
         document.getElementById('addMemberBtn').addEventListener('click', () => {
             const name = document.getElementById('newMemberName').value;

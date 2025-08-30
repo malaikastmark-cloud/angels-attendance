@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - النسخة المتكاملة</title>
+    <title>نظام حضور خدام ملايكة - متصل بـ Firebase</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <!-- Firebase Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         :root {
             --primary: #3498db;
@@ -636,6 +642,25 @@
             margin: 15px 0;
         }
         
+        .firebase-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            background: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .firebase-connected {
+            color: var(--secondary);
+        }
+        
+        .firebase-disconnected {
+            color: var(--danger);
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -666,7 +691,7 @@
                 font-size: 1.8rem;
             }
             
-            .storage-status {
+            .storage-status, .firebase-status {
                 bottom: 80px;
             }
             
@@ -695,6 +720,7 @@
         <div class="notification" id="notification"></div>
         
         <div class="storage-status" id="storageStatus">✓ التخزين المحلي</div>
+        <div class="firebase-status" id="firebaseStatus">🔌 جاري الاتصال بـ Firebase...</div>
 
         <div class="tabs">
             <div class="tab active" data-tab="userAttendance">الحضور</div>
@@ -703,7 +729,7 @@
             <div class="tab" data-tab="leaderboard">التصنيف</div>
             <div class="tab admin-tab" data-tab="reports">التقارير</div>
             <div class="tab admin-tab" data-tab="management">الإدارة</div>
-            <div class="tab admin-tab" data-tab="serverConfig">إعدادات الخادم</div>
+            <div class="tab admin-tab" data-tab="serverConfig">إعدادات Firebase</div>
         </div>
 
         <div class="tab-content active" id="userAttendance">
@@ -743,31 +769,21 @@
         <!-- باقي محتوى التبويبات هنا -->
         
         <div class="tab-content admin-only" id="serverConfig">
-            <h2>⚙️ إعدادات الخادم والتخزين</h2>
+            <h2>⚙️ إعدادات Firebase</h2>
             
             <div class="server-config">
-                <h3>إعدادات التخزين</h3>
+                <h3>معلومات اتصال Firebase</h3>
+                <div class="controls">
+                    <label>حالة الاتصال:</label>
+                    <span id="firebaseConnectionStatus">جاري الاختبار...</span>
+                </div>
+                
                 <div class="controls">
                     <label>نوع التخزين:</label>
                     <select id="storageType">
-                        <option value="local" selected>التخزين المحلي (LocalStorage)</option>
-                        <option value="server">التخزين على الخادم</option>
+                        <option value="local">التخزين المحلي (LocalStorage)</option>
+                        <option value="firebase" selected>Firebase Realtime Database</option>
                     </select>
-                </div>
-                
-                <div id="serverConfigSection" style="display: none;">
-                    <div class="controls">
-                        <label>رابط الخادم (API URL):</label>
-                        <input type="text" id="serverUrl" placeholder="https://api.example.com/attendance">
-                    </div>
-                    <div class="controls">
-                        <label>مفتاح API (اختياري):</label>
-                        <input type="password" id="apiKey" placeholder="أدخل مفتاح API إذا كان مطلوباً">
-                    </div>
-                    <div class="controls">
-                        <button class="btn btn-success" id="testConnection">اختبار الاتصال</button>
-                        <button class="btn btn-primary" id="saveServerConfig">حفظ الإعدادات</button>
-                    </div>
                 </div>
             </div>
             
@@ -779,8 +795,8 @@
                     <input type="file" id="importFile" accept=".json" style="display:none">
                 </div>
                 <div class="controls">
-                    <button class="btn btn-danger" id="syncToServer">🔄 مزامنة مع الخادم</button>
-                    <button class="btn btn-secondary" id="loadFromServer">⬇️ جلب من الخادم</button>
+                    <button class="btn btn-success" id="syncToFirebase">🔄 مزامنة مع Firebase</button>
+                    <button class="btn btn-secondary" id="loadFromFirebase">⬇️ جلب من Firebase</button>
                 </div>
             </div>
             
@@ -822,9 +838,7 @@
             groupName: "خدام ملايكة",
             attendancePoints: 1,
             enableNotifications: true,
-            storageType: "local",
-            serverUrl: "",
-            apiKey: ""
+            storageType: "firebase" // افتراضيًا Firebase
         };
         
         // حالة النظام
@@ -834,20 +848,62 @@
         // كلمة السر
         const adminPass = 'admin123';
         
+        // تهيئة Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+            authDomain: "angels-attendance.firebaseapp.com",
+            databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+            projectId: "angels-attendance",
+            storageBucket: "angels-attendance.firebasestorage.app",
+            messagingSenderId: "157249026489",
+            appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+            measurementId: "G-2YDPSFPQYT"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
         // تهيئة التطبيق
         function initializeApp() {
-            loadSettings();
-            loadFromStorage();
             setupEventListeners();
-            populateData();
+            testFirebaseConnection();
+            loadFromStorage();
             
-            document.getElementById('storageStatus').textContent = settings.storageType === 'server' 
-                ? '✓ التخزين على الخادم' 
-                : '✓ التخزين المحلي';
-                
-            document.getElementById('storageStatus').className = settings.storageType === 'server' 
-                ? 'storage-status storage-server' 
-                : 'storage-status storage-local';
+            document.getElementById('storageType').value = settings.storageType;
+            document.getElementById('storageStatus').textContent = 
+                settings.storageType === 'firebase' ? '✓ Firebase' : '✓ التخزين المحلي';
+        }
+        
+        // اختبار اتصال Firebase
+        function testFirebaseConnection() {
+            const statusElement = document.getElementById('firebaseConnectionStatus');
+            const firebaseStatus = document.getElementById('firebaseStatus');
+            
+            try {
+                // محاولة قراءة بيانات بسيطة لاختبار الاتصال
+                database.ref('connectionTest').set({
+                    test: true,
+                    timestamp: new Date().toISOString()
+                }).then(() => {
+                    statusElement.textContent = '✅ متصل بنجاح';
+                    statusElement.style.color = 'green';
+                    firebaseStatus.textContent = '✅ متصل بـ Firebase';
+                    firebaseStatus.className = 'firebase-status firebase-connected';
+                }).catch((error) => {
+                    statusElement.textContent = '❌ فشل الاتصال';
+                    statusElement.style.color = 'red';
+                    firebaseStatus.textContent = '❌ انقطع الاتصال بـ Firebase';
+                    firebaseStatus.className = 'firebase-status firebase-disconnected';
+                    console.error('Firebase connection error:', error);
+                });
+            } catch (error) {
+                statusElement.textContent = '❌ خطأ في التهيئة';
+                statusElement.style.color = 'red';
+                firebaseStatus.textContent = '❌ خطأ في الاتصال بـ Firebase';
+                firebaseStatus.className = 'firebase-status firebase-disconnected';
+                console.error('Firebase initialization error:', error);
+            }
         }
         
         // إعداد مستمعي الأحداث
@@ -873,12 +929,12 @@
             
             // تغيير نوع التخزين
             document.getElementById('storageType').addEventListener('change', function() {
-                const serverSection = document.getElementById('serverConfigSection');
-                serverSection.style.display = this.value === 'server' ? 'block' : 'none';
+                settings.storageType = this.value;
+                document.getElementById('storageStatus').textContent = 
+                    settings.storageType === 'firebase' ? '✓ Firebase' : '✓ التخزين المحلي';
+                saveSettings();
+                loadFromStorage();
             });
-            
-            // حفظ إعدادات الخادم
-            document.getElementById('saveServerConfig').addEventListener('click', saveServerConfig);
             
             // تصدير البيانات
             document.getElementById('exportData').addEventListener('click', exportData);
@@ -889,6 +945,16 @@
             });
             
             document.getElementById('importFile').addEventListener('change', importData);
+            
+            // مزامنة مع Firebase
+            document.getElementById('syncToFirebase').addEventListener('click', () => {
+                saveToFirebase();
+            });
+            
+            // جلب من Firebase
+            document.getElementById('loadFromFirebase').addEventListener('click', () => {
+                loadFromFirebase();
+            });
             
             // زر تسجيل الحضور
             document.getElementById('markPresent').addEventListener('click', markAttendance);
@@ -905,22 +971,27 @@
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     tab.classList.add('active');
                     document.getElementById(tab.dataset.tab).classList.add('active');
+                    
+                    if (tab.dataset.tab === 'serverConfig') {
+                        testFirebaseConnection();
+                        updateStorageStats();
+                    }
                 });
             });
         }
         
         // وظائف التخزين
         async function loadFromStorage() {
-            if (settings.storageType === 'server' && settings.serverUrl) {
-                await loadFromServer();
+            if (settings.storageType === 'firebase') {
+                await loadFromFirebase();
             } else {
                 loadFromLocalStorage();
             }
         }
         
         async function saveToStorage() {
-            if (settings.storageType === 'server' && settings.serverUrl) {
-                await saveToServer();
+            if (settings.storageType === 'firebase') {
+                await saveToFirebase();
             } else {
                 saveToLocalStorage();
             }
@@ -936,6 +1007,7 @@
                 tasks = data.tasks || tasks;
                 events = data.events || events;
             }
+            populateData();
             updateStorageStats();
         }
         
@@ -953,17 +1025,13 @@
             updateStorageStats();
         }
         
-        async function loadFromServer() {
+        async function loadFromFirebase() {
             showLoading(true);
             try {
-                const response = await fetch(`${settings.serverUrl}/data`, {
-                    headers: {
-                        'Authorization': `Bearer ${settings.apiKey}`
-                    }
-                });
+                const snapshot = await database.ref('/').once('value');
+                const data = snapshot.val();
                 
-                if (response.ok) {
-                    const data = await response.json();
+                if (data) {
                     members = data.members || members;
                     weeks = data.weeks || weeks;
                     attendanceRecords = data.attendanceRecords || attendanceRecords;
@@ -971,20 +1039,23 @@
                     tasks = data.tasks || tasks;
                     events = data.events || events;
                     
-                    showNotification('تم تحميل البيانات من الخادم بنجاح');
-                    updateStorageStats();
+                    showNotification('تم تحميل البيانات من Firebase بنجاح');
                 } else {
-                    throw new Error('فشل في جلب البيانات من الخادم');
+                    // إذا لم توجد بيانات على Firebase، احفظ البيانات الحالية
+                    await saveToFirebase();
                 }
+                
+                populateData();
+                updateStorageStats();
             } catch (error) {
-                console.error('خطأ في الاتصال بالخادم:', error);
-                showNotification('فشل في الاتصال بالخادم، يتم استخدام البيانات المحلية', false);
+                console.error('خطأ في تحميل البيانات من Firebase:', error);
+                showNotification('فشل في تحميل البيانات من Firebase، يتم استخدام البيانات المحلية', false);
                 loadFromLocalStorage();
             }
             showLoading(false);
         }
         
-        async function saveToServer() {
+        async function saveToFirebase() {
             showLoading(true);
             try {
                 const data = {
@@ -997,64 +1068,27 @@
                     lastUpdated: new Date().toISOString()
                 };
                 
-                const response = await fetch(`${settings.serverUrl}/data`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${settings.apiKey}`
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (response.ok) {
-                    showNotification('تم حفظ البيانات على الخادم بنجاح');
-                    updateStorageStats();
-                } else {
-                    throw new Error('فشل في حفظ البيانات على الخادم');
-                }
+                await database.ref('/').set(data);
+                showNotification('تم حفظ البيانات على Firebase بنجاح');
+                updateStorageStats();
             } catch (error) {
-                console.error('خطأ في الاتصال بالخادم:', error);
-                showNotification('فشل في الاتصال بالخادم، يتم حفظ البيانات محلياً', false);
+                console.error('خطأ في حفظ البيانات على Firebase:', error);
+                showNotification('فشل في حفظ البيانات على Firebase، يتم حفظ البيانات محلياً', false);
                 saveToLocalStorage();
             }
             showLoading(false);
-        }
-        
-        function loadSettings() {
-            const savedSettings = localStorage.getItem('angelsSettings');
-            if (savedSettings) {
-                settings = { ...settings, ...JSON.parse(savedSettings) };
-            }
-            
-            // تحديث واجهة إعدادات الخادم
-            document.getElementById('storageType').value = settings.storageType;
-            document.getElementById('serverUrl').value = settings.serverUrl;
-            document.getElementById('apiKey').value = settings.apiKey;
-            
-            const serverSection = document.getElementById('serverConfigSection');
-            serverSection.style.display = settings.storageType === 'server' ? 'block' : 'none';
         }
         
         function saveSettings() {
             localStorage.setItem('angelsSettings', JSON.stringify(settings));
         }
         
-        function saveServerConfig() {
-            settings.storageType = document.getElementById('storageType').value;
-            settings.serverUrl = document.getElementById('serverUrl').value;
-            settings.apiKey = document.getElementById('apiKey').value;
-            
-            saveSettings();
-            
-            document.getElementById('storageStatus').textContent = settings.storageType === 'server' 
-                ? '✓ التخزين على الخادم' 
-                : '✓ التخزين المحلي';
-                
-            document.getElementById('storageStatus').className = settings.storageType === 'server' 
-                ? 'storage-status storage-server' 
-                : 'storage-status storage-local';
-                
-            showNotification('تم حفظ إعدادات الخادم بنجاح');
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('angelsSettings');
+            if (savedSettings) {
+                settings = { ...settings, ...JSON.parse(savedSettings) };
+                document.getElementById('storageType').value = settings.storageType;
+            }
         }
         
         function exportData() {
@@ -1131,7 +1165,7 @@
                 <p><strong>سجلات الحضور:</strong> ${attendanceRecords.length}</p>
                 <p><strong>المهام:</strong> ${tasks.length}</p>
                 <p><strong>المناسبات:</strong> ${events.length}</p>
-                <p><strong>نوع التخزين:</strong> ${settings.storageType === 'server' ? 'الخادم' : 'محلي'}</p>
+                <p><strong>نوع التخزين:</strong> ${settings.storageType === 'firebase' ? 'Firebase' : 'محلي'}</p>
             `;
             
             statsElement.innerHTML = statsHTML;
@@ -1296,7 +1330,10 @@
         }
         
         // تحميل التطبيق عند بدء التشغيل
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            initializeApp();
+        });
     </script>
 </body>
 </html>

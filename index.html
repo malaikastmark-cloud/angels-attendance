@@ -1,238 +1,181 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angels Attendance</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>نظام حضور Angels Attendance</title>
 <style>
-  body{font-family:Tahoma,sans-serif;background:#f4f6f8;color:#333;margin:0;padding:0}
-  header{background:#3498db;color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:bold}
-  .container{padding:20px;max-width:1200px;margin:auto}
-  .card{background:#fff;padding:15px;margin:15px 0;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-  h2,h3{margin-top:0}
-  button{padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
-  .btn-primary{background:#3498db;color:#fff}
-  .btn-danger{background:#e74c3c;color:#fff}
-  .btn-logout{background:#e67e22;color:#fff;float:right}
-  select,input{padding:6px;border-radius:5px;border:1px solid #ccc;margin-right:10px}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{padding:8px;text-align:center;border-bottom:1px solid #ddd}
-  .hidden{display:none}
-  .charts-container{display:flex;flex-wrap:wrap;gap:20px;margin-top:20px}
-  canvas{background:#fff;padding:10px;border-radius:10px;flex:1 1 400px}
+    /* ======== Reset & Basic ======== */
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Arial', sans-serif; }
+    body { background:#f5f6fa; color:#2c3e50; }
+    h2,h3 { margin-bottom:15px; }
+
+    /* ======== Container ======== */
+    .container { max-width:1000px; margin:20px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1); }
+
+    /* ======== Header ======== */
+    .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+    .header h2 { color:#3498db; }
+    .btn { padding:8px 15px; border:none; border-radius:8px; cursor:pointer; transition:0.3s; }
+    .btn:hover { opacity:0.9; }
+    .btn-primary { background:#3498db; color:#fff; }
+    .btn-danger { background:#e74c3c; color:#fff; }
+    .btn-success { background:#2ecc71; color:#fff; }
+
+    /* ======== Forms ======== */
+    .form-group { margin-bottom:15px; display:flex; flex-direction:column; }
+    label { margin-bottom:5px; font-weight:bold; }
+    input, select { padding:10px; border:1px solid #ccc; border-radius:8px; }
+
+    /* ======== Table ======== */
+    table { width:100%; border-collapse:collapse; margin-top:20px; }
+    th, td { padding:10px; text-align:center; border-bottom:1px solid #eee; }
+    th { background:#3498db; color:#fff; border-radius:12px 12px 0 0; }
+    img.member-img { width:40px; height:40px; border-radius:50%; }
+
+    /* ======== Member Dashboard ======== */
+    .dashboard { margin-top:20px; }
+    .card { background:#ecf0f1; padding:15px; border-radius:12px; margin-bottom:20px; }
+    .card h3 { margin-bottom:10px; }
+
+    /* ======== Hidden ======== */
+    .hidden { display:none; }
+
+    /* ======== Footer ======== */
+    .footer { text-align:center; margin-top:20px; color:#7f8c8d; }
 </style>
 </head>
 <body>
-<header>
-  Angels Attendance
-  <button id="logoutBtn" class="btn-logout hidden">تسجيل خروج</button>
-</header>
+
 <div class="container">
+    <div id="loginSection">
+        <h2>تسجيل الدخول</h2>
+        <div class="form-group">
+            <label>اختر نوع الحساب:</label>
+            <select id="accountType">
+                <option value="member">عضو</option>
+                <option value="admin">مدير</option>
+            </select>
+        </div>
+        <div class="form-group" id="passwordGroup" style="display:none;">
+            <label>كلمة المرور للمدير:</label>
+            <input type="password" id="adminPassword" placeholder="ادخل كلمة المرور">
+        </div>
+        <button class="btn btn-primary" onclick="login()">تسجيل الدخول</button>
+    </div>
 
-<!-- شاشة تسجيل حضور العضو -->
-<div id="memberInterface" class="card">
-  <h2>تسجيل الحضور</h2>
-  <select id="memberSelect"><option value="">اختر الاسم</option></select>
-  <select id="weekSelect"><option value="">اختر الأسبوع</option></select>
-  <button class="btn-primary" onclick="markAttendance()">تسجيل الحضور</button>
-  <p id="memberMessage" style="margin-top:10px;color:green;font-weight:bold"></p>
+    <div id="memberSection" class="hidden">
+        <h2>تسجيل الحضور - واجهة العضو</h2>
+        <div class="form-group">
+            <label>اختر اسمك:</label>
+            <select id="memberSelect"></select>
+        </div>
+        <div class="form-group">
+            <label>اختر الأسبوع:</label>
+            <select id="weekSelect"></select>
+        </div>
+        <button class="btn btn-success" onclick="recordAttendance()">تسجيل الحضور</button>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3>نقاطي الحالية</h3>
+                <p id="memberPoints">0 نقطة</p>
+            </div>
+            <div class="card">
+                <h3>تقرير حضوري</h3>
+                <p id="memberAttendanceReport">لا توجد بيانات بعد</p>
+            </div>
+        </div>
+        <button class="btn btn-danger" onclick="logout()">تسجيل الخروج</button>
+    </div>
+
+    <div id="adminSection" class="hidden">
+        <h2>لوحة تحكم المدير</h2>
+        <p>مرحبًا، لديك صلاحيات كاملة لإدارة النظام.</p>
+        <button class="btn btn-danger" onclick="logout()">تسجيل الخروج</button>
+    </div>
 </div>
 
-<!-- شاشة تسجيل الدخول للادمن -->
-<div id="adminLogin" class="card">
-  <h2>تسجيل الدخول للمدير</h2>
-  <input type="password" id="adminPassword" placeholder="كلمة المرور"/>
-  <button class="btn-primary" onclick="adminLogin()">دخول</button>
-  <p id="loginMsg" style="color:red"></p>
-</div>
-
-<!-- واجهة المدير -->
-<div id="adminInterface" class="hidden">
-  <h2>لوحة التحكم</h2>
-
-  <div class="card">
-    <h3>إضافة عضو جديد</h3>
-    <input type="text" id="newMemberName" placeholder="اسم العضو"/>
-    <button class="btn-primary" onclick="addNewMember()">إضافة عضو</button>
-  </div>
-
-  <div class="card">
-    <h3>قائمة الأعضاء</h3>
-    <table>
-      <thead><tr><th>م</th><th>الاسم</th><th>حضور</th><th>حذف</th></tr></thead>
-      <tbody id="membersList"></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h3>إضافة أسبوع جديد</h3>
-    <input type="text" id="newWeekName" placeholder="اسم الأسبوع"/>
-    <button class="btn-primary" onclick="addNewWeek()">إضافة أسبوع</button>
-  </div>
-
-  <div class="card">
-    <h3>قائمة الأسابيع</h3>
-    <table>
-      <thead><tr><th>م</th><th>اسم الأسبوع</th><th>حذف</th></tr></thead>
-      <tbody id="weeksList"></tbody>
-    </table>
-  </div>
-
-  <div class="charts-container">
-    <canvas id="attendanceChart"></canvas>
-    <canvas id="pointsChart"></canvas>
-  </div>
-</div>
-
-</div>
+<div class="footer">&copy; 2025 Angels Attendance</div>
 
 <script>
-// Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
-  authDomain: "angels-attendance.firebaseapp.com",
-  databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-  projectId: "angels-attendance",
-  storageBucket: "angels-attendance.appspot.com",
-  messagingSenderId: "157249026489",
-  appId: "1:157249026489:web:db2b420203bd81d9a19e68"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// ======== البيانات التخيلية ========
+let members = [
+    {id:1,name:'أحمد'},
+    {id:2,name:'سارة'},
+    {id:3,name:'محمود'}
+];
+let weeks = [
+    {id:1,name:'الأسبوع 1'},
+    {id:2,name:'الأسبوع 2'}
+];
+let attendanceRecords = [];
 
-// بيانات محلية
-let members = [], weeks = [], attendanceRecords = [];
+// ======== Login ========
+const accountTypeSelect = document.getElementById('accountType');
+accountTypeSelect.addEventListener('change', ()=>{
+    document.getElementById('passwordGroup').style.display = accountTypeSelect.value==='admin'?'block':'none';
+});
 
-// تحميل البيانات من Firebase
-function loadData(){
-  db.ref('members').on('value',snap=>{members = snap.val()||[];populateMembers();updateCharts()})
-  db.ref('weeks').on('value',snap=>{weeks = snap.val()||[];populateWeeks()})
-  db.ref('attendanceRecords').on('value',snap=>{attendanceRecords = snap.val()||[];updateCharts()})
+function login(){
+    const type = accountTypeSelect.value;
+    if(type==='admin'){
+        const pw = document.getElementById('adminPassword').value;
+        if(pw!=='admin123'){ alert('كلمة المرور خاطئة'); return; }
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('adminSection').classList.remove('hidden');
+    }else{
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('memberSection').classList.remove('hidden');
+        populateMemberOptions();
+        populateWeekOptions();
+        updateMemberDashboard();
+    }
 }
 
-// تسجيل حضور
-function markAttendance(){
-  const memberId = document.getElementById('memberSelect').value;
-  const weekId = document.getElementById('weekSelect').value;
-  if(!memberId||!weekId){document.getElementById('memberMessage').textContent='اختر الاسم والأسبوع';return;}
-  // تحقق إن لم يتم تسجيل الحضور مسبقاً
-  const exist = attendanceRecords.find(a=>a.memberId==memberId && a.weekId==weekId);
-  if(exist){document.getElementById('memberMessage').textContent='تم تسجيل الحضور مسبقاً';return;}
-  const newRecord = {memberId, weekId, present:true};
-  attendanceRecords.push(newRecord);
-  db.ref('attendanceRecords').set(attendanceRecords);
-  document.getElementById('memberMessage').textContent='تم تسجيل الحضور بنجاح';
-  setTimeout(()=>{document.getElementById('memberMessage').textContent=''},3000);
-  updateCharts();
+function logout(){
+    document.getElementById('loginSection').classList.remove('hidden');
+    document.getElementById('adminSection').classList.add('hidden');
+    document.getElementById('memberSection').classList.add('hidden');
+    document.getElementById('adminPassword').value='';
 }
 
-// واجهة الادمن
-function adminLogin(){
-  const pwd = document.getElementById('adminPassword').value;
-  if(pwd==='admin123'){
-    document.getElementById('adminLogin').classList.add('hidden');
-    document.getElementById('memberInterface').classList.add('hidden');
-    document.getElementById('adminInterface').classList.remove('hidden');
-    document.getElementById('logoutBtn').classList.remove('hidden');
-    loadData();
-  } else {document.getElementById('loginMsg').textContent='كلمة المرور خاطئة';}
+// ======== Populate Selects ========
+function populateMemberOptions(){
+    const select = document.getElementById('memberSelect');
+    select.innerHTML='';
+    members.forEach(m=>{select.innerHTML+=`<option value='${m.id}'>${m.name}</option>`;});
 }
-document.getElementById('logoutBtn').addEventListener('click',()=>{
-  document.getElementById('adminInterface').classList.add('hidden');
-  document.getElementById('memberInterface').classList.remove('hidden');
-  document.getElementById('adminLogin').classList.remove('hidden');
-  document.getElementById('logoutBtn').classList.add('hidden');
-})
-
-// إضافة عضو
-function addNewMember(){
-  const name = document.getElementById('newMemberName').value;
-  if(!name) return;
-  const newMember = {id:Date.now().toString(),name};
-  members.push(newMember);
-  db.ref('members').set(members);
-  document.getElementById('newMemberName').value='';
+function populateWeekOptions(){
+    const select = document.getElementById('weekSelect');
+    select.innerHTML='';
+    weeks.forEach(w=>{select.innerHTML+=`<option value='${w.id}'>${w.name}</option>`;});
 }
 
-// حذف عضو
-function deleteMember(id){
-  members = members.filter(m=>m.id!==id);
-  db.ref('members').set(members);
-  attendanceRecords = attendanceRecords.filter(a=>a.memberId!==id);
-  db.ref('attendanceRecords').set(attendanceRecords);
-  updateCharts();
+// ======== Record Attendance ========
+function recordAttendance(){
+    const memberId = parseInt(document.getElementById('memberSelect').value);
+    const weekId = parseInt(document.getElementById('weekSelect').value);
+    if(attendanceRecords.find(r=>r.memberId===memberId && r.weekId===weekId)){
+        alert('تم تسجيل حضورك مسبقاً لهذا الأسبوع');
+        return;
+    }
+    attendanceRecords.push({memberId,weekId});
+    alert('تم تسجيل الحضور بنجاح');
+    updateMemberDashboard();
 }
 
-// إضافة أسبوع
-function addNewWeek(){
-  const name = document.getElementById('newWeekName').value;
-  if(!name) return;
-  const newWeek = {id:Date.now().toString(),name};
-  weeks.push(newWeek);
-  db.ref('weeks').set(weeks);
-  document.getElementById('newWeekName').value='';
-}
+function updateMemberDashboard(){
+    const memberId = parseInt(document.getElementById('memberSelect').value);
+    const points = attendanceRecords.filter(r=>r.memberId===memberId).length*10;
+    document.getElementById('memberPoints').innerText = points+' نقطة';
 
-// حذف أسبوع
-function deleteWeek(id){
-  weeks = weeks.filter(w=>w.id!==id);
-  db.ref('weeks').set(weeks);
-  attendanceRecords = attendanceRecords.filter(a=>a.weekId!==id);
-  db.ref('attendanceRecords').set(attendanceRecords);
-  updateCharts();
-}
-
-// تعبئة القوائم
-function populateMembers(){
-  const memberSelect = document.getElementById('memberSelect');
-  const membersList = document.getElementById('membersList');
-  memberSelect.innerHTML='<option value="">اختر الاسم</option>';
-  membersList.innerHTML='';
-  members.forEach((m,i)=>{
-    memberSelect.innerHTML+=`<option value="${m.id}">${m.name}</option>`;
-    membersList.innerHTML+=`<tr><td>${i+1}</td><td>${m.name}</td><td>${attendanceRecords.filter(a=>a.memberId===m.id && a.present).length}</td><td><button class="btn-danger" onclick="deleteMember('${m.id}')">حذف</button></td></tr>`;
-  })
-}
-
-function populateWeeks(){
-  const weekSelect = document.getElementById('weekSelect');
-  const weeksList = document.getElementById('weeksList');
-  weekSelect.innerHTML='<option value="">اختر الأسبوع</option>';
-  weeksList.innerHTML='';
-  weeks.forEach((w,i)=>{
-    weekSelect.innerHTML+=`<option value="${w.id}">${w.name}</option>`;
-    weeksList.innerHTML+=`<tr><td>${i+1}</td><td>${w.name}</td><td><button class="btn-danger" onclick="deleteWeek('${w.id}')">حذف</button></td></tr>`;
-  })
-}
-
-// المخططات
-let attendanceChartInstance=null, pointsChartInstance=null;
-function updateCharts(){
-  populateMembers();
-  populateWeeks();
-  const labels = members.map(m=>m.name);
-  const attendanceCounts = members.map(m=>attendanceRecords.filter(a=>a.memberId===m.id && a.present).length);
-  const pointsCounts = attendanceCounts.map(c=>c*10);
-
-  const ctx1=document.getElementById('attendanceChart').getContext('2d');
-  if(attendanceChartInstance) attendanceChartInstance.destroy();
-  attendanceChartInstance=new Chart(ctx1,{
-    type:'bar',
-    data:{labels, datasets:[{label:'عدد الحضور', data:attendanceCounts, backgroundColor:'#3498db'}]},
-    options:{responsive:true, plugins:{legend:{display:false}}}
-  });
-
-  const ctx2=document.getElementById('pointsChart').getContext('2d');
-  if(pointsChartInstance) pointsChartInstance.destroy();
-  pointsChartInstance=new Chart(ctx2,{
-    type:'line',
-    data:{labels, datasets:[{label:'النقاط', data:pointsCounts, borderColor:'#2ecc71', fill:false}]},
-    options:{responsive:true, plugins:{legend:{display:true}}}
-  });
+    let report='';
+    weeks.forEach(w=>{
+        const attended = attendanceRecords.find(r=>r.memberId===memberId && r.weekId===w.id);
+        report+=`${w.name}: ${attended?'حضر':'غائب'}\n`;
+    });
+    document.getElementById('memberAttendanceReport').innerText=report;
 }
 
 </script>

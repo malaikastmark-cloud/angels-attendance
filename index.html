@@ -1,268 +1,197 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Angels Attendance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Cairo', sans-serif; }
-
-        body {
-            background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container { width:95%; max-width:1200px; margin:20px auto; }
-
-        h1, h2, h3 { margin-bottom:15px; }
-
-        button {
-            padding:8px 16px;
-            border:none;
-            border-radius:6px;
-            cursor:pointer;
-            font-weight:600;
-            transition:0.3s;
-        }
-        button:hover { opacity:0.85; }
-
-        .btn-primary { background:#3498db; color:#fff; }
-        .btn-success { background:#2ecc71; color:#fff; }
-        .btn-danger { background:#e74c3c; color:#fff; }
-        .btn-warning { background:#f1c40f; color:#fff; }
-
-        .card {
-            background:#fff;
-            padding:15px;
-            border-radius:12px;
-            box-shadow:0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom:20px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow:0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px; }
-
-        .member-img { width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:10px; }
-
-        input, select { width:100%; padding:8px 10px; margin:5px 0 15px 0; border-radius:6px; border:1px solid #ccc; }
-
-        header { text-align:center; padding:25px 0; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.05); border-radius:12px; margin-bottom:20px; }
-
-        .hidden { display:none; }
-
-        #notification {
-            position:fixed; top:20px; right:20px; background:#2ecc71; color:#fff;
-            padding:12px 20px; border-radius:8px; display:none; z-index:999;
-        }
-
-        /* Scrollable cards */
-        #membersListGrid, #weeksListGrid, #adminPointsGrid {
-            max-height:300px; overflow-y:auto; padding-right:5px;
-        }
-
-        /* Admin Points Card */
-        .points-card {
-            display:flex; align-items:center; gap:10px;
-            justify-content:space-between;
-        }
-        .points-card img { width:50px; height:50px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angels Attendance</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+    /* Reset */
+    * {margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+    body {
+        background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        color: #333;
+    }
+    h1,h2,h3,h4 {margin-bottom:10px;}
+    button {cursor:pointer; border:none; padding:8px 12px; border-radius:6px; transition:0.3s;}
+    button:hover {opacity:0.9;}
+    .btn-primary {background-color:#3498db; color:#fff;}
+    .btn-success {background-color:#2ecc71; color:#fff;}
+    .btn-danger {background-color:#e74c3c; color:#fff;}
+    .container {max-width:1200px; width:100%; margin:auto; display:grid; grid-template-columns:1fr; gap:20px;}
+    .card {background:rgba(255,255,255,0.9); padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+    .grid {display:grid; gap:15px;}
+    .grid-2 {grid-template-columns:1fr 1fr;}
+    .grid-3 {grid-template-columns:1fr 1fr 1fr;}
+    select, input {padding:8px 10px; border-radius:6px; border:1px solid #ccc; width:100%;}
+    .member-item {display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px; background:linear-gradient(90deg,#f6d365,#fda085); color:#fff;}
+    .member-img {width:40px; height:40px; border-radius:50%; object-fit:cover;}
+    .hidden {display:none;}
+    .center {text-align:center;}
+</style>
 </head>
 <body>
 
-<div id="notification"></div>
-
-<header>
-    <h1>Angels Attendance</h1>
-</header>
-
 <div class="container">
 
-    <!-- Login -->
-    <div id="loginSection" class="card">
-        <h2>تسجيل الدخول</h2>
-        <input type="password" id="adminPassword" placeholder="كلمة مرور الأدمن">
-        <button class="btn-primary" onclick="loginAdmin()">تسجيل الدخول كأدمن</button>
-        <hr>
-        <h3>واجهة الأعضاء</h3>
-        <button class="btn-success" onclick="showMemberPanel()">دخول كعضو</button>
-    </div>
-
-    <!-- Admin Panel -->
-    <div id="adminPanel" class="hidden">
-        <h2>لوحة التحكم للأدمن</h2>
-        <button class="btn-danger" onclick="logoutAdmin()">تسجيل الخروج</button>
-
-        <div class="grid" style="margin-top:20px;">
-            <div class="card">
-                <h3>إضافة عضو جديد</h3>
-                <input type="text" id="newMemberName" placeholder="اسم العضو">
-                <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
-                <button class="btn-primary" onclick="addNewMember()">إضافة عضو</button>
+    <!-- شاشة تسجيل حضور -->
+    <div id="memberPanel" class="card">
+        <h2 class="center">تسجيل الحضور</h2>
+        <div class="grid grid-2">
+            <div>
+                <label>اختر الاسم:</label>
+                <select id="memberSelect"></select>
             </div>
-            <div class="card">
-                <h3>إضافة أسبوع جديد</h3>
-                <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-                <input type="date" id="newWeekStart">
-                <input type="date" id="newWeekEnd">
-                <button class="btn-primary" onclick="addNewWeek()">إضافة أسبوع</button>
+            <div>
+                <label>اختر الأسبوع:</label>
+                <select id="weekSelect"></select>
             </div>
         </div>
-
-        <div class="card">
-            <h3>قائمة الأعضاء</h3>
-            <div id="membersListGrid" class="grid"></div>
+        <div style="margin-top:15px; text-align:center;">
+            <button class="btn-success" onclick="markAttendance()">تسجيل الحضور</button>
         </div>
-
-        <div class="card">
-            <h3>قائمة الأسابيع</h3>
-            <div id="weeksListGrid" class="grid"></div>
-        </div>
-
-        <div class="card">
-            <h3>نقاط الأعضاء</h3>
-            <div id="adminPointsGrid" class="grid"></div>
+        <div style="margin-top:10px; text-align:center;">
+            <button class="btn-primary" onclick="showAdminLogin()">دخول الادمن</button>
         </div>
     </div>
 
-    <!-- Member Panel -->
-    <div id="memberPanel" class="hidden">
-        <h2>تسجيل الحضور</h2>
-        <select id="memberSelect"></select>
-        <select id="weekSelect"></select>
-        <button class="btn-primary" onclick="markAttendance()">تسجيل الحضور</button>
+    <!-- شاشة تسجيل دخول الادمن -->
+    <div id="adminLogin" class="card hidden">
+        <h2 class="center">دخول الادمن</h2>
+        <input type="password" id="adminPassword" placeholder="كلمة المرور">
+        <div style="margin-top:15px; text-align:center;">
+            <button class="btn-success" onclick="adminLogin()">دخول</button>
+            <button class="btn-danger" onclick="showMemberPanel()">رجوع</button>
+        </div>
+    </div>
 
-        <div class="card" style="margin-top:20px;">
-            <h3>نقاطي</h3>
-            <div id="myPoints">0 نقطة</div>
+    <!-- لوحة الادمن -->
+    <div id="adminPanel" class="card hidden">
+        <h2 class="center">لوحة التحكم - عرض النقاط والتقارير</h2>
+        <div class="grid grid-2">
+            <div>
+                <h3>الأعضاء</h3>
+                <div id="membersList"></div>
+            </div>
+            <div>
+                <h3>إحصائيات</h3>
+                <canvas id="progressChart" height="200"></canvas>
+            </div>
+        </div>
+        <div style="margin-top:15px; text-align:center;">
+            <button class="btn-danger" onclick="logoutAdmin()">تسجيل خروج</button>
         </div>
     </div>
 
 </div>
 
 <script>
-    let members = [];
-    let weeks = [];
-    let attendanceRecords = [];
+let members = [
+    {id:1, name:'أحمد', image:'https://ui-avatars.com/api/?name=Ahmed&background=3498db&color=fff'},
+    {id:2, name:'منى', image:'https://ui-avatars.com/api/?name=Mona&background=e74c3c&color=fff'},
+    {id:3, name:'سعيد', image:'https://ui-avatars.com/api/?name=Saied&background:2ecc71&color=fff'}
+];
+let weeks = [
+    {id:1, name:'الأسبوع الأول'},
+    {id:2, name:'الأسبوع الثاني'}
+];
+let attendanceRecords = [];
 
-    function showNotification(msg) {
-        const notif = document.getElementById('notification');
-        notif.textContent = msg;
-        notif.style.display = 'block';
-        setTimeout(()=>{notif.style.display='none';}, 2000);
-    }
+function populateMemberSelect(){
+    const sel = document.getElementById('memberSelect');
+    sel.innerHTML = '';
+    members.forEach(m=>{
+        const opt = document.createElement('option');
+        opt.value=m.id;
+        opt.textContent=m.name;
+        sel.appendChild(opt);
+    });
+}
 
-    function loginAdmin(){
-        const pass = document.getElementById('adminPassword').value;
-        if(pass==='admin123'){
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            populateMembersList();
-            populateWeeksList();
-            populatePointsGrid();
-            showNotification('تم تسجيل الدخول كأدمن');
-        } else { alert('كلمة المرور غير صحيحة'); }
-    }
+function populateWeekSelect(){
+    const sel = document.getElementById('weekSelect');
+    sel.innerHTML='';
+    weeks.forEach(w=>{
+        const opt = document.createElement('option');
+        opt.value=w.id;
+        opt.textContent=w.name;
+        sel.appendChild(opt);
+    });
+}
 
-    function logoutAdmin(){
-        document.getElementById('adminPanel').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
-        showNotification('تم تسجيل الخروج');
-    }
+function markAttendance(){
+    const memberId = parseInt(document.getElementById('memberSelect').value);
+    const weekId = parseInt(document.getElementById('weekSelect').value);
+    const exists = attendanceRecords.find(ar=>ar.memberId===memberId && ar.weekId===weekId);
+    if(exists){ alert('تم تسجيل الحضور مسبقاً'); return; }
+    attendanceRecords.push({memberId, weekId, present:true});
+    alert('تم تسجيل الحضور بنجاح');
+}
 
-    function showMemberPanel(){
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('memberPanel').classList.remove('hidden');
-        populateMemberSelect();
-        populateWeekSelect();
-    }
+function showAdminLogin(){
+    document.getElementById('memberPanel').classList.add('hidden');
+    document.getElementById('adminLogin').classList.remove('hidden');
+}
 
-    function addNewMember(){
-        const name=document.getElementById('newMemberName').value;
-        const img=document.getElementById('newMemberImage').value;
-        if(!name){ alert('ادخل اسم العضو'); return; }
-        members.push({id:Date.now(), name, image:img || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`});
-        populateMembersList();
-        populateMemberSelect();
-        populatePointsGrid();
-        showNotification('تم إضافة العضو');
-        document.getElementById('newMemberName').value='';
-        document.getElementById('newMemberImage').value='';
-    }
+function showMemberPanel(){
+    document.getElementById('memberPanel').classList.remove('hidden');
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+}
 
-    function addNewWeek(){
-        const name=document.getElementById('newWeekName').value;
-        const from=document.getElementById('newWeekStart').value;
-        const to=document.getElementById('newWeekEnd').value;
-        if(!name||!from||!to){ alert('ادخل جميع بيانات الأسبوع'); return; }
-        weeks.push({id:Date.now(), name, from, to});
-        populateWeeksList();
-        populateWeekSelect();
-        showNotification('تم إضافة الأسبوع');
-        document.getElementById('newWeekName').value='';
-        document.getElementById('newWeekStart').value='';
-        document.getElementById('newWeekEnd').value='';
-    }
+function adminLogin(){
+    const pass = document.getElementById('adminPassword').value;
+    if(pass==='admin123'){
+        document.getElementById('adminLogin').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        renderAdminPanel();
+    } else alert('كلمة مرور غير صحيحة');
+}
 
-    function populateMembersList(){
-        const container=document.getElementById('membersListGrid'); container.innerHTML='';
-        if(members.length===0){ container.innerHTML='<p>لا يوجد أعضاء</p>'; return; }
-        members.forEach(m=>{
-            const div=document.createElement('div'); div.className='card';
-            div.innerHTML=`<img src="${m.image}" class="member-img"><h4>${m.name}</h4>`;
-            container.appendChild(div);
-        });
-    }
+function logoutAdmin(){
+    document.getElementById('adminPanel').classList.add('hidden');
+    showMemberPanel();
+}
 
-    function populateWeeksList(){
-        const container=document.getElementById('weeksListGrid'); container.innerHTML='';
-        if(weeks.length===0){ container.innerHTML='<p>لا توجد أسابيع</p>'; return; }
-        weeks.forEach(w=>{
-            const div=document.createElement('div'); div.className='card';
-            div.innerHTML=`<h4>${w.name}</h4><p>${w.from} إلى ${w.to}</p>`;
-            container.appendChild(div);
-        });
-    }
+function renderAdminPanel(){
+    const membersListEl = document.getElementById('membersList');
+    membersListEl.innerHTML='';
+    members.forEach(m=>{
+        const div = document.createElement('div');
+        div.className='member-item';
+        div.innerHTML=`<img src="${m.image}" class="member-img"> ${m.name}`;
+        membersListEl.appendChild(div);
+    });
+    renderProgressChart();
+}
 
-    function populatePointsGrid(){
-        const container=document.getElementById('adminPointsGrid'); container.innerHTML='';
-        if(members.length===0){ container.innerHTML='<p>لا يوجد أعضاء</p>'; return; }
-        members.forEach(m=>{
-            const points = attendanceRecords.filter(a=>a.memberId===m.id && a.present).length;
-            const div=document.createElement('div'); div.className='card points-card';
-            div.innerHTML=`<img src="${m.image}"><h4>${m.name}</h4><span>${points} نقطة</span>`;
-            container.appendChild(div);
-        });
-    }
+function renderProgressChart(){
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    const data = members.map(m=>{
+        const count = attendanceRecords.filter(ar=>ar.memberId===m.id).length;
+        return count;
+    });
+    if(window.progressChartInstance) window.progressChartInstance.destroy();
+    window.progressChartInstance = new Chart(ctx,{
+        type:'bar',
+        data:{
+            labels: members.map(m=>m.name),
+            datasets:[{label:'عدد الحضور', data:data, backgroundColor:'#3498db'}]
+        },
+        options:{responsive:true, plugins:{legend:{display:false}}}
+    });
+}
 
-    function populateMemberSelect(){
-        const sel=document.getElementById('memberSelect'); sel.innerHTML='<option value="">اختر العضو</option>';
-        members.forEach(m=>{ sel.innerHTML+=`<option value="${m.id}">${m.name}</option>`; });
-    }
-
-    function populateWeekSelect(){
-        const sel=document.getElementById('weekSelect'); sel.innerHTML='<option value="">اختر الأسبوع</option>';
-        weeks.forEach(w=>{ sel.innerHTML+=`<option value="${w.id}">${w.name}</option>`; });
-    }
-
-    function markAttendance(){
-        const memberId=parseInt(document.getElementById('memberSelect').value);
-        const weekId=parseInt(document.getElementById('weekSelect').value);
-        if(!memberId||!weekId){ alert('اختر العضو والأسبوع'); return; }
-        const exists=attendanceRecords.find(a=>a.memberId===memberId && a.weekId===weekId);
-        if(exists){ alert('تم تسجيل حضور هذا العضو لهذا الأسبوع مسبقاً'); return; }
-        attendanceRecords.push({memberId, weekId, present:true});
-        const points=attendanceRecords.filter(a=>a.memberId===memberId && a.present).length;
-        document.getElementById('myPoints').textContent=points+' نقطة';
-        populatePointsGrid();
-        showNotification('تم تسجيل الحضور');
-    }
+// init
+populateMemberSelect();
+populateWeekSelect();
 </script>
 
 </body>

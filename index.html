@@ -1,1515 +1,201 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - النسخة المحسنة</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- إضافة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <style>
-        :root {
-            --primary: #3498db;
-            --secondary: #2ecc71;
-            --accent: #9b59b6;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            position: relative;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        header::before, header::after {
-            content: "✨";
-            position: absolute;
-            top: 15px;
-            font-size: 2rem;
-        }
-        
-        header::before {
-            left: 20px;
-        }
-        
-        header::after {
-            right: 20px;
-        }
-        
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-        }
-        
-        /* أنماط التبويبات والمحتوى */
-        .tab-content {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* أنماط الجداول */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background: var(--primary);
-            color: white;
-            font-weight: bold;
-        }
-        
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-        
-        tr:hover {
-            background: #f1f1f1;
-            transform: scale(1.01);
-            transition: transform 0.2s;
-        }
-        
-        /* أنماط الأزرار */
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
-            transition: all 0.3s;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-primary {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #27ae60;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-success {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #e67e22;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-info {
-            background: var(--accent);
-            color: white;
-        }
-        
-        .btn-info:hover {
-            background: #8e44ad;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-        
-        /* أنماط عناصر التحكم */
-        .controls {
-            margin: 15px 0;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        select, input, textarea {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            min-width: 200px;
-        }
-        
-        /* أنماط النوافذ المنبثقة */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 500px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            animation: modalFadeIn 0.3s;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* أنماط التبويبات */
-        .tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .tabs .tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-radius: 8px;
-            background: #f0f0f0;
-            transition: all 0.3s;
-        }
-        
-        .tabs .tab.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* أنماط البطاقات */
-        .summary-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            flex: 1;
-            min-width: 200px;
-            transition: transform 0.3s;
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .summary-card h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .summary-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--secondary);
-            margin: 10px 0;
-        }
-        
-        .summary-subtitle {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        .card-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        /* أنماط التحميل */
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 30px 0;
-            padding: 20px;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        /* أنماط الميداليات */
-        .medal {
-            font-size: 1.5rem;
-            margin-left: 5px;
-        }
-        
-        .medal-gold { color: gold; }
-        .medal-silver { color: silver; }
-        .medal-bronze { color: #cd7f32; }
-        
-        /* أنماط القوائم */
-        .top-members-list {
-            margin-top: 20px;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .top-members-list h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.4rem;
-        }
-        
-        .top-member-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            align-items: center;
-            transition: background 0.3s;
-        }
-        
-        .top-member-item:hover {
-            background: #f9f9f9;
-        }
-        
-        .top-member-item:last-child {
-            border-bottom: none;
-        }
-        
-        .top-member-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        .top-member-points {
-            background: var(--primary);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-        }
-        
-        /* أنماط الأقسام */
-        .report-section {
-            margin-bottom: 30px;
-        }
-        
-        .report-section h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--primary);
-            font-size: 1.3rem;
-        }
-        
-        /* أنماط الإشعارات */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--secondary);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            display: none;
-            animation: notify 0.5s;
-            max-width: 350px;
-        }
-        
-        @keyframes notify {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        /* أنماط الصور */
-        .member-img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-        }
-        
-        /* أنماط الشارات */
-        .reward-badge {
-            background: gold;
-            color: #333;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-left: 5px;
-            font-weight: bold;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-        
-        .badge-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .badge-success {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .badge-warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .badge-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .birthday-badge {
-            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            color: #d63031;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            margin-left: 5px;
-        }
-        
-        /* أنماط خاصة بالأدمن */
-        .admin-only {
-            display: none;
-        }
-        
-        .admin-mode .admin-only {
-            display: block;
-        }
-        
-        .admin-mode .admin-tab {
-            display: block;
-        }
-        
-        .admin-tab {
-            display: none;
-        }
-        
-        /* تحسينات التخزين */
-        .storage-status {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            background: #f8f9fa;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .storage-local {
-            color: var(--secondary);
-        }
-        
-        .storage-server {
-            color: var(--primary);
-        }
-        
-        .storage-error {
-            color: var(--danger);
-        }
-        
-        /* تحسينات الشبكة */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .feature-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .feature-card h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        /* أنماط المهام */
-        .task-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .task-item:last-child {
-            border-bottom: none;
-        }
-        
-        .task-completed {
-            text-decoration: line-through;
-            opacity: 0.7;
-        }
-        
-        .task-actions {
-            display: flex;
-            gap: 5px;
-        }
-        
-        /* أنماط التقويم */
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin-top: 15px;
-        }
-        
-        .calendar-day {
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            background: #f8f9fa;
-            cursor: pointer;
-        }
-        
-        .calendar-day.event {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .calendar-day.today {
-            border: 2px solid var(--secondary);
-        }
-        
-        /* أنماط التذكيرات */
-        .reminder-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .reminder-item:last-child {
-            border-bottom: none;
-        }
-        
-        /* أنماط الأحداث */
-        .event-actions {
-            display: flex;
-            gap: 5px;
-        }
-        
-        /* تحسينات للهواتف */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            select, input, textarea {
-                width: 100%;
-            }
-            
-            .card-container {
-                flex-direction: column;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .export-buttons {
-                flex-direction: column;
-            }
-            
-            header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .storage-status {
-                bottom: 80px;
-            }
-            
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .event-actions, .task-actions {
-                flex-direction: column;
-            }
-        }
-
-        /* أنماط جديدة للنظام المحسن */
-        .performance-badge {
-            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
-            color: #d63031;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            margin-left: 5px;
-        }
-        
-        .message-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f9f9f9;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .message-content {
-            flex: 1;
-        }
-        
-        .message-sender {
-            font-weight: bold;
-            color: var(--primary);
-        }
-        
-        .message-time {
-            font-size: 0.8rem;
-            color: #777;
-        }
-        
-        .server-config {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        .cache-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .cache-on {
-            background: var(--secondary);
-        }
-        
-        .cache-off {
-            background: var(--danger);
-        }
-        
-        .lazy-load {
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-        
-        .lazy-load.loaded {
-            opacity: 1;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة الحضور</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* أضف هنا تنسيقات CSS الخاصة بك */
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🌟 نظام حضور خدام ملايكة - المحسن</h1>
-            <p>الحضور يساوي نقطة | النسخة المحسنة بأداء أسرع</p>
-        </header>
+  <div class="container">
+    <header>
+      <h1>🌟 إدارة الحضور</h1>
+    </header>
 
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <p>جاري تحميل البيانات...</p>
-        </div>
+    <!-- إدارة الأعضاء -->
+    <section id="members">
+      <h2>إدارة الأعضاء</h2>
+      <button onclick="showAddMemberForm()">إضافة عضو</button>
+      <table id="membersTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم العضو</th>
+            <th>النقاط</th>
+            <th>تعديل</th>
+            <th>حذف</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- سيتم ملء البيانات هنا باستخدام JavaScript -->
+        </tbody>
+      </table>
+    </section>
 
-        <div class="notification" id="notification"></div>
-        
-        <div class="storage-status" id="storageStatus">✓ التخزين المحلي</div>
+    <!-- إدارة الأسابيع -->
+    <section id="weeks">
+      <h2>إدارة الأسابيع</h2>
+      <button onclick="showAddWeekForm()">إضافة أسبوع</button>
+      <table id="weeksTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>اسم الأسبوع</th>
+            <th>من</th>
+            <th>إلى</th>
+            <th>تعديل</th>
+            <th>حذف</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- سيتم ملء البيانات هنا باستخدام JavaScript -->
+        </tbody>
+      </table>
+    </section>
 
-        <div class="tabs">
-            <div class="tab active" data-tab="userAttendance">الحضور</div>
-            <div class="tab admin-tab" data-tab="tasks">المهام والإنجازات</div>
-            <div class="tab admin-tab" data-tab="calendar">تقويم الاجتماعات</div>
-            <div class="tab" data-tab="leaderboard">التصنيف</div>
-            <div class="tab admin-tab" data-tab="reports">التقارير</div>
-            <div class="tab admin-tab" data-tab="management">الإدارة</div>
-            <div class="tab" data-tab="messages">الرسائل <span class="badge badge-primary" id="unreadCount">0</span></div>
-        </div>
-
-        <!-- محتوى تبويب الرسائل الجديد -->
-        <div class="tab-content" id="messages">
-            <h2>نظام الرسائل الداخلية</h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>📩 إرسال رسالة جديدة</h3>
-                    <div class="controls">
-                        <select id="messageReceiver">
-                            <option value="all">جميع الأعضاء</option>
-                        </select>
-                        <input type="text" id="messageTitle" placeholder="عنوان الرسالة">
-                        <textarea id="messageContent" placeholder="محتوى الرسالة" rows="3"></textarea>
-                        <button class="btn btn-primary" id="sendMessageBtn">إرسال الرسالة</button>
-                    </div>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>📥 الرسائل الواردة</h3>
-                    <div id="inboxMessages"></div>
-                </div>
-                
-                <div class="feature-card">
-                    <h3>📤 الرسائل المرسلة</h3>
-                    <div id="sentMessages"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- باقي المحتوى كما هو -->
-        <div class="tab-content active" id="userAttendance">
-            <h2>تسجيل الحضور</h2>
-            <div class="controls">
-                <label>اختر اسمك: </label>
-                <select id="selectMember">
-                    <option value="">-- اختر اسمك --</option>
-                </select>
-                <label>اختر الأسبوع: </label>
-                <select id="weekSelect"></select>
-            </div>
-            <div class="controls">
-                <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
-                <button class="btn btn-info admin-only" id="addCustomPoint">إضافة نقاط إضافية</button>
-                <button class="btn btn-danger admin-only" id="removeAttendance">حذف الحضور</button>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>الصورة</th>
-                        <th>اسم العضو</th>
-                        <th>الأسبوع</th>
-                        <th>الحضور</th>
-                        <th>النقاط</th>
-                        <th class="admin-only">الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="attendanceTableBody"></tbody>
-            </table>
-            <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
-                <span>النقاط: <span id="totalPoints">0</span></span>
-            </div>
-        </div>
-
-        <!-- باقي المحتوى كما هو -->
-        <!-- ... -->
-
-        <div class="controls" style="margin-top:20px;">
-            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
-            <button class="btn btn-danger admin-only" id="adminLogoutBtn" style="display:none;">تسجيل خروج</button>
-            <button class="btn btn-info" id="toggleCacheBtn">تفعيل التخزين المؤقت <span class="cache-indicator cache-off"></span></button>
-            <button class="btn btn-warning" id="syncDataBtn">مزامنة البيانات <i class="fas fa-sync"></i></button>
-        </div>
-
-        <!-- نموذج تسجيل دخول الأدمن -->
-        <div class="modal" id="adminLoginModal">
-            <div class="modal-content">
-                <h2>تسجيل دخول الأدمن</h2>
-                <input type="password" id="adminPassword" placeholder="كلمة السر">
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
-                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- نموذج إضافة نقاط إضافية -->
-        <div class="modal" id="addPointsModal">
-            <div class="modal-content">
-                <h2>إضافة نقاط إضافية</h2>
-                <div class="controls">
-                    <label>اختر العضو:</label>
-                    <select id="pointsMemberSelect"></select>
-                </div>
-                <div class="controls">
-                    <label>عدد النقاط:</label>
-                    <input type="number" id="extraPoints" value="5" min="1">
-                </div>
-                <div class="controls">
-                    <label>سبب الإضافة:</label>
-                    <input type="text" id="pointsReason" placeholder="سبب إضافة النقاط">
-                </div>
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelAddPoints">إلغاء</button>
-                    <button class="btn btn-success" id="confirmAddPoints">إضافة</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- نموذج حذف الحضور -->
-        <div class="modal" id="removeAttendanceModal">
-            <div class="modal-content">
-                <h2>حذف تسجيل الحضور</h2>
-                <div class="controls">
-                    <label>اختر العضو:</label>
-                    <select id="removeMemberSelect"></select>
-                </div>
-                <div class="controls">
-                    <label>اختر الأسبوع:</label>
-                    <select id="removeWeekSelect"></select>
-                </div>
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelRemoveAttendance">إلغاء</button>
-                    <button class="btn btn-success" id="confirmRemoveAttendance">حذف</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- نموذج إعدادات قاعدة البيانات -->
-        <div class="modal" id="databaseConfigModal">
-            <div class="modal-content">
-                <h2>إعدادات قاعدة البيانات</h2>
-                <div class="server-config">
-                    <div class="controls">
-                        <label>رابط قاعدة البيانات:</label>
-                        <input type="text" id="databaseUrl" placeholder="https://your-project.firebaseio.com">
-                    </div>
-                    <div class="controls">
-                        <label>مفتاح API:</label>
-                        <input type="text" id="apiKey" placeholder="API Key">
-                    </div>
-                    <div class="controls">
-                        <button class="btn btn-danger" id="cancelDatabaseConfig">إلغاء</button>
-                        <button class="btn btn-success" id="saveDatabaseConfig">حفظ</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- نموذج إضافة عضو -->
+    <div id="addMemberForm" style="display:none;">
+      <h3>إضافة عضو جديد</h3>
+      <label for="memberName">اسم العضو:</label>
+      <input type="text" id="memberName" required>
+      <label for="weekSelect">الأسبوع:</label>
+      <select id="weekSelect"></select>
+      <button onclick="addMember()">إضافة</button>
+      <button onclick="closeAddMemberForm()">إغلاق</button>
     </div>
 
-    <script>
-        // بيانات التطبيق
-        let members = [];
-        let weeks = [];
-        let attendanceRecords = [];
-        let rewards = [];
-        let tasks = [];
-        let events = [];
-        let extraPoints = [];
-        let messages = [];
-        let settings = {
-            groupName: "خدام ملايكة",
-            attendancePoints: 1,
-            enableNotifications: true,
-            storageType: "local",
-            useCache: false,
-            databaseConfig: null
-        };
-        
-        // حالة النظام
-        let isAdmin = false;
-        let currentMemberId = null;
-        let firebaseApp = null;
-        let database = null;
-        
-        // كلمة السر
-        const adminPass = 'admin123';
-        
-        // تهيئة التطبيق
-        function initializeApp() {
-            loadFromLocalStorage();
-            setupEventListeners();
-            generateCalendar();
-            updateTasksUI();
-            updateEventsUI();
-            updateLeaderboard();
-            updateReports();
-            populateMembersList();
-            populateWeeksList();
-            updateMessagesUI();
-            
-            document.getElementById('storageStatus').textContent = '✓ التخزين المحلي';
-            document.getElementById('storageStatus').className = 'storage-status storage-local';
-            
-            // تهيئة Firebase إذا كانت هناك إعدادات
-            if (settings.databaseConfig) {
-                initializeFirebase();
-            }
-            
-            // تحسين الأداء - التحميل البطيء للصور
-            lazyLoadImages();
-        }
-        
-        // تهيئة Firebase
-        function initializeFirebase() {
-            try {
-                const firebaseConfig = {
-                    databaseURL: settings.databaseConfig.databaseUrl,
-                    apiKey: settings.databaseConfig.apiKey
-                };
-                
-                firebaseApp = firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
-                
-                showNotification('تم الاتصال بقاعدة البيانات بنجاح', true);
-                document.getElementById('storageStatus').textContent = '✓ قاعدة البيانات';
-                document.getElementById('storageStatus').className = 'storage-status storage-server';
-                
-                // البدء في الاستماع للتحديثات في الوقت الحقيقي
-                setupRealtimeListeners();
-            } catch (error) {
-                console.error('Firebase initialization error:', error);
-                showNotification('فشل الاتصال بقاعدة البيانات', false);
-            }
-        }
-        
-        // إعداد مستمعي التحديثات في الوقت الحقيقي
-        function setupRealtimeListeners() {
-            if (!database) return;
-            
-            // الاستماع للتحديثات على الأعضاء
-            database.ref('members').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    members = Object.values(data);
-                    saveToLocalStorage();
-                    populateData();
-                    showNotification('تم تحديث بيانات الأعضاء', true);
-                }
-            });
-            
-            // الاستماع للتحديثات على الحضور
-            database.ref('attendanceRecords').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    attendanceRecords = Object.values(data);
-                    saveToLocalStorage();
-                    updateAttendanceTable();
-                    showNotification('تم تحديث سجلات الحضور', true);
-                }
-            });
-            
-            // الاستماع للرسائل الجديدة
-            database.ref('messages').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    messages = Object.values(data);
-                    saveToLocalStorage();
-                    updateMessagesUI();
-                    updateUnreadCount();
-                    
-                    // إشعار بالرسائل الجديدة
-                    const unread = messages.filter(m => !m.read && m.to !== 'all' && m.to === currentMemberId).length;
-                    if (unread > 0) {
-                        showNotification(`لديك ${unread} رسالة جديدة`, true);
-                    }
-                }
-            });
-        }
-        
-        // مزامنة البيانات مع الخادم
-        function syncDataWithServer() {
-            if (!database) {
-                showNotification('ليس هناك اتصال بقاعدة البيانات', false);
-                return;
-            }
-            
-            showLoading();
-            
-            try {
-                // مزامنة البيانات المحلية مع الخادم
-                const updates = {};
-                updates['/members'] = members;
-                updates['/weeks'] = weeks;
-                updates['/attendanceRecords'] = attendanceRecords;
-                updates['/rewards'] = rewards;
-                updates['/tasks'] = tasks;
-                updates['/events'] = events;
-                updates['/extraPoints'] = extraPoints;
-                updates['/messages'] = messages;
-                
-                database.ref().update(updates)
-                    .then(() => {
-                        showNotification('تم مزامنة البيانات مع الخادم بنجاح', true);
-                        hideLoading();
-                    })
-                    .catch((error) => {
-                        showNotification('فشل في مزامنة البيانات: ' + error.message, false);
-                        hideLoading();
-                    });
-            } catch (error) {
-                showNotification('حدث خطأ أثناء المزامنة: ' + error.message, false);
-                hideLoading();
-            }
-        }
-        
-        // تحميل البيانات من الخادم
-        function loadDataFromServer() {
-            if (!database) {
-                showNotification('ليس هناك اتصال بقاعدة البيانات', false);
-                return;
-            }
-            
-            showLoading();
-            
-            try {
-                database.ref().once('value')
-                    .then((snapshot) => {
-                        const data = snapshot.val();
-                        if (data) {
-                            members = data.members || members;
-                            weeks = data.weeks || weeks;
-                            attendanceRecords = data.attendanceRecords || attendanceRecords;
-                            rewards = data.rewards || rewards;
-                            tasks = data.tasks || tasks;
-                            events = data.events || events;
-                            extraPoints = data.extraPoints || extraPoints;
-                            messages = data.messages || messages;
-                            
-                            saveToLocalStorage();
-                            populateData();
-                            showNotification('تم تحميل البيانات من الخادم بنجاح', true);
-                        }
-                        hideLoading();
-                    })
-                    .catch((error) => {
-                        showNotification('فشل في تحميل البيانات: ' + error.message, false);
-                        hideLoading();
-                    });
-            } catch (error) {
-                showNotification('حدث خطأ أثناء التحميل: ' + error.message, false);
-                hideLoading();
-            }
-        }
-        
-        // إعداد مستمعي الأحداث
-        function setupEventListeners() {
-            // تسجيل دخول الأدمن
-            document.getElementById('adminLoginBtn').addEventListener('click', () => {
-                document.getElementById('adminLoginModal').style.display = 'flex';
-            });
-            
-            document.getElementById('cancelAdminLogin').addEventListener('click', () => {
-                document.getElementById('adminLoginModal').style.display = 'none';
-            });
-            
-            document.getElementById('confirmAdminLogin').addEventListener('click', () => {
-                const pwd = document.getElementById('adminPassword').value;
-                if (pwd === adminPass) {
-                    document.getElementById('adminLoginModal').style.display = 'none';
-                    setAdminMode(true);
-                } else {
-                    alert('كلمة السر خطأ!');
-                }
-            });
-            
-            // تسجيل خروج الأدمن
-            document.getElementById('adminLogoutBtn').addEventListener('click', () => {
-                setAdminMode(false);
-            });
-            
-            // زر تسجيل الحضور
-            document.getElementById('markPresent').addEventListener('click', markAttendance);
-            
-            // إضافة نقاط إضافية
-            document.getElementById('addCustomPoint').addEventListener('click', () => {
-                document.getElementById('addPointsModal').style.display = 'flex';
-                populatePointsMembers();
-            });
-            
-            document.getElementById('cancelAddPoints').addEventListener('click', () => {
-                document.getElementById('addPointsModal').style.display = 'none';
-            });
-            
-            document.getElementById('confirmAddPoints').addEventListener('click', addExtraPoints);
-            
-            // حذف الحضور
-            document.getElementById('removeAttendance').addEventListener('click', () => {
-                document.getElementById('removeAttendanceModal').style.display = 'flex';
-                populateRemoveMembers();
-                populateRemoveWeeks();
-            });
-            
-            document.getElementById('cancelRemoveAttendance').addEventListener('click', () => {
-                document.getElementById('removeAttendanceModal').style.display = 'none';
-            });
-            
-            document.getElementById('confirmRemoveAttendance').addEventListener('click', removeAttendanceRecord);
-            
-            // إضافة مهمة جديدة
-            document.getElementById('addTaskBtn').addEventListener('click', addNewTask);
-            
-            // إضافة مناسبة جديدة
-            document.getElementById('addEventBtn').addEventListener('click', addNewEvent);
-            
-            // طباعة التقارير
-            document.getElementById('printReportBtn').addEventListener('click', printReport);
-            
-            // تصدير لإكسل
-            document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
-            
-            // تصدير للنسخ الاحتياطي
-            document.getElementById('exportJsonBtn').addEventListener('click', exportData);
-            
-            // إضافة عضو جديد
-            document.getElementById('addMemberBtn').addEventListener('click', addNewMember);
-            
-            // إضافة أسبوع جديد
-            document.getElementById('addWeekBtn').addEventListener('click', addNewWeek);
-            
-            // تغيير الأسبوع المحدد
-            document.getElementById('weekSelect').addEventListener('change', populateData);
-            
-            // إرسال رسالة جديدة
-            document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
-            
-            // التبديل بين التخزين المؤقت
-            document.getElementById('toggleCacheBtn').addEventListener('click', toggleCache);
-            
-            // مزامنة البيانات
-            document.getElementById('syncDataBtn').addEventListener('click', syncDataWithServer);
-            
-            // تبويبات النظام
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // إذا كان تبويب أدمن ولم يكن المستخدم مسجلاً دخولاً، لا تفعل anything
-                    if (tab.classList.contains('admin-tab') && !isAdmin) {
-                        showNotification('يجب تسجيل دخول الأدمن للوصول إلى هذا القسم', false);
-                        return;
-                    }
-                    
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    tab.classList.add('active');
-                    document.getElementById(tab.dataset.tab).classList.add('active');
-                    
-                    // إذا كان تبويب التقويم، قم بتحديث البيانات
-                    if (tab.dataset.tab === 'calendar') {
-                        generateCalendar();
-                        updateEventsUI();
-                    }
-                    // إذا كان تبويب التقارير، قم بتحديث التقارير
-                    else if (tab.dataset.tab === 'reports') {
-                        updateReports();
-                    }
-                    // إذا كان تبويب التصنيف، قم بتحديث التصنيف
-                    else if (tab.dataset.tab === 'leaderboard') {
-                        updateLeaderboard();
-                    }
-                    // إذا كان تبويب المهام، قم بتحديث المهام
-                    else if (tab.dataset.tab === 'tasks') {
-                        updateTasksUI();
-                    }
-                    // إذا كان تبويب الإدارة، قم بتحديث القوائم
-                    else if (tab.dataset.tab === 'management') {
-                        populateMembersList();
-                        populateWeeksList();
-                    }
-                    // إذا كان تبويب الرسائل، قم بتحديث الرسائل
-                    else if (tab.dataset.tab === 'messages') {
-                        updateMessagesUI();
-                    }
-                });
-            });
-        }
-        
-        // وظائف المساعدة
-        function showLoading() {
-            document.getElementById('loading').style.display = 'block';
-        }
-        
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
-        
-        function showNotification(message, isSuccess = true) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        function saveToLocalStorage() {
-            const data = {
-                members: members,
-                weeks: weeks,
-                attendanceRecords: attendanceRecords,
-                rewards: rewards,
-                tasks: tasks,
-                events: events,
-                extraPoints: extraPoints,
-                messages: messages,
-                settings: settings,
-                lastUpdated: new Date().toISOString()
-            };
-            localStorage.setItem('angelsAttendance', JSON.stringify(data));
-        }
-        
-        function loadFromLocalStorage() {
-            const data = JSON.parse(localStorage.getItem('angelsAttendance'));
-            if (data) {
-                members = data.members || members;
-                weeks = data.weeks || weeks;
-                attendanceRecords = data.attendanceRecords || attendanceRecords;
-                rewards = data.rewards || rewards;
-                tasks = data.tasks || tasks;
-                events = data.events || events;
-                extraPoints = data.extraPoints || extraPoints;
-                messages = data.messages || messages;
-                settings = data.settings || settings;
-            }
-            
-            // إذا لم يكن هناك بيانات، قم بتهيئة بعض البيانات الافتراضية
-            if (members.length === 0) {
-                initializeSampleData();
-            } else {
-                populateData();
-            }
-            
-            // تحديث حالة التخزين المؤقت
-            updateCacheStatus();
-        }
-        
-        // تحديث واجهة الرسائل
-        function updateMessagesUI() {
-            const inboxMessagesEl = document.getElementById('inboxMessages');
-            const sentMessagesEl = document.getElementById('sentMessages');
-            const messageReceiverEl = document.getElementById('messageReceiver');
-            
-            if (messageReceiverEl) {
-                messageReceiverEl.innerHTML = '<option value="all">جميع الأعضاء</option>';
-                members.forEach(m => {
-                    let option = document.createElement('option'); 
-                    option.value = m.id; 
-                    option.textContent = m.name; 
-                    messageReceiverEl.appendChild(option);
-                });
-            }
-            
-            if (inboxMessagesEl) {
-                inboxMessagesEl.innerHTML = '';
-                const currentUserId = currentMemberId || 0;
-                
-                const userMessages = messages.filter(m => 
-                    m.to === 'all' || m.to === currentUserId
-                );
-                
-                if (userMessages.length === 0) {
-                    inboxMessagesEl.innerHTML = '<p>لا توجد رسائل</p>';
-                } else {
-                    userMessages.forEach(message => {
-                        const sender = members.find(m => m.id === message.from) || { name: 'الإدارة' };
-                        const messageItem = document.createElement('div');
-                        messageItem.className = 'message-item';
-                        messageItem.innerHTML = `
-                            <div class="message-content">
-                                <div class="message-sender">${sender.name}</div>
-                                <div><strong>${message.title}</strong></div>
-                                <div>${message.content}</div>
-                                <div class="message-time">${new Date(message.timestamp).toLocaleString('ar-EG')}</div>
-                            </div>
-                            <div>
-                                <button class="btn btn-danger btn-sm" onclick="deleteMessage(${message.id})">حذف</button>
-                            </div>
-                        `;
-                        inboxMessagesEl.appendChild(messageItem);
-                    });
-                }
-            }
-            
-            if (sentMessagesEl) {
-                sentMessagesEl.innerHTML = '';
-                const currentUserId = currentMemberId || 0;
-                
-                const sentMessagesList = messages.filter(m => m.from === currentUserId);
-                
-                if (sentMessagesList.length === 0) {
-                    sentMessagesEl.innerHTML = '<p>لا توجد رسائل مرسلة</p>';
-                } else {
-                    sentMessagesList.forEach(message => {
-                        const receiver = message.to === 'all' ? 'جميع الأعضاء' : 
-                            members.find(m => m.id === message.to)?.name || 'غير معروف';
-                            
-                        const messageItem = document.createElement('div');
-                        messageItem.className = 'message-item';
-                        messageItem.innerHTML = `
-                            <div class="message-content">
-                                <div><strong>إلى: ${receiver}</strong></div>
-                                <div><strong>${message.title}</strong></div>
-                                <div>${message.content}</div>
-                                <div class="message-time">${new Date(message.timestamp).toLocaleString('ar-EG')}</div>
-                            </div>
-                            <div>
-                                <button class="btn btn-danger btn-sm" onclick="deleteMessage(${message.id})">حذف</button>
-                            </div>
-                        `;
-                        sentMessagesEl.appendChild(messageItem);
-                    });
-                }
-            }
-            
-            updateUnreadCount();
-        }
-        
-        // تحديث عدد الرسائل غير المقروءة
-        function updateUnreadCount() {
-            const unreadCountEl = document.getElementById('unreadCount');
-            if (unreadCountEl) {
-                const currentUserId = currentMemberId || 0;
-                const unread = messages.filter(m => !m.read && m.to !== 'all' && m.to === currentUserId).length;
-                unreadCountEl.textContent = unread;
-                
-                if (unread > 0) {
-                    unreadCountEl.style.display = 'inline-block';
-                } else {
-                    unreadCountEl.style.display = 'none';
-                }
-            }
-        }
-        
-        // إرسال رسالة جديدة
-        function sendMessage() {
-            const receiver = document.getElementById('messageReceiver').value;
-            const title = document.getElementById('messageTitle').value;
-            const content = document.getElementById('messageContent').value;
-            
-            if (!title || !content) {
-                alert('يرجى إدخال عنوان ومحتوى الرسالة');
-                return;
-            }
-            
-            const newMessage = {
-                id: Date.now(),
-                from: currentMemberId || 0,
-                to: receiver,
-                title: title,
-                content: content,
-                timestamp: new Date().toISOString(),
-                read: false
-            };
-            
-            messages.push(newMessage);
-            saveToLocalStorage();
-            
-            // مزامنة مع الخادم إذا كان متصلاً
-            if (database) {
-                database.ref('messages').set(messages)
-                    .then(() => {
-                        showNotification('تم إرسال الرسالة بنجاح', true);
-                    })
-                    .catch((error) => {
-                        showNotification('تم حفظ الرسالة محلياً ولكن فشل الإرسال للخادم', false);
-                    });
-            } else {
-                showNotification('تم حفظ الرسالة محلياً', true);
-            }
-            
-            // مسح الحقول
-            document.getElementById('messageTitle').value = '';
-            document.getElementById('messageContent').value = '';
-            
-            updateMessagesUI();
-        }
-        
-        // حذف رسالة
-        function deleteMessage(messageId) {
-            if (confirm('هل تريد حذف هذه الرسالة؟')) {
-                messages = messages.filter(m => m.id !== messageId);
-                saveToLocalStorage();
-                
-                // مزامنة مع الخادم إذا كان متصلاً
-                if (database) {
-                    database.ref('messages').set(messages)
-                        .then(() => {
-                            showNotification('تم حذف الرسالة بنجاح', true);
-                        })
-                        .catch((error) => {
-                            showNotification('تم حذف الرسالة محلياً ولكن فشل الحذف من الخادم', false);
-                        });
-                } else {
-                    showNotification('تم حذف الرسالة محلياً', true);
-                }
-                
-                updateMessagesUI();
-            }
-        }
-        
-        // التبديل بين التخزين المؤقت
-        function toggleCache() {
-            settings.useCache = !settings.useCache;
-            saveToLocalStorage();
-            updateCacheStatus();
-            
-            if (settings.useCache) {
-                showNotification('تم تفعيل التخزين المؤقت لتحسين الأداء', true);
-            } else {
-                showNotification('تم إيقاف التخزين المؤقت', true);
-            }
-        }
-        
-        // تحديث حالة التخزين المؤقت
-        function updateCacheStatus() {
-            const cacheIndicator = document.querySelector('.cache-indicator');
-            const toggleCacheBtn = document.getElementById('toggleCacheBtn');
-            
-            if (settings.useCache) {
-                cacheIndicator.className = 'cache-indicator cache-on';
-                toggleCacheBtn.innerHTML = 'إيقاف التخزين المؤقت <span class="cache-indicator cache-on"></span>';
-            } else {
-                cacheIndicator.className = 'cache-indicator cache-off';
-                toggleCacheBtn.innerHTML = 'تفعيل التخزين المؤقت <span class="cache-indicator cache-off"></span>';
-            }
-        }
-        
-        // التحميل البطيء للصور لتحسين الأداء
-        function lazyLoadImages() {
-            const images = document.querySelectorAll('.member-img');
-            
-            const lazyLoad = () => {
-                images.forEach(img => {
-                    if (img.getAttribute('data-src') && img.getBoundingClientRect().top <= window.innerHeight && img.getBoundingClientRect().bottom >= 0 && getComputedStyle(img).display !== 'none') {
-                        img.src = img.getAttribute('data-src');
-                        img.removeAttribute('data-src');
-                        img.classList.add('loaded');
-                    }
-                });
-            };
-            
-            // تحميل الصور المرئية فوراً
-            lazyLoad();
-            
-            // تحميل الصور عند التمرير
-            window.addEventListener('scroll', lazyLoad);
-            window.addEventListener('resize', lazyLoad);
-        }
-        
-        // باقي الوظائف كما هي
-        // ... (يتبع باقي الكود الأصلي مع التعديلات اللازمة)
+    <!-- نموذج إضافة أسبوع -->
+    <div id="addWeekForm" style="display:none;">
+      <h3>إضافة أسبوع جديد</h3>
+      <label for="weekName">اسم الأسبوع:</label>
+      <input type="text" id="weekName" required>
+      <label for="startDate">تاريخ البداية:</label>
+      <input type="date" id="startDate" required>
+      <label for="endDate">تاريخ النهاية:</label>
+      <input type="date" id="endDate" required>
+      <button onclick="addWeek()">إضافة</button>
+      <button onclick="closeAddWeekForm()">إغلاق</button>
+    </div>
+  </div>
 
-        // تحميل التطبيق عند بدء التشغيل
-        document.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
-</body>
-</html>
+  <script>
+    // تحميل البيانات عند تحميل الصفحة
+    window.onload = function() {
+      loadMembers();
+      loadWeeks();
+    };
+
+    // تحميل الأعضاء
+    function loadMembers() {
+      google.script.run.withSuccessHandler(function(members) {
+        const tableBody = document.querySelector('#membersTable tbody');
+        tableBody.innerHTML = '';
+        members.forEach(function(member, index) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${member.id}</td>
+            <td>${member.name}</td>
+            <td>${member.points}</td>
+            <td><button onclick="editMember(${member.id})">تعديل</button></td>
+            <td><button onclick="deleteMember(${member.id})">حذف</button></td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }).getMembers();
+    }
+
+    // تحميل الأسابيع
+    function loadWeeks() {
+      google.script.run.withSuccessHandler(function(weeks) {
+        const tableBody = document.querySelector('#weeksTable tbody');
+        tableBody.innerHTML = '';
+        weeks.forEach(function(week, index) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${week.id}</td>
+            <td>${week.name}</td>
+            <td>${week.startDate}</td>
+            <td>${week.endDate}</td>
+            <td><button onclick="editWeek(${week.id})">تعديل</button></td>
+            <td><button onclick="deleteWeek(${week.id})">حذف</button></td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }).getWeeks();
+    }
+
+    // إظهار نموذج إضافة عضو
+    function showAddMemberForm() {
+      document.getElementById('addMemberForm').style.display = 'block';
+      loadWeeksForSelect();
+    }
+
+    // إغلاق نموذج إضافة عضو
+    function closeAddMemberForm() {
+      document.getElementById('addMemberForm').style.display = 'none';
+    }
+
+    // تحميل الأسابيع للاختيار
+    function loadWeeksForSelect() {
+      google.script.run.withSuccessHandler(function(weeks) {
+        const select = document.getElementById('weekSelect');
+        select.innerHTML = '';
+        weeks.forEach(function(week) {
+          const option = document.createElement('option');
+          option.value = week.id;
+          option.textContent = week.name;
+          select.appendChild(option);
+        });
+      }).getWeeks();
+    }
+
+    // إضافة عضو
+    function addMember() {
+      const name = document.getElementById('memberName').value;
+      const week = document.getElementById('weekSelect').value;
+      google.script.run.withSuccessHandler(function() {
+        loadMembers();
+        closeAddMemberForm();
+      }).addMember(name, week);
+    }
+
+    // تعديل عضو
+    function editMember(id) {
+      // تنفيذ عملية التعديل
+    }
+
+    // حذف عضو
+    function deleteMember(id) {
+      google.script.run.withSuccessHandler(function() {
+        loadMembers();
+      }).deleteMember(id);
+    }
+
+    // إظهار نموذج إضافة أسبوع
+    function showAddWeekForm() {
+      document.getElementById('addWeekForm').style.display = 'block';
+    }
+
+    // إغلاق نموذج إضافة أسبوع
+    function closeAddWeekForm() {
+      document.getElementById('addWeekForm').style.display = 'none';
+    }
+
+    // إضافة أسبوع
+    function addWeek() {
+      const name = document.getElementById('weekName').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      google.script.run.withSuccessHandler(function() {
+        loadWeeks();
+        closeAddWeekForm();
+      }).addWeek(name, startDate, endDate);
+    }
+
+    // تعديل أسبوع
+    function editWeek(id
+::contentReference[oaicite:24]{index=24}
+ 

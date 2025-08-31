@@ -5,224 +5,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angels Attendance</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-    body {
-        font-family: 'Cairo', sans-serif;
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-        color: #333;
-    }
-    .container {
-        max-width: 1200px;
-        margin: auto;
-        padding: 20px;
-    }
-    h1,h2,h3 {
-        text-align: center;
-        color: #1d3557;
-    }
-    .login-container, .admin-panel, .member-panel {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-        padding: 30px;
-        margin-top: 50px;
-    }
-    input, select, button {
-        width: 100%;
-        padding: 12px;
-        margin: 8px 0;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-    }
-    button {
-        background: #457b9d;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    button:hover {
-        background: #1d3557;
-    }
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-    .card {
-        background: #f1faee;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        text-align: center;
-    }
-    .card h3 {
-        margin-bottom: 10px;
-    }
-    .hidden { display: none; }
-    .logout-btn {
-        background: #e63946;
-        margin-top: 20px;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap');
+    * {box-sizing: border-box; font-family: 'Cairo', sans-serif;}
+    body {margin:0; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color:#333;}
+    header {background: #3498db; color:#fff; padding:20px; text-align:center; font-size:1.5em;}
+    .container {max-width:1200px; margin:20px auto; padding:10px;}
+    .card-grid {display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;}
+    .card {background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); transition: transform 0.2s;}
+    .card:hover {transform: translateY(-5px);}
+    button {padding:10px 20px; border:none; border-radius:6px; background:#3498db; color:#fff; cursor:pointer; transition: background 0.2s;}
+    button:hover {background:#2980b9;}
+    input, select {width:100%; padding:10px; margin:5px 0 15px 0; border:1px solid #ccc; border-radius:6px;}
+    .hidden {display:none;}
+    .admin-login {max-width:400px; margin:50px auto; padding:30px; background:#fff; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+    h2 {margin-top:0;}
+    .report, .points {margin-top:15px;}
+    .back-btn {background:#e74c3c; margin-top:10px;}
 </style>
 </head>
 <body>
-<div class="container">
 
-<!-- شاشة تسجيل الدخول -->
-<div class="login-container" id="loginScreen">
-    <h1>مرحباً في Angels Attendance</h1>
-    <p style="text-align:center;">اختر نوع المستخدم لتسجيل الدخول</p>
-    <button onclick="selectUserType('admin')">تسجيل دخول الأدمن</button>
-    <button onclick="selectUserType('member')">تسجيل الحضور كعضو</button>
-</div>
+<header>Angels Attendance</header>
 
-<!-- واجهة الأعضاء -->
-<div class="member-panel hidden" id="memberPanel">
+<div id="member-view" class="container">
     <h2>تسجيل الحضور</h2>
-    <label>اختر اسمك:</label>
-    <select id="memberSelect"></select>
-    <label>اختر الأسبوع:</label>
-    <select id="weekSelect"></select>
-    <button onclick="recordAttendance()">تسجيل الحضور</button>
-    <p id="attendanceMsg" style="text-align:center;color:green;font-weight:bold;"></p>
-    <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
-</div>
+    <div class="card">
+        <label for="memberName">اختر اسمك:</label>
+        <select id="memberName">
+            <option value="">اختر اسم العضو</option>
+        </select>
 
-<!-- لوحة الأدمن -->
-<div class="admin-panel hidden" id="adminPanel">
-    <h2>لوحة التحكم للأدمن</h2>
-    <div class="grid">
-        <div class="card">
-            <h3>إجمالي النقاط</h3>
-            <p id="totalPoints">0</p>
-        </div>
-        <div class="card">
-            <h3>إجمالي الحضور</h3>
-            <p id="totalAttendance">0</p>
-        </div>
-        <div class="card">
-            <h3>عدد الأعضاء</h3>
-            <p id="totalMembers">0</p>
-        </div>
-        <div class="card">
-            <h3>عدد الأسابيع</h3>
-            <p id="totalWeeks">0</p>
-        </div>
+        <label for="weekSelect">اختر الأسبوع:</label>
+        <select id="weekSelect">
+            <option value="">اختر الأسبوع</option>
+        </select>
+
+        <button id="markAttendanceBtn">تسجيل الحضور</button>
     </div>
-    <h3 style="margin-top:30px;">تفاصيل الأعضاء</h3>
-    <div class="grid" id="membersGrid"></div>
-    <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+
+    <div class="card points">
+        <h3>عرض النقاط</h3>
+        <p>النقاط الحالية: <span id="memberPoints">0</span></p>
+    </div>
+
+    <div class="card report">
+        <h3>التقارير</h3>
+        <p>عدد الحضور: <span id="memberAttendance">0</span></p>
+    </div>
+
+    <button id="adminLoginBtn">دخول الأدمن</button>
 </div>
 
+<div id="admin-view" class="container hidden">
+    <h2>لوحة الأدمن</h2>
+    <div class="card">
+        <label for="adminPassword">كلمة المرور:</label>
+        <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
+        <button id="adminSubmitBtn">تسجيل الدخول</button>
+    </div>
+    <button class="back-btn" id="backToMemberBtn">رجوع</button>
 </div>
 
 <script>
-// بيانات تجريبية
-let members = [
-    {id:1,name:'محمد',points:10},
-    {id:2,name:'علي',points:15},
-    {id:3,name:'سارة',points:20}
-];
-let weeks = [
-    {id:1,name:'الأسبوع 1'},
-    {id:2,name:'الأسبوع 2'},
-    {id:3,name:'الأسبوع 3'}
-];
-let attendanceRecords = [];
+    // بيانات تجريبية
+    const members = [
+        {id:1, name:'أحمد'},
+        {id:2, name:'سارة'},
+        {id:3, name:'محمد'}
+    ];
+    const weeks = [
+        {id:1, name:'الأسبوع 1'},
+        {id:2, name:'الأسبوع 2'},
+        {id:3, name:'الأسبوع 3'}
+    ];
 
-// اختيار نوع المستخدم
-function selectUserType(type){
-    document.getElementById('loginScreen').classList.add('hidden');
-    if(type==='admin'){
-        const pwd = prompt('ادخل كلمة السر للأدمن:');
-        if(pwd==='admin123'){
-            showAdminPanel();
-        } else {
-            alert('كلمة السر خاطئة!');
-            document.getElementById('loginScreen').classList.remove('hidden');
-        }
-    } else {
-        showMemberPanel();
-    }
-}
+    const attendanceRecords = {}; // {memberId_weekId: true}
 
-// عرض واجهة الأعضاء
-function showMemberPanel(){
-    document.getElementById('memberPanel').classList.remove('hidden');
-    const memberSelect = document.getElementById('memberSelect');
-    memberSelect.innerHTML = '<option value="">اختر اسمك</option>';
-    members.forEach(m=>{
+    // تعبئة قائمة الأعضاء
+    const memberNameEl = document.getElementById('memberName');
+    members.forEach(m => {
         const opt = document.createElement('option');
         opt.value = m.id;
         opt.textContent = m.name;
-        memberSelect.appendChild(opt);
+        memberNameEl.appendChild(opt);
     });
-    const weekSelect = document.getElementById('weekSelect');
-    weekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
-    weeks.forEach(w=>{
+
+    // تعبئة قائمة الأسابيع
+    const weekSelectEl = document.getElementById('weekSelect');
+    weeks.forEach(w => {
         const opt = document.createElement('option');
         opt.value = w.id;
         opt.textContent = w.name;
-        weekSelect.appendChild(opt);
+        weekSelectEl.appendChild(opt);
     });
-}
 
-// تسجيل الحضور
-function recordAttendance(){
-    const memberId = parseInt(document.getElementById('memberSelect').value);
-    const weekId = parseInt(document.getElementById('weekSelect').value);
-    if(!memberId || !weekId){
-        alert('اختر اسمك والأسبوع أولاً');
-        return;
-    }
-    // التحقق إذا تم تسجيل الحضور مسبقاً
-    const exists = attendanceRecords.some(r=>r.memberId===memberId && r.weekId===weekId);
-    if(exists){
-        alert('تم تسجيل حضورك لهذا الأسبوع مسبقاً');
-        return;
-    }
-    attendanceRecords.push({memberId,weekId});
-    document.getElementById('attendanceMsg').textContent = 'تم تسجيل حضورك بنجاح ✅';
-}
+    const memberPointsEl = document.getElementById('memberPoints');
+    const memberAttendanceEl = document.getElementById('memberAttendance');
 
-// عرض واجهة الأدمن
-function showAdminPanel(){
-    document.getElementById('adminPanel').classList.remove('hidden');
-    updateAdminData();
-}
-
-// تحديث بيانات الأدمن
-function updateAdminData(){
-    document.getElementById('totalPoints').textContent = members.reduce((a,b)=>a+b.points,0);
-    document.getElementById('totalAttendance').textContent = attendanceRecords.length;
-    document.getElementById('totalMembers').textContent = members.length;
-    document.getElementById('totalWeeks').textContent = weeks.length;
-
-    const grid = document.getElementById('membersGrid');
-    grid.innerHTML = '';
-    members.forEach(m=>{
-        const card = document.createElement('div');
-        card.className='card';
-        card.innerHTML = `<h3>${m.name}</h3>
-                          <p>النقاط: ${m.points}</p>
-                          <p>الحضور: ${attendanceRecords.filter(r=>r.memberId===m.id).length}</p>`;
-        grid.appendChild(card);
+    document.getElementById('markAttendanceBtn').addEventListener('click', () => {
+        const memberId = memberNameEl.value;
+        const weekId = weekSelectEl.value;
+        if(!memberId || !weekId){ alert('يرجى اختيار العضو والأسبوع'); return;}
+        attendanceRecords[`${memberId}_${weekId}`] = true;
+        alert('تم تسجيل الحضور بنجاح');
+        updateMemberStats(memberId);
     });
-}
 
-// تسجيل الخروج
-function logout(){
-    document.getElementById('memberPanel').classList.add('hidden');
-    document.getElementById('adminPanel').classList.add('hidden');
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('attendanceMsg').textContent='';
-}
+    function updateMemberStats(memberId){
+        const attendedWeeks = Object.keys(attendanceRecords).filter(k=>k.startsWith(memberId+'_')).length;
+        memberAttendanceEl.textContent = attendedWeeks;
+        memberPointsEl.textContent = attendedWeeks * 10;
+    }
 
+    // إدارة عرض الأدمن
+    const memberView = document.getElementById('member-view');
+    const adminView = document.getElementById('admin-view');
+
+    document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
+        memberView.classList.add('hidden');
+        adminView.classList.remove('hidden');
+    });
+
+    document.getElementById('backToMemberBtn').addEventListener('click', ()=>{
+        adminView.classList.add('hidden');
+        memberView.classList.remove('hidden');
+    });
+
+    document.getElementById('adminSubmitBtn').addEventListener('click', ()=>{
+        const pwd = document.getElementById('adminPassword').value;
+        if(pwd==='admin123'){
+            alert('تم تسجيل دخول الأدمن');
+            // هنا يمكنك فتح لوحة الأدمن الكاملة لاحقًا
+        } else {
+            alert('كلمة المرور خاطئة');
+        }
+    });
 </script>
+
 </body>
 </html>

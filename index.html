@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حضور خدام ملايكة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">بي
 <!-- إضافة مكتبة Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -895,13 +895,30 @@
         </div>
     </div>
 
-    <script>
-        // بيانات التطبيق
-        let members = [
-            {id: 1, name: '🧒 Mary Karam', points: 0},
-            {id: 2, name: '👦 Eman Makin', points: 0},
-            {id: 3, name: '👧 Rizk Gerges', points: 0}
-        ];
+<script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+      authDomain: "angels-attendance.firebaseapp.com",
+      databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+      projectId: "angels-attendance",
+      storageBucket: "angels-attendance.firebasestorage.app",
+      messagingSenderId: "157249026489",
+      appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+      measurementId: "G-2YDPSFPQYT"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // الحصول على مرجع لقاعدة البيانات
+    const database = firebase.database();
+
+    // بيانات التطبيق
+    let members = [
+        {id: 1, name: '🧒 Mary Karam', points: 0},
+        {id: 2, name: '👦 Eman Makin', points: 0},
+        {id: 3, name: '👧 Rizk Gerges', points: 0}
+    ];
         
         let weeks = [
             {id: 1, name: 'الاسبوع الاول'}

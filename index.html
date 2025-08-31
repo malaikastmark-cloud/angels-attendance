@@ -7,20 +7,36 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap');
     * {box-sizing: border-box; font-family: 'Cairo', sans-serif;}
-    body {margin:0; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); color:#333;}
+    body {
+        margin:0;
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        min-height:100vh;
+        color:#333;
+    }
     header {background: #3498db; color:#fff; padding:20px; text-align:center; font-size:1.5em;}
     .container {max-width:1200px; margin:20px auto; padding:10px;}
     .card-grid {display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;}
-    .card {background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); transition: transform 0.2s;}
+    .card {background:rgba(255,255,255,0.95); padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.15); transition: transform 0.2s;}
     .card:hover {transform: translateY(-5px);}
     button {padding:10px 20px; border:none; border-radius:6px; background:#3498db; color:#fff; cursor:pointer; transition: background 0.2s;}
     button:hover {background:#2980b9;}
     input, select {width:100%; padding:10px; margin:5px 0 15px 0; border:1px solid #ccc; border-radius:6px;}
     .hidden {display:none;}
-    .admin-login {max-width:400px; margin:50px auto; padding:30px; background:#fff; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1);}
-    h2 {margin-top:0;}
+    h2 {margin-top:0; text-align:center;}
     .report, .points {margin-top:15px;}
     .back-btn {background:#e74c3c; margin-top:10px;}
+    /* خلفية جذابة */
+    body::before {
+        content:'';
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center;
+        background-size: cover;
+        opacity:0.15;
+        z-index:-1;
+    }
+    table {width:100%; border-collapse:collapse;}
+    th, td {padding:10px; text-align:center; border-bottom:1px solid #ccc;}
+    th {background:#3498db; color:#fff; border-radius:6px;}
 </style>
 </head>
 <body>
@@ -63,11 +79,29 @@
         <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
         <button id="adminSubmitBtn">تسجيل الدخول</button>
     </div>
+    <div id="adminPanel" class="hidden">
+        <h3>بيانات الأعضاء</h3>
+        <table>
+            <thead>
+                <tr><th>العضو</th><th>عدد الحضور</th><th>النقاط</th></tr>
+            </thead>
+            <tbody id="adminMembersTable">
+            </tbody>
+        </table>
+
+        <h3>الأسبوع الحالي</h3>
+        <table>
+            <thead>
+                <tr><th>الأسبوع</th><th>الحضور</th></tr>
+            </thead>
+            <tbody id="adminWeeksTable">
+            </tbody>
+        </table>
+    </div>
     <button class="back-btn" id="backToMemberBtn">رجوع</button>
 </div>
 
 <script>
-    // بيانات تجريبية
     const members = [
         {id:1, name:'أحمد'},
         {id:2, name:'سارة'},
@@ -78,34 +112,22 @@
         {id:2, name:'الأسبوع 2'},
         {id:3, name:'الأسبوع 3'}
     ];
+    const attendanceRecords = {}; // memberId_weekId:true
 
-    const attendanceRecords = {}; // {memberId_weekId: true}
-
-    // تعبئة قائمة الأعضاء
     const memberNameEl = document.getElementById('memberName');
     members.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = m.name;
-        memberNameEl.appendChild(opt);
+        const opt = document.createElement('option'); opt.value=m.id; opt.textContent=m.name; memberNameEl.appendChild(opt);
     });
-
-    // تعبئة قائمة الأسابيع
     const weekSelectEl = document.getElementById('weekSelect');
-    weeks.forEach(w => {
-        const opt = document.createElement('option');
-        opt.value = w.id;
-        opt.textContent = w.name;
-        weekSelectEl.appendChild(opt);
-    });
+    weeks.forEach(w => { const opt = document.createElement('option'); opt.value=w.id; opt.textContent=w.name; weekSelectEl.appendChild(opt); });
 
     const memberPointsEl = document.getElementById('memberPoints');
     const memberAttendanceEl = document.getElementById('memberAttendance');
 
-    document.getElementById('markAttendanceBtn').addEventListener('click', () => {
+    document.getElementById('markAttendanceBtn').addEventListener('click', ()=>{
         const memberId = memberNameEl.value;
         const weekId = weekSelectEl.value;
-        if(!memberId || !weekId){ alert('يرجى اختيار العضو والأسبوع'); return;}
+        if(!memberId||!weekId){ alert('يرجى اختيار العضو والأسبوع'); return;}
         attendanceRecords[`${memberId}_${weekId}`] = true;
         alert('تم تسجيل الحضور بنجاح');
         updateMemberStats(memberId);
@@ -114,12 +136,12 @@
     function updateMemberStats(memberId){
         const attendedWeeks = Object.keys(attendanceRecords).filter(k=>k.startsWith(memberId+'_')).length;
         memberAttendanceEl.textContent = attendedWeeks;
-        memberPointsEl.textContent = attendedWeeks * 10;
+        memberPointsEl.textContent = attendedWeeks*10;
     }
 
-    // إدارة عرض الأدمن
-    const memberView = document.getElementById('member-view');
-    const adminView = document.getElementById('admin-view');
+    const memberView=document.getElementById('member-view');
+    const adminView=document.getElementById('admin-view');
+    const adminPanel=document.getElementById('adminPanel');
 
     document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
         memberView.classList.add('hidden');
@@ -129,17 +151,38 @@
     document.getElementById('backToMemberBtn').addEventListener('click', ()=>{
         adminView.classList.add('hidden');
         memberView.classList.remove('hidden');
+        adminPanel.classList.add('hidden');
+        document.getElementById('adminPassword').value='';
     });
 
     document.getElementById('adminSubmitBtn').addEventListener('click', ()=>{
         const pwd = document.getElementById('adminPassword').value;
         if(pwd==='admin123'){
             alert('تم تسجيل دخول الأدمن');
-            // هنا يمكنك فتح لوحة الأدمن الكاملة لاحقًا
-        } else {
-            alert('كلمة المرور خاطئة');
-        }
+            adminPanel.classList.remove('hidden');
+            renderAdminData();
+        } else { alert('كلمة المرور خاطئة'); }
     });
+
+    function renderAdminData(){
+        const membersTbody=document.getElementById('adminMembersTable');
+        membersTbody.innerHTML='';
+        members.forEach(m=>{
+            const attendedWeeks=Object.keys(attendanceRecords).filter(k=>k.startsWith(m.id+'_')).length;
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td>${m.name}</td><td>${attendedWeeks}</td><td>${attendedWeeks*10}</td>`;
+            membersTbody.appendChild(tr);
+        });
+
+        const weeksTbody=document.getElementById('adminWeeksTable');
+        weeksTbody.innerHTML='';
+        weeks.forEach(w=>{
+            const presentCount=Object.keys(attendanceRecords).filter(k=>k.endsWith('_'+w.id)).length;
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td>${w.name}</td><td>${presentCount}</td>`;
+            weeksTbody.appendChild(tr);
+        });
+    }
 </script>
 
 </body>

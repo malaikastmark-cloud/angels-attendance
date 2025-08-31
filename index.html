@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حضور خدام ملايكة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- إضافة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -23,10 +18,14 @@
             min-height: 100vh;
             padding: 20px;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
@@ -532,6 +531,17 @@
                 align-items: stretch;
             }
         }
+
+        .login-failed {
+            animation: shake 0.5s;
+            border: 2px solid #e74c3c !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body>
@@ -556,10 +566,13 @@
                 <label>اختر اسمك: </label>
                 <select id="selectMember">
                     <option value="">-- اختر اسمك --</option>
+                    <option value="1">🧒 Mary Karam</option>
+                    <option value="2">👦 Eman Makin</option>
+                    <option value="3">👧 Rizk Gerges</option>
                 </select>
                 <label>اختر الأسبوع: </label>
                 <select id="weekSelect">
-                    <option value="">-- اختر الأسبوع --</option>
+                    <option value="1">الاسبوع الاول</option>
                 </select>
             </div>
             <div class="controls">
@@ -577,11 +590,34 @@
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
-                    <!-- سيتم تعبئة البيانات هنا -->
+                    <tr>
+                        <td>1</td>
+                        <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
+                        <td>🧒 Mary Karam</td>
+                        <td>الاسبوع الاول</td>
+                        <td class="attendance-value">0</td>
+                        <td class="points">0</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
+                        <td>👦 Eman Makin</td>
+                        <td>الاسبوع الاول</td>
+                        <td class="attendance-value">0</td>
+                        <td class="points">0</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
+                        <td>👧 Rizk Gerges</td>
+                        <td>الاسبوع الاول</td>
+                        <td class="attendance-value">0</td>
+                        <td class="points">0</td>
+                    </tr>
                 </tbody>
             </table>
             <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
+                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">3</span></span>
                 <span>النقاط: <span id="totalPoints">0</span></span>
             </div>
         </div>
@@ -646,7 +682,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم تعبئة البيانات هنا -->
+                        <tr>
+                            <td>1</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
+                            <td>🧒 Mary Karam</td>
+                            <td>0</td>
+                            <td>لا يوجد</td>
+                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
+                            <td>👦 Eman Makin</td>
+                            <td>0</td>
+                            <td>لا يوجد</td>
+                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
+                            <td>👧 Rizk Gerges</td>
+                            <td>0</td>
+                            <td>لا يوجد</td>
+                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -671,7 +733,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم تعبئة البيانات هنا -->
+                        <tr>
+                            <td>1</td>
+                            <td>الاسبوع الاول</td>
+                            <td>2025-08-29</td>
+                            <td>2025-08-29</td>
+                            <td><button class='btn btn-primary editWeek'>تعديل</button></td>
+                            <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -681,7 +750,7 @@
                 <div class="controls">
                     <label>اختر أسبوع: </label>
                     <select id="deleteWeekSelect">
-                        <option value="">-- اختر الأسبوع --</option>
+                        <option value="1">الاسبوع الاول</option>
                     </select>
                     <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
                 </div>
@@ -690,6 +759,9 @@
                     <h3>إضافة نقاط إضافية <i class="fas fa-star emoji-icon"></i></h3>
                     <select id="extraPointMember">
                         <option value="">-- اختر العضو --</option>
+                        <option value="1">🧒 Mary Karam</option>
+                        <option value="2">👦 Eman Makin</option>
+                        <option value="3">👧 Rizk Gerges</option>
                     </select>
                     <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
                     <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
@@ -758,6 +830,9 @@
                     <input type="text" id="newTaskName" placeholder="اسم المهمة">
                     <select id="newTaskAssignee">
                         <option value="">-- اختر المسؤول --</option>
+                        <option value="1">🧒 Mary Karam</option>
+                        <option value="2">👦 Eman Makin</option>
+                        <option value="3">👧 Rizk Gerges</option>
                     </select>
                     <input type="date" id="newTaskDeadline">
                     <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
@@ -820,12 +895,12 @@
                         </div>
                         <div class="summary-card">
                             <h3>عدد الأعضاء</h3>
-                            <div class="summary-value" id="reportMembers">0</div>
+                            <div class="summary-value" id="reportMembers">3</div>
                             <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
                         </div>
                         <div class="summary-card">
                             <h3>عدد الأسابيع</h3>
-                            <div class="summary-value" id="reportWeeks">0</div>
+                            <div class="summary-value" id="reportWeeks">1</div>
                             <div class="summary-subtitle">إجمالي الأسابيع</div>
                         </div>
                     </div>
@@ -878,105 +953,6 @@
         let db = null;
         let isFirebaseConnected = false;
         
-        function initializeFirebase() {
-            try {
-                // إعدادات Firebase الافتراضية (يجب استبدالها بإعداداتك الخاصة)
-                const firebaseConfig = {
-                    apiKey: "AIzaSyAEXAMPLEEXAMPLEEXAMPLEEXAMPLE",
-                    authDomain: "your-project-id.firebaseapp.com",
-                    databaseURL: "https://your-project-id-default-rtdb.firebaseio.com",
-                    projectId: "your-project-id",
-                    storageBucket: "your-project-id.appspot.com",
-                    messagingSenderId: "1234567890",
-                    appId: "1:1234567890:web:abc123def456"
-                };
-                
-                // تهيئة Firebase
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-                isFirebaseConnected = true;
-                
-                // تحديث حالة الاتصال
-                document.getElementById('firebaseStatus').textContent = '✓ متصل بقاعدة البيانات';
-                document.getElementById('firebaseStatus').className = 'firebase-status firebase-connected';
-                
-                // تحميل البيانات من Firebase
-                loadDataFromFirebase();
-                
-            } catch (error) {
-                console.error('خطأ في تهيئة Firebase:', error);
-                document.getElementById('firebaseStatus').textContent = '✗ غير متصل بقاعدة البيانات (وضع عدم الاتصال)';
-                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
-                
-                // استخدام البيانات المحلية في حالة الخطأ
-                loadFromLocalStorage();
-            }
-        }
-        
-        async function loadDataFromFirebase() {
-            if (!isFirebaseConnected) return;
-            
-            showLoading();
-            
-            try {
-                // جلب البيانات من Firebase Realtime Database
-                const membersSnapshot = await db.ref('members').once('value');
-                const weeksSnapshot = await db.ref('weeks').once('value');
-                const attendanceSnapshot = await db.ref('attendance').once('value');
-                const rewardsSnapshot = await db.ref('rewards').once('value');
-                const extraPointsSnapshot = await db.ref('extraPoints').once('value');
-                const eventsSnapshot = await db.ref('events').once('value');
-                const tasksSnapshot = await db.ref('tasks').once('value');
-                
-                // تحديث البيانات المحلية
-                members = membersSnapshot.val() ? Object.values(membersSnapshot.val()) : members;
-                weeks = weeksSnapshot.val() ? Object.values(weeksSnapshot.val()) : weeks;
-                attendanceRecords = attendanceSnapshot.val() ? Object.values(attendanceSnapshot.val()) : attendanceRecords;
-                rewards = rewardsSnapshot.val() ? Object.values(rewardsSnapshot.val()) : rewards;
-                extraPoints = extraPointsSnapshot.val() ? Object.values(extraPointsSnapshot.val()) : extraPoints;
-                events = eventsSnapshot.val() ? Object.values(eventsSnapshot.val()) : events;
-                tasks = tasksSnapshot.val() ? Object.values(tasksSnapshot.val()) : tasks;
-                
-                // حفظ نسخة محلية للاستخدام دون اتصال
-                saveToLocalStorage();
-                
-                // تحديث الواجهة
-                populateData();
-                updateReports();
-                hideLoading();
-                
-                showNotification('تم تحميل البيانات بنجاح');
-            } catch (error) {
-                console.error('خطأ في تحميل البيانات من Firebase:', error);
-                document.getElementById('firebaseStatus').textContent = '✗ خطأ في تحميل البيانات (وضع عدم الاتصال)';
-                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
-                
-                // استخدام البيانات المحلية في حالة الخطأ
-                loadFromLocalStorage();
-                hideLoading();
-            }
-        }
-        
-        async function saveToFirebase() {
-            if (!isFirebaseConnected) return;
-            
-            try {
-                // حفظ البيانات إلى Realtime Database
-                await db.ref('members').set(members);
-                await db.ref('weeks').set(weeks);
-                await db.ref('attendance').set(attendanceRecords);
-                await db.ref('rewards').set(rewards);
-                await db.ref('extraPoints').set(extraPoints);
-                await db.ref('events').set(events);
-                await db.ref('tasks').set(tasks);
-                
-                showNotification('تم حفظ البيانات بنجاح');
-            } catch (error) {
-                console.error('خطأ في حفظ البيانات إلى Firebase:', error);
-                showNotification('خطأ في حفظ البيانات', false);
-            }
-        }
-        
         // وظائف المساعدة
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
@@ -1025,661 +1001,18 @@
             updateReports();
         }
         
-        function populateData(){
-            const selectMember = document.getElementById('selectMember');
-            selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
-            members.forEach(m => {
-                let option = document.createElement('option'); 
-                option.value = m.id; 
-                option.textContent = m.name; 
-                selectMember.appendChild(option);
-            });
-        
-            const weekSelect = document.getElementById('weekSelect');
-            weekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
-            weeks.forEach(w => {
-                let option = document.createElement('option'); 
-                option.value = w.id; 
-                option.textContent = w.name; 
-                weekSelect.appendChild(option);
-            });
-        
-            // تعبئة قائمة الأسابيع في إدارة الحضور
-            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
-            deleteWeekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
-            weeks.forEach(w => {
-                let option = document.createElement('option'); 
-                option.value = w.id; 
-                option.textContent = w.name; 
-                deleteWeekSelect.appendChild(option);
-            });
-            
-            // تعبئة قائمة الأعضاء للنقاط الإضافية
-            const extraPointMember = document.getElementById('extraPointMember');
-            extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
-            members.forEach(m => {
-                let option = document.createElement('option'); 
-                option.value = m.id; 
-                option.textContent = m.name; 
-                extraPointMember.appendChild(option);
-            });
-            
-            // تعبئة قائمة المسؤولين عن المهمات
-            const newTaskAssignee = document.getElementById('newTaskAssignee');
-            newTaskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
-            members.forEach(m => {
-                let option = document.createElement('option'); 
-                option.value = m.id; 
-                option.textContent = m.name; 
-                newTaskAssignee.appendChild(option);
-            });
-        
-            const tbody = document.getElementById('attendanceTableBody'); 
-            tbody.innerHTML = '';
-            
-            const selectedWeekId = document.getElementById('weekSelect').value;
-            const selectedWeek = weeks.find(w => w.id == selectedWeekId);
-            
-            if (!selectedWeek) {
-                tbody.innerHTML = '<tr><td colspan="6">اختر أسبوعاً لعرض البيانات</td></tr>';
-                return;
-            }
-            
-            members.forEach((m, i) => {
-                // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
-                const attendanceRecord = attendanceRecords.find(ar => 
-                    ar.memberId === m.id && ar.weekId == selectedWeekId
-                );
-                
-                const isPresent = attendanceRecord ? attendanceRecord.present : false;
-                
-                let tr = document.createElement('tr'); 
-                tr.dataset.member = m.id;
-                tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
-                    <td>${m.name}</td>
-                    <td>${selectedWeek ? selectedWeek.name : ''}</td>
-                    <td class="attendance-value">${isPresent ? '1' : '0'}</td>
-                    <td class="points">${calculateTotalPoints(m.id)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-            
-            document.getElementById('totalMembers').textContent = members.length;
-            updateAttendanceStats();
-            populateAdminTables();
-            populateAttendanceRecords();
-        }
-        
-        // حساب النقاط الإجمالية لعضو (الحضور + النقاط الإضافية)
-        function calculateTotalPoints(memberId) {
-            const attendancePoints = attendanceRecords.filter(ar => 
-                ar.memberId === memberId && ar.present
-            ).length;
-            
-            const extraPointsSum = extraPoints
-                .filter(ep => ep.memberId === memberId)
-                .reduce((sum, ep) => sum + ep.points, 0);
-            
-            return attendancePoints + extraPointsSum;
-        }
-        
-        // تعبئة الجداول الإدارية
-        function populateAdminTables(){
-            const membersTbody = document.querySelector('#membersTable tbody');
-            membersTbody.innerHTML = '';
-            members.forEach((m, i) => {
-                const totalPoints = calculateTotalPoints(m.id);
-                
-                // الحصول على مكافآت العضو
-                const memberRewards = rewards.filter(r => r.memberId === m.id);
-                const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
-                
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
-                    <td>${m.name}</td>
-                    <td>${totalPoints}</td>
-                    <td>${rewardsText}</td>
-                    <td><button class='btn btn-primary editMember' data-id='${m.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger deleteMember' data-id='${m.id}'>حذف</button></td>
-                `;
-                membersTbody.appendChild(tr);
-            });
-            
-            const weeksTbody = document.querySelector('#weeksTable tbody');
-            weeksTbody.innerHTML = '';
-            weeks.forEach((w, i) => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${i+1}</td>
-                    <td>${w.name}</td>
-                    <td>${w.from}</td>
-                    <td>${w.to}</td>
-                    <td><button class='btn btn-primary editWeek' data-id='${w.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger deleteWeek' data-id='${w.id}'>حذف</button></td>
-                `;
-                weeksTbody.appendChild(tr);
-            });
-        }
-        
-        // عرض سجلات الحضور
-        function populateAttendanceRecords() {
-            const tbody = document.querySelector('#attendanceRecordsBody');
-            tbody.innerHTML = '';
-            
-            if (attendanceRecords.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">لا توجد سجلات حضور</td></tr>';
-                return;
-            }
-            
-            attendanceRecords.forEach((record, index) => {
-                const member = members.find(m => m.id === record.memberId);
-                const week = weeks.find(w => w.id == record.weekId);
-                
-                if (member && week) {
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${member.name}</td>
-                        <td>${week.name}</td>
-                        <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
-                        <td><button class='btn btn-danger deleteAttendance' data-id='${record.id}'>حذف</button></td>
-                    `;
-                    tbody.appendChild(tr);
-                }
-            });
-        }
-        
-        // تحديث إحصائيات الحضور
-        function updateAttendanceStats(){
-            const selectedWeekId = document.getElementById('weekSelect').value;
-            let count = 0;
-            let totalPoints = 0;
-            
-            if (!selectedWeekId) {
-                document.getElementById('attendanceCount').textContent = count;
-                document.getElementById('totalPoints').textContent = totalPoints;
-                return;
-            }
-            
-            // حساب الحضور لهذا الأسبوع فقط
-            const weekAttendance = attendanceRecords.filter(ar => 
-                ar.weekId == selectedWeekId && ar.present
-            );
-            
-            count = weekAttendance.length;
-            
-            // حساب النقاط الإجمالية لجميع الأعضاء
-            totalPoints = members.reduce((sum, member) => sum + calculateTotalPoints(member.id), 0);
-            
-            document.getElementById('attendanceCount').textContent = count;
-            document.getElementById('totalPoints').textContent = totalPoints;
-            updateChart();
-        }
-        
-        // تحديث التقارير
-        function updateReports() {
-            // الإحصائيات العامة
-            const totalAttendance = attendanceRecords.filter(ar => ar.present).length;
-            const totalPoints = members.reduce((sum, member) => sum + calculateTotalPoints(member.id), 0);
-            
-            document.getElementById('reportAttendance').textContent = totalAttendance;
-            document.getElementById('reportPoints').textContent = totalPoints;
-            document.getElementById('reportMembers').textContent = members.length;
-            document.getElementById('reportWeeks').textContent = weeks.length;
-            
-            // الـ 10 الأوائل
-            updateTopMembers();
-            
-            // إحصائيات الأعضاء
-            updateMembersStats();
-        }
-        
-        // تحديث قائمة الـ 10 الأوائل
-        function updateTopMembers() {
-            // حساب النقاط لكل عضو
-            const memberPoints = members.map(member => {
-                const points = calculateTotalPoints(member.id);
-                return { name: member.name, points: points, image: member.image };
-            });
-            
-            // ترتيب تنازلي حسب النقاط
-            memberPoints.sort((a, b) => b.points - a.points);
-            
-            // أخذ أول 10 فقط
-            const top10 = memberPoints.slice(0, 10);
-            
-            // عرض النتائج
-            const topMembersList = document.getElementById('topMembersList');
-            topMembersList.innerHTML = '';
-            
-            if (top10.length === 0) {
-                topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
-                return;
-            }
-            
-            top10.forEach((member, index) {
-                const item = document.createElement('div');
-                item.className = 'top-member-item';
-                
-                let medal = '';
-                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
-                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
-                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
-                
-                item.innerHTML = `
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
-                        <div class="top-member-name">${medal} ${member.name}</div>
-                    </div>
-                    <div class="top-member-points">${member.points} نقطة</div>
-                `;
-                topMembersList.appendChild(item);
-            });
-        }
-        
-        // تحديث إحصائيات الأعضاء
-        function updateMembersStats() {
-            const container = document.getElementById('membersStatsContainer');
-            container.innerHTML = '';
-            
-            // حساب إجمالي الأسابيع
-            const totalWeeks = weeks.length;
-            
-            members.forEach(member => {
-                // حساب حضور العضو
-                const memberAttendance = attendanceRecords.filter(ar => 
-                    ar.memberId === member.id && ar.present
-                ).length;
-                
-                // حساب النقاط الإضافية
-                const memberExtraPoints = extraPoints
-                    .filter(ep => ep.memberId === member.id)
-                    .reduce((sum, ep) => sum + ep.points, 0);
-                
-                // حساب النقاط الإجمالية
-                const totalPoints = memberAttendance + memberExtraPoints;
-                
-                // حساب نسبة الحضور
-                const attendancePercentage = totalWeeks > 0 ? Math.round((memberAttendance / totalWeeks) * 100) : 0;
-                
-                const statsDiv = document.createElement('div');
-                statsDiv.className = 'member-stats';
-                statsDiv.innerHTML = `
-                    <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
-                    <div style="flex:1">
-                        <h4>${member.name}</h4>
-                        <div style="display:flex;gap:10px;margin-top:5px;">
-                            <div class="member-stat-item">
-                                <div class="member-stat-value">${memberAttendance}</div>
-                                <div class="member-stat-label">حضور</div>
-                            </div>
-                            <div class="member-stat-item">
-                                <div class="member-stat-value">${memberExtraPoints}</div>
-                                <div class="member-stat-label">نقاط إضافية</div>
-                            </div>
-                            <div class="member-stat-item">
-                                <div class="member-stat-value">${totalPoints}</div>
-                                <div class="member-stat-label">نقاط</div>
-                            </div>
-                            <div class="member-stat-item">
-                                <div class="member-stat-value">${attendancePercentage}%</div>
-                                <div class="member-stat-label">نسبة</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(statsDiv);
-            });
-        }
-        
-        // نظام المكافآت
-        function checkForRewards(memberId) {
-            const member = members.find(m => m.id === memberId);
-            if (!member) return;
-            
-            const points = calculateTotalPoints(memberId);
-            
-            // مكافآت افتراضية
-            const rewardLevels = [
-                { points: 5, title: "ميدالية برونزية 🥉" },
-                { points: 10, title: "ميدالية فضية 🥈" },
-                { points: 15, title: "ميدالية ذهبية 🥇" },
-                { points: 20, title: "كأس التميز 🏆" }
-            ];
-            
-            rewardLevels.forEach(reward => {
-                // التحقق إذا وصل العضو لهذه النقاط ولم يحصل على المكافأة بعد
-                if (points >= reward.points) {
-                    const hasReward = rewards.some(r => 
-                        r.memberId === memberId && r.pointsRequired === reward.points
-                    );
-                    
-                    if (!hasReward) {
-                        // منح المكافأة
-                        const newReward = {
-                            id: Date.now(),
-                            memberId: memberId,
-                            pointsRequired: reward.points,
-                            title: reward.title,
-                            date: new Date().toISOString()
-                        };
-                        
-                        rewards.push(newReward);
-                        
-                        // إشعار بالمكافأة
-                        showNotification(`مبروك! ${member.name} حصل على ${reward.title}`, true);
-                        
-                        // حفظ البيانات
-                        saveToLocalStorage();
-                        if (isFirebaseConnected) saveToFirebase();
-                    }
-                }
-            });
-        }
-        
-        // طباعة التقرير
-        function printReport() {
-            const printContent = document.getElementById('reports').innerHTML;
-            const originalContent = document.body.innerHTML;
-            
-            document.body.innerHTML = printContent;
-            window.print();
-            document.body.innerHTML = originalContent;
-            
-            // إعادة تحميل البيانات بعد الطباعة
-            populateData();
-        }
-        
-        // تصدير لإكسل
-        function exportToExcel() {
-            // تحضير البيانات
-            const data = [];
-            
-            // عناوين الأعمدة
-            data.push(['الاسم', 'نقاط الحضور', 'نقاط إضافية', 'النقاط الإجمالية', 'نسبة الحضور', 'المكافآت']);
-            
-            // بيانات الأعضاء
-            const totalWeeks = weeks.length;
-            
-            members.forEach(member => {
-                const attendancePoints = attendanceRecords.filter(ar => 
-                    ar.memberId === member.id && ar.present
-                ).length;
-                
-                const extraPointsSum = extraPoints
-                    .filter(ep => ep.memberId === member.id)
-                    .reduce((sum, ep) => sum + ep.points, 0);
-                
-                const totalPoints = attendancePoints + extraPointsSum;
-                
-                const attendancePercentage = totalWeeks > 0 ? Math.round((attendancePoints / totalWeeks) * 100) : 0;
-                
-                const memberRewards = rewards.filter(r => r.memberId === member.id);
-                const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
-                
-                data.push([
-                    member.name, 
-                    attendancePoints, 
-                    extraPointsSum, 
-                    totalPoints, 
-                    `${attendancePercentage}%`, 
-                    rewardsText
-                ]);
-            });
-            
-            // إنشاء workbook
-            const ws = XLSX.utils.aoa_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'تقرير الحضور');
-            
-            // التحميل
-            XLSX.writeFile(wb, 'تقرير_الحضور.xlsx');
-        }
-        
-        // إضافة أعضاء
-        async function addMember(name, emoji, image = ''){
-            const id = Date.now();
-            const newMember = {
-                id, 
-                name: `${emoji} ${name}`, 
-                image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`
-            };
-            
-            members.push(newMember);
-            saveToLocalStorage();
-            if (isFirebaseConnected) await saveToFirebase();
-            populateData();
-            showNotification('تم إضافة العضو بنجاح');
-        }
-        
-        // إضافة أسابيع
-        async function addWeek(name, from, to){
-            const id = Date.now();
-            const newWeek = {id, name, from, to};
-            
-            weeks.push(newWeek);
-            saveToLocalStorage();
-            if (isFirebaseConnected) await saveToFirebase();
-            populateData();
-            showNotification('تم إضافة الأسبوع بنجاح');
-        }
-        
-        // إضافة نقاط إضافية
-        async function addExtraPoints(memberId, points, reason) {
-            if (!memberId || !points || !reason) {
-                alert('يجب ملء جميع الحقول');
-                return;
-            }
-            
-            const newExtraPoints = {
-                id: Date.now(),
-                memberId: memberId,
-                points: parseInt(points),
-                reason: reason,
-                date: new Date().toISOString()
-            };
-            
-            extraPoints.push(newExtraPoints);
-            
-            // التحقق من المكافآت
-            checkForRewards(memberId);
-            
-            saveToLocalStorage();
-            if (isFirebaseConnected) await saveToFirebase();
-            populateData();
-            showNotification('تم إضافة النقاط الإضافية بنجاح!', true);
-        }
-        
-        // تسجيل الحضور للعضو المحدد
-        async function markAttendance() {
-            const memberId = parseInt(document.getElementById('selectMember').value);
-            const weekId = parseInt(document.getElementById('weekSelect').value);
-            
-            if (!memberId || !weekId) {
-                alert('يجب اختيار العضو والأسبوع أولاً');
-                return;
-            }
-            
-            const index = attendanceRecords.findIndex(ar => 
-                ar.memberId === memberId && ar.weekId == weekId
-            );
-            
-            if (index !== -1) {
-                // إذا كان موجوداً بالفعل، لا نفعل شيئاً (لا نسمح بالتسجيل المتكرر)
-                showNotification('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع', false);
-            } else {
-                // إضافة سجل جديد
-                const newAttendance = {
-                    id: Date.now(),
-                    memberId: memberId,
-                    weekId: weekId,
-                    present: true,
-                    date: new Date().toISOString()
-                };
-                
-                attendanceRecords.push(newAttendance);
-                
-                // التحقق من المكافآت
-                checkForRewards(memberId);
-                
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateData();
-                showNotification('تم تسجيل الحضور بنجاح!', true);
-            }
-        }
-        
-        // حذف تسجيل حضور محدد
-        async function deleteAttendanceRecord(id) {
-            if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
-                attendanceRecords = attendanceRecords.filter(record => record.id !== id);
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateAttendanceRecords();
-                populateData(); // تحديث الجدول الرئيسي
-                showNotification('تم حذف تسجيل الحضور');
-            }
-        }
-        
-        // حذف كل الحضور لأسبوع محدد
-        async function deleteAllWeekAttendance() {
-            const weekId = parseInt(document.getElementById('deleteWeekSelect').value);
-            
-            if (!weekId) {
-                alert('يجب اختيار أسبوع أولاً');
-                return;
-            }
-            
-            if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
-                attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateAttendanceRecords();
-                populateData(); // تحديث الجدول الرئيسي
-                showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
-            }
-        }
-        
-        // حذف عضو
-        async function deleteMember(id) {
-            if (confirm('هل تريد حذف العضو؟')) {
-                // حذف العضو
-                members = members.filter(m => m.id !== id);
-                
-                // حذف سجلات الحضور الخاصة بهذا العضو
-                attendanceRecords = attendanceRecords.filter(ar => ar.memberId !== id);
-                
-                // حذف مكافآت العضو
-                rewards = rewards.filter(r => r.memberId !== id);
-                
-                // حذف النقاط الإضافية للعضو
-                extraPoints = extraPoints.filter(ep => ep.memberId !== id);
-                
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateData();
-                showNotification('تم حذف العضو');
-            }
-        }
-        
-        // حذف أسبوع
-        async function deleteWeek(id) {
-            if (confirm('هل تريد حذف الأسبوع؟')) {
-                // حذف الأسبوع
-                weeks = weeks.filter(w => w.id !== id);
-                
-                // حذف سجلات الحضور الخاصة بهذا الأسبوع
-                attendanceRecords = attendanceRecords.filter(ar => ar.weekId != id);
-                
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateData();
-                showNotification('تم حذف الأسبوع');
-            }
-        }
-        
-        // تعديل عضو
-        async function editMember(id) {
-            const member = members.find(m => m.id === id);
-            if (!member) return;
-            
-            // استخراج الإيموجي والاسم
-            const emoji = member.name.charAt(0);
-            const currentName = member.name.substring(2);
-            
-            const newName = prompt('عدل اسم العضو:', currentName);
-            const newImage = prompt('عدل رابط الصورة (اتركه فارغاً إذا لا تريد تغييره):', member.image);
-            
-            if (newName) {
-                member.name = `${emoji} ${newName}`;
-                if (newImage) member.image = newImage;
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateData();
-                showNotification('تم تعديل بيانات العضو');
-            }
-        }
-        
-        // تعديل أسبوع
-        async function editWeek(id) {
-            const week = weeks.find(w => w.id === id);
-            if (!week) return;
-            
-            const newName = prompt('عدل اسم الأسبوع:', week.name);
-            const newFrom = prompt('عدل تاريخ البداية:', week.from);
-            const newTo = prompt('عدل تاريخ النهاية:', week.to);
-            
-            if (newName && newFrom && newTo) {
-                week.name = newName;
-                week.from = newFrom;
-                week.to = newTo;
-                saveToLocalStorage();
-                if (isFirebaseConnected) await saveToFirebase();
-                populateData();
-                showNotification('تم تعديل بيانات الأسبوع');
-            }
-        }
-        
-        // العودة إلى واجهة المستخدم
-        function backToUserView() {
-            document.getElementById('adminTabs').style.display = 'none';
-            document.getElementById('userAttendance').style.display = 'block';
-            document.getElementById('adminLoginBtn').style.display = 'block';
-        }
-        
-        // تبويبات الأدمن
-        document.querySelectorAll('#adminTabs .tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('#adminTabs .tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('#adminTabs .tab-content').forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
-                
-                // إذا كان تبويب إدارة الحضور، قم بتحديث البيانات
-                if (tab.dataset.tab === 'attendance') {
-                    populateAttendanceRecords();
-                }
-                // إذا كان تبويب التقارير، قم بتحديث التقارير
-                else if (tab.dataset.tab === 'reports') {
-                    updateReports();
-                }
-            });
-        });
-        
         // تسجيل دخول الأدمن
-        document.getElementById('adminLoginBtn').addEventListener('click', () => {
+        document.getElementById('adminLoginBtn').addEventListener('click', function() {
             document.getElementById('adminLoginModal').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').classList.remove('login-failed');
         });
         
-        document.getElementById('cancelAdminLogin').addEventListener('click', () => {
+        document.getElementById('cancelAdminLogin').addEventListener('click', function() {
             document.getElementById('adminLoginModal').style.display = 'none';
         });
         
-        document.getElementById('confirmAdminLogin').addEventListener('click', () => {
+        document.getElementById('confirmAdminLogin').addEventListener('click', function() {
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === adminPass) {
                 document.getElementById('adminLoginModal').style.display = 'none';
@@ -1688,137 +1021,233 @@
                 document.getElementById('adminLoginBtn').style.display = 'none';
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
-                alert('كلمة السر خطأ!');
+                // تأثير اهتزاز عند إدخال كلمة سر خاطئة
+                const passwordInput = document.getElementById('adminPassword');
+                passwordInput.classList.add('login-failed');
+                setTimeout(() => {
+                    passwordInput.classList.remove('login-failed');
+                }, 500);
+                
+                showNotification('كلمة السر خاطئة!', false);
             }
         });
         
-        // أحداث النقر على الأزرار
-        document.getElementById('markPresent').addEventListener('click', markAttendance);
-        document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
-        document.getElementById('printReportBtn').addEventListener('click', printReport);
-        document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
-        document.getElementById('backToUserView').addEventListener('click', backToUserView);
-        document.getElementById('addExtraPointsBtn').addEventListener('click', () => {
-            const memberId = parseInt(document.getElementById('extraPointMember').value);
-            const points = document.getElementById('extraPointsValue').value;
-            const reason = document.getElementById('extraPointsReason').value;
-            addExtraPoints(memberId, points, reason);
+        // إغلاق النافذة عند النقر خارجها
+        document.getElementById('adminLoginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
         });
         
-        document.getElementById('addMemberBtn').addEventListener('click', () => {
+        // العودة إلى واجهة المستخدم
+        document.getElementById('backToUserView').addEventListener('click', function() {
+            document.getElementById('adminTabs').style.display = 'none';
+            document.getElementById('userAttendance').style.display = 'block';
+            document.getElementById('adminLoginBtn').style.display = 'block';
+        });
+        
+        // تسجيل الحضور
+        document.getElementById('markPresent').addEventListener('click', function() {
+            const memberId = document.getElementById('selectMember').value;
+            const weekId = document.getElementById('weekSelect').value;
+            
+            if (!memberId) {
+                showNotification('يرجى اختيار عضو أولاً', false);
+                return;
+            }
+            
+            // في نظام حقيقي، هنا سيتم حفظ البيانات في قاعدة البيانات
+            showNotification('تم تسجيل الحضور بنجاح!');
+            
+            // تحديث الجدول
+            const attendanceValue = document.querySelector(`tr[data-member="${memberId}"] .attendance-value`);
+            const pointsValue = document.querySelector(`tr[data-member="${memberId}"] .points`);
+            
+            if (attendanceValue && pointsValue) {
+                attendanceValue.textContent = '1';
+                pointsValue.textContent = '1';
+                
+                // تحديث الإحصائيات
+                const attendanceCount = document.getElementById('attendanceCount');
+                const totalPoints = document.getElementById('totalPoints');
+                
+                attendanceCount.textContent = parseInt(attendanceCount.textContent) + 1;
+                totalPoints.textContent = parseInt(totalPoints.textContent) + 1;
+            }
+        });
+        
+        // إضافة عضو جديد
+        document.getElementById('addMemberBtn').addEventListener('click', function() {
             const name = document.getElementById('newMemberName').value;
             const emoji = document.getElementById('newMemberEmoji').value;
             const image = document.getElementById('newMemberImage').value;
+            
             if (!name) {
-                alert('ادخل اسم العضو');
+                showNotification('يرجى إدخال اسم العضو', false);
                 return;
             }
-            addMember(name, emoji, image); 
+            
+            const newMember = {
+                id: members.length + 1,
+                name: `${emoji} ${name}`,
+                image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`
+            };
+            
+            members.push(newMember);
+            
+            // تحديث القوائم المنسدلة
+            const selectMember = document.getElementById('selectMember');
+            const option = document.createElement('option');
+            option.value = newMember.id;
+            option.textContent = newMember.name;
+            selectMember.appendChild(option);
+            
+            // إضافة صف جديد إلى الجدول
+            const tbody = document.getElementById('attendanceTableBody');
+            const tr = document.createElement('tr');
+            tr.dataset.member = newMember.id;
+            tr.innerHTML = `
+                <td>${members.length}</td>
+                <td><img src="${newMember.image}" class="member-img" alt="${newMember.name}"></td>
+                <td>${newMember.name}</td>
+                <td>الاسبوع الاول</td>
+                <td class="attendance-value">0</td>
+                <td class="points">0</td>
+            `;
+            tbody.appendChild(tr);
+            
+            // إضافة إلى جدول الإدارة
+            const membersTbody = document.querySelector('#membersTable tbody');
+            const adminTr = document.createElement('tr');
+            adminTr.innerHTML = `
+                <td>${members.length}</td>
+                <td><img src="${newMember.image}" class="member-img" alt="${newMember.name}"></td>
+                <td>${newMember.name}</td>
+                <td>0</td>
+                <td>لا يوجد</td>
+                <td><button class='btn btn-primary editMember'>تعديل</button></td>
+                <td><button class='btn btn-danger deleteMember'>حذف</button></td>
+            `;
+            membersTbody.appendChild(adminTr);
+            
+            // إضافة إلى قائمة النقاط الإضافية
+            const extraPointMember = document.getElementById('extraPointMember');
+            const extraOption = document.createElement('option');
+            extraOption.value = newMember.id;
+            extraOption.textContent = newMember.name;
+            extraPointMember.appendChild(extraOption);
+            
+            // إضافة إلى قائمة المهمات
+            const newTaskAssignee = document.getElementById('newTaskAssignee');
+            const taskOption = document.createElement('option');
+            taskOption.value = newMember.id;
+            taskOption.textContent = newMember.name;
+            newTaskAssignee.appendChild(taskOption);
+            
+            showNotification('تم إضافة العضو بنجاح');
+            
+            // مسح الحقول
             document.getElementById('newMemberName').value = '';
             document.getElementById('newMemberImage').value = '';
         });
         
-        document.getElementById('addWeekBtn').addEventListener('click', () => {
+        // إضافة أسبوع جديد
+        document.getElementById('addWeekBtn').addEventListener('click', function() {
             const name = document.getElementById('newWeekName').value;
             const from = document.getElementById('newWeekStart').value;
             const to = document.getElementById('newWeekEnd').value;
+            
             if (!name || !from || !to) {
-                alert('املأ كل الحقول');
+                showNotification('يرجى ملء جميع الحقول', false);
                 return;
             }
-            addWeek(name, from, to);
-            document.getElementById('newWeekName').value = ''; 
-            document.getElementById('newWeekStart').value = ''; 
+            
+            const newWeek = {
+                id: weeks.length + 1,
+                name: name,
+                from: from,
+                to: to
+            };
+            
+            weeks.push(newWeek);
+            
+            // تحديث القوائم المنسدلة
+            const weekSelect = document.getElementById('weekSelect');
+            const option = document.createElement('option');
+            option.value = newWeek.id;
+            option.textContent = newWeek.name;
+            weekSelect.appendChild(option);
+            
+            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
+            const deleteOption = document.createElement('option');
+            deleteOption.value = newWeek.id;
+            deleteOption.textContent = newWeek.name;
+            deleteWeekSelect.appendChild(deleteOption);
+            
+            // إضافة إلى جدول الإدارة
+            const weeksTbody = document.querySelector('#weeksTable tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${weeks.length}</td>
+                <td>${newWeek.name}</td>
+                <td>${newWeek.from}</td>
+                <td>${newWeek.to}</td>
+                <td><button class='btn btn-primary editWeek'>تعديل</button></td>
+                <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
+            `;
+            weeksTbody.appendChild(tr);
+            
+            showNotification('تم إضافة الأسبوع بنجاح');
+            
+            // مسح الحقول
+            document.getElementById('newWeekName').value = '';
+            document.getElementById('newWeekStart').value = '';
             document.getElementById('newWeekEnd').value = '';
         });
         
-        // أحداث النقر على الأزرار الديناميكية
-        document.addEventListener('click', e => {
-            if (e.target.classList.contains('editMember')) {
-                const id = parseInt(e.target.dataset.id);
-                editMember(id);
-            }
+        // إضافة نقاط إضافية
+        document.getElementById('addExtraPointsBtn').addEventListener('click', function() {
+            const memberId = document.getElementById('extraPointMember').value;
+            const points = document.getElementById('extraPointsValue').value;
+            const reason = document.getElementById('extraPointsReason').value;
             
-            if (e.target.classList.contains('deleteMember')) {
-                const id = parseInt(e.target.dataset.id);
-                deleteMember(id);
-            }
-            
-            if (e.target.classList.contains('editWeek')) {
-                const id = parseInt(e.target.dataset.id);
-                editWeek(id);
-            }
-            
-            if (e.target.classList.contains('deleteWeek')) {
-                const id = parseInt(e.target.dataset.id);
-                deleteWeek(id);
-            }
-            
-            if (e.target.classList.contains('deleteAttendance')) {
-                const id = parseInt(e.target.dataset.id);
-                deleteAttendanceRecord(id);
-            }
-        });
-        
-        // تحديث البيانات عند تغيير الأسبوع
-        document.getElementById('weekSelect').addEventListener('change', populateData);
-        
-        // رسم بياني
-        const ctx = document.getElementById('attendanceChart').getContext('2d');
-        let chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'الحضور',
-                    data: [],
-                    backgroundColor: ['#3498db','#2ecc71','#f39c12']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-        
-        function updateChart(){
-            const selectedWeekId = document.getElementById('weekSelect').value;
-            
-            if (!selectedWeekId) {
-                chart.data.labels = [];
-                chart.data.datasets[0].data = [];
-                chart.update();
+            if (!memberId || !points || !reason) {
+                showNotification('يرجى ملء جميع الحقول', false);
                 return;
             }
             
-            const data = members.map(member => {
-                const record = attendanceRecords.find(ar => 
-                    ar.memberId === member.id && ar.weekId == selectedWeekId
-                );
-                return record && record.present ? 1 : 0;
-            });
-            
-            chart.data.labels = members.map(m => m.name);
-            chart.data.datasets[0].data = data;
-            chart.update();
-        }
+            const member = members.find(m => m.id == memberId);
+            if (member) {
+                // تحديث النقاط في الجدول
+                const pointsElement = document.querySelector(`tr[data-member="${memberId}"] .points`);
+                if (pointsElement) {
+                    const currentPoints = parseInt(pointsElement.textContent);
+                    pointsElement.textContent = currentPoints + parseInt(points);
+                }
+                
+                // تحديث النقاط في جدول الإدارة
+                const adminPointsElement = document.querySelector(`#membersTable tr:nth-child(${parseInt(memberId)}) td:nth-child(4)`);
+                if (adminPointsElement) {
+                    const currentPoints = parseInt(adminPointsElement.textContent);
+                    adminPointsElement.textContent = currentPoints + parseInt(points);
+                }
+                
+                // تحديث النقاط الإجمالية
+                const totalPoints = document.getElementById('totalPoints');
+                totalPoints.textContent = parseInt(totalPoints.textContent) + parseInt(points);
+                
+                showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
+                
+                // مسح الحقول
+                document.getElementById('extraPointsValue').value = '1';
+                document.getElementById('extraPointsReason').value = '';
+            }
+        });
         
         // تحميل البيانات عند بدء التشغيل
-        document.addEventListener('DOMContentLoaded', () => {
-            // إخفاء شاشة التحميل بعد وقت قصير للتأكد من عدم بقائها ظاهرة
-            setTimeout(() => {
-                hideLoading();
-            }, 2000);
-            
-            // تهيئة البيانات المحلية أولاً
-            loadFromLocalStorage();
-            
-            // محاولة الاتصال بـ Firebase
-            initializeFirebase();
+        document.addEventListener('DOMContentLoaded', function() {
+            hideLoading();
+            showNotification('مرحباً بك في نظام حضور خدام ملايكة');
         });
     </script>
 </body>

@@ -1,946 +1,4 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        header {
-            background: #3498db;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            position: relative;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        header::before, header::after {
-            content: "✨";
-            position: absolute;
-            top: 15px;
-            font-size: 2rem;
-        }
-        
-        header::before {
-            left: 20px;
-        }
-        
-        header::after {
-            right: 20px;
-        }
-        
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            background: #3498db;
-            color: white;
-            font-weight: bold;
-        }
-        
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-        
-        tr:hover {
-            background: #f1f1f1;
-            transform: scale(1.01);
-            transition: transform 0.2s;
-        }
-        
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
-            transition: all 0.3s;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-primary {
-            background: #2ecc71;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #27ae60;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-success {
-            background: #3498db;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #e67e22;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-info {
-            background: #9b59b6;
-            color: white;
-        }
-        
-        .btn-info:hover {
-            background: #8e44ad;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-secondary {
-            background: #7f8c8d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #636e70;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .controls {
-            margin: 15px 0;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        select, input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            min-width: 200px;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            animation: modalFadeIn 0.3s;
-        }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .tabs .tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-radius: 8px;
-            background: #f0f0f0;
-            transition: all 0.3s;
-        }
-        
-        .tabs .tab.active {
-            background: #3498db;
-            color: white;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .summary-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            flex: 1;
-            min-width: 200px;
-            transition: transform 0.3s;
-        }
-        
-        .summary-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .summary-card h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .summary-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #2ecc71;
-            margin: 10px 0;
-        }
-        
-        .summary-subtitle {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        .card-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 30px 0;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .medal {
-            font-size: 1.5rem;
-            margin-left: 5px;
-        }
-        
-        .medal-gold { color: gold; }
-        .medal-silver { color: silver; }
-        .medal-bronze { color: #cd7f32; }
-        
-        .top-members-list {
-            margin-top: 20px;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .top-members-list h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.4rem;
-        }
-        
-        .top-member-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            align-items: center;
-            transition: background 0.3s;
-        }
-        
-        .top-member-item:hover {
-            background: #f9f9f9;
-        }
-        
-        .top-member-item:last-child {
-            border-bottom: none;
-        }
-        
-        .top-member-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        .top-member-points {
-            background: #3498db;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-        }
-        
-        .report-section {
-            margin-bottom: 30px;
-        }
-        
-        .report-section h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #3498db;
-            font-size: 1.3rem;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #2ecc71;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            display: none;
-            animation: notify 0.5s;
-        }
-        
-        @keyframes notify {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .member-img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #3498db;
-        }
-        
-        .reward-badge {
-            background: gold;
-            color: #333;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-left: 5px;
-            font-weight: bold;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 15px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .member-stats {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .member-stat-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            flex: 1;
-        }
-        
-        .member-stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        .member-stat-label {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-        }
-        
-        .firebase-status {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            background: #f8f9fa;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .firebase-connected {
-            color: #2ecc71;
-        }
-        
-        .firebase-disconnected {
-            color: #e74c3c;
-        }
-        
-        .emoji-icon {
-            font-size: 1.2rem;
-            margin-left: 5px;
-        }
-        
-        .extra-point-form {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            select, input {
-                width: 100%;
-            }
-            
-            .card-container {
-                flex-direction: column;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .export-buttons {
-                flex-direction: column;
-            }
-            
-            header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .firebase-status {
-                bottom: 80px;
-            }
-            
-            .extra-point-form {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-
-        .login-failed {
-            animation: shake 0.5s;
-            border: 2px solid #e74c3c !important;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🌟 نظام حضور خدام ملايكة</h1>
-            <p>الحضور يساوي نقطة</p>
-        </header>
-
-        <div class="loading" id="loading">
-            <div class="loading-spinner"></div>
-            <p>جاري تحميل البيانات...</p>
-        </div>
-
-        <div class="notification" id="notification"></div>
-        
-        <div class="firebase-status firebase-connected" id="firebaseStatus">✓ متصل بقاعدة البيانات</div>
-
-        <div class="tab-content active" id="userAttendance">
-            <h2>تسجيل الحضور</h2>
-            <div class="controls">
-                <label>اختر اسمك: </label>
-                <select id="selectMember">
-                    <option value="">-- اختر اسمك --</option>
-                    <option value="1">🧒 Mary Karam</option>
-                    <option value="2">👦 Eman Makin</option>
-                    <option value="3">👧 Rizk Gerges</option>
-                </select>
-                <label>اختر الأسبوع: </label>
-                <select id="weekSelect">
-                    <option value="1">الاسبوع الاول</option>
-                </select>
-            </div>
-            <div class="controls">
-                <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>الصورة</th>
-                        <th>اسم العضو</th>
-                        <th>الأسبوع</th>
-                        <th>الحضور</th>
-                        <th>النقاط</th>
-                    </tr>
-                </thead>
-                <tbody id="attendanceTableBody">
-                    <tr>
-                        <td>1</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
-                        <td>🧒 Mary Karam</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
-                        <td>👦 Eman Makin</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
-                        <td>👧 Rizk Gerges</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">3</span></span>
-                <span>النقاط: <span id="totalPoints">0</span></span>
-            </div>
-        </div>
-
-        <div class="controls" style="margin-top:20px;">
-            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
-        </div>
-
-        <div class="modal" id="adminLoginModal">
-            <div class="modal-content">
-                <h2>تسجيل دخول الأدمن</h2>
-                <input type="password" id="adminPassword" placeholder="كلمة السر">
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
-                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-content" id="adminTabs" style="display:none;">
-            <div class="controls">
-                <button class="btn btn-secondary" id="backToUserView">
-                    <i class="fas fa-arrow-right"></i> العودة إلى واجهة المستخدم
-                </button>
-            </div>
-
-            <div class="tabs">
-                <div class="tab active" data-tab="members">إدارة الأعضاء</div>
-                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
-                <div class="tab" data-tab="attendance">إدارة الحضور</div>
-                <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
-                <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
-                <div class="tab" data-tab="reports">التقارير</div>
-            </div>
-
-            <div class="tab-content active" id="members">
-                <h2>إدارة الأعضاء</h2>
-                <div class="controls">
-                    <input type="text" id="newMemberName" placeholder="اسم العضو">
-                    <select id="newMemberEmoji">
-                        <option value="🧒">🧒 طفل/طفلة</option>
-                        <option value="👦">👦 ولد</option>
-                        <option value="👧">👧 بنت</option>
-                        <option value="👨">👨 رجل</option>
-                        <option value="👩">👩 امرأة</option>
-                        <option value="👴">👴 رجل كبير</option>
-                        <option value="👵">👵 امرأة كبيرة</option>
-                    </select>
-                    <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
-                    <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
-                </div>
-                <table id="membersTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الصورة</th>
-                            <th>اسم العضو</th>
-                            <th>النقاط</th>
-                            <th>المكافآت</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
-                            <td>🧒 Mary Karam</td>
-                            <td>0</td>
-                            <td>لا يوجد</td>
-                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
-                            <td>👦 Eman Makin</td>
-                            <td>0</td>
-                            <td>لا يوجد</td>
-                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
-                            <td>👧 Rizk Gerges</td>
-                            <td>0</td>
-                            <td>لا يوجد</td>
-                            <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="weeks">
-                <h2>إدارة الأسابيع</h2>
-                <div class="controls">
-                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-                    <input type="date" id="newWeekStart">
-                    <input type="date" id="newWeekEnd">
-                    <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
-                </div>
-                <table id="weeksTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>اسم الأسبوع</th>
-                            <th>من</th>
-                            <th>إلى</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>الاسبوع الاول</td>
-                            <td>2025-08-29</td>
-                            <td>2025-08-29</td>
-                            <td><button class='btn btn-primary editWeek'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="attendance">
-                <h2>إدارة تسجيلات الحضور</h2>
-                <div class="controls">
-                    <label>اختر أسبوع: </label>
-                    <select id="deleteWeekSelect">
-                        <option value="1">الاسبوع الاول</option>
-                    </select>
-                    <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
-                </div>
-                
-                <div class="extra-point-form">
-                    <h3>إضافة نقاط إضافية <i class="fas fa-star emoji-icon"></i></h3>
-                    <select id="extraPointMember">
-                        <option value="">-- اختر العضو --</option>
-                        <option value="1">🧒 Mary Karam</option>
-                        <option value="2">👦 Eman Makin</option>
-                        <option value="3">👧 Rizk Gerges</option>
-                    </select>
-                    <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
-                    <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
-                    <button class="btn btn-warning" id="addExtraPointsBtn">إضافة نقاط</button>
-                </div>
-                
-                <table id="attendanceTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>العضو</th>
-                            <th>الأسبوع</th>
-                            <th>تاريخ التسجيل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody id="attendanceRecordsBody">
-                        <!-- سيتم تعبئة البيانات هنا -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="events">
-                <h2>إدارة المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newEventName" placeholder="اسم المناسبة">
-                    <input type="date" id="newEventDate">
-                    <input type="text" id="newEventDescription" placeholder="وصف المناسبة">
-                    <button class="btn btn-primary" id="addEventBtn">إضافة مناسبة</button>
-                </div>
-                <table id="eventsTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>اسم المناسبة</th>
-                            <th>التاريخ</th>
-                            <th>الوصف</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>عيد الميلاد المجيد</td>
-                            <td>2025-01-07</td>
-                            <td>احتفالية عيد الميلاد</td>
-                            <td><button class='btn btn-primary editEvent'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteEvent'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>عيد القيامة</td>
-                            <td>2025-04-20</td>
-                            <td>احتفالية عيد القيامة</td>
-                            <td><button class='btn btn-primary editEvent'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteEvent'>حذف</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="tasks">
-                <h2>إدارة المهمات <i class="fas fa-tasks emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newTaskName" placeholder="اسم المهمة">
-                    <select id="newTaskAssignee">
-                        <option value="">-- اختر المسؤول --</option>
-                        <option value="1">🧒 Mary Karam</option>
-                        <option value="2">👦 Eman Makin</option>
-                        <option value="3">👧 Rizk Gerges</option>
-                    </select>
-                    <input type="date" id="newTaskDeadline">
-                    <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
-                </div>
-                <table id="tasksTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>اسم المهمة</th>
-                            <th>المسؤول</th>
-                            <th>الموعد النهائي</th>
-                            <th>الحالة</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>تحضير مكان الاجتماع</td>
-                            <td>👦 Eman Makin</td>
-                            <td>2025-09-05</td>
-                            <td><span class="badge btn-success">مكتمل</span></td>
-                            <td><button class='btn btn-primary editTask'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteTask'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>شراء مستلزمات</td>
-                            <td>👧 Rizk Gerges</td>
-                            <td>2025-09-10</td>
-                            <td><span class="badge btn-warning">قيد التنفيذ</span></td>
-                            <td><button class='btn btn-primary editTask'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteTask'>حذف</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="reports">
-                <h2>التقارير والإحصائيات</h2>
-                
-                <div class="export-buttons">
-                    <button class="btn btn-info" id="printReportBtn"><i class="fas fa-print"></i> طباعة التقرير</button>
-                    <button class="btn btn-success" id="exportExcelBtn"><i class="fas fa-file-excel"></i> تصدير لإكسل</button>
-                </div>
-                
-                <div class="report-section">
-                    <h3>📊 إحصائيات عامة</h3>
-                    <div class="card-container">
-                        <div class="summary-card">
-                            <h3>إجمالي الحضور</h3>
-                            <div class="summary-value" id="reportAttendance">0</div>
-                            <div class="summary-subtitle">حضور جميع الأسابيع</div>
-                        </div>
-                        <div class="summary-card">
-                            <h3>النقاط الممنوحة</h3>
-                            <div class="summary-value" id="reportPoints">0</div>
-                            <div class="summary-subtitle">مجموع النقاط</div>
-                        </div>
-                        <div class="summary-card">
-                            <h3>عدد الأعضاء</h3>
-                            <div class="summary-value" id="reportMembers">3</div>
-                            <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
-                        </div>
-                        <div class="summary-card">
-                            <h3>عدد الأسابيع</h3>
-                            <div class="summary-value" id="reportWeeks">1</div>
-                            <div class="summary-subtitle">إجمالي الأسابيع</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>🏆 الـ 10 الأوائل في الحضور</h3>
-                    <div class="top-members-list" id="topMembersList">
-                        <p>جاري تحميل البيانات...</p>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>📈 نسبة الحضور للأسبوع الحالي</h3>
-                    <canvas id="attendanceChart" style="margin-top:20px;max-height:300px;"></canvas>
-                </div>
-
-                <div class="report-section">
-                    <h3>👥 إحصائيات الأعضاء</h3>
-                    <div id="membersStatsContainer">
-                        <!-- سيتم تعبئة البيانات هنا -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // بيانات التطبيق
-        let members = [
-            {id:1, name:'🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
-            {id:2, name:'👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
-            {id:3, name:'👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
-        ];
-        
-        let weeks = [
-            {id:1, name:'الاسبوع الاول', from:'2025-08-29', to:'2025-08-29'}
-        ];
-        
-        let attendanceRecords = [];
+let attendanceRecords = [];
         let rewards = [];
         let extraPoints = [];
         let events = [];
@@ -949,70 +7,352 @@
         // كلمة السر
         const adminPass = 'admin123';
         
-        // تهيئة Firebase
-        let db = null;
-        let isFirebaseConnected = false;
-        
-        // وظائف المساعدة
-        function showLoading() {
-            document.getElementById('loading').style.display = 'block';
-        }
-        
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
-        
-        function showNotification(message, isSuccess = true) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        function saveToLocalStorage() {
-            const data = {
-                members: members,
-                weeks: weeks,
-                attendanceRecords: attendanceRecords,
-                rewards: rewards,
-                extraPoints: extraPoints,
-                events: events,
-                tasks: tasks
-            };
-            localStorage.setItem('angelsAttendance', JSON.stringify(data));
-        }
-        
-        function loadFromLocalStorage() {
-            const data = JSON.parse(localStorage.getItem('angelsAttendance'));
-            if (data) {
-                members = data.members || members;
-                weeks = data.weeks || weeks;
-                attendanceRecords = data.attendanceRecords || attendanceRecords;
-                rewards = data.rewards || rewards;
-                extraPoints = data.extraPoints || extraPoints;
-                events = data.events || events;
-                tasks = data.tasks || tasks;
-            }
+        // تهيئة التطبيق
+        function initializeApp() {
             populateData();
-            updateReports();
+            setupEventListeners();
+        }
+        
+        // تعبئة البيانات في الواجهة
+        function populateData() {
+            populateMembers();
+            populateWeeks();
+            populateAttendanceTable();
+            updateAttendanceStats();
+        }
+        
+        // تعبئة قائمة الأعضاء
+        function populateMembers() {
+            const selectMember = document.getElementById('selectMember');
+            const extraPointMember = document.getElementById('extraPointMember');
+            const newTaskAssignee = document.getElementById('newTaskAssignee');
+            
+            // مسح المحتوى الحالي
+            selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
+            extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
+            newTaskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
+            
+            // إضافة الأعضاء
+            members.forEach(member => {
+                // قائمة تسجيل الحضور
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                selectMember.appendChild(option);
+                
+                // قائمة النقاط الإضافية
+                const extraOption = document.createElement('option');
+                extraOption.value = member.id;
+                extraOption.textContent = member.name;
+                extraPointMember.appendChild(extraOption);
+                
+                // قائمة المسؤولين عن المهمات
+                const taskOption = document.createElement('option');
+                taskOption.value = member.id;
+                taskOption.textContent = member.name;
+                newTaskAssignee.appendChild(taskOption);
+            });
+            
+            // تحديث جدول الأعضاء في لوحة التحكم
+            const membersTbody = document.querySelector('#membersTable tbody');
+            membersTbody.innerHTML = '';
+            
+            members.forEach((member, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><img src="${member.image}" class="member-img" alt="${member.name}"></td>
+                    <td>${member.name}</td>
+                    <td>${member.points}</td>
+                    <td>${rewards.filter(r => r.memberId === member.id).map(r => r.title).join(', ') || 'لا يوجد'}</td>
+                    <td><button class='btn btn-primary editMember' data-id='${member.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteMember' data-id='${member.id}'>حذف</button></td>
+                `;
+                membersTbody.appendChild(tr);
+            });
+            
+            document.getElementById('totalMembers').textContent = members.length;
+            document.getElementById('reportMembers').textContent = members.length;
+        }
+        
+        // تعبئة قائمة الأسابيع
+        function populateWeeks() {
+            const weekSelect = document.getElementById('weekSelect');
+            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
+            
+            // مسح المحتوى الحالي
+            weekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
+            deleteWeekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
+            
+            // إضافة الأسابيع
+            weeks.forEach(week => {
+                // قائمة تسجيل الحضور
+                const option = document.createElement('option');
+                option.value = week.id;
+                option.textContent = week.name;
+                weekSelect.appendChild(option);
+                
+                // قائمة حذف الحضور
+                const deleteOption = document.createElement('option');
+                deleteOption.value = week.id;
+                deleteOption.textContent = week.name;
+                deleteWeekSelect.appendChild(deleteOption);
+            });
+            
+            // تحديث جدول الأسابيع في لوحة التحكم
+            const weeksTbody = document.querySelector('#weeksTable tbody');
+            weeksTbody.innerHTML = '';
+            
+            weeks.forEach((week, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${week.name}</td>
+                    <td>${week.from}</td>
+                    <td>${week.to}</td>
+                    <td><button class='btn btn-primary editWeek' data-id='${week.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteWeek' data-id='${week.id}'>حذف</button></td>
+                `;
+                weeksTbody.appendChild(tr);
+            });
+            
+            document.getElementById('reportWeeks').textContent = weeks.length;
+        }
+        
+        // تعبئة جدول الحضور
+        function populateAttendanceTable() {
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '';
+            
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            
+            if (!selectedWeekId) {
+                tbody.innerHTML = '<tr><td colspan="6">اختر أسبوعاً لعرض البيانات</td></tr>';
+                return;
+            }
+            
+            members.forEach((member, index) => {
+                // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
+                const attendanceRecord = attendanceRecords.find(ar => 
+                    ar.memberId === member.id && ar.weekId == selectedWeekId
+                );
+                
+                const isPresent = attendanceRecord ? true : false;
+                
+                const tr = document.createElement('tr');
+                tr.dataset.member = member.id;
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><img src="${member.image}" class="member-img" alt="${member.name}"></td>
+                    <td>${member.name}</td>
+                    <td>${weeks.find(w => w.id == selectedWeekId)?.name || ''}</td>
+                    <td class="attendance-value">${isPresent ? '1' : '0'}</td>
+                    <td class="points">${member.points}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            populateAttendanceRecords();
+        }
+        
+        // تعبئة سجلات الحضور
+        function populateAttendanceRecords() {
+            const tbody = document.querySelector('#attendanceRecordsBody');
+            tbody.innerHTML = '';
+            
+            if (attendanceRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">لا توجد سجلات حضور</td></tr>';
+                return;
+            }
+            
+            attendanceRecords.forEach((record, index) => {
+                const member = members.find(m => m.id === record.memberId);
+                const week = weeks.find(w => w.id == record.weekId);
+                
+                if (member && week) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${member.name}</td>
+                        <td>${week.name}</td>
+                        <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
+                        <td><button class='btn btn-danger deleteAttendance' data-id='${record.id}'>حذف</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+        
+        // تحديث إحصائيات الحضور
+        function updateAttendanceStats() {
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            let count = 0;
+            let totalPoints = 0;
+            
+            if (!selectedWeekId) {
+                document.getElementById('attendanceCount').textContent = count;
+                document.getElementById('totalPoints').textContent = totalPoints;
+                return;
+            }
+            
+            // حساب الحضور لهذا الأسبوع فقط
+            const weekAttendance = attendanceRecords.filter(ar => ar.weekId == selectedWeekId);
+            count = weekAttendance.length;
+            
+            // حساب النقاط الإجمالية
+            totalPoints = members.reduce((sum, member) => sum + member.points, 0);
+            
+            document.getElementById('attendanceCount').textContent = count;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            
+            // تحديث التقارير
+            document.getElementById('reportAttendance').textContent = attendanceRecords.length;
+            document.getElementById('reportPoints').textContent = totalPoints;
+            
+            updateChart();
+            updateTopMembers();
+            updateMembersStats();
+        }
+        
+        // تحديث قائمة الـ 10 الأوائل
+        function updateTopMembers() {
+            // حساب النقاط لكل عضو
+            const memberPoints = members.map(member => {
+                return { name: member.name, points: member.points, image: member.image };
+            });
+            
+            // ترتيب تنازلي حسب النقاط
+            memberPoints.sort((a, b) => b.points - a.points);
+            
+            // أخذ أول 10 فقط
+            const top10 = memberPoints.slice(0, 10);
+            
+            // عرض النتائج
+            const topMembersList = document.getElementById('topMembersList');
+            topMembersList.innerHTML = '';
+            
+            if (top10.length === 0) {
+                topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
+                return;
+            }
+            
+            top10.forEach((member, index) => {
+                const item = document.createElement('div');
+                item.className = 'top-member-item';
+                
+                let medal = '';
+                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
+                
+                item.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <img src="${member.image}" class="member-img" alt="${member.name}">
+                        <div class="top-member-name">${medal} ${member.name}</div>
+                    </div>
+                    <div class="top-member-points">${member.points} نقطة</div>
+                `;
+                topMembersList.appendChild(item);
+            });
+        }
+        
+        // تحديث إحصائيات الأعضاء
+        function updateMembersStats() {
+            const container = document.getElementById('membersStatsContainer');
+            container.innerHTML = '';
+            
+            members.forEach(member => {
+                const statsDiv = document.createElement('div');
+                statsDiv.className = 'member-stats';
+                statsDiv.innerHTML = `
+                    <img src="${member.image}" class="member-img" alt="${member.name}">
+                    <div style="flex:1">
+                        <h4>${member.name}</h4>
+                        <div style="display:flex;gap:10px;margin-top:5px;">
+                            <div class="member-stat-item">
+                                <div class="member-stat-value">${member.points}</div>
+                                <div class="member-stat-label">نقاط</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(statsDiv);
+            });
+        }
+        
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // تسجيل دخول الأدمن
+            document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
+            document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
+            document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
+            
+            // العودة إلى واجهة المستخدم
+            document.getElementById('backToUserView').addEventListener('click', backToUserView);
+            
+            // إدارة الأعضاء
+            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editMember')) {
+                    const id = parseInt(e.target.dataset.id);
+                    editMember(id);
+                }
+                if (e.target.classList.contains('deleteMember')) {
+                    const id = parseInt(e.target.dataset.id);
+                    deleteMember(id);
+                }
+            });
+            
+            // إدارة الأسابيع
+            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editWeek')) {
+                    const id = parseInt(e.target.dataset.id);
+                    editWeek(id);
+                }
+                if (e.target.classList.contains('deleteWeek')) {
+                    const id = parseInt(e.target.dataset.id);
+                    deleteWeek(id);
+                }
+            });
+            
+            // إدارة الحضور
+            document.getElementById('markPresent').addEventListener('click', markAttendance);
+            document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
+            document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('deleteAttendance')) {
+                    const id = parseInt(e.target.dataset.id);
+                    deleteAttendanceRecord(id);
+                }
+            });
+            
+            // إدارة المناسبات
+            document.getElementById('addEventBtn').addEventListener('click', addEvent);
+            
+            // إدارة المهمات
+            document.getElementById('addTaskBtn').addEventListener('click', addTask);
+            
+            // التقارير
+            document.getElementById('printReportBtn').addEventListener('click', printReport);
+            document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+            
+            // تحديث البيانات عند تغيير الأسبوع
+            document.getElementById('weekSelect').addEventListener('change', populateAttendanceTable);
         }
         
         // تسجيل دخول الأدمن
-        document.getElementById('adminLoginBtn').addEventListener('click', function() {
+        function showAdminLogin() {
             document.getElementById('adminLoginModal').style.display = 'flex';
             document.getElementById('adminPassword').value = '';
             document.getElementById('adminPassword').classList.remove('login-failed');
-        });
+        }
         
-        document.getElementById('cancelAdminLogin').addEventListener('click', function() {
+        function hideAdminLogin() {
             document.getElementById('adminLoginModal').style.display = 'none';
-        });
+        }
         
-        document.getElementById('confirmAdminLogin').addEventListener('click', function() {
+        function confirmAdminLogin() {
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === adminPass) {
                 document.getElementById('adminLoginModal').style.display = 'none';
@@ -1030,54 +370,17 @@
                 
                 showNotification('كلمة السر خاطئة!', false);
             }
-        });
-        
-        // إغلاق النافذة عند النقر خارجها
-        document.getElementById('adminLoginModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-            }
-        });
+        }
         
         // العودة إلى واجهة المستخدم
-        document.getElementById('backToUserView').addEventListener('click', function() {
+        function backToUserView() {
             document.getElementById('adminTabs').style.display = 'none';
             document.getElementById('userAttendance').style.display = 'block';
             document.getElementById('adminLoginBtn').style.display = 'block';
-        });
-        
-        // تسجيل الحضور
-        document.getElementById('markPresent').addEventListener('click', function() {
-            const memberId = document.getElementById('selectMember').value;
-            const weekId = document.getElementById('weekSelect').value;
-            
-            if (!memberId) {
-                showNotification('يرجى اختيار عضو أولاً', false);
-                return;
-            }
-            
-            // في نظام حقيقي، هنا سيتم حفظ البيانات في قاعدة البيانات
-            showNotification('تم تسجيل الحضور بنجاح!');
-            
-            // تحديث الجدول
-            const attendanceValue = document.querySelector(`tr[data-member="${memberId}"] .attendance-value`);
-            const pointsValue = document.querySelector(`tr[data-member="${memberId}"] .points`);
-            
-            if (attendanceValue && pointsValue) {
-                attendanceValue.textContent = '1';
-                pointsValue.textContent = '1';
-                
-                // تحديث الإحصائيات
-                const attendanceCount = document.getElementById('attendanceCount');
-                const totalPoints = document.getElementById('totalPoints');
-                
-                attendanceCount.textContent = parseInt(attendanceCount.textContent) + 1;
-                totalPoints.textContent = parseInt(totalPoints.textContent) + 1;
-            }
-        });
+        }
         
         // إضافة عضو جديد
-        document.getElementById('addMemberBtn').addEventListener('click', function() {
+        function addMember() {
             const name = document.getElementById('newMemberName').value;
             const emoji = document.getElementById('newMemberEmoji').value;
             const image = document.getElementById('newMemberImage').value;
@@ -1088,71 +391,54 @@
             }
             
             const newMember = {
-                id: members.length + 1,
+                id: members.length > 0 ? Math.max(...members.map(m => m.id)) + 1 : 1,
                 name: `${emoji} ${name}`,
-                image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`
+                image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`,
+                points: 0
             };
             
             members.push(newMember);
-            
-            // تحديث القوائم المنسدلة
-            const selectMember = document.getElementById('selectMember');
-            const option = document.createElement('option');
-            option.value = newMember.id;
-            option.textContent = newMember.name;
-            selectMember.appendChild(option);
-            
-            // إضافة صف جديد إلى الجدول
-            const tbody = document.getElementById('attendanceTableBody');
-            const tr = document.createElement('tr');
-            tr.dataset.member = newMember.id;
-            tr.innerHTML = `
-                <td>${members.length}</td>
-                <td><img src="${newMember.image}" class="member-img" alt="${newMember.name}"></td>
-                <td>${newMember.name}</td>
-                <td>الاسبوع الاول</td>
-                <td class="attendance-value">0</td>
-                <td class="points">0</td>
-            `;
-            tbody.appendChild(tr);
-            
-            // إضافة إلى جدول الإدارة
-            const membersTbody = document.querySelector('#membersTable tbody');
-            const adminTr = document.createElement('tr');
-            adminTr.innerHTML = `
-                <td>${members.length}</td>
-                <td><img src="${newMember.image}" class="member-img" alt="${newMember.name}"></td>
-                <td>${newMember.name}</td>
-                <td>0</td>
-                <td>لا يوجد</td>
-                <td><button class='btn btn-primary editMember'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteMember'>حذف</button></td>
-            `;
-            membersTbody.appendChild(adminTr);
-            
-            // إضافة إلى قائمة النقاط الإضافية
-            const extraPointMember = document.getElementById('extraPointMember');
-            const extraOption = document.createElement('option');
-            extraOption.value = newMember.id;
-            extraOption.textContent = newMember.name;
-            extraPointMember.appendChild(extraOption);
-            
-            // إضافة إلى قائمة المهمات
-            const newTaskAssignee = document.getElementById('newTaskAssignee');
-            const taskOption = document.createElement('option');
-            taskOption.value = newMember.id;
-            taskOption.textContent = newMember.name;
-            newTaskAssignee.appendChild(taskOption);
-            
             showNotification('تم إضافة العضو بنجاح');
             
             // مسح الحقول
             document.getElementById('newMemberName').value = '';
             document.getElementById('newMemberImage').value = '';
-        });
+            
+            // تحديث البيانات
+            populateData();
+        }
+        
+        // تعديل عضو
+        function editMember(id) {
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+            
+            // استخراج الإيموجي والاسم
+            const emoji = member.name.charAt(0);
+            const currentName = member.name.substring(2);
+            
+            const newName = prompt('عدل اسم العضو:', currentName);
+            const newImage = prompt('عدل رابط الصورة (اتركه فارغاً إذا لا تريد تغييره):', member.image);
+            
+            if (newName) {
+                member.name = `${emoji} ${newName}`;
+                if (newImage) member.image = newImage;
+                showNotification('تم تعديل بيانات العضو');
+                populateData();
+            }
+        }
+        
+        // حذف عضو
+        function deleteMember(id) {
+            if (confirm('هل تريد حذف العضو؟')) {
+                members = members.filter(m => m.id !== id);
+                showNotification('تم حذف العضو');
+                populateData();
+            }
+        }
         
         // إضافة أسبوع جديد
-        document.getElementById('addWeekBtn').addEventListener('click', function() {
+        function addWeek() {
             const name = document.getElementById('newWeekName').value;
             const from = document.getElementById('newWeekStart').value;
             const to = document.getElementById('newWeekEnd').value;
@@ -1163,52 +449,97 @@
             }
             
             const newWeek = {
-                id: weeks.length + 1,
+                id: weeks.length > 0 ? Math.max(...weeks.map(w => w.id)) + 1 : 1,
                 name: name,
                 from: from,
                 to: to
             };
             
             weeks.push(newWeek);
-            
-            // تحديث القوائم المنسدلة
-            const weekSelect = document.getElementById('weekSelect');
-            const option = document.createElement('option');
-            option.value = newWeek.id;
-            option.textContent = newWeek.name;
-            weekSelect.appendChild(option);
-            
-            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
-            const deleteOption = document.createElement('option');
-            deleteOption.value = newWeek.id;
-            deleteOption.textContent = newWeek.name;
-            deleteWeekSelect.appendChild(deleteOption);
-            
-            // إضافة إلى جدول الإدارة
-            const weeksTbody = document.querySelector('#weeksTable tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${weeks.length}</td>
-                <td>${newWeek.name}</td>
-                <td>${newWeek.from}</td>
-                <td>${newWeek.to}</td>
-                <td><button class='btn btn-primary editWeek'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteWeek'>حذف</button></td>
-            `;
-            weeksTbody.appendChild(tr);
-            
             showNotification('تم إضافة الأسبوع بنجاح');
             
             // مسح الحقول
             document.getElementById('newWeekName').value = '';
             document.getElementById('newWeekStart').value = '';
             document.getElementById('newWeekEnd').value = '';
-        });
+            
+            // تحديث البيانات
+            populateData();
+        }
+        
+        // تعديل أسبوع
+        function editWeek(id) {
+            const week = weeks.find(w => w.id === id);
+            if (!week) return;
+            
+            const newName = prompt('عدل اسم الأسبوع:', week.name);
+            const newFrom = prompt('عدل تاريخ البداية:', week.from);
+            const newTo = prompt('عدل تاريخ النهاية:', week.to);
+            
+            if (newName && newFrom && newTo) {
+                week.name = newName;
+                week.from = newFrom;
+                week.to = newTo;
+                showNotification('تم تعديل بيانات الأسبوع');
+                populateData();
+            }
+        }
+        
+        // حذف أسبوع
+        function deleteWeek(id) {
+            if (confirm('هل تريد حذف الأسبوع؟')) {
+                weeks = weeks.filter(w => w.id !== id);
+                showNotification('تم حذف الأسبوع');
+                populateData();
+            }
+        }
+        
+        // تسجيل الحضور
+        function markAttendance() {
+            const memberId = parseInt(document.getElementById('selectMember').value);
+            const weekId = parseInt(document.getElementById('weekSelect').value);
+            
+            if (!memberId || !weekId) {
+                showNotification('يرجى اختيار العضو والأسبوع أولاً', false);
+                return;
+            }
+            
+            // التحقق من عدم تسجيل الحضور مسبقاً
+            const existingRecord = attendanceRecords.find(ar => 
+                ar.memberId === memberId && ar.weekId == weekId
+            );
+            
+            if (existingRecord) {
+                showNotification('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع', false);
+                return;
+            }
+            
+            // إضافة سجل جديد
+            const newAttendance = {
+                id: attendanceRecords.length > 0 ? Math.max(...attendanceRecords.map(ar => ar.id)) + 1 : 1,
+                memberId: memberId,
+                weekId: weekId,
+                date: new Date().toISOString()
+            };
+            
+            attendanceRecords.push(newAttendance);
+            
+            // زيادة نقاط العضو
+            const member = members.find(m => m.id === memberId);
+            if (member) {
+                member.points += 1;
+            }
+            
+            showNotification('تم تسجيل الحضور بنجاح!');
+            
+            // تحديث البيانات
+            populateData();
+        }
         
         // إضافة نقاط إضافية
-        document.getElementById('addExtraPointsBtn').addEventListener('click', function() {
-            const memberId = document.getElementById('extraPointMember').value;
-            const points = document.getElementById('extraPointsValue').value;
+        function addExtraPoints() {
+            const memberId = parseInt(document.getElementById('extraPointMember').value);
+            const points = parseInt(document.getElementById('extraPointsValue').value);
             const reason = document.getElementById('extraPointsReason').value;
             
             if (!memberId || !points || !reason) {
@@ -1216,39 +547,257 @@
                 return;
             }
             
-            const member = members.find(m => m.id == memberId);
+            // زيادة نقاط العضو
+            const member = members.find(m => m.id === memberId);
             if (member) {
-                // تحديث النقاط في الجدول
-                const pointsElement = document.querySelector(`tr[data-member="${memberId}"] .points`);
-                if (pointsElement) {
-                    const currentPoints = parseInt(pointsElement.textContent);
-                    pointsElement.textContent = currentPoints + parseInt(points);
-                }
+                member.points += points;
                 
-                // تحديث النقاط في جدول الإدارة
-                const adminPointsElement = document.querySelector(`#membersTable tr:nth-child(${parseInt(memberId)}) td:nth-child(4)`);
-                if (adminPointsElement) {
-                    const currentPoints = parseInt(adminPointsElement.textContent);
-                    adminPointsElement.textContent = currentPoints + parseInt(points);
-                }
+                // حفظ النقاط الإضافية
+                const newExtraPoints = {
+                    id: extraPoints.length > 0 ? Math.max(...extraPoints.map(ep => ep.id)) + 1 : 1,
+                    memberId: memberId,
+                    points: points,
+                    reason: reason,
+                    date: new Date().toISOString()
+                };
                 
-                // تحديث النقاط الإجمالية
-                const totalPoints = document.getElementById('totalPoints');
-                totalPoints.textContent = parseInt(totalPoints.textContent) + parseInt(points);
+                extraPoints.push(newExtraPoints);
                 
                 showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
                 
                 // مسح الحقول
                 document.getElementById('extraPointsValue').value = '1';
                 document.getElementById('extraPointsReason').value = '';
+                
+                // تحديث البيانات
+                populateData();
+            }
+        }
+        
+        // حذف تسجيل حضور
+        function deleteAttendanceRecord(id) {
+            if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
+                const record = attendanceRecords.find(ar => ar.id === id);
+                if (record) {
+                    // خصم النقاط من العضو
+                    const member = members.find(m => m.id === record.memberId);
+                    if (member) {
+                        member.points = Math.max(0, member.points - 1);
+                    }
+                }
+                
+                attendanceRecords = attendanceRecords.filter(ar => ar.id !== id);
+                showNotification('تم حذف تسجيل الحضور');
+                
+                // تحديث البيانات
+                populateData();
+            }
+        }
+        
+        // حذف كل الحضور لأسبوع محدد
+        function deleteAllWeekAttendance() {
+            const weekId = parseInt(document.getElementById('deleteWeekSelect').value);
+            
+            if (!weekId) {
+                showNotification('يرجى اختيار أسبوع أولاً', false);
+                return;
+            }
+            
+            if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
+                // خصم النقاط من الأعضاء
+                const weekRecords = attendanceRecords.filter(ar => ar.weekId == weekId);
+                weekRecords.forEach(record => {
+                    const member = members.find(m => m.id === record.memberId);
+                    if (member) {
+                        member.points = Math.max(0, member.points - 1);
+                    }
+                });
+                
+                attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
+                showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
+                
+                // تحديث البيانات
+                populateData();
+            }
+        }
+        
+        // إضافة مناسبة
+        function addEvent() {
+            const name = document.getElementById('newEventName').value;
+            const date = document.getElementById('newEventDate').value;
+            const description = document.getElementById('newEventDescription').value;
+            
+            if (!name || !date || !description) {
+                showNotification('يرجى ملء جميع الحقول', false);
+                return;
+            }
+            
+            const newEvent = {
+                id: events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1,
+                name: name,
+                date: date,
+                description: description
+            };
+            
+            events.push(newEvent);
+            showNotification('تم إضافة المناسبة بنجاح');
+            
+            // مسح الحقول
+            document.getElementById('newEventName').value = '';
+            document.getElementById('newEventDate').value = '';
+            document.getElementById('newEventDescription').value = '';
+            
+            // تحديث جدول المناسبات
+            const eventsTbody = document.querySelector('#eventsTable tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${events.length}</td>
+                <td>${newEvent.name}</td>
+                <td>${newEvent.date}</td>
+                <td>${newEvent.description}</td>
+                <td><button class='btn btn-primary editEvent'>تعديل</button></td>
+                <td><button class='btn btn-danger deleteEvent'>حذف</button></td>
+            `;
+            eventsTbody.appendChild(tr);
+        }
+        
+        // إضافة مهمة
+        function addTask() {
+            const name = document.getElementById('newTaskName').value;
+            const assigneeId = parseInt(document.getElementById('newTaskAssignee').value);
+            const deadline = document.getElementById('newTaskDeadline').value;
+            
+            if (!name || !assigneeId || !deadline) {
+                showNotification('يرجى ملء جميع الحقول', false);
+                return;
+            }
+            
+            const assignee = members.find(m => m.id === assigneeId);
+            if (!assignee) {
+                showNotification('العضو المحدد غير موجود', false);
+                return;
+            }
+            
+            const newTask = {
+                id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+                name: name,
+                assigneeId: assigneeId,
+                assigneeName: assignee.name,
+                deadline: deadline,
+                status: 'قيد التنفيذ'
+            };
+            
+            tasks.push(newTask);
+            showNotification('تم إضافة المهمة بنجاح');
+            
+            // مسح الحقول
+            document.getElementById('newTaskName').value = '';
+            document.getElementById('newTaskAssignee').value = '';
+            document.getElementById('newTaskDeadline').value = '';
+            
+            // تحديث جدول المهمات
+            const tasksTbody = document.querySelector('#tasksTable tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${tasks.length}</td>
+                <td>${newTask.name}</td>
+                <td>${newTask.assigneeName}</td>
+                <td>${newTask.deadline}</td>
+                <td><span class="badge btn-warning">${newTask.status}</span></td>
+                <td><button class='btn btn-primary editTask'>تعديل</button></td>
+                <td><button class='btn btn-danger deleteTask'>حذف</button></td>
+            `;
+            tasksTbody.appendChild(tr);
+        }
+        
+        // طباعة التقرير
+        function printReport() {
+            window.print();
+        }
+        
+        // تصدير لإكسل
+        function exportToExcel() {
+            // تحضير البيانات
+            const data = [];
+            
+            // عناوين الأعمدة
+            data.push(['الاسم', 'النقاط', 'المكافآت']);
+            
+            // بيانات الأعضاء
+            members.forEach(member => {
+                const rewardsText = rewards.filter(r => r.memberId === member.id)
+                    .map(r => r.title).join(', ') || 'لا يوجد';
+                
+                data.push([member.name, member.points, rewardsText]);
+            });
+            
+            // إنشاء workbook
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'تقرير الحضور');
+            
+            // التحميل
+            XLSX.writeFile(wb, 'تقرير_الحضور.xlsx');
+        }
+        
+        // عرض الإشعارات
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // رسم بياني
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'الحضور',
+                    data: [],
+                    backgroundColor: ['#3498db','#2ecc71','#f39c12']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
             }
         });
         
-        // تحميل البيانات عند بدء التشغيل
-        document.addEventListener('DOMContentLoaded', function() {
-            hideLoading();
-            showNotification('مرحباً بك في نظام حضور خدام ملايكة');
-        });
+        function updateChart() {
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            
+            if (!selectedWeekId) {
+                chart.data.labels = [];
+                chart.data.datasets[0].data = [];
+                chart.update();
+                return;
+            }
+            
+            const data = members.map(member => {
+                const record = attendanceRecords.find(ar => 
+                    ar.memberId === member.id && ar.weekId == selectedWeekId
+                );
+                return record ? 1 : 0;
+            });
+            
+            chart.data.labels = members.map(m => m.name);
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+        
+        // بدء التطبيق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>

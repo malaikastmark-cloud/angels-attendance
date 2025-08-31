@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - الإصدار الكامل</title>
+    <title>نظام حضور خدام ملايكة - النسخة المحسنة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -718,6 +718,7 @@
             <div class="controls">
                 <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
                 <button class="btn btn-info admin-only" id="addCustomPoint">إضافة نقاط إضافية</button>
+                <button class="btn btn-danger admin-only" id="removeAttendance">حذف الحضور</button>
             </div>
             <table>
                 <thead>
@@ -728,7 +729,7 @@
                         <th>الأسبوع</th>
                         <th>الحضور</th>
                         <th>النقاط</th>
-                        <th class="admin-only">الإنجازات</th>
+                        <th class="admin-only">الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody"></tbody>
@@ -957,50 +958,44 @@
             </div>
         </div>
 
-        <!-- نموذج تعديل العضو -->
-        <div class="modal" id="editMemberModal">
+        <!-- نموذج إضافة نقاط إضافية -->
+        <div class="modal" id="addPointsModal">
             <div class="modal-content">
-                <h2>تعديل العضو</h2>
-                <input type="hidden" id="editMemberId">
+                <h2>إضافة نقاط إضافية</h2>
                 <div class="controls">
-                    <label>اسم العضو:</label>
-                    <input type="text" id="editMemberName">
+                    <label>اختر العضو:</label>
+                    <select id="pointsMemberSelect"></select>
                 </div>
                 <div class="controls">
-                    <label>رابط الصورة:</label>
-                    <input type="text" id="editMemberImage">
+                    <label>عدد النقاط:</label>
+                    <input type="number" id="extraPoints" value="5" min="1">
                 </div>
                 <div class="controls">
-                    <label>تاريخ الميلاد:</label>
-                    <input type="date" id="editMemberBirthday">
+                    <label>سبب الإضافة:</label>
+                    <input type="text" id="pointsReason" placeholder="سبب إضافة النقاط">
                 </div>
                 <div class="controls">
-                    <button class="btn btn-danger" id="cancelEditMember">إلغاء</button>
-                    <button class="btn btn-success" id="saveEditMember">حفظ</button>
+                    <button class="btn btn-danger" id="cancelAddPoints">إلغاء</button>
+                    <button class="btn btn-success" id="confirmAddPoints">إضافة</button>
                 </div>
             </div>
         </div>
 
-        <!-- نموذج تعديل الأسبوع -->
-        <div class="modal" id="editWeekModal">
+        <!-- نموذج حذف الحضور -->
+        <div class="modal" id="removeAttendanceModal">
             <div class="modal-content">
-                <h2>تعديل الأسبوع</h2>
-                <input type="hidden" id="editWeekId">
+                <h2>حذف تسجيل الحضور</h2>
                 <div class="controls">
-                    <label>اسم الأسبوع:</label>
-                    <input type="text" id="editWeekName">
+                    <label>اختر العضو:</label>
+                    <select id="removeMemberSelect"></select>
                 </div>
                 <div class="controls">
-                    <label>تاريخ البداية:</label>
-                    <input type="date" id="editWeekStart">
+                    <label>اختر الأسبوع:</label>
+                    <select id="removeWeekSelect"></select>
                 </div>
                 <div class="controls">
-                    <label>تاريخ النهاية:</label>
-                    <input type="date" id="editWeekEnd">
-                </div>
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelEditWeek">إلغاء</button>
-                    <button class="btn btn-success" id="saveEditWeek">حفظ</button>
+                    <button class="btn btn-danger" id="cancelRemoveAttendance">إلغاء</button>
+                    <button class="btn btn-success" id="confirmRemoveAttendance">حذف</button>
                 </div>
             </div>
         </div>
@@ -1014,6 +1009,7 @@
         let rewards = [];
         let tasks = [];
         let events = [];
+        let extraPoints = [];
         let settings = {
             groupName: "خدام ملايكة",
             attendancePoints: 1,
@@ -1073,6 +1069,31 @@
             // زر تسجيل الحضور
             document.getElementById('markPresent').addEventListener('click', markAttendance);
             
+            // إضافة نقاط إضافية
+            document.getElementById('addCustomPoint').addEventListener('click', () => {
+                document.getElementById('addPointsModal').style.display = 'flex';
+                populatePointsMembers();
+            });
+            
+            document.getElementById('cancelAddPoints').addEventListener('click', () => {
+                document.getElementById('addPointsModal').style.display = 'none';
+            });
+            
+            document.getElementById('confirmAddPoints').addEventListener('click', addExtraPoints);
+            
+            // حذف الحضور
+            document.getElementById('removeAttendance').addEventListener('click', () => {
+                document.getElementById('removeAttendanceModal').style.display = 'flex';
+                populateRemoveMembers();
+                populateRemoveWeeks();
+            });
+            
+            document.getElementById('cancelRemoveAttendance').addEventListener('click', () => {
+                document.getElementById('removeAttendanceModal').style.display = 'none';
+            });
+            
+            document.getElementById('confirmRemoveAttendance').addEventListener('click', removeAttendanceRecord);
+            
             // إضافة مهمة جديدة
             document.getElementById('addTaskBtn').addEventListener('click', addNewTask);
             
@@ -1093,20 +1114,6 @@
             
             // إضافة أسبوع جديد
             document.getElementById('addWeekBtn').addEventListener('click', addNewWeek);
-            
-            // تعديل العضو
-            document.getElementById('cancelEditMember').addEventListener('click', () => {
-                document.getElementById('editMemberModal').style.display = 'none';
-            });
-            
-            document.getElementById('saveEditMember').addEventListener('click', saveEditedMember);
-            
-            // تعديل الأسبوع
-            document.getElementById('cancelEditWeek').addEventListener('click', () => {
-                document.getElementById('editWeekModal').style.display = 'none';
-            });
-            
-            document.getElementById('saveEditWeek').addEventListener('click', saveEditedWeek);
             
             // تغيير الأسبوع المحدد
             document.getElementById('weekSelect').addEventListener('change', populateData);
@@ -1179,6 +1186,7 @@
                 rewards: rewards,
                 tasks: tasks,
                 events: events,
+                extraPoints: extraPoints,
                 settings: settings,
                 lastUpdated: new Date().toISOString()
             };
@@ -1194,6 +1202,7 @@
                 rewards = data.rewards || rewards;
                 tasks = data.tasks || tasks;
                 events = data.events || events;
+                extraPoints = data.extraPoints || extraPoints;
                 settings = data.settings || settings;
             }
             
@@ -1298,7 +1307,45 @@
             }
         
             updateAttendanceTable();
-            updateStorageStats();
+        }
+        
+        function populatePointsMembers() {
+            const pointsMemberSelect = document.getElementById('pointsMemberSelect');
+            if (pointsMemberSelect) {
+                pointsMemberSelect.innerHTML = '';
+                members.forEach(m => {
+                    let option = document.createElement('option'); 
+                    option.value = m.id; 
+                    option.textContent = m.name; 
+                    pointsMemberSelect.appendChild(option);
+                });
+            }
+        }
+        
+        function populateRemoveMembers() {
+            const removeMemberSelect = document.getElementById('removeMemberSelect');
+            if (removeMemberSelect) {
+                removeMemberSelect.innerHTML = '';
+                members.forEach(m => {
+                    let option = document.createElement('option'); 
+                    option.value = m.id; 
+                    option.textContent = m.name; 
+                    removeMemberSelect.appendChild(option);
+                });
+            }
+        }
+        
+        function populateRemoveWeeks() {
+            const removeWeekSelect = document.getElementById('removeWeekSelect');
+            if (removeWeekSelect) {
+                removeWeekSelect.innerHTML = '';
+                weeks.forEach(w => {
+                    let option = document.createElement('option'); 
+                    option.value = w.id; 
+                    option.textContent = w.name; 
+                    removeWeekSelect.appendChild(option);
+                });
+            }
         }
         
         function updateAttendanceTable(){
@@ -1324,7 +1371,7 @@
                     );
                     
                     const isPresent = attendanceRecord ? attendanceRecord.present : false;
-                    const points = isPresent ? settings.attendancePoints : 0;
+                    const points = calculateMemberPoints(m.id, selectedWeekId);
                     
                     let tr = document.createElement('tr'); 
                     tr.dataset.member = m.id;
@@ -1335,7 +1382,9 @@
                         <td>${selectedWeek ? selectedWeek.name : ''}</td>
                         <td class="attendance-value">${isPresent ? '1' : '0'}</td>
                         <td class="points">${points}</td>
-                        <td class="admin-only"><span class="badge badge-primary">0 إنجاز</span></td>
+                        <td class="admin-only">
+                            ${isPresent ? `<button class="btn btn-danger btn-sm" onclick="removeSingleAttendance(${m.id}, ${selectedWeekId})">حذف</button>` : ''}
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -1343,6 +1392,39 @@
                 document.getElementById('totalMembers').textContent = members.length;
                 updateAttendanceStats();
             }
+        }
+        
+        function calculateMemberPoints(memberId, weekId) {
+            let points = 0;
+            
+            // نقاط الحضور
+            const attendanceRecord = attendanceRecords.find(ar => 
+                ar.memberId === memberId && ar.weekId == weekId && ar.present
+            );
+            
+            if (attendanceRecord) {
+                points += settings.attendancePoints;
+            }
+            
+            // نقاط إضافية
+            const memberExtraPoints = extraPoints.filter(ep => 
+                ep.memberId === memberId && ep.weekId == weekId
+            );
+            
+            memberExtraPoints.forEach(ep => {
+                points += ep.points;
+            });
+            
+            // نقاط المهام المكتملة
+            const completedTasks = tasks.filter(task => 
+                task.completed && (task.assignee === 0 || task.assignee === memberId)
+            );
+            
+            completedTasks.forEach(task => {
+                points += task.points;
+            });
+            
+            return points;
         }
         
         function updateAttendanceStats(){
@@ -1356,7 +1438,11 @@
             );
             
             count = weekAttendance.length;
-            totalPoints = count * settings.attendancePoints;
+            
+            // حساب النقاط الكلية
+            members.forEach(member => {
+                totalPoints += calculateMemberPoints(member.id, selectedWeekId);
+            });
             
             document.getElementById('attendanceCount').textContent = count;
             document.getElementById('totalPoints').textContent = totalPoints;
@@ -1364,9 +1450,7 @@
         
         // نظام المكافآت
         function checkForRewards(memberId) {
-            const points = attendanceRecords.filter(ar => 
-                ar.memberId === memberId && ar.present
-            ).length * settings.attendancePoints;
+            const points = calculateTotalPoints(memberId);
             
             // مكافآت افتراضية
             const rewardLevels = [
@@ -1401,6 +1485,37 @@
                     }
                 }
             });
+        }
+        
+        function calculateTotalPoints(memberId) {
+            let totalPoints = 0;
+            
+            // نقاط الحضور من جميع الأسابيع
+            const memberAttendance = attendanceRecords.filter(ar => 
+                ar.memberId === memberId && ar.present
+            );
+            
+            totalPoints += memberAttendance.length * settings.attendancePoints;
+            
+            // النقاط الإضافية من جميع الأسابيع
+            const memberExtraPoints = extraPoints.filter(ep => 
+                ep.memberId === memberId
+            );
+            
+            memberExtraPoints.forEach(ep => {
+                totalPoints += ep.points;
+            });
+            
+            // نقاط المهام المكتملة
+            const completedTasks = tasks.filter(task => 
+                task.completed && (task.assignee === 0 || task.assignee === memberId)
+            );
+            
+            completedTasks.forEach(task => {
+                totalPoints += task.points;
+            });
+            
+            return totalPoints;
         }
         
         // تسجيل الحضور للعضو المحدد
@@ -1441,6 +1556,83 @@
             saveToLocalStorage();
             updateAttendanceTable();
             updateLeaderboard();
+        }
+        
+        // إضافة نقاط إضافية
+        function addExtraPoints() {
+            const memberId = parseInt(document.getElementById('pointsMemberSelect').value);
+            const points = parseInt(document.getElementById('extraPoints').value);
+            const reason = document.getElementById('pointsReason').value;
+            const weekId = parseInt(document.getElementById('weekSelect').value);
+            
+            if (!memberId || !points || !reason) {
+                alert('يجب اختيار العضو وإدخال عدد النقاط والسبب');
+                return;
+            }
+            
+            extraPoints.push({
+                id: Date.now(),
+                memberId: memberId,
+                weekId: weekId,
+                points: points,
+                reason: reason,
+                date: new Date().toISOString()
+            });
+            
+            document.getElementById('addPointsModal').style.display = 'none';
+            showNotification('تم إضافة النقاط الإضافية بنجاح!', true);
+            
+            // التحقق من المكافآت
+            checkForRewards(memberId);
+            
+            saveToLocalStorage();
+            updateAttendanceTable();
+            updateLeaderboard();
+        }
+        
+        // حذف الحضور
+        function removeAttendanceRecord() {
+            const memberId = parseInt(document.getElementById('removeMemberSelect').value);
+            const weekId = parseInt(document.getElementById('removeWeekSelect').value);
+            
+            if (!memberId || !weekId) {
+                alert('يجب اختيار العضو والأسبوع أولاً');
+                return;
+            }
+            
+            const index = attendanceRecords.findIndex(ar => 
+                ar.memberId === memberId && ar.weekId == weekId
+            );
+            
+            if (index !== -1) {
+                attendanceRecords.splice(index, 1);
+                document.getElementById('removeAttendanceModal').style.display = 'none';
+                showNotification('تم حذف تسجيل الحضور بنجاح!', true);
+                
+                saveToLocalStorage();
+                updateAttendanceTable();
+                updateLeaderboard();
+            } else {
+                alert('لا يوجد تسجيل حضور لهذا العضو في هذا الأسبوع');
+            }
+        }
+        
+        // حذف حضور فردي
+        function removeSingleAttendance(memberId, weekId) {
+            if (confirm('هل تريد حذف تسجيل حضور هذا العضو؟')) {
+                const index = attendanceRecords.findIndex(ar => 
+                    ar.memberId === memberId && ar.weekId == weekId
+                );
+                
+                if (index !== -1) {
+                    attendanceRecords.splice(index, 1);
+                    showNotification('تم حذف تسجيل الحضور بنجاح!', true);
+                    
+                    saveToLocalStorage();
+                    updateAttendanceTable();
+                    updateLeaderboard();
+                }
+            }
         }
         
         // إدارة وضع الأدمن
@@ -1658,7 +1850,11 @@
                 if (task.completed && task.assignee !== 0) {
                     // منح النقاط للعضو عند إكمال المهمة
                     showNotification(`تم منح ${task.points} نقاط للعضو لإكمال المهمة`);
+                    checkForRewards(task.assignee);
                 }
+                
+                updateAttendanceTable();
+                updateLeaderboard();
             }
         }
         
@@ -1725,7 +1921,7 @@
                         
                         eventItem.innerHTML = `
                             <div>
-                                <strong>${event.title} ${typeBadge}</strong>
+                                <strong>${event.title} ${typeBadge</strong>
                                 <p>${eventDate.toLocaleDateString('ar-EG')} - ${event.description || 'لا يوجد وصف'}</p>
                             </div>
                             <div class="event-actions">
@@ -1856,9 +2052,7 @@
                 
                 // حساب نقاط كل عضو
                 const memberPoints = members.map(member => {
-                    const points = attendanceRecords.filter(ar => 
-                        ar.memberId === member.id && ar.present
-                    ).length * settings.attendancePoints;
+                    const points = calculateTotalPoints(member.id);
                     return { ...member, points };
                 });
                 
@@ -1868,7 +2062,7 @@
                 if (memberPoints.length === 0) {
                     monthlyLeadersEl.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
                 } else {
-                    memberPoints.forEach((member, index) => {
+                    memberPoints.forEach((member, index) {
                         let medal = '';
                         if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
                         else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
@@ -1890,29 +2084,102 @@
             
             if (nextGoalsEl) {
                 nextGoalsEl.innerHTML = '';
+                
+                // أهداف افتراضية
                 const goals = [
-                    { text: '10 نقاط للحصول على ميدالية برونزية', progress: '2/10', badge: 'warning' },
-                    { text: 'الحضور 3 اجتماعات متتالية', progress: '2/3', badge: 'success' },
-                    { text: 'إكمال 5 مهام', progress: '3/5', badge: 'primary' }
+                    { text: '10 نقاط للحصول على ميدالية برونزية', target: 10, badge: 'warning' },
+                    { text: 'الحضور 3 اجتماعات متتالية', target: 3, badge: 'success' },
+                    { text: 'إكمال 5 مهام', target: 5, badge: 'primary' }
                 ];
                 
                 goals.forEach(goal => {
+                    // حساب التقدم لكل هدف
+                    let progress = 0;
+                    if (goal.text.includes('نقاط')) {
+                        progress = Math.min(members.reduce((max, m) => Math.max(max, calculateTotalPoints(m.id)), 0) / goal.target, 1);
+                    } else if (goal.text.includes('اجتماعات')) {
+                        const attendanceCount = attendanceRecords.filter(ar => ar.present).length;
+                        progress = Math.min(attendanceCount / goal.target, 1);
+                    } else if (goal.text.includes('مهام')) {
+                        const completedCount = tasks.filter(t => t.completed).length;
+                        progress = Math.min(completedCount / goal.target, 1);
+                    }
+                    
+                    const progressText = `${Math.round(progress * 100)}%`;
+                    
                     const goalItem = document.createElement('div');
                     goalItem.className = 'task-item';
                     goalItem.innerHTML = `
                         <span>${goal.text}</span>
-                        <span class="badge badge-${goal.badge}">${goal.progress}</span>
+                        <span class="badge badge-${goal.badge}">${progressText}</span>
                     `;
                     nextGoalsEl.appendChild(goalItem);
                 });
             }
+            
+            // تحديث المخطط البياني للتقدم الشخصي
+            updateProgressChart();
+        }
+        
+        // تحديث المخطط البياني للتقدم الشخصي
+        function updateProgressChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            // بيانات نموذجية للتقدم
+            const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
+            const data = [5, 8, 12, 6, 9, 15];
+            
+            if (window.progressChartInstance) {
+                window.progressChartInstance.destroy();
+            }
+            
+            window.progressChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'النقاط الشهرية',
+                        data: data,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true
+                        },
+                        title: {
+                            display: true,
+                            text: 'تقدم النقاط خلال الأشهر',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'النقاط'
+                            }
+                        }
+                    }
+                }
+            });
         }
         
         // تحديث التقارير
         function updateReports() {
             // الإحصائيات العامة
             const totalAttendance = attendanceRecords.filter(ar => ar.present).length;
-            const totalPoints = totalAttendance * settings.attendancePoints;
+            const totalPoints = members.reduce((total, member) => total + calculateTotalPoints(member.id), 0);
             
             document.getElementById('reportAttendance').textContent = totalAttendance;
             document.getElementById('reportPoints').textContent = totalPoints;
@@ -1926,9 +2193,7 @@
                 
                 // حساب نقاط كل عضو
                 const memberPoints = members.map(member => {
-                    const points = attendanceRecords.filter(ar => 
-                        ar.memberId === member.id && ar.present
-                    ).length * settings.attendancePoints;
+                    const points = calculateTotalPoints(member.id);
                     return { ...member, points };
                 });
                 
@@ -1971,6 +2236,8 @@
                         ar.memberId === member.id && ar.present
                     ).length;
                     
+                    const memberPoints = calculateTotalPoints(member.id);
+                    
                     const statsDiv = document.createElement('div');
                     statsDiv.className = 'member-stats';
                     statsDiv.innerHTML = `
@@ -1983,7 +2250,7 @@
                                     <div class="member-stat-label">حضور</div>
                                 </div>
                                 <div class="member-stat-item">
-                                    <div class="member-stat-value">${memberAttendance * settings.attendancePoints}</div>
+                                    <div class="member-stat-value">${memberPoints}</div>
                                     <div class="member-stat-label">نقاط</div>
                                 </div>
                                 <div class="member-stat-item">
@@ -2023,7 +2290,8 @@
                     datasets: [{
                         data: [presentCount, absentCount],
                         backgroundColor: ['#2ecc71', '#e74c3c'],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverOffset: 15
                     }]
                 },
                 options: {
@@ -2031,7 +2299,12 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            rtl: true
+                            rtl: true,
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
                         },
                         title: {
                             display: true,
@@ -2039,7 +2312,23 @@
                             font: {
                                 size: 16
                             }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
                         }
+                    },
+                    cutout: '50%',
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
                     }
                 }
             });
@@ -2061,14 +2350,15 @@
             
             // بيانات الأعضاء
             members.forEach(member => {
-                const points = attendanceRecords.filter(ar => 
+                const points = calculateTotalPoints(member.id);
+                const attendance = attendanceRecords.filter(ar => 
                     ar.memberId === member.id && ar.present
-                ).length * settings.attendancePoints;
+                ).length;
                 
                 const memberRewards = rewards.filter(r => r.memberId === member.id);
                 const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
                 
-                data.push([member.name, points, points/settings.attendancePoints, rewardsText]);
+                data.push([member.name, points, attendance, rewardsText]);
             });
             
             // إنشاء workbook
@@ -2090,6 +2380,7 @@
                 rewards: rewards,
                 tasks: tasks,
                 events: events,
+                extraPoints: extraPoints,
                 settings: settings,
                 exportedAt: new Date().toISOString()
             };
@@ -2225,6 +2516,11 @@
                 attendanceRecords = attendanceRecords.filter(ar => ar.memberId !== memberId);
                 // حذف المهام المخصصة لهذا العضو
                 tasks = tasks.filter(t => t.assignee !== memberId);
+                // حذف النقاط الإضافية للعضو
+                extraPoints = extraPoints.filter(ep => ep.memberId !== memberId);
+                // حذف مكافآت العضو
+                rewards = rewards.filter(r => r.memberId !== memberId);
+                
                 saveToLocalStorage();
                 populateMembersList();
                 populateData();
@@ -2340,26 +2636,14 @@
                 weeks = weeks.filter(w => w.id !== weekId);
                 // حذف سجلات الحضور الخاصة بهذا الأسبوع
                 attendanceRecords = attendanceRecords.filter(ar => ar.weekId !== weekId);
+                // حذف النقاط الإضافية لهذا الأسبوع
+                extraPoints = extraPoints.filter(ep => ep.weekId !== weekId);
+                
                 saveToLocalStorage();
                 populateWeeksList();
                 populateData();
                 showNotification('تم حذف الأسبوع');
             }
-        }
-        
-        function updateStorageStats() {
-            const statsElement = document.getElementById('storageStats');
-            if (!statsElement) return;
-            
-            let statsHTML = `
-                <p><strong>عدد الأعضاء:</strong> ${members.length}</p>
-                <p><strong>عدد الأسابيع:</strong> ${weeks.length}</p>
-                <p><strong>سجلات الحضور:</strong> ${attendanceRecords.length}</p>
-                <p><strong>المهام:</strong> ${tasks.length}</p>
-                <p><strong>المناسبات:</strong> ${events.length}</p>
-            `;
-            
-            statsElement.innerHTML = statsHTML;
         }
         
         // تحميل التطبيق عند بدء التشغيل

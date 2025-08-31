@@ -3,114 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام الحضور وإدارة الأعضاء</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<title>نظام الحضور والمكافآت</title>
 <style>
-body { font-family: Arial, sans-serif; }
-.member-img { width: 40px; height: 40px; border-radius: 50%; }
-.top-member-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
-.member-stats { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.member-stat-item { text-align: center; background: #f1f1f1; padding: 5px 10px; border-radius: 5px; }
-#notification { position: fixed; top: 10px; right: 10px; padding: 10px; color: #fff; display: none; border-radius: 5px; }
-.login-failed { animation: shake 0.5s; }
-@keyframes shake { 0%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-5px);}100%{transform:translateX(0);} }
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f6f8; }
+    header { background:#3498db; color:white; padding:15px; text-align:center; font-size:1.5em; }
+    main { padding:20px; max-width:1200px; margin:auto; }
+    .card { background:white; padding:20px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:20px; }
+    select,input,button { padding:8px; margin:5px 0; border-radius:5px; border:1px solid #ccc; }
+    button { cursor:pointer; background:#3498db; color:white; border:none; }
+    button:hover { background:#2980b9; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { border:1px solid #ddd; padding:8px; text-align:center; }
+    th { background:#3498db; color:white; }
+    .member-img { width:40px; height:40px; border-radius:50%; }
+    #adminTabs { display:none; }
+    #notification { position:fixed; top:20px; right:20px; padding:10px 20px; color:white; border-radius:5px; display:none; }
+    .top-member-item { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:10px; border-bottom:1px solid #ddd; }
+    .medal { margin-right:5px; }
+    .member-stats { display:flex; align-items:center; margin-bottom:10px; background:#fafafa; padding:10px; border-radius:5px; }
+    .member-stat-item { margin-right:15px; }
+    #adminLoginModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    #adminLoginModal .modal-content { background:white; padding:20px; border-radius:10px; width:300px; text-align:center; }
+    .login-failed { animation:shake 0.5s; border-color:red; }
+    @keyframes shake { 0%{transform:translateX(0);} 25%{transform:translateX(-5px);} 50%{transform:translateX(5px);} 75%{transform:translateX(-5px);} 100%{transform:translateX(0);} }
+    canvas { max-width:100%; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-<div class="container mt-3">
-<h2 class="mb-3">نظام الحضور وإدارة الأعضاء</h2>
+<header>نظام الحضور والمكافآت</header>
+<main>
+
+<!-- إشعارات -->
 <div id="notification"></div>
 
 <!-- واجهة المستخدم -->
-<div id="userAttendance">
-<div class="row mb-3">
-<div class="col-md-5">
-<select id="selectMember" class="form-select mb-2"><option value="">-- اختر اسمك --</option></select>
-<select id="weekSelect" class="form-select"><option value="">-- اختر الأسبوع --</option></select>
+<div id="userAttendance" class="card">
+    <h2>تسجيل الحضور</h2>
+    <select id="selectMember"></select>
+    <select id="weekSelect"></select>
+    <button id="markPresent">تسجيل الحضور</button>
+    <br>
+    <button id="adminLoginBtn">تسجيل دخول كأدمن</button>
+    <h3>إحصائيات الأسبوع</h3>
+    <p>عدد الحضور: <span id="attendanceCount">0</span></p>
+    <p>إجمالي النقاط: <span id="totalPoints">0</span></p>
+    <canvas id="attendanceChart"></canvas>
 </div>
-<div class="col-md-2">
-<button class="btn btn-success" id="markPresent">تسجيل الحضور</button>
-</div>
-<div class="col-md-2">
-<button class="btn btn-primary" id="adminLoginBtn">تسجيل دخول كأدمن</button>
-</div>
-</div>
-<div class="mb-3">
-<canvas id="attendanceChart" height="100"></canvas>
-</div>
-<div id="topMembersList"></div>
+
+<!-- واجهة الأدمن -->
+<div id="adminTabs">
+
+    <button id="backToUserView">العودة لواجهة المستخدم</button>
+
+    <div class="card">
+        <h2>الأعضاء</h2>
+        <input type="text" id="newMemberName" placeholder="اسم العضو">
+        <input type="text" id="newMemberEmoji" placeholder="إيموجي (اختياري)">
+        <input type="text" id="newMemberImage" placeholder="رابط صورة العضو (اختياري)">
+        <button id="addMemberBtn">إضافة عضو</button>
+        <p>عدد الأعضاء: <span id="totalMembers">0</span></p>
+        <table id="membersTable">
+            <thead><tr><th>#</th><th>صورة</th><th>الاسم</th><th>النقاط</th><th>المكافآت</th><th>تعديل</th><th>حذف</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>الأسابيع</h2>
+        <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+        <input type="date" id="newWeekStart">
+        <input type="date" id="newWeekEnd">
+        <button id="addWeekBtn">إضافة أسبوع</button>
+        <table id="weeksTable">
+            <thead><tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>الحضور</h2>
+        <select id="extraPointMember"></select>
+        <input type="number" id="extraPointsValue" value="1" min="1" style="width:60px">
+        <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
+        <button id="addExtraPointsBtn">إضافة نقاط إضافية</button>
+        <select id="deleteWeekSelect"></select>
+        <button id="deleteAttendanceBtn">حذف حضور الأسبوع</button>
+        <table id="attendanceRecordsBody">
+            <thead><tr><th>#</th><th>العضو</th><th>الأسبوع</th><th>التاريخ</th><th>حذف</th></tr></thead>
+            <tbody id="attendanceRecordsBody"></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>الأعضاء الأعلى نقاط</h2>
+        <div id="topMembersList"></div>
+    </div>
+
+    <div class="card">
+        <h2>إحصائيات الأعضاء</h2>
+        <div id="membersStatsContainer"></div>
+    </div>
+
+    <div class="card">
+        <button id="printReportBtn">طباعة التقرير</button>
+        <button id="exportExcelBtn">تصدير لإكسل</button>
+    </div>
 </div>
 
 <!-- نافذة تسجيل دخول الأدمن -->
-<div id="adminLoginModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
-<div style="background:#fff;padding:20px;border-radius:5px;min-width:300px;">
-<h5>تسجيل دخول الأدمن</h5>
-<input type="password" id="adminPassword" class="form-control mb-2" placeholder="كلمة السر">
-<button class="btn btn-success" id="confirmAdminLogin">دخول</button>
-<button class="btn btn-secondary" id="cancelAdminLogin">إلغاء</button>
-</div>
-</div>
-
-<!-- لوحة الأدمن -->
-<div id="adminTabs" style="display:none;">
-<ul class="nav nav-tabs mb-3">
-<li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#membersTab">الأعضاء</a></li>
-<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#weeksTab">الأسابيع</a></li>
-<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#attendanceTab">الحضور</a></li>
-<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tasksTab">المهمات</a></li>
-<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#eventsTab">المناسبات</a></li>
-<li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#reportTab">التقارير</a></li>
-</ul>
-<div class="tab-content">
-<!-- الأعضاء -->
-<div class="tab-pane fade show active" id="membersTab">
-<div class="mb-2"><input type="text" id="newMemberName" class="form-control mb-1" placeholder="اسم العضو"><input type="text" id="newMemberEmoji" class="form-control mb-1" placeholder="إيموجي"><input type="text" id="newMemberImage" class="form-control mb-1" placeholder="رابط الصورة"><button class="btn btn-success" id="addMemberBtn">إضافة عضو</button></div>
-<table class="table table-bordered" id="membersTable"><thead><tr><th>#</th><th>صورة</th><th>الاسم</th><th>نقاط</th><th>مكافآت</th><th>تعديل</th><th>حذف</th></tr></thead><tbody></tbody></table>
-</div>
-<!-- الأسابيع -->
-<div class="tab-pane fade" id="weeksTab">
-<div class="mb-2"><input type="text" id="newWeekName" class="form-control mb-1" placeholder="اسم الأسبوع"><input type="date" id="newWeekStart" class="form-control mb-1"><input type="date" id="newWeekEnd" class="form-control mb-1"><button class="btn btn-success" id="addWeekBtn">إضافة أسبوع</button></div>
-<table class="table table-bordered" id="weeksTable"><thead><tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead><tbody></tbody></table>
-</div>
-<!-- الحضور -->
-<div class="tab-pane fade" id="attendanceTab">
-<select id="extraPointMember" class="form-select mb-1"><option value="">-- اختر العضو --</option></select>
-<input type="number" id="extraPointsValue" class="form-control mb-1" value="1">
-<input type="text" id="extraPointsReason" class="form-control mb-1" placeholder="سبب النقاط الإضافية">
-<button class="btn btn-success mb-2" id="addExtraPointsBtn">إضافة نقاط إضافية</button>
-<select id="deleteWeekSelect" class="form-select mb-1"><option value="">-- اختر الأسبوع --</option></select>
-<button class="btn btn-danger mb-2" id="deleteAttendanceBtn">حذف كل الحضور للأسبوع</button>
-<table class="table table-bordered" id="attendanceRecordsBody"><thead><tr><th>#</th><th>العضو</th><th>الأسبوع</th><th>التاريخ</th><th>حذف</th></tr></thead><tbody></tbody></table>
-<div id="membersStatsContainer"></div>
-</div>
-<!-- المهمات -->
-<div class="tab-pane fade" id="tasksTab">
-<select id="newTaskAssignee" class="form-select mb-1"><option value="">-- اختر المسؤول --</option></select>
-<input type="text" id="newTaskName" class="form-control mb-1" placeholder="اسم المهمة">
-<input type="date" id="newTaskDeadline" class="form-control mb-1">
-<button class="btn btn-success mb-2" id="addTaskBtn">إضافة مهمة</button>
-<table class="table table-bordered" id="tasksTable"><thead><tr><th>#</th><th>المهمة</th><th>المسؤول</th><th>الموعد النهائي</th><th>الحالة</th><th>تعديل</th><th>حذف</th></tr></thead><tbody></tbody></table>
-</div>
-<!-- المناسبات -->
-<div class="tab-pane fade" id="eventsTab">
-<input type="text" id="newEventName" class="form-control mb-1" placeholder="اسم المناسبة">
-<input type="date" id="newEventDate" class="form-control mb-1">
-<input type="text" id="newEventDescription" class="form-control mb-1" placeholder="وصف المناسبة">
-<button class="btn btn-success mb-2" id="addEventBtn">إضافة مناسبة</button>
-<table class="table table-bordered" id="eventsTable"><thead><tr><th>#</th><th>الاسم</th><th>التاريخ</th><th>الوصف</th><th>تعديل</th><th>حذف</th></tr></thead><tbody></tbody></table>
-</div>
-<!-- التقارير -->
-<div class="tab-pane fade" id="reportTab">
-<button class="btn btn-primary mb-2" id="printReportBtn">طباعة التقرير</button>
-<button class="btn btn-success mb-2" id="exportExcelBtn">تصدير Excel</button>
-<table class="table table-bordered" id="reportTable"><thead><tr><th>الاسم</th><th>النقاط</th><th>المكافآت</th></tr></thead><tbody></tbody></table>
-</div>
-</div>
-<button class="btn btn-secondary mt-3" id="backToUserView">العودة لواجهة المستخدم</button>
+<div id="adminLoginModal">
+    <div class="modal-content">
+        <h3>تسجيل دخول الأدمن</h3>
+        <input type="password" id="adminPassword" placeholder="كلمة السر">
+        <br>
+        <button id="confirmAdminLogin">تسجيل دخول</button>
+        <button id="cancelAdminLogin">إلغاء</button>
+    </div>
 </div>
 
-<script src="app.js"></script>
+<script>
+// بيانات أولية
+let members = [];
+let weeks = [];
+let attendanceRecords = [];
+let rewards = [];
+let extraPoints = [];
+let events = [];
+let tasks = [];
+
+const adminPass = 'admin123';
+
+// تهيئة التطبيق
+function initializeApp() {
+    populateData();
+    setupEventListeners();
+}
+
+// تعبئة البيانات
+function populateData() {
+    populateMembers();
+    populateWeeks();
+    populateAttendanceTable();
+    updateAttendanceStats();
+}
+
+// قائمة الأعضاء
+function populateMembers() {
+    const selectMember = document.getElementById('selectMember');
+    const extraPointMember = document.getElementById('extraPointMember');
+    selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
+    extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
+    members.forEach(member => {
+        let option = document.createElement('option'); option.value = member.id; option.textContent = member.name; selectMember.appendChild(option);
+        let opt2 = document.createElement('option'); opt2.value = member.id; opt2.textContent = member.name; extraPointMember.appendChild(opt2);
+    });
+    const membersTbody = document.querySelector('#membersTable tbody'); membersTbody.innerHTML = '';
+    members.forEach((member,index)=>{ 
+        let tr = document.createElement('tr'); 
+        tr.innerHTML = `<td>${index+1}</td><td><img src="${member.image}" class="member-img"></td><td>${member.name}</td><td>${member.points}</td><td>${rewards.filter(r=>r.memberId===member.id).map(r=>r.title).join(', ')||'لا يوجد'}</td><td><button class='btn btn-primary editMember' data-id='${member.id}'>تعديل</button></td><td><button class='btn btn-danger deleteMember' data-id='${member.id}'>حذف</button></td>`; 
+        membersTbody.appendChild(tr); 
+    });
+    document.getElementById('totalMembers').textContent = members.length;
+}
+
+// قائمة الأسابيع
+function populateWeeks() {
+    const weekSelect = document.getElementById('weekSelect');
+    const deleteWeekSelect = document.getElementById('deleteWeekSelect');
+    weekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
+    deleteWeekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
+    weeks.forEach(week => {
+        let opt = document.createElement('option'); opt.value = week.id; opt.textContent = week.name; weekSelect.appendChild(opt);
+        let opt2 = document.createElement('option'); opt2.value = week.id; opt2.textContent = week.name; deleteWeekSelect.appendChild(opt2);
+    });
+    const weeksTbody = document.querySelector('#weeksTable tbody'); weeksTbody.innerHTML = '';
+    weeks.forEach((week,index)=>{ 
+        let tr = document.createElement('tr'); 
+        tr.innerHTML = `<td>${index+1}</td><td>${week.name}</td><td>${week.from}</td><td>${week.to}</td><td><button class='btn btn-primary editWeek' data-id='${week.id}'>تعديل</button></td><td><button class='btn btn-danger deleteWeek' data-id='${week.id}'>حذف</button></td>`; 
+        weeksTbody.appendChild(tr); 
+    });
+}
+
+// جدول الحضور
+function populateAttendanceTable() {
+    const tbody = document.getElementById('attendanceRecordsBody');
+    tbody.innerHTML = '';
+    if(attendanceRecords.length===0){ tbody.innerHTML='<tr><td colspan="5">لا توجد سجلات حضور</td></tr>'; return;}
+    attendanceRecords.forEach((record,index)=>{ 
+        let member = members.find(m=>m.id===record.memberId); 
+        let week = weeks.find(w=>w.id==record.weekId);
+        if(member&&week){ 
+            let tr=document.createElement('tr'); 
+            tr.innerHTML=`<td>${index+1}</td><td>${member.name}</td><td>${week.name}</td><td>${new Date(record.date).toLocaleString('ar-EG')}</td><td><button class='btn btn-danger deleteAttendance' data-id='${record.id}'>حذف</button></td>`;
+            tbody.appendChild(tr);
+        } 
+    });
+}
+
+// تحديث إحصائيات
+function updateAttendanceStats() { const selectedWeekId = document.getElementById('weekSelect').value; let count=0; let totalPoints=0; if(!selectedWeekId){ document.getElementById('attendanceCount').textContent=count; document.getElementById('totalPoints').textContent=totalPoints; return;} const weekAttendance=attendanceRecords.filter(ar=>ar.weekId==selectedWeekId); count=weekAttendance.length; totalPoints=members.reduce((sum,m)=>sum+m.points,0); document.getElementById('attendanceCount').textContent=count; document.getElementById('totalPoints').textContent=totalPoints; updateChart(); updateTopMembers(); }
+
+// أفضل الأعضاء
+function updateTopMembers(){ const memberPoints=members.map(m=>({name:m.name,points:m.points,image:m.image})); memberPoints.sort((a,b)=>b.points-a.points); const top10=memberPoints.slice(0,10); const topMembersList=document.getElementById('topMembersList'); topMembersList.innerHTML=''; top10.forEach((member,index)=>{ let medal=''; if(index===0)medal='🥇'; else if(index===1)medal='🥈'; else if(index===2)medal='🥉'; let div=document.createElement('div'); div.className='top-member-item'; div.innerHTML=`<div style="display:flex;align-items:center;gap:10px;"><img src="${member.image}" class="member-img"><div>${medal} ${member.name}</div></div><div>${member.points} نقطة</div>`; topMembersList.appendChild(div); }); }
+
+// إعداد الأحداث
+function setupEventListeners(){
+document.getElementById('adminLoginBtn').addEventListener('click',()=>{document.getElementById('adminLoginModal').style.display='flex'; document.getElementById('adminPassword').value='';});
+document.getElementById('cancelAdminLogin').addEventListener('click',()=>{document.getElementById('adminLoginModal').style.display='none';});
+document.getElementById('confirmAdminLogin').addEventListener('click',()=>{const pwd=document.getElementById('adminPassword').value; if(pwd===adminPass){document.getElementById('adminLoginModal').style.display='none'; document.getElementById('adminTabs').style.display='block'; document.getElementById('userAttendance').style.display='none'; document.getElementById('adminLoginBtn').style.display='none'; showNotification('تم تسجيل دخول الأدمن بنجاح');} else{ const passInput=document.getElementById('adminPassword'); passInput.classList.add('login-failed'); setTimeout(()=>{passInput.classList.remove('login-failed');},500); showNotification('كلمة السر خاطئة!',false);}});
+document.getElementById('backToUserView').addEventListener('click',()=>{document.getElementById('adminTabs').style.display='none'; document.getElementById('userAttendance').style.display='block'; document.getElementById('adminLoginBtn').style.display='block';});
+document.getElementById('addMemberBtn').addEventListener('click',()=>{const name=document.getElementById('newMemberName').value; const emoji=document.getElementById('newMemberEmoji').value; const image=document.getElementById('newMemberImage').value; if(!name){showNotification('يرجى إدخال اسم العضو',false); return;} const newMember={id:members.length>0?Math.max(...members.map(m=>m.id))+1:1,name:`${emoji} ${name}`,image:image||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`,points:0}; members.push(newMember); showNotification('تم إضافة العضو بنجاح'); document.getElementById('newMemberName').value=''; document.getElementById('newMemberImage').value=''; populateData();});
+document.getElementById('addWeekBtn').addEventListener('click',()=>{const name=document.getElementById('newWeekName').value; const from=document.getElementById('newWeekStart').value; const to=document.getElementById('newWeekEnd').value; if(!name||!from||!to){showNotification('يرجى ملء جميع الحقول',false);return;} const newWeek={id:weeks.length>0?Math.max(...weeks.map(w=>w.id))+1:1,name:name,from:from,to:to}; weeks.push(newWeek); showNotification('تم إضافة الأسبوع بنجاح'); document.getElementById('newWeekName').value=''; document.getElementById('newWeekStart').value=''; document.getElementById('newWeekEnd').value=''; populateData();});
+document.getElementById('markPresent').addEventListener('click',()=>{const memberId=parseInt(document.getElementById('selectMember').value); const weekId=parseInt(document.getElementById('weekSelect').value); if(!memberId||!weekId){showNotification('يرجى اختيار العضو والأسبوع أولاً',false);return;} const existing=attendanceRecords.find(ar=>ar.memberId===memberId&&ar.weekId==weekId); if(existing){showNotification('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع',false);return;} const newAttendance={id:attendanceRecords.length>0?Math.max(...attendanceRecords.map(ar=>ar.id))+1:1,memberId:memberId,weekId:weekId,date:new Date().toISOString()}; attendanceRecords.push(newAttendance); const member=members.find(m=>m.id===memberId); if(member){member.points+=1;} showNotification('تم تسجيل الحضور بنجاح!'); populateData();});
+document.getElementById('addExtraPointsBtn').addEventListener('click',()=>{const memberId=parseInt(document.getElementById('extraPointMember').value); const points=parseInt(document.getElementById('extraPointsValue').value); const reason=document.getElementById('extraPointsReason').value; if(!memberId||!points||!reason){showNotification('يرجى ملء جميع الحقول',false);return;} const member=members.find(m=>m.id===memberId); if(member){member.points+=points; extraPoints.push({id:extraPoints.length>0?Math.max(...extraPoints.map(ep=>ep.id))+1:1,memberId:memberId,points:points,reason:reason,date:new Date().toISOString()}); showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`); document.getElementById('extraPointsValue').value='1'; document.getElementById('extraPointsReason').value=''; populateData();}});
+document.getElementById('deleteAttendanceBtn').addEventListener('click',()=>{const weekId=parseInt(document.getElementById('deleteWeekSelect').value); if(!weekId){showNotification('اختر الأسبوع للحذف',false);return;} attendanceRecords=attendanceRecords.filter(ar=>ar.weekId!=weekId); showNotification('تم حذف الحضور للأسبوع المختار'); populateData();});
+document.getElementById('printReportBtn').addEventListener('click',()=>{window.print();});
+document.getElementById('exportExcelBtn').addEventListener('click',()=>{ const ws=XLSX.utils.json_to_sheet(members.map(m=>({ID:m.id,اسم:m.name,نقاط:m.points}))); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'الأعضاء'); XLSX.writeFile(wb,'members.xlsx'); });
+document.getElementById('weekSelect').addEventListener('change',updateAttendanceStats);
+}
+
+// إشعار
+function showNotification(msg,success=true){ const note=document.getElementById('notification'); note.textContent=msg; note.style.backgroundColor=success?'#27ae60':'#e74c3c'; note.style.display='block'; setTimeout(()=>{note.style.display='none';},3000);}
+
+// رسم بياني
+let chart=null;
+function updateChart(){ const ctx=document.getElementById('attendanceChart').getContext('2d'); const weekId=parseInt(document.getElementById('weekSelect').value); if(!weekId){if(chart){chart.destroy();} return;} const weekAttendance=attendanceRecords.filter(ar=>ar.weekId==weekId); const labels=members.map(m=>m.name); const data=members.map(m=>weekAttendance.filter(ar=>ar.memberId==m.id).length); if(chart){chart.destroy();} chart=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{label:'عدد الحضور',data:data,backgroundColor:'#3498db'}]},options:{responsive:true,plugins:{legend:{display:false}}}});}
+
+// بدء التطبيق
+initializeApp();
+</script>
+</main>
 </body>
 </html>

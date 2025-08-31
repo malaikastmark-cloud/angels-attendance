@@ -1,107 +1,99 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-export default function App() {
-  const [page, setPage] = useState("home");
-  const [members, setMembers] = useState([]);
-  const [newMember, setNewMember] = useState("");
+<script>
+    let weeks = [
+        {id:1, name:'الاسبوع الاول', from:'2025-08-29', to:'2025-08-29'}
+    ];
+    
+    let members = [];
+    let attendanceRecords = [];
+    let rewards = [];
+    
+    const adminPass = 'admin123';
+    
+    let db = null;
+    let isFirebaseConnected = false;
 
-  const addMember = () => {
-    if (newMember.trim() !== "") {
-      setMembers([...members, newMember]);
-      setNewMember("");
+    function initializeFirebase() {
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyEXAMPLEEXAMPLEEXAMPLEEXAMPLE",
+                authDomain: "your-project-id.firebaseapp.com",
+                databaseURL: "https://your-project-id-default-rtdb.firebaseio.com/",
+                projectId: "your-project-id",
+                storageBucket: "your-project-id.appspot.com",
+                messagingSenderId: "1234567890",
+                appId: "1:1234567890:web:abc123def456"
+            };
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            isFirebaseConnected = true;
+            document.getElementById('firebaseStatus').textContent = '✓ متصل بقاعدة البيانات';
+            document.getElementById('firebaseStatus').className = 'firebase-status firebase-connected';
+            loadDataFromFirebase();
+        } catch (error) {
+            console.error('خطأ في تهيئة Firebase:', error);
+            document.getElementById('firebaseStatus').textContent = '✗ غير متصل بقاعدة البيانات';
+            document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+            loadFromLocalStorage();
+        }
     }
-  };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6">
-      <Card className="w-full max-w-lg shadow-2xl rounded-3xl bg-white/95 backdrop-blur-md border border-gray-200">
-        <CardContent className="p-8 space-y-8">
-          {/* الصفحة الرئيسية */}
-          {page === "home" && (
-            <div className="text-center space-y-8">
-              <h1 className="text-4xl font-extrabold text-gray-800">Attendance System</h1>
-              <p className="text-gray-500">Track weekly attendance easily</p>
+    async function loadDataFromFirebase() {
+        if (!isFirebaseConnected) return;
+        showLoading();
+        try {
+            const snapshot = await db.ref().once('value');
+            const data = snapshot.val();
+            members = data?.members || [];
+            weeks = data?.weeks || weeks;
+            attendanceRecords = data?.attendanceRecords || [];
+            rewards = data?.rewards || [];
+            saveToLocalStorage();
+            populateData();
+            updateReports();
+            hideLoading();
+            showNotification('تم تحميل البيانات من السحابة');
+        } catch (error) {
+            console.error('خطأ في تحميل البيانات من Firebase:', error);
+            loadFromLocalStorage();
+            hideLoading();
+        }
+    }
 
-              {/* اختيار الاسم */}
-              <div className="space-y-2 text-left">
-                <label className="block text-gray-700 font-semibold">Choose Name:</label>
-                <select className="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-400">
-                  <option>John</option>
-                  <option>Mary</option>
-                  <option>Alex</option>
-                </select>
-              </div>
+    async function saveToFirebase() {
+        if (!isFirebaseConnected) return;
+        try {
+            await db.ref().set({members, weeks, attendanceRecords, rewards});
+            showNotification('تم حفظ البيانات في السحابة');
+        } catch (error) {
+            console.error('خطأ في حفظ البيانات إلى Firebase:', error);
+            showNotification('خطأ في حفظ البيانات إلى السحابة', false);
+        }
+    }
 
-              {/* اختيار الأسبوع */}
-              <div className="space-y-2 text-left">
-                <label className="block text-gray-700 font-semibold">Choose Week:</label>
-                <select className="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-400">
-                  <option>Week 1</option>
-                  <option>Week 2</option>
-                  <option>Week 3</option>
-                  <option>Week 4</option>
-                </select>
-              </div>
+    function showLoading(){ document.getElementById('loading').style.display='block'; }
+    function hideLoading(){ document.getElementById('loading').style.display='none'; }
+    function showNotification(msg, success=true){
+        const n=document.getElementById('notification');
+        n.textContent=msg;
+        n.style.background=success?'#2ecc71':'#e74c3c';
+        n.style.display='block';
+        setTimeout(()=>{n.style.display='none';},3000);
+    }
+    function saveToLocalStorage(){ localStorage.setItem('angelsAttendance', JSON.stringify({members,weeks,attendanceRecords,rewards})); }
+    function loadFromLocalStorage(){
+        const data=JSON.parse(localStorage.getItem('angelsAttendance'));
+        if(data){ members=data.members||members; weeks=data.weeks||weeks; attendanceRecords=data.attendanceRecords||attendanceRecords; rewards=data.rewards||rewards; }
+        populateData(); updateReports();
+    }
 
-              {/* زر دخول الأدمن */}
-              <Button
-                onClick={() => setPage("admin")}
-                className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white py-3 rounded-xl shadow-lg font-bold text-lg transition"
-              >
-                Admin Panel
-              </Button>
-            </div>
-          )}
+    // تابع populateData() تابع populateAdminTables() تابع populateAttendanceRecords() ... كل التوابع كما هي من الكود الأصلي
+    // فقط استبدل أي saveToFirebase() و loadDataFromFirebase() حسب الدوال الجديدة أعلاه
 
-          {/* صفحة الأدمن */}
-          {page === "admin" && (
-            <div className="space-y-8">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
-                <Button
-                  onClick={() => setPage("home")}
-                  className="bg-gray-700 hover:bg-gray-900 text-white px-4 py-2 rounded-lg"
-                >
-                  ← Back
-                </Button>
-              </div>
-
-              {/* إضافة عضو جديد */}
-              <div className="flex space-x-2">
-                <input
-                  value={newMember}
-                  onChange={(e) => setNewMember(e.target.value)}
-                  placeholder="Enter member name"
-                  className="flex-1 p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-green-400"
-                />
-                <Button
-                  onClick={addMember}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-semibold"
-                >
-                  Add
-                </Button>
-              </div>
-
-              {/* عرض الأعضاء */}
-              <div className="space-y-3">
-                {members.map((member, index) => (
-                  <div
-                    key={index}
-                    className="p-3 rounded-xl shadow-md text-white font-semibold text-lg"
-                    style={{
-                      background: `linear-gradient(90deg, hsl(${index * 50},70%,55%), hsl(${index * 50 + 40},70%,45%))`,
-                    }}
-                  >
-                    {member}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+    // عند بدء التشغيل
+    document.addEventListener('DOMContentLoaded', () => { initializeFirebase(); });
+</script>

@@ -937,7 +937,29 @@ document.getElementById('confirmAdminLogin').addEventListener('click', confirmAd
                     deleteMember(id);
                 }
             });
+            // تبديل التبويبات في واجهة الأدمن
+    document.querySelectorAll('.tabs .tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // إخفاء كل المحتويات
+            document.querySelectorAll('#adminTabs .tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
             
+            // إلغاء تنشيط كل التبويبات
+            document.querySelectorAll('.tabs .tab').forEach(t => {
+                t.classList.remove('active'); 
+            });
+            
+            // تنشيط التبويب الحالي
+            this.classList.add('active');
+            
+            // إظهار المحتوى المرتبط بالتبويب
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId).style.display = 'block';
+        });
+    });
+    
+} 
             // إدارة الأسابيع
             document.getElementById('addWeekBtn').addEventListener('click', addWeek);
             document.addEventListener('click', function(e) {

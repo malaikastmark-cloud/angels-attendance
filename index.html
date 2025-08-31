@@ -1380,7 +1380,7 @@ document.getElementById('confirmAdminLogin').addEventListener('click', confirmAd
             memberRef.once('value').then((snapshot) => {
                 const member = snapshot.val();
                 if (member) {
-                    const newPoints = (member.points || 0)极 + points;
+                    const newPoints = (member.points || 0) + points;
                     
                     memberRef.update({
                         points: newPoints

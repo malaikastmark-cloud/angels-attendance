@@ -1006,24 +1006,25 @@ document.getElementById('confirmAdminLogin').addEventListener('click', confirmAd
                 });
         // تسجيل دخول الأدمن
         function showAdminLogin() {
-            document.getElementById('adminLoginModal').style.display = 'flex';
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('adminPassword').classList.remove('login-failed');
-        }
-        
-        function hideAdminLogin() {
-            document.getElementById('adminLoginModal').style.display = 'none';
-        }
-        
-        function confirmAdminLogin() {
-            const pwd = document.getElementById('adminPassword').value;
-            if (pwd === adminPass) {
-                document.getElementById('adminLoginModal').style.display = 'none';
-                document.getElementById('adminTabs').style.display = 'block';
-                document.getElementById('userAttendance').style.display = 'none';
-                document.getElementById('adminLoginBtn').style.display = 'none';
-                showNotification('تم تسجيل دخول الأدمن بنجاح');
-            } else {
+    document.getElementById('adminLoginModal').style.display = 'flex';
+    document.getElementById('adminPassword').value = '';
+}
+
+function hideAdminLogin() {
+    document.getElementById('adminLoginModal').style.display = 'none';
+}
+
+function confirmAdminLogin() {
+    const password = document.getElementById('adminPassword').value;
+    if (password === "admin123") {
+        hideAdminLogin();
+        document.getElementById('adminTabs').style.display = 'block';
+        document.getElementById('userAttendance').style.display = 'none';
+        showNotification('تم تسجيل الدخول بنجاح');
+    } else {
+        showNotification('كلمة السر خاطئة', false);
+    }
+}
                 const passwordInput = document.getElementById('adminPassword');
                 passwordInput.classList.add('login-failed');
                 setTimeout(() => {

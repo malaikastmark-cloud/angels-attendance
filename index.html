@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حضور خدام ملايكة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">بي
-<!-- إضافة مكتبة Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<style>
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -560,13 +558,11 @@
                 <label>اختر اسمك: </label>
                 <select id="selectMember">
                     <option value="">-- اختر اسمك --</option>
-                    <option value="1">🧒 Mary Karam</option>
-                    <option value="2">👦 Eman Makin</option>
-                    <option value="3">👧 Rizk Gerges</option>
+                    <!-- سيتم تعبئة الخيارات من Firebase -->
                 </select>
                 <label>اختر الأسبوع: </label>
                 <select id="weekSelect">
-                    <option value="1">الاسبوع الاول</option>
+                    <!-- سيتم تعبئة الخيارات من Firebase -->
                 </select>
             </div>
             <div class="controls">
@@ -584,34 +580,11 @@
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
-                    <tr>
-                        <td>1</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff" class="member-img" alt="Mary Karam"></td>
-                        <td>🧒 Mary Karam</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff" class="member-img" alt="Eman Makin"></td>
-                        <td>👦 Eman Makin</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td><img src="https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff" class="member-img" alt="Rizk Gerges"></td>
-                        <td>👧 Rizk Gerges</td>
-                        <td>الاسبوع الاول</td>
-                        <td class="attendance-value">0</td>
-                        <td class="points">0</td>
-                    </tr>
+                    <!-- سيتم تعبئة البيانات من Firebase -->
                 </tbody>
             </table>
             <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">3</span></span>
+                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
                 <span>النقاط: <span id="totalPoints">0</span></span>
             </div>
         </div>
@@ -671,27 +644,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>🧒 Mary Karam</td>
-                            <td>0</td>
-                            <td><button class='btn btn-primary editMember' data-id='1'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember' data-id='1'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>👦 Eman Makin</td>
-                            <td>0</td>
-                            <td><button class='btn btn-primary editMember' data-id='2'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember' data-id='2'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>👧 Rizk Gerges</td>
-                            <td>0</td>
-                            <td><button class='btn btn-primary editMember' data-id='3'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteMember' data-id='3'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -712,12 +665,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>الاسبوع الاول</td>
-                            <td><button class='btn btn-primary editWeek' data-id='1'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteWeek' data-id='1'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -727,7 +675,7 @@
                 <div class="controls">
                     <label>اختر أسبوع: </label>
                     <select id="deleteWeekSelect">
-                        <option value="1">الاسبوع الاول</option>
+                        <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
                 </div>
@@ -736,9 +684,7 @@
                     <h3>إضافة نقاط إضافية <i class="fas fa-star emoji-icon"></i></h3>
                     <select id="extraPointMember">
                         <option value="">-- اختر العضو --</option>
-                        <option value="1">🧒 Mary Karam</option>
-                        <option value="2">👦 Eman Makin</option>
-                        <option value="3">👧 Rizk Gerges</option>
+                        <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
                     <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
@@ -756,7 +702,7 @@
                         </tr>
                     </thead>
                     <tbody id="attendanceRecordsBody">
-                        <!-- سيتم تعبئة البيانات هنا -->
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -781,22 +727,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>عيد الميلاد المجيد</td>
-                            <td>2025-01-07</td>
-                            <td>احتفالية عيد الميلاد</td>
-                            <td><button class='btn btn-primary editEvent'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteEvent'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>عيد القيامة</td>
-                            <td>2025-04-20</td>
-                            <td>احتفالية عيد القيامة</td>
-                            <td><button class='btn btn-primary editEvent'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteEvent'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -807,9 +738,7 @@
                     <input type="text" id="newTaskName" placeholder="اسم المهمة">
                     <select id="newTaskAssignee">
                         <option value="">-- اختر المسؤول --</option>
-                        <option value="1">🧒 Mary Karam</option>
-                        <option value="2">👦 Eman Makin</option>
-                        <option value="3">👧 Rizk Gerges</option>
+                        <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <input type="date" id="newTaskDeadline">
                     <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
@@ -827,24 +756,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>تحضير مكان الاجتماع</td>
-                            <td>👦 Eman Makin</td>
-                            <td>2025-09-05</td>
-                            <td><span class="badge btn-success">مكتمل</span></td>
-                            <td><button class='btn btn-primary editTask'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteTask'>حذف</button></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>شراء مستلزمات</td>
-                            <td>👧 Rizk Gerges</td>
-                            <td>2025-09-10</td>
-                            <td><span class="badge btn-warning">قيد التنفيذ</span></td>
-                            <td><button class='btn btn-primary editTask'>تعديل</button></td>
-                            <td><button class='btn btn-danger deleteTask'>حذف</button></td>
-                        </tr>
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -867,12 +779,12 @@
                         </div>
                         <div class="summary-card">
                             <h3>عدد الأعضاء</h3>
-                            <div class="summary-value" id="reportMembers">3</div>
+                            <div class="summary-value" id="reportMembers">0</div>
                             <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
                         </div>
                         <div class="summary-card">
                             <h3>عدد الأسابيع</h3>
-                            <div class="summary-value" id="reportWeeks">1</div>
+                            <div class="summary-value" id="reportWeeks">0</div>
                             <div class="summary-subtitle">إجمالي الأسابيع</div>
                         </div>
                     </div>
@@ -888,59 +800,118 @@
                 <div class="report-section">
                     <h3>👥 إحصائيات الأعضاء</h3>
                     <div id="membersStatsContainer">
-                        <!-- سيتم تعبئة البيانات هنا -->
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-<script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
-      authDomain: "angels-attendance.firebaseapp.com",
-      databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-      projectId: "angels-attendance",
-      storageBucket: "angels-attendance.firebasestorage.app",
-      messagingSenderId: "157249026489",
-      appId: "1:157249026489:web:db2b420203bd81d9a19e68",
-      measurementId: "G-2YDPSFPQYT"
-    };
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+          authDomain: "angels-attendance.firebaseapp.com",
+          databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+          projectId: "angels-attendance",
+          storageBucket: "angels-attendance.firebasestorage.app",
+          messagingSenderId: "157249026489",
+          appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+          measurementId: "G-2YDPSFPQYT"
+        };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    // الحصول على مرجع لقاعدة البيانات
-    const database = firebase.database();
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        // الحصول على مرجع لقاعدة البيانات
+        const database = firebase.database();
 
-    // بيانات التطبيق
-    let members = [
-        {id: 1, name: '🧒 Mary Karam', points: 0},
-        {id: 2, name: '👦 Eman Makin', points: 0},
-        {id: 3, name: '👧 Rizk Gerges', points: 0}
-    ];
-        
-        let weeks = [
-            {id: 1, name: 'الاسبوع الاول'}
-        ];
-        
+        // بيانات التطبيق
+        let members = [];
+        let weeks = [];
         let attendanceRecords = [];
-        let events = [
-            {id: 1, name: 'عيد الميلاد المجيد', date: '2025-01-07', description: 'احتفالية عيد الميلاد'},
-            {id: 2, name: 'عيد القيامة', date: '2025-04-20', description: 'احتفالية عيد القيامة'}
-        ];
-        
-        let tasks = [
-            {id: 1, name: 'تحضير مكان الاجتماع', assigneeId: 2, assigneeName: '👦 Eman Makin', deadline: '2025-09-05', status: 'مكتمل'},
-            {id: 2, name: 'شراء مستلزمات', assigneeId: 3, assigneeName: '👧 Rizk Gerges', deadline: '2025-09-10', status: 'قيد التنفيذ'}
-        ];
+        let events = [];
+        let tasks = [];
         
         // كلمة السر
         const adminPass = 'admin123';
         
+        // دالة لتحميل الأعضاء من Firebase
+        function loadMembersFromFirebase() {
+          const membersRef = database.ref('members');
+
+          membersRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            members = [];
+
+            if (data) {
+              Object.keys(data).forEach((key) => {
+                members.push({
+                  id: key,
+                  name: data[key].name,
+                  points: data[key].points || 0
+                });
+              });
+            }
+
+            updateMembersTable();
+            updateSelectMember();
+            updateReports();
+          });
+        }
+
+        // دالة لتحميل الأسابيع من Firebase
+        function loadWeeksFromFirebase() {
+          const weeksRef = database.ref('weeks');
+
+          weeksRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            weeks = [];
+
+            if (data) {
+              Object.keys(data).forEach((key) => {
+                weeks.push({
+                  id: key,
+                  name: data[key].name
+                });
+              });
+            }
+
+            updateWeekSelects();
+            updateWeeksTable();
+            updateReports();
+          });
+        }
+
+        // دالة لتحميل الحضور من Firebase
+        function loadAttendanceFromFirebase() {
+          const attendanceRef = database.ref('attendance');
+
+          attendanceRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            attendanceRecords = [];
+
+            if (data) {
+              Object.keys(data).forEach((key) => {
+                attendanceRecords.push({
+                  id: key,
+                  memberId: data[key].memberId,
+                  weekId: data[key].weekId,
+                  date: data[key].date
+                });
+              });
+            }
+
+            updateAttendanceTable();
+            updateReports();
+          });
+        }
+
         // تهيئة التطبيق
         function initializeApp() {
             setupEventListeners();
+            loadMembersFromFirebase();
+            loadWeeksFromFirebase();
+            loadAttendanceFromFirebase();
             updateReports();
         }
         
@@ -958,11 +929,11 @@
             document.getElementById('addMemberBtn').addEventListener('click', addMember);
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('editMember')) {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = e.target.dataset.id;
                     editMember(id);
                 }
                 if (e.target.classList.contains('deleteMember')) {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = e.target.dataset.id;
                     deleteMember(id);
                 }
             });
@@ -971,11 +942,11 @@
             document.getElementById('addWeekBtn').addEventListener('click', addWeek);
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('editWeek')) {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = e.target.dataset.id;
                     editWeek(id);
                 }
                 if (e.target.classList.contains('deleteWeek')) {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = e.target.dataset.id;
                     deleteWeek(id);
                 }
             });
@@ -1012,7 +983,6 @@
                 document.getElementById('adminLoginBtn').style.display = 'none';
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
-                // تأثير اهتزاز عند إدخال كلمة سر خاطئة
                 const passwordInput = document.getElementById('adminPassword');
                 passwordInput.classList.add('login-failed');
                 setTimeout(() => {
@@ -1032,95 +1002,69 @@
         
         // إضافة عضو جديد
         function addMember() {
-            const name = document.getElementById('newMemberName').value;
-            const emoji = document.getElementById('newMemberEmoji').value;
+            const nameInput = document.getElementById('newMemberName');
+            const emojiSelect = document.getElementById('newMemberEmoji');
+
+            const name = nameInput.value;
+            const emoji = emojiSelect.value;
             
             if (!name) {
                 showNotification('يرجى إدخال اسم العضو', false);
                 return;
             }
             
-            const newMember = {
-                id: members.length > 0 ? Math.max(...members.map(m => m.id)) + 1 : 1,
+            const membersRef = database.ref('members');
+            const newMemberRef = membersRef.push();
+            
+            newMemberRef.set({
                 name: `${emoji} ${name}`,
                 points: 0
-            };
-            
-            members.push(newMember);
-            showNotification('تم إضافة العضو بنجاح');
-            
-            // إضافة إلى القائمة المنسدلة
-            const selectMember = document.getElementById('selectMember');
-            const option = document.createElement('option');
-            option.value = newMember.id;
-            option.textContent = newMember.name;
-            selectMember.appendChild(option);
-            
-            // إضافة إلى قائمة النقاط الإضافية
-            const extraPointMember = document.getElementById('extraPointMember');
-            const extraOption = document.createElement('option');
-            extraOption.value = newMember.id;
-            extraOption.textContent = newMember.name;
-            extraPointMember.appendChild(extraOption);
-            
-            // إضافة إلى قائمة المهمات
-            const newTaskAssignee = document.getElementById('newTaskAssignee');
-            const taskOption = document.createElement('option');
-            taskOption.value = newMember.id;
-            taskOption.textContent = newMember.name;
-            newTaskAssignee.appendChild(taskOption);
-            
-            // إضافة إلى جدول الإدارة
-            const membersTbody = document.querySelector('#membersTable tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${members.length}</td>
-                <td>${newMember.name}</td>
-                <td>${newMember.points}</td>
-                <td><button class='btn btn-primary editMember' data-id='${newMember.id}'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteMember' data-id='${newMember.id}'>حذف</button></td>
-            `;
-            membersTbody.appendChild(tr);
-            
-            // مسح الحقول
-            document.getElementById('newMemberName').value = '';
-            
-            // تحديث التقارير
-            updateReports();
+            }).then(() => {
+                showNotification('تم إضافة العضو بنجاح');
+                nameInput.value = '';
+            }).catch((error) => {
+                console.error("Error adding member:", error);
+                showNotification('فشل في إضافة العضو: ' + error.message, false);
+            });
         }
         
         // تعديل عضو
         function editMember(id) {
-            const member = members.find(m => m.id === id);
-            if (!member) return;
+            const memberRef = database.ref('members/' + id);
             
-            // استخراج الإيموجي والاسم
-            const emoji = member.name.charAt(0);
-            const currentName = member.name.substring(2);
-            
-            const newName = prompt('عدل اسم العضو:', currentName);
-            
-            if (newName) {
-                member.name = `${emoji} ${newName}`;
-                showNotification('تم تعديل بيانات العضو');
+            memberRef.once('value').then((snapshot) => {
+                const member = snapshot.val();
+                if (!member) return;
                 
-                // تحديث الجداول
-                updateMembersTable();
-                updateSelectMember();
-                updateReports();
-            }
+                const emoji = member.name.charAt(0);
+                const currentName = member.name.substring(2);
+                
+                const newName = prompt('عدل اسم العضو:', currentName);
+                
+                if (newName) {
+                    memberRef.update({
+                        name: `${emoji} ${newName}`
+                    }).then(() => {
+                        showNotification('تم تعديل بيانات العضو');
+                    }).catch((error) => {
+                        console.error("Error updating member:", error);
+                        showNotification('فشل في تعديل العضو: ' + error.message, false);
+                    });
+                }
+            });
         }
         
         // حذف عضو
         function deleteMember(id) {
             if (confirm('هل تريد حذف العضو؟')) {
-                members = members.filter(m => m.id !== id);
-                showNotification('تم حذف العضو');
+                const memberRef = database.ref('members/' + id);
                 
-                // تحديث الجداول
-                updateMembersTable();
-                updateSelectMember();
-                updateReports();
+                memberRef.remove().then(() => {
+                    showNotification('تم حذف العضو');
+                }).catch((error) => {
+                    console.error("Error deleting member:", error);
+                    showNotification('فشل في حذف العضو: ' + error.message, false);
+                });
             }
         }
         
@@ -1145,92 +1089,92 @@
         // تحديث قائمة الأعضاء المنسدلة
         function updateSelectMember() {
             const selectMember = document.getElementById('selectMember');
+            const extraPointMember = document.getElementById('extraPointMember');
+            const newTaskAssignee = document.getElementById('newTaskAssignee');
+            
             selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
+            extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
+            newTaskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
             
             members.forEach(member => {
+                // selectMember
                 const option = document.createElement('option');
                 option.value = member.id;
                 option.textContent = member.name;
                 selectMember.appendChild(option);
+                
+                // extraPointMember
+                const extraOption = document.createElement('option');
+                extraOption.value = member.id;
+                extraOption.textContent = member.name;
+                extraPointMember.appendChild(extraOption);
+                
+                // newTaskAssignee
+                const taskOption = document.createElement('option');
+                taskOption.value = member.id;
+                taskOption.textContent = member.name;
+                newTaskAssignee.appendChild(taskOption);
             });
         }
         
         // إضافة أسبوع جديد
         function addWeek() {
-            const name = document.getElementById('newWeekName').value;
+            const nameInput = document.getElementById('newWeekName');
+            const name = nameInput.value;
             
             if (!name) {
                 showNotification('يرجى إدخال اسم الأسبوع', false);
                 return;
             }
             
-            const newWeek = {
-                id: weeks.length > 0 ? Math.max(...weeks.map(w => w.id)) + 1 : 1,
+            const weeksRef = database.ref('weeks');
+            const newWeekRef = weeksRef.push();
+            
+            newWeekRef.set({
                 name: name
-            };
-            
-            weeks.push(newWeek);
-            showNotification('تم إضافة الأسبوع بنجاح');
-            
-            // إضافة إلى القوائم المنسدلة
-            const weekSelect = document.getElementById('weekSelect');
-            const option = document.createElement('option');
-            option.value = newWeek.id;
-            option.textContent = newWeek.name;
-            weekSelect.appendChild(option);
-            
-            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
-            const deleteOption = document.createElement('option');
-            deleteOption.value = newWeek.id;
-            deleteOption.textContent = newWeek.name;
-            deleteWeekSelect.appendChild(deleteOption);
-            
-            // إضافة إلى جدول الإدارة
-            const weeksTbody = document.querySelector('#weeksTable tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${weeks.length}</td>
-                <td>${newWeek.name}</td>
-                <td><button class='btn btn-primary editWeek' data-id='${newWeek.id}'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteWeek' data-id='${newWeek.id}'>حذف</button></td>
-            `;
-            weeksTbody.appendChild(tr);
-            
-            // مسح الحقول
-            document.getElementById('newWeekName').value = '';
-            
-            // تحديث التقارير
-            updateReports();
+            }).then(() => {
+                showNotification('تم إضافة الأسبوع بنجاح');
+                nameInput.value = '';
+            }).catch((error) => {
+                console.error("Error adding week:", error);
+                showNotification('فشل في إضافة الأسبوع: ' + error.message, false);
+            });
         }
         
         // تعديل أسبوع
         function editWeek(id) {
-            const week = weeks.find(w => w.id === id);
-            if (!week) return;
+            const weekRef = database.ref('weeks/' + id);
             
-            const newName = prompt('عدل اسم الأسبوع:', week.name);
-            
-            if (newName) {
-                week.name = newName;
-                showNotification('تم تعديل بيانات الأسبوع');
+            weekRef.once('value').then((snapshot) => {
+                const week = snapshot.val();
+                if (!week) return;
                 
-                // تحديث الجداول
-                updateWeeksTable();
-                updateWeekSelects();
-                updateReports();
-            }
+                const newName = prompt('عدل اسم الأسبوع:', week.name);
+                
+                if (newName) {
+                    weekRef.update({
+                        name: newName
+                    }).then(() => {
+                        showNotification('تم تعديل بيانات الأسبوع');
+                    }).catch((error) => {
+                        console.error("Error updating week:", error);
+                        showNotification('فشل في تعديل الأسبوع: ' + error.message, false);
+                    });
+                }
+            });
         }
         
         // حذف أسبوع
         function deleteWeek(id) {
             if (confirm('هل تريد حذف الأسبوع؟')) {
-                weeks = weeks.filter(w => w.id !== id);
-                showNotification('تم حذف الأسبوع');
+                const weekRef = database.ref('weeks/' + id);
                 
-                // تحديث الجداول
-                updateWeeksTable();
-                updateWeekSelects();
-                updateReports();
+                weekRef.remove().then(() => {
+                    showNotification('تم حذف الأسبوع');
+                }).catch((error) => {
+                    console.error("Error deleting week:", error);
+                    showNotification('فشل في حذف الأسبوع: ' + error.message, false);
+                });
             }
         }
         
@@ -1274,17 +1218,22 @@
         
         // تسجيل الحضور
         function markAttendance() {
-            const memberId = parseInt(document.getElementById('selectMember').value);
-            const weekId = parseInt(document.getElementById('weekSelect').value);
+            const memberId = document.getElementById('selectMember').value;
+            const weekId = document.getElementById('weekSelect').value;
             
             if (!memberId) {
                 showNotification('يرجى اختيار العضو أولاً', false);
                 return;
             }
             
+            if (!weekId) {
+                showNotification('يرجى اختيار الأسبوع أولاً', false);
+                return;
+            }
+            
             // التحقق من عدم تسجيل الحضور مسبقاً
             const existingRecord = attendanceRecords.find(ar => 
-                ar.memberId === memberId && ar.weekId == weekId
+                ar.memberId === memberId && ar.weekId === weekId
             );
             
             if (existingRecord) {
@@ -1292,28 +1241,36 @@
                 return;
             }
             
-            // إضافة سجل جديد
-            const newAttendance = {
-                id: attendanceRecords.length > 0 ? Math.max(...attendanceRecords.map(ar => ar.id)) + 1 : 1,
-                memberId: memberId,
-                weekId: weekId,
-                date: new Date().toISOString()
-            };
-            
-            attendanceRecords.push(newAttendance);
-            
             // زيادة نقاط العضو
-            const member = members.find(m => m.id === memberId);
-            if (member) {
-                member.points += 1;
-            }
-            
-            showNotification('تم تسجيل الحضور بنجاح!');
-            
-            // تحديث الجداول
-            updateAttendanceTable();
-            updateMembersTable();
-            updateReports();
+            const memberRef = database.ref('members/' + memberId);
+            memberRef.once('value').then((snapshot) => {
+                const member = snapshot.val();
+                if (member) {
+                    const newPoints = (member.points || 0) + 1;
+                    
+                    memberRef.update({
+                        points: newPoints
+                    }).then(() => {
+                        // إضافة سجل الحضور
+                        const attendanceRef = database.ref('attendance');
+                        const newAttendanceRef = attendanceRef.push();
+                        
+                        newAttendanceRef.set({
+                            memberId: memberId,
+                            weekId: weekId,
+                            date: new Date().toISOString()
+                        }).then(() => {
+                            showNotification('تم تسجيل الحضور بنجاح!');
+                        }).catch((error) => {
+                            console.error("Error adding attendance:", error);
+                            showNotification('فشل في تسجيل الحضور: ' + error.message, false);
+                        });
+                    }).catch((error) => {
+                        console.error("Error updating points:", error);
+                        showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                    });
+                }
+            });
         }
         
         // تحديث جدول الحضور
@@ -1324,9 +1281,8 @@
             const selectedWeekId = document.getElementById('weekSelect').value;
             
             members.forEach((member, index) => {
-                // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
                 const attendanceRecord = attendanceRecords.find(ar => 
-                    ar.memberId === member.id && ar.weekId == selectedWeekId
+                    ar.memberId === member.id && ar.weekId === selectedWeekId
                 );
                 
                 const isPresent = attendanceRecord ? true : false;
@@ -1336,14 +1292,13 @@
                     <td>${index + 1}</td>
                     <td><img src="https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=3498db&color=fff" class="member-img" alt="${member.name}"></td>
                     <td>${member.name}</td>
-                    <td>${weeks.find(w => w.id == selectedWeekId)?.name || ''}</td>
+                    <td>${weeks.find(w => w.id === selectedWeekId)?.name || ''}</td>
                     <td class="attendance-value">${isPresent ? '1' : '0'}</td>
                     <td class="points">${member.points}</td>
                 `;
                 tbody.appendChild(tr);
             });
             
-            // تحديث الإحصائيات
             updateAttendanceStats();
         }
         
@@ -1359,20 +1314,19 @@
                 return;
             }
             
-            // حساب الحضور لهذا الأسبوع فقط
-            const weekAttendance = attendanceRecords.filter(ar => ar.weekId == selectedWeekId);
+            const weekAttendance = attendanceRecords.filter(ar => ar.weekId === selectedWeekId);
             count = weekAttendance.length;
             
-            // حساب النقاط الإجمالية
-            totalPoints = members.reduce((sum, member) => sum + member.points, 0);
+            totalPoints = members.reduce((sum, member) => sum + (member.points || 0), 0);
             
             document.getElementById('attendanceCount').textContent = count;
+            document.getElementById('totalMembers').textContent = members.length;
             document.getElementById('totalPoints').textContent = totalPoints;
         }
         
         // إضافة نقاط إضافية
         function addExtraPoints() {
-            const memberId = parseInt(document.getElementById('extraPointMember').value);
+            const memberId = document.getElementById('extraPointMember').value;
             const points = parseInt(document.getElementById('extraPointsValue').value);
             const reason = document.getElementById('extraPointsReason').value;
             
@@ -1381,26 +1335,30 @@
                 return;
             }
             
-            // زيادة نقاط العضو
-            const member = members.find(m => m.id === memberId);
-            if (member) {
-                member.points += points;
-                showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
-                
-                // مسح الحقول
-                document.getElementById('extraPointsValue').value = '1';
-                document.getElementById('extraPointsReason').value = '';
-                
-                // تحديث الجداول
-                updateAttendanceTable();
-                updateMembersTable();
-                updateReports();
-            }
+            const memberRef = database.ref('members/' + memberId);
+            memberRef.once('value').then((snapshot) => {
+                const member = snapshot.val();
+                if (member) {
+                    const newPoints = (member.points || 0) + points;
+                    
+                    memberRef.update({
+                        points: newPoints
+                    }).then(() => {
+                        showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
+                        
+                        document.getElementById('extraPointsValue').value = '1';
+                        document.getElementById('extraPointsReason').value = '';
+                    }).catch((error) => {
+                        console.error("Error adding points:", error);
+                        showNotification('فشل في إضافة النقاط: ' + error.message, false);
+                    });
+                }
+            });
         }
         
         // حذف كل الحضور لأسبوع محدد
         function deleteAllWeekAttendance() {
-            const weekId = parseInt(document.getElementById('deleteWeekSelect').value);
+            const weekId = document.getElementById('deleteWeekSelect').value;
             
             if (!weekId) {
                 showNotification('يرجى اختيار أسبوع أولاً', false);
@@ -1408,22 +1366,25 @@
             }
             
             if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
-                // خصم النقاط من الأعضاء
-                const weekRecords = attendanceRecords.filter(ar => ar.weekId == weekId);
+                const weekRecords = attendanceRecords.filter(ar => ar.weekId === weekId);
+                
+                const updates = {};
                 weekRecords.forEach(record => {
+                    updates[`attendance/${record.id}`] = null;
+                    
                     const member = members.find(m => m.id === record.memberId);
                     if (member) {
-                        member.points = Math.max(0, member.points - 1);
+                        const newPoints = Math.max(0, (member.points || 0) - 1);
+                        updates[`members/${record.memberId}/points`] = newPoints;
                     }
                 });
                 
-                attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
-                showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
-                
-                // تحديث الجداول
-                updateAttendanceTable();
-                updateMembersTable();
-                updateReports();
+                database.ref().update(updates).then(() => {
+                    showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
+                }).catch((error) => {
+                    console.error("Error deleting attendance:", error);
+                    showNotification('فشل في حذف الحضور: ' + error.message, false);
+                });
             }
         }
         
@@ -1438,39 +1399,29 @@
                 return;
             }
             
-            const newEvent = {
-                id: events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1,
+            const eventsRef = database.ref('events');
+            const newEventRef = eventsRef.push();
+            
+            newEventRef.set({
                 name: name,
                 date: date,
                 description: description
-            };
-            
-            events.push(newEvent);
-            showNotification('تم إضافة المناسبة بنجاح');
-            
-            // إضافة إلى جدول الإدارة
-            const eventsTbody = document.querySelector('#eventsTable tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${events.length}</td>
-                <td>${newEvent.name}</td>
-                <td>${newEvent.date}</td>
-                <td>${newEvent.description}</td>
-                <td><button class='btn btn-primary editEvent'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteEvent'>حذف</button></td>
-            `;
-            eventsTbody.appendChild(tr);
-            
-            // مسح الحقول
-            document.getElementById('newEventName').value = '';
-            document.getElementById('newEventDate').value = '';
-            document.getElementById('newEventDescription').value = '';
+            }).then(() => {
+                showNotification('تم إضافة المناسبة بنجاح');
+                
+                document.getElementById('newEventName').value = '';
+                document.getElementById('newEventDate').value = '';
+                document.getElementById('newEventDescription').value = '';
+            }).catch((error) => {
+                console.error("Error adding event:", error);
+                showNotification('فشل في إضافة المناسبة: ' + error.message, false);
+            });
         }
         
         // إضافة مهمة
         function addTask() {
             const name = document.getElementById('newTaskName').value;
-            const assigneeId = parseInt(document.getElementById('newTaskAssignee').value);
+            const assigneeId = document.getElementById('newTaskAssignee').value;
             const deadline = document.getElementById('newTaskDeadline').value;
             
             if (!name || !assigneeId || !deadline) {
@@ -1484,67 +1435,48 @@
                 return;
             }
             
-            const newTask = {
-                id: tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1,
+            const tasksRef = database.ref('tasks');
+            const newTaskRef = tasksRef.push();
+            
+            newTaskRef.set({
                 name: name,
                 assigneeId: assigneeId,
                 assigneeName: assignee.name,
                 deadline: deadline,
                 status: 'قيد التنفيذ'
-            };
-            
-            tasks.push(newTask);
-            showNotification('تم إضافة المهمة بنجاح');
-            
-            // إضافة إلى جدول الإدارة
-            const tasksTbody = document.querySelector('#tasksTable tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${tasks.length}</td>
-                <td>${newTask.name}</td>
-                <td>${newTask.assigneeName}</td>
-                <td>${newTask.deadline}</td>
-                <td><span class="badge btn-warning">${newTask.status}</span></td>
-                <td><button class='btn btn-primary editTask'>تعديل</button></td>
-                <td><button class='btn btn-danger deleteTask'>حذف</button></td>
-            `;
-            tasksTbody.appendChild(tr);
-            
-            // مسح الحقول
-            document.getElementById('newTaskName').value = '';
-            document.getElementById('newTaskAssignee').value = '';
-            document.getElementById('newTaskDeadline').value = '';
+            }).then(() => {
+                showNotification('تم إضافة المهمة بنجاح');
+                
+                document.getElementById('newTaskName').value = '';
+                document.getElementById('newTaskAssignee').value = '';
+                document.getElementById('newTaskDeadline').value = '';
+            }).catch((error) => {
+                console.error("Error adding task:", error);
+                showNotification('فشل في إضافة المهمة: ' + error.message, false);
+            });
         }
         
         // تحديث التقارير
         function updateReports() {
-            // الإحصائيات العامة
             document.getElementById('reportAttendance').textContent = attendanceRecords.length;
-            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + member.points, 0);
+            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
             document.getElementById('reportMembers').textContent = members.length;
             document.getElementById('reportWeeks').textContent = weeks.length;
             
-            // الـ 10 الأوائل
             updateTopMembers();
-            
-            // إحصائيات الأعضاء
             updateMembersStats();
         }
         
         // تحديث قائمة الـ 10 الأوائل
         function updateTopMembers() {
-            // حساب النقاط لكل عضو
             const memberPoints = members.map(member => {
-                return { name: member.name, points: member.points };
+                return { name: member.name, points: member.points || 0 };
             });
             
-            // ترتيب تنازلي حسب النقاط
             memberPoints.sort((a, b) => b.points - a.points);
             
-            // أخذ أول 10 فقط
             const top10 = memberPoints.slice(0, 10);
             
-            // عرض النتائج
             const topMembersList = document.getElementById('topMembersList');
             topMembersList.innerHTML = '';
             
@@ -1583,7 +1515,7 @@
                         <h4>${member.name}</h4>
                         <div style="display:flex;gap:10px;margin-top:5px;">
                             <div class="member-stat-item">
-                                <div class="member-stat-value">${member.points}</div>
+                                <div class="member-stat-value">${member.points || 0}</div>
                                 <div class="member-stat-label">نقاط</div>
                             </div>
                         </div>

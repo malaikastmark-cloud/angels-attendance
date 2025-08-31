@@ -961,6 +961,28 @@
             
             // إدارة المهمات
             document.getElementById('addTaskBtn').addEventListener('click', addTask);
+
+            // تبديل التبويبات في واجهة الأدمن
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // إخفاء كل المحتويات
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // إلغاء تنشيط كل التبويبات
+                    document.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // تنشيط التبويب الحالي
+                    tab.classList.add('active');
+                    
+                    // إظهار المحتوى المرتبط بالتبويب
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).style.display = 'block';
+                });
+            });
         }
         
         // تسجيل دخول الأدمن
@@ -1414,7 +1436,7 @@
                 document.getElementById('newEventDescription').value = '';
             }).catch((error) => {
                 console.error("Error adding event:", error);
-                showNotification('فشل في إضافة المناسبة: ' + error.message, false);
+                showNotification('فشل في إضافة المناسبة: '极 error.message, false);
             });
         }
         

@@ -1,99 +1,102 @@
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>Angels Attendance</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .tab { cursor:pointer; padding:10px; display:inline-block; background:#ccc; margin-right:5px; }
+        .tab.active { background:#3498db; color:#fff; }
+        .tab-content { display:none; margin-top:20px; }
+        .tab-content.active { display:block; }
+        .btn { padding:5px 10px; cursor:pointer; }
+        .member-img { width:40px; height:40px; border-radius:50%; }
+        #notification { display:none; padding:10px; margin-bottom:10px; color:#fff; }
+        .top-member-item { display:flex; justify-content:space-between; margin-bottom:5px; }
+    </style>
+</head>
+<body>
+<h2 id="title">Angels Attendance</h2>
 
-<script>
-    let weeks = [
-        {id:1, name:'الاسبوع الاول', from:'2025-08-29', to:'2025-08-29'}
-    ];
-    
-    let members = [];
-    let attendanceRecords = [];
-    let rewards = [];
-    
-    const adminPass = 'admin123';
-    
-    let db = null;
-    let isFirebaseConnected = false;
+<div>
+    <button id="langBtn" class="btn">English</button>
+    <button id="adminLoginBtn" class="btn">تسجيل دخول الأدمن</button>
+</div>
 
-    function initializeFirebase() {
-        try {
-            const firebaseConfig = {
-                apiKey: "AIzaSyEXAMPLEEXAMPLEEXAMPLEEXAMPLE",
-                authDomain: "your-project-id.firebaseapp.com",
-                databaseURL: "https://your-project-id-default-rtdb.firebaseio.com/",
-                projectId: "your-project-id",
-                storageBucket: "your-project-id.appspot.com",
-                messagingSenderId: "1234567890",
-                appId: "1:1234567890:web:abc123def456"
-            };
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            isFirebaseConnected = true;
-            document.getElementById('firebaseStatus').textContent = '✓ متصل بقاعدة البيانات';
-            document.getElementById('firebaseStatus').className = 'firebase-status firebase-connected';
-            loadDataFromFirebase();
-        } catch (error) {
-            console.error('خطأ في تهيئة Firebase:', error);
-            document.getElementById('firebaseStatus').textContent = '✗ غير متصل بقاعدة البيانات';
-            document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
-            loadFromLocalStorage();
-        }
-    }
+<div id="notification"></div>
 
-    async function loadDataFromFirebase() {
-        if (!isFirebaseConnected) return;
-        showLoading();
-        try {
-            const snapshot = await db.ref().once('value');
-            const data = snapshot.val();
-            members = data?.members || [];
-            weeks = data?.weeks || weeks;
-            attendanceRecords = data?.attendanceRecords || [];
-            rewards = data?.rewards || [];
-            saveToLocalStorage();
-            populateData();
-            updateReports();
-            hideLoading();
-            showNotification('تم تحميل البيانات من السحابة');
-        } catch (error) {
-            console.error('خطأ في تحميل البيانات من Firebase:', error);
-            loadFromLocalStorage();
-            hideLoading();
-        }
-    }
+<!-- تبويبات الأدمن -->
+<div id="adminTabs" style="display:none;">
+    <div class="tab active" data-tab="attendanceTab">الحضور</div>
+    <div class="tab" data-tab="membersTab">الأعضاء</div>
+    <div class="tab" data-tab="weeksTab">الأسابيع</div>
+    <div class="tab" data-tab="reportsTab">التقارير</div>
+</div>
 
-    async function saveToFirebase() {
-        if (!isFirebaseConnected) return;
-        try {
-            await db.ref().set({members, weeks, attendanceRecords, rewards});
-            showNotification('تم حفظ البيانات في السحابة');
-        } catch (error) {
-            console.error('خطأ في حفظ البيانات إلى Firebase:', error);
-            showNotification('خطأ في حفظ البيانات إلى السحابة', false);
-        }
-    }
+<div id="attendanceTab" class="tab-content active">
+    <h3 id="attendanceTitle">تسجيل الحضور</h3>
+    <select id="selectMember"></select>
+    <select id="weekSelect"></select>
+    <button id="markPresent" class="btn">تسجيل حضور</button>
+    <button id="deleteAttendanceBtn" class="btn">حذف كل الحضور للأسبوع</button>
 
-    function showLoading(){ document.getElementById('loading').style.display='block'; }
-    function hideLoading(){ document.getElementById('loading').style.display='none'; }
-    function showNotification(msg, success=true){
-        const n=document.getElementById('notification');
-        n.textContent=msg;
-        n.style.background=success?'#2ecc71':'#e74c3c';
-        n.style.display='block';
-        setTimeout(()=>{n.style.display='none';},3000);
-    }
-    function saveToLocalStorage(){ localStorage.setItem('angelsAttendance', JSON.stringify({members,weeks,attendanceRecords,rewards})); }
-    function loadFromLocalStorage(){
-        const data=JSON.parse(localStorage.getItem('angelsAttendance'));
-        if(data){ members=data.members||members; weeks=data.weeks||weeks; attendanceRecords=data.attendanceRecords||attendanceRecords; rewards=data.rewards||rewards; }
-        populateData(); updateReports();
-    }
+    <h4>إحصائيات الأسبوع</h4>
+    <p>عدد الحاضرين: <span id="attendanceCount">0</span></p>
+    <p>نقاط الأسبوع: <span id="totalPoints">0</span></p>
 
-    // تابع populateData() تابع populateAdminTables() تابع populateAttendanceRecords() ... كل التوابع كما هي من الكود الأصلي
-    // فقط استبدل أي saveToFirebase() و loadDataFromFirebase() حسب الدوال الجديدة أعلاه
+    <canvas id="attendanceChart" width="400" height="150"></canvas>
+</div>
 
-    // عند بدء التشغيل
-    document.addEventListener('DOMContentLoaded', () => { initializeFirebase(); });
-</script>
+<div id="membersTab" class="tab-content">
+    <h3 id="membersTitle">إدارة الأعضاء</h3>
+    <input id="newMemberName" placeholder="اسم العضو">
+    <input id="newMemberImage" placeholder="رابط الصورة">
+    <button id="addMemberBtn" class="btn">إضافة عضو</button>
+    <table border="1" id="membersTable">
+        <thead>
+            <tr>
+                <th>الرقم</th><th>الصورة</th><th>الاسم</th><th>النقاط</th><th>المكافآت</th><th>تعديل</th><th>حذف</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div id="weeksTab" class="tab-content">
+    <h3 id="weeksTitle">إدارة الأسابيع</h3>
+    <input id="newWeekName" placeholder="اسم الأسبوع">
+    <input type="date" id="newWeekStart">
+    <input type="date" id="newWeekEnd">
+    <button id="addWeekBtn" class="btn">إضافة أسبوع</button>
+    <table border="1" id="weeksTable">
+        <thead>
+            <tr><th>الرقم</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div id="reportsTab" class="tab-content">
+    <h3 id="reportsTitle">التقارير</h3>
+    <div id="topMembersList"></div>
+    <button id="printReportBtn" class="btn">طباعة التقرير</button>
+    <button id="exportExcelBtn" class="btn">تصدير لإكسل</button>
+</div>
+
+<!-- مودال تسجيل دخول الأدمن -->
+<div id="adminLoginModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:20px;">
+        <h3>تسجيل دخول الأدمن</h3>
+        <input type="password" id="adminPassword" placeholder="كلمة السر">
+        <button id="confirmAdminLogin" class="btn">دخول</button>
+        <button id="cancelAdminLogin" class="btn">إلغاء</button>
+    </div>
+</div>
+
+<script src="attendance.js"></script>
+</body>
+</html>

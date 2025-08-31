@@ -1568,18 +1568,15 @@ document.getElementById('confirmAdminLogin').addEventListener('click', confirmAd
         
         // عرض الإشعارات
         function showNotification(message, isSuccess = true) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // بدء التطبيق عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
-</body>
-</html>
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+} 
+
+// بدء التطبيق عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', initializeApp);

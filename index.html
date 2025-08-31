@@ -15,18 +15,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-6">
-      <Card className="w-full max-w-2xl shadow-2xl rounded-2xl bg-white/90">
-        <CardContent className="p-6 space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6">
+      <Card className="w-full max-w-lg shadow-2xl rounded-3xl bg-white/95 backdrop-blur-md border border-gray-200">
+        <CardContent className="p-8 space-y-8">
           {/* الصفحة الرئيسية */}
           {page === "home" && (
-            <div className="text-center space-y-6">
-              <h1 className="text-3xl font-bold text-gray-800">Attendance System</h1>
+            <div className="text-center space-y-8">
+              <h1 className="text-4xl font-extrabold text-gray-800">Attendance System</h1>
+              <p className="text-gray-500">Track weekly attendance easily</p>
 
               {/* اختيار الاسم */}
-              <div className="space-y-2">
-                <label className="block text-gray-600 font-semibold">Choose Name:</label>
-                <select className="w-full p-3 border rounded-lg shadow-md focus:ring-2 focus:ring-pink-400">
+              <div className="space-y-2 text-left">
+                <label className="block text-gray-700 font-semibold">Choose Name:</label>
+                <select className="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-400">
                   <option>John</option>
                   <option>Mary</option>
                   <option>Alex</option>
@@ -34,9 +35,9 @@ export default function App() {
               </div>
 
               {/* اختيار الأسبوع */}
-              <div className="space-y-2">
-                <label className="block text-gray-600 font-semibold">Choose Week:</label>
-                <select className="w-full p-3 border rounded-lg shadow-md focus:ring-2 focus:ring-pink-400">
+              <div className="space-y-2 text-left">
+                <label className="block text-gray-700 font-semibold">Choose Week:</label>
+                <select className="w-full p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-400">
                   <option>Week 1</option>
                   <option>Week 2</option>
                   <option>Week 3</option>
@@ -45,19 +46,25 @@ export default function App() {
               </div>
 
               {/* زر دخول الأدمن */}
-              <Button onClick={() => setPage("admin")} className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg shadow-lg">
-                Admin Page
+              <Button
+                onClick={() => setPage("admin")}
+                className="w-full bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white py-3 rounded-xl shadow-lg font-bold text-lg transition"
+              >
+                Admin Panel
               </Button>
             </div>
           )}
 
           {/* صفحة الأدمن */}
           {page === "admin" && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
-                <Button onClick={() => setPage("home")} className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
-                  Back
+                <Button
+                  onClick={() => setPage("home")}
+                  className="bg-gray-700 hover:bg-gray-900 text-white px-4 py-2 rounded-lg"
+                >
+                  ← Back
                 </Button>
               </div>
 
@@ -67,20 +74,25 @@ export default function App() {
                   value={newMember}
                   onChange={(e) => setNewMember(e.target.value)}
                   placeholder="Enter member name"
-                  className="flex-1 p-3 border rounded-lg shadow-md"
+                  className="flex-1 p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-green-400"
                 />
-                <Button onClick={addMember} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                <Button
+                  onClick={addMember}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-semibold"
+                >
                   Add
                 </Button>
               </div>
 
-              {/* عرض الأعضاء تحت بعض */}
+              {/* عرض الأعضاء */}
               <div className="space-y-3">
                 {members.map((member, index) => (
                   <div
                     key={index}
-                    className="p-3 rounded-lg shadow-md text-white font-semibold"
-                    style={{ backgroundColor: `hsl(${index * 60}, 70%, 50%)` }}
+                    className="p-3 rounded-xl shadow-md text-white font-semibold text-lg"
+                    style={{
+                      background: `linear-gradient(90deg, hsl(${index * 50},70%,55%), hsl(${index * 50 + 40},70%,45%))`,
+                    }}
                   >
                     {member}
                   </div>

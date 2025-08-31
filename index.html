@@ -4,78 +4,94 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angels Attendance</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body { font-family: Arial, sans-serif; direction: rtl; margin:0; padding:0; background:#f4f4f4; }
-.container { max-width: 1000px; margin:auto; padding:20px; background:#fff; }
-.hidden { display:none; }
-button { padding:5px 10px; margin:5px 0; cursor:pointer; }
-input, select { padding:5px; margin:5px 0; width:100%; }
-h2 { margin-top:0; }
-.table { width:100%; border-collapse:collapse; margin:10px 0; }
-.table th, .table td { border:1px solid #ddd; padding:5px; text-align:center; }
-.table th { background:#eee; }
+  body{font-family:Tahoma,sans-serif;background:#f4f6f8;color:#333;margin:0;padding:0}
+  header{background:#3498db;color:#fff;padding:15px;text-align:center;font-size:22px;font-weight:bold}
+  .container{padding:20px;max-width:1200px;margin:auto}
+  .card{background:#fff;padding:15px;margin:15px 0;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+  h2,h3{margin-top:0}
+  button{padding:8px 12px;border:none;border-radius:5px;cursor:pointer}
+  .btn-primary{background:#3498db;color:#fff}
+  .btn-danger{background:#e74c3c;color:#fff}
+  .btn-logout{background:#e67e22;color:#fff;float:right}
+  select,input{padding:6px;border-radius:5px;border:1px solid #ccc;margin-right:10px}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{padding:8px;text-align:center;border-bottom:1px solid #ddd}
+  .hidden{display:none}
+  .charts-container{display:flex;flex-wrap:wrap;gap:20px;margin-top:20px}
+  canvas{background:#fff;padding:10px;border-radius:10px;flex:1 1 400px}
 </style>
 </head>
 <body>
+<header>
+  Angels Attendance
+  <button id="logoutBtn" class="btn-logout hidden">تسجيل خروج</button>
+</header>
 <div class="container">
 
-<!-- واجهة العضو -->
-<div id="memberView">
+<!-- شاشة تسجيل حضور العضو -->
+<div id="memberInterface" class="card">
   <h2>تسجيل الحضور</h2>
-  <label>اختر اسمك:</label>
-  <select id="memberSelect"></select>
-
-  <label>اختر الأسبوع:</label>
-  <select id="weekSelect"></select>
-
-  <button onclick="markAttendance()">تسجيل الحضور</button>
+  <select id="memberSelect"><option value="">اختر الاسم</option></select>
+  <select id="weekSelect"><option value="">اختر الأسبوع</option></select>
+  <button class="btn-primary" onclick="markAttendance()">تسجيل الحضور</button>
+  <p id="memberMessage" style="margin-top:10px;color:green;font-weight:bold"></p>
 </div>
 
-<hr>
-
-<!-- واجهة تسجيل دخول المدير -->
-<div id="adminLoginView">
-  <h2>تسجيل دخول المدير</h2>
-  <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
-  <button onclick="loginAdmin()">تسجيل الدخول</button>
+<!-- شاشة تسجيل الدخول للادمن -->
+<div id="adminLogin" class="card">
+  <h2>تسجيل الدخول للمدير</h2>
+  <input type="password" id="adminPassword" placeholder="كلمة المرور"/>
+  <button class="btn-primary" onclick="adminLogin()">دخول</button>
+  <p id="loginMsg" style="color:red"></p>
 </div>
 
 <!-- واجهة المدير -->
-<div id="adminView" class="hidden">
-  <h2>لوحة تحكم المدير</h2>
-  <button onclick="logoutAdmin()">تسجيل خروج</button>
+<div id="adminInterface" class="hidden">
+  <h2>لوحة التحكم</h2>
 
-  <h3>الأعضاء</h3>
-  <table class="table">
-    <thead><tr><th>#</th><th>الاسم</th><th>تعديل</th><th>حذف</th></tr></thead>
-    <tbody id="membersListAdmin"></tbody>
-  </table>
-  <input type="text" id="newMemberName" placeholder="اسم العضو">
-  <button onclick="addNewMember()">إضافة عضو</button>
+  <div class="card">
+    <h3>إضافة عضو جديد</h3>
+    <input type="text" id="newMemberName" placeholder="اسم العضو"/>
+    <button class="btn-primary" onclick="addNewMember()">إضافة عضو</button>
+  </div>
 
-  <h3>الأسابيع</h3>
-  <table class="table">
-    <thead><tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead>
-    <tbody id="weeksListAdmin"></tbody>
-  </table>
-  <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-  <input type="date" id="newWeekFrom">
-  <input type="date" id="newWeekTo">
-  <button onclick="addNewWeek()">إضافة أسبوع</button>
+  <div class="card">
+    <h3>قائمة الأعضاء</h3>
+    <table>
+      <thead><tr><th>م</th><th>الاسم</th><th>حضور</th><th>حذف</th></tr></thead>
+      <tbody id="membersList"></tbody>
+    </table>
+  </div>
 
-  <h3>سجلات الحضور</h3>
-  <table class="table">
-    <thead><tr><th>العضو</th><th>الأسبوع</th><th>الحالة</th></tr></thead>
-    <tbody id="attendanceRecordsAdmin"></tbody>
-  </table>
+  <div class="card">
+    <h3>إضافة أسبوع جديد</h3>
+    <input type="text" id="newWeekName" placeholder="اسم الأسبوع"/>
+    <button class="btn-primary" onclick="addNewWeek()">إضافة أسبوع</button>
+  </div>
+
+  <div class="card">
+    <h3>قائمة الأسابيع</h3>
+    <table>
+      <thead><tr><th>م</th><th>اسم الأسبوع</th><th>حذف</th></tr></thead>
+      <tbody id="weeksList"></tbody>
+    </table>
+  </div>
+
+  <div class="charts-container">
+    <canvas id="attendanceChart"></canvas>
+    <canvas id="pointsChart"></canvas>
+  </div>
 </div>
 
 </div>
 
 <script>
-// إعداد Firebase
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
   authDomain: "angels-attendance.firebaseapp.com",
@@ -88,146 +104,137 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let members = [];
-let weeks = [];
-let attendanceRecords = [];
+// بيانات محلية
+let members = [], weeks = [], attendanceRecords = [];
 
-// تحميل البيانات
-function loadData() {
-  db.ref('members').on('value', snap => {
-    members = snap.val() ? Object.values(snap.val()) : [];
-    populateMemberSelect();
-    populateAdminMembers();
-    populateAdminAttendance();
-  });
-  db.ref('weeks').on('value', snap => {
-    weeks = snap.val() ? Object.values(snap.val()) : [];
-    populateWeekSelect();
-    populateAdminWeeks();
-    populateAdminAttendance();
-  });
-  db.ref('attendanceRecords').on('value', snap => {
-    attendanceRecords = snap.val() ? Object.values(snap.val()) : [];
-    populateAdminAttendance();
-  });
+// تحميل البيانات من Firebase
+function loadData(){
+  db.ref('members').on('value',snap=>{members = snap.val()||[];populateMembers();updateCharts()})
+  db.ref('weeks').on('value',snap=>{weeks = snap.val()||[];populateWeeks()})
+  db.ref('attendanceRecords').on('value',snap=>{attendanceRecords = snap.val()||[];updateCharts()})
 }
 
-// واجهة العضو
-function populateMemberSelect() {
-  const sel = document.getElementById('memberSelect');
-  sel.innerHTML = '';
-  members.forEach(m => { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.name; sel.appendChild(opt); });
-}
-function populateWeekSelect() {
-  const sel = document.getElementById('weekSelect');
-  sel.innerHTML = '';
-  weeks.forEach(w => { const opt = document.createElement('option'); opt.value = w.id; opt.textContent = w.name; sel.appendChild(opt); });
-}
-
-function markAttendance() {
+// تسجيل حضور
+function markAttendance(){
   const memberId = document.getElementById('memberSelect').value;
   const weekId = document.getElementById('weekSelect').value;
-  if(!memberId || !weekId) { alert('اختر اسمك والأسبوع'); return; }
-
-  const already = attendanceRecords.find(a=>a.memberId===memberId && a.weekId===weekId);
-  if(already) { alert('تم تسجيل الحضور مسبقاً'); return; }
-
-  const record = { memberId, weekId, present:true, timestamp:new Date().toISOString() };
-  const newKey = db.ref('attendanceRecords').push().key;
-  db.ref('attendanceRecords/'+newKey).set(record);
-  alert('تم تسجيل الحضور بنجاح');
+  if(!memberId||!weekId){document.getElementById('memberMessage').textContent='اختر الاسم والأسبوع';return;}
+  // تحقق إن لم يتم تسجيل الحضور مسبقاً
+  const exist = attendanceRecords.find(a=>a.memberId==memberId && a.weekId==weekId);
+  if(exist){document.getElementById('memberMessage').textContent='تم تسجيل الحضور مسبقاً';return;}
+  const newRecord = {memberId, weekId, present:true};
+  attendanceRecords.push(newRecord);
+  db.ref('attendanceRecords').set(attendanceRecords);
+  document.getElementById('memberMessage').textContent='تم تسجيل الحضور بنجاح';
+  setTimeout(()=>{document.getElementById('memberMessage').textContent=''},3000);
+  updateCharts();
 }
 
-// تسجيل دخول المدير
-function loginAdmin() {
+// واجهة الادمن
+function adminLogin(){
   const pwd = document.getElementById('adminPassword').value;
-  if(pwd==='admin123') {
-    document.getElementById('adminView').classList.remove('hidden');
-    document.getElementById('adminLoginView').classList.add('hidden');
-    document.getElementById('memberView').classList.add('hidden');
-  } else { alert('كلمة المرور غير صحيحة'); }
+  if(pwd==='admin123'){
+    document.getElementById('adminLogin').classList.add('hidden');
+    document.getElementById('memberInterface').classList.add('hidden');
+    document.getElementById('adminInterface').classList.remove('hidden');
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    loadData();
+  } else {document.getElementById('loginMsg').textContent='كلمة المرور خاطئة';}
 }
-function logoutAdmin() {
-  document.getElementById('adminView').classList.add('hidden');
-  document.getElementById('adminLoginView').classList.remove('hidden');
-  document.getElementById('memberView').classList.remove('hidden');
-}
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  document.getElementById('adminInterface').classList.add('hidden');
+  document.getElementById('memberInterface').classList.remove('hidden');
+  document.getElementById('adminLogin').classList.remove('hidden');
+  document.getElementById('logoutBtn').classList.add('hidden');
+})
 
-// واجهة المدير - الأعضاء
-function populateAdminMembers() {
-  const tbody = document.getElementById('membersListAdmin');
-  tbody.innerHTML = '';
-  members.forEach((m,i)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${m.name}</td>
-      <td><button onclick="editMember('${m.id}')">تعديل</button></td>
-      <td><button onclick="deleteMember('${m.id}')">حذف</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-function addNewMember() {
+// إضافة عضو
+function addNewMember(){
   const name = document.getElementById('newMemberName').value;
-  if(!name) { alert('ادخل اسم العضو'); return; }
-  const id = Date.now().toString();
-  db.ref('members/'+id).set({id,name});
+  if(!name) return;
+  const newMember = {id:Date.now().toString(),name};
+  members.push(newMember);
+  db.ref('members').set(members);
   document.getElementById('newMemberName').value='';
 }
-function editMember(id) {
-  const name = prompt('عدل اسم العضو:', members.find(m=>m.id===id)?.name || '');
-  if(name) db.ref('members/'+id+'/name').set(name);
-}
-function deleteMember(id) {
-  if(confirm('هل تريد حذف العضو؟')) db.ref('members/'+id).remove();
+
+// حذف عضو
+function deleteMember(id){
+  members = members.filter(m=>m.id!==id);
+  db.ref('members').set(members);
+  attendanceRecords = attendanceRecords.filter(a=>a.memberId!==id);
+  db.ref('attendanceRecords').set(attendanceRecords);
+  updateCharts();
 }
 
-// واجهة المدير - الأسابيع
-function populateAdminWeeks() {
-  const tbody = document.getElementById('weeksListAdmin');
-  tbody.innerHTML = '';
-  weeks.forEach((w,i)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td>
-      <td><button onclick="editWeek('${w.id}')">تعديل</button></td>
-      <td><button onclick="deleteWeek('${w.id}')">حذف</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-function addNewWeek() {
-  const name=document.getElementById('newWeekName').value;
-  const from=document.getElementById('newWeekFrom').value;
-  const to=document.getElementById('newWeekTo').value;
-  if(!name||!from||!to){ alert('ادخل بيانات الأسبوع'); return;}
-  const id = Date.now().toString();
-  db.ref('weeks/'+id).set({id,name,from,to});
+// إضافة أسبوع
+function addNewWeek(){
+  const name = document.getElementById('newWeekName').value;
+  if(!name) return;
+  const newWeek = {id:Date.now().toString(),name};
+  weeks.push(newWeek);
+  db.ref('weeks').set(weeks);
   document.getElementById('newWeekName').value='';
-  document.getElementById('newWeekFrom').value='';
-  document.getElementById('newWeekTo').value='';
 }
-function editWeek(id) {
-  const w = weeks.find(w=>w.id===id);
-  if(!w) return;
-  const name = prompt('عدل اسم الأسبوع:', w.name);
-  const from = prompt('من تاريخ:', w.from);
-  const to = prompt('إلى تاريخ:', w.to);
-  if(name && from && to) db.ref('weeks/'+id).set({id,name,from,to});
-}
-function deleteWeek(id) { if(confirm('هل تريد حذف الأسبوع؟')) db.ref('weeks/'+id).remove(); }
 
-// واجهة المدير - الحضور
-function populateAdminAttendance() {
-  const tbody = document.getElementById('attendanceRecordsAdmin');
-  tbody.innerHTML = '';
-  attendanceRecords.forEach(a=>{
-    const member = members.find(m=>m.id===a.memberId)?.name || 'غير معروف';
-    const week = weeks.find(w=>w.id===a.weekId)?.name || 'غير معروف';
-    const tr = document.createElement('tr');
-    tr.innerHTML=`<td>${member}</td><td>${week}</td><td>${a.present?'حاضر':'غائب'}</td>`;
-    tbody.appendChild(tr);
+// حذف أسبوع
+function deleteWeek(id){
+  weeks = weeks.filter(w=>w.id!==id);
+  db.ref('weeks').set(weeks);
+  attendanceRecords = attendanceRecords.filter(a=>a.weekId!==id);
+  db.ref('attendanceRecords').set(attendanceRecords);
+  updateCharts();
+}
+
+// تعبئة القوائم
+function populateMembers(){
+  const memberSelect = document.getElementById('memberSelect');
+  const membersList = document.getElementById('membersList');
+  memberSelect.innerHTML='<option value="">اختر الاسم</option>';
+  membersList.innerHTML='';
+  members.forEach((m,i)=>{
+    memberSelect.innerHTML+=`<option value="${m.id}">${m.name}</option>`;
+    membersList.innerHTML+=`<tr><td>${i+1}</td><td>${m.name}</td><td>${attendanceRecords.filter(a=>a.memberId===m.id && a.present).length}</td><td><button class="btn-danger" onclick="deleteMember('${m.id}')">حذف</button></td></tr>`;
+  })
+}
+
+function populateWeeks(){
+  const weekSelect = document.getElementById('weekSelect');
+  const weeksList = document.getElementById('weeksList');
+  weekSelect.innerHTML='<option value="">اختر الأسبوع</option>';
+  weeksList.innerHTML='';
+  weeks.forEach((w,i)=>{
+    weekSelect.innerHTML+=`<option value="${w.id}">${w.name}</option>`;
+    weeksList.innerHTML+=`<tr><td>${i+1}</td><td>${w.name}</td><td><button class="btn-danger" onclick="deleteWeek('${w.id}')">حذف</button></td></tr>`;
+  })
+}
+
+// المخططات
+let attendanceChartInstance=null, pointsChartInstance=null;
+function updateCharts(){
+  populateMembers();
+  populateWeeks();
+  const labels = members.map(m=>m.name);
+  const attendanceCounts = members.map(m=>attendanceRecords.filter(a=>a.memberId===m.id && a.present).length);
+  const pointsCounts = attendanceCounts.map(c=>c*10);
+
+  const ctx1=document.getElementById('attendanceChart').getContext('2d');
+  if(attendanceChartInstance) attendanceChartInstance.destroy();
+  attendanceChartInstance=new Chart(ctx1,{
+    type:'bar',
+    data:{labels, datasets:[{label:'عدد الحضور', data:attendanceCounts, backgroundColor:'#3498db'}]},
+    options:{responsive:true, plugins:{legend:{display:false}}}
+  });
+
+  const ctx2=document.getElementById('pointsChart').getContext('2d');
+  if(pointsChartInstance) pointsChartInstance.destroy();
+  pointsChartInstance=new Chart(ctx2,{
+    type:'line',
+    data:{labels, datasets:[{label:'النقاط', data:pointsCounts, borderColor:'#2ecc71', fill:false}]},
+    options:{responsive:true, plugins:{legend:{display:true}}}
   });
 }
 
-// تحميل البيانات
-loadData();
 </script>
 </body>
 </html>

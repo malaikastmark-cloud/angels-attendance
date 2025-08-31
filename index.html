@@ -1,197 +1,205 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angels Attendance</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>
-    /* Reset */
-    * {margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-    body {
-        background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-        color: #333;
-    }
-    h1,h2,h3,h4 {margin-bottom:10px;}
-    button {cursor:pointer; border:none; padding:8px 12px; border-radius:6px; transition:0.3s;}
-    button:hover {opacity:0.9;}
-    .btn-primary {background-color:#3498db; color:#fff;}
-    .btn-success {background-color:#2ecc71; color:#fff;}
-    .btn-danger {background-color:#e74c3c; color:#fff;}
-    .container {max-width:1200px; width:100%; margin:auto; display:grid; grid-template-columns:1fr; gap:20px;}
-    .card {background:rgba(255,255,255,0.9); padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-    .grid {display:grid; gap:15px;}
-    .grid-2 {grid-template-columns:1fr 1fr;}
-    .grid-3 {grid-template-columns:1fr 1fr 1fr;}
-    select, input {padding:8px 10px; border-radius:6px; border:1px solid #ccc; width:100%;}
-    .member-item {display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px; background:linear-gradient(90deg,#f6d365,#fda085); color:#fff;}
-    .member-img {width:40px; height:40px; border-radius:50%; object-fit:cover;}
-    .hidden {display:none;}
-    .center {text-align:center;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angels Attendance</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Reset */
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            color: #333;
+        }
+
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 30px;
+        }
+
+        .attendance-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .attendance-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .attendance-form select, .attendance-form button {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+        }
+
+        .attendance-form select {
+            width: 100%;
+        }
+
+        .attendance-form button {
+            background: #6a11cb;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .attendance-form button:hover {
+            background: #2575fc;
+        }
+
+        .members-grid {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .member-card {
+            background: rgba(255,255,255,0.3);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .member-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .member-card img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            border: 2px solid #fff;
+        }
+
+        .member-name {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
+<header>Angels Attendance</header>
 
-    <!-- شاشة تسجيل حضور -->
-    <div id="memberPanel" class="card">
-        <h2 class="center">تسجيل الحضور</h2>
-        <div class="grid grid-2">
-            <div>
-                <label>اختر الاسم:</label>
-                <select id="memberSelect"></select>
-            </div>
-            <div>
-                <label>اختر الأسبوع:</label>
-                <select id="weekSelect"></select>
-            </div>
-        </div>
-        <div style="margin-top:15px; text-align:center;">
-            <button class="btn-success" onclick="markAttendance()">تسجيل الحضور</button>
-        </div>
-        <div style="margin-top:10px; text-align:center;">
-            <button class="btn-primary" onclick="showAdminLogin()">دخول الادمن</button>
-        </div>
+<main>
+    <div class="attendance-form">
+        <label for="memberSelect">Select Member:</label>
+        <select id="memberSelect">
+            <option value="" disabled selected>Select your name</option>
+        </select>
+
+        <label for="weekSelect">Select Week:</label>
+        <select id="weekSelect">
+            <option value="" disabled selected>Select week</option>
+        </select>
+
+        <button id="submitAttendance">Confirm Attendance</button>
     </div>
 
-    <!-- شاشة تسجيل دخول الادمن -->
-    <div id="adminLogin" class="card hidden">
-        <h2 class="center">دخول الادمن</h2>
-        <input type="password" id="adminPassword" placeholder="كلمة المرور">
-        <div style="margin-top:15px; text-align:center;">
-            <button class="btn-success" onclick="adminLogin()">دخول</button>
-            <button class="btn-danger" onclick="showMemberPanel()">رجوع</button>
-        </div>
+    <div class="members-grid" id="membersGrid">
+        <!-- Member cards go here -->
     </div>
+</main>
 
-    <!-- لوحة الادمن -->
-    <div id="adminPanel" class="card hidden">
-        <h2 class="center">لوحة التحكم - عرض النقاط والتقارير</h2>
-        <div class="grid grid-2">
-            <div>
-                <h3>الأعضاء</h3>
-                <div id="membersList"></div>
-            </div>
-            <div>
-                <h3>إحصائيات</h3>
-                <canvas id="progressChart" height="200"></canvas>
-            </div>
-        </div>
-        <div style="margin-top:15px; text-align:center;">
-            <button class="btn-danger" onclick="logoutAdmin()">تسجيل خروج</button>
-        </div>
-    </div>
-
-</div>
+<footer>© 2025 Angels Attendance</footer>
 
 <script>
-let members = [
-    {id:1, name:'أحمد', image:'https://ui-avatars.com/api/?name=Ahmed&background=3498db&color=fff'},
-    {id:2, name:'منى', image:'https://ui-avatars.com/api/?name=Mona&background=e74c3c&color=fff'},
-    {id:3, name:'سعيد', image:'https://ui-avatars.com/api/?name=Saied&background:2ecc71&color=fff'}
-];
-let weeks = [
-    {id:1, name:'الأسبوع الأول'},
-    {id:2, name:'الأسبوع الثاني'}
-];
-let attendanceRecords = [];
+    // Sample data (replace with Firebase later)
+    const members = [
+        {id:1, name:'Alice', image:'https://ui-avatars.com/api/?name=Alice&background=ff6b6b&color=fff'},
+        {id:2, name:'Bob', image:'https://ui-avatars.com/api/?name=Bob&background=1dd1a1&color=fff'},
+        {id:3, name:'Charlie', image:'https://ui-avatars.com/api/?name=Charlie&background=ff9f43&color=fff'},
+        {id:4, name:'David', image:'https://ui-avatars.com/api/?name=David&background=5f27cd&color=fff'}
+    ];
 
-function populateMemberSelect(){
-    const sel = document.getElementById('memberSelect');
-    sel.innerHTML = '';
-    members.forEach(m=>{
+    const weeks = [
+        {id:1, name:'Week 1'},
+        {id:2, name:'Week 2'},
+        {id:3, name:'Week 3'}
+    ];
+
+    const memberSelect = document.getElementById('memberSelect');
+    const weekSelect = document.getElementById('weekSelect');
+    const membersGrid = document.getElementById('membersGrid');
+
+    // Populate dropdowns
+    members.forEach(m => {
         const opt = document.createElement('option');
-        opt.value=m.id;
-        opt.textContent=m.name;
-        sel.appendChild(opt);
+        opt.value = m.id;
+        opt.textContent = m.name;
+        memberSelect.appendChild(opt);
     });
-}
 
-function populateWeekSelect(){
-    const sel = document.getElementById('weekSelect');
-    sel.innerHTML='';
-    weeks.forEach(w=>{
+    weeks.forEach(w => {
         const opt = document.createElement('option');
-        opt.value=w.id;
-        opt.textContent=w.name;
-        sel.appendChild(opt);
+        opt.value = w.id;
+        opt.textContent = w.name;
+        weekSelect.appendChild(opt);
     });
-}
 
-function markAttendance(){
-    const memberId = parseInt(document.getElementById('memberSelect').value);
-    const weekId = parseInt(document.getElementById('weekSelect').value);
-    const exists = attendanceRecords.find(ar=>ar.memberId===memberId && ar.weekId===weekId);
-    if(exists){ alert('تم تسجيل الحضور مسبقاً'); return; }
-    attendanceRecords.push({memberId, weekId, present:true});
-    alert('تم تسجيل الحضور بنجاح');
-}
-
-function showAdminLogin(){
-    document.getElementById('memberPanel').classList.add('hidden');
-    document.getElementById('adminLogin').classList.remove('hidden');
-}
-
-function showMemberPanel(){
-    document.getElementById('memberPanel').classList.remove('hidden');
-    document.getElementById('adminLogin').classList.add('hidden');
-    document.getElementById('adminPanel').classList.add('hidden');
-}
-
-function adminLogin(){
-    const pass = document.getElementById('adminPassword').value;
-    if(pass==='admin123'){
-        document.getElementById('adminLogin').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        renderAdminPanel();
-    } else alert('كلمة مرور غير صحيحة');
-}
-
-function logoutAdmin(){
-    document.getElementById('adminPanel').classList.add('hidden');
-    showMemberPanel();
-}
-
-function renderAdminPanel(){
-    const membersListEl = document.getElementById('membersList');
-    membersListEl.innerHTML='';
-    members.forEach(m=>{
-        const div = document.createElement('div');
-        div.className='member-item';
-        div.innerHTML=`<img src="${m.image}" class="member-img"> ${m.name}`;
-        membersListEl.appendChild(div);
+    // Populate member cards
+    members.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'member-card';
+        card.innerHTML = `
+            <img src="${m.image}" alt="${m.name}">
+            <div class="member-name">${m.name}</div>
+        `;
+        membersGrid.appendChild(card);
     });
-    renderProgressChart();
-}
 
-function renderProgressChart(){
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    const data = members.map(m=>{
-        const count = attendanceRecords.filter(ar=>ar.memberId===m.id).length;
-        return count;
+    // Attendance submission
+    document.getElementById('submitAttendance').addEventListener('click', () => {
+        const memberId = memberSelect.value;
+        const weekId = weekSelect.value;
+        if(!memberId || !weekId){
+            alert('Please select member and week!');
+            return;
+        }
+        alert(`Attendance confirmed for member ID ${memberId}, week ID ${weekId}`);
     });
-    if(window.progressChartInstance) window.progressChartInstance.destroy();
-    window.progressChartInstance = new Chart(ctx,{
-        type:'bar',
-        data:{
-            labels: members.map(m=>m.name),
-            datasets:[{label:'عدد الحضور', data:data, backgroundColor:'#3498db'}]
-        },
-        options:{responsive:true, plugins:{legend:{display:false}}}
-    });
-}
-
-// init
-populateMemberSelect();
-populateWeekSelect();
 </script>
 
 </body>

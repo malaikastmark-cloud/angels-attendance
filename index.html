@@ -1,23 +1,31 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angels Attendance</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background: #f0f4f8; color: #333; }
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #c3ecb2, #64b3f4);
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+}
 
-.container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; padding: 40px; }
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 40px;
+}
 
-.card { border-radius: 15px; padding: 25px; color:#fff; position: relative;
-       background: linear-gradient(145deg,#6a11cb,#2575fc);
-       box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-       transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.card {
+    border-radius: 15px;
+    padding: 25px;
+    color: #fff;
+    position: relative;
+    background: linear-gradient(145deg,#6a11cb,#2575fc);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 .card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.2); }
 
-h2 { margin-bottom: 20px; color:#fff; font-size: 1.5em; }
+h2 { margin-bottom: 20px; color:#fff; font-size: 1.5em; text-align:center; }
 
 label { display:block; margin-bottom:8px; font-weight:600; }
 input, select, button {
@@ -31,126 +39,10 @@ button { background: #ff7e5f; color:#fff; cursor:pointer; font-weight:bold;
          transition:0.3s ease; border:none; }
 button:hover { background:#eb5757; }
 
-#adminSection { display:none; }
-
 table { width:100%; border-collapse: collapse; background:#fff; color:#333; border-radius:10px; overflow:hidden; }
 th, td { padding:12px; text-align:center; border-bottom:1px solid #ddd; }
 th { background: #f7b733; color:#fff; }
+tbody tr:hover { background: rgba(255,255,255,0.2); }
 
 @media (max-width:768px) { .container { grid-template-columns:1fr; padding:20px; } }
 </style>
-</head>
-<body>
-
-<div class="container">
-    <!-- Member Section -->
-    <div class="card" id="memberSection">
-        <h2><i class="fas fa-user-check"></i> تسجيل الحضور</h2>
-        <label for="memberSelect"><i class="fas fa-users"></i> اختر اسمك:</label>
-        <select id="memberSelect"></select>
-
-        <label for="weekSelect"><i class="fas fa-calendar-week"></i> اختر الأسبوع:</label>
-        <select id="weekSelect"></select>
-
-        <button id="markAttendanceBtn"><i class="fas fa-check-circle"></i> تسجيل الحضور</button>
-
-        <div id="memberMessage" style="margin-top:10px;color:#d4f1f4;font-weight:bold;"></div>
-    </div>
-
-    <!-- Admin Login -->
-    <div class="card" id="adminLogin">
-        <h2><i class="fas fa-user-shield"></i> تسجيل دخول الأدمن</h2>
-        <label for="adminPassword"><i class="fas fa-key"></i> كلمة المرور:</label>
-        <input type="password" id="adminPassword" placeholder="ادخل كلمة المرور">
-        <button id="adminLoginBtn"><i class="fas fa-sign-in-alt"></i> دخول</button>
-        <div id="adminLoginMessage" style="margin-top:10px;color:#ffccd5;font-weight:bold;"></div>
-    </div>
-
-    <!-- Admin Section -->
-    <div class="card" id="adminSection">
-        <h2><i class="fas fa-tachometer-alt"></i> لوحة الأدمن (عرض فقط)</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>الاسم</th>
-                    <th>الحضور</th>
-                    <th>النقاط</th>
-                </tr>
-            </thead>
-            <tbody id="adminTableBody"></tbody>
-        </table>
-        <button id="adminLogoutBtn" style="margin-top:15px;"><i class="fas fa-sign-out-alt"></i> تسجيل خروج</button>
-    </div>
-</div>
-
-<script>
-const members = [
-    {id:1, name:'محمد'},
-    {id:2, name:'سارة'},
-    {id:3, name:'أحمد'}
-];
-const weeks = [
-    {id:1, name:'الأسبوع 1'},
-    {id:2, name:'الأسبوع 2'},
-    {id:3, name:'الأسبوع 3'}
-];
-const attendanceRecords = [];
-
-const memberSelect = document.getElementById('memberSelect');
-members.forEach(m=>{ const opt=document.createElement('option'); opt.value=m.id; opt.textContent=m.name; memberSelect.appendChild(opt); });
-
-const weekSelect = document.getElementById('weekSelect');
-weeks.forEach(w=>{ const opt=document.createElement('option'); opt.value=w.id; opt.textContent=w.name; weekSelect.appendChild(opt); });
-
-const memberMessage = document.getElementById('memberMessage');
-document.getElementById('markAttendanceBtn').addEventListener('click',()=>{
-    const memberId=parseInt(memberSelect.value);
-    const weekId=parseInt(weekSelect.value);
-    const exists=attendanceRecords.find(r=>r.memberId===memberId && r.weekId===weekId);
-    if(exists){
-        memberMessage.textContent='لقد قمت بتسجيل حضورك لهذا الأسبوع بالفعل';
-    }else{
-        attendanceRecords.push({memberId, weekId});
-        memberMessage.textContent='تم تسجيل حضورك بنجاح';
-    }
-});
-
-// Admin login
-const adminPasswordInput=document.getElementById('adminPassword');
-const adminLoginBtn=document.getElementById('adminLoginBtn');
-const adminLoginMessage=document.getElementById('adminLoginMessage');
-const adminSection=document.getElementById('adminSection');
-const adminTableBody=document.getElementById('adminTableBody');
-const adminLoginCard=document.getElementById('adminLogin');
-const adminLogoutBtn=document.getElementById('adminLogoutBtn');
-
-adminLoginBtn.addEventListener('click',()=>{
-    const pw=adminPasswordInput.value;
-    if(pw==='admin123'){
-        adminLoginCard.style.display='none';
-        adminSection.style.display='block';
-        renderAdminTable();
-    }else{
-        adminLoginMessage.textContent='كلمة المرور غير صحيحة';
-    }
-});
-
-adminLogoutBtn.addEventListener('click',()=>{
-    adminSection.style.display='none';
-    adminLoginCard.style.display='block';
-    adminPasswordInput.value='';
-});
-
-function renderAdminTable(){
-    adminTableBody.innerHTML='';
-    members.forEach(m=>{
-        const attendanceCount = attendanceRecords.filter(r=>r.memberId===m.id).length;
-        const points = attendanceCount * 10;
-        const tr = document.createElement('tr');
-        tr.innerHTML=`<td>${m.name}</td><td>${attendanceCount}</td><td>${points}</td>`;
-        adminTableBody.appendChild(tr);
-    });
-}
-</script>
-</body>
-</html>

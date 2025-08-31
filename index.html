@@ -4,98 +4,136 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angels Attendance</title>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Firebase -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body { margin:0; font-family:'Cairo', sans-serif; background: linear-gradient(135deg,#74ebd5,#ACB6E5); color:#333; }
-  header { background:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-  header h1 { margin:0; font-size:1.5rem; color:#3498db;}
-  header button { padding:8px 15px; background:#3498db; color:#fff; border:none; border-radius:5px; cursor:pointer; transition:0.3s;}
-  header button:hover { background:#2980b9;}
-  main { padding:20px; display:flex; gap:20px; flex-wrap:wrap; }
-  .card { background:#fff; border-radius:10px; padding:15px; flex:1; min-width:250px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition:0.3s;}
-  .card:hover { transform:translateY(-5px);}
-  select, input { width:100%; padding:8px; margin-top:5px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc; }
-  button.action-btn { width:100%; padding:10px; background:#2ecc71; color:#fff; border:none; border-radius:5px; cursor:pointer; transition:0.3s;}
-  button.action-btn:hover { background:#27ae60; }
-  #notification { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#2ecc71; color:#fff; padding:10px 20px; border-radius:5px; display:none; z-index:999;}
-  #adminPanel { display:none; margin-top:20px; }
-  table { width:100%; border-collapse:collapse; margin-top:10px;}
-  th,td { padding:8px; border-bottom:1px solid #ccc; text-align:right;}
-  .top-member-item { display:flex; align-items:center; gap:10px; margin-bottom:5px;}
-  .member-img { width:40px; height:40px; border-radius:50%; object-fit:cover;}
-  .lang-btn { margin-left:10px; padding:5px 10px; cursor:pointer; border:none; border-radius:5px; background:#3498db; color:#fff; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin:0;
+    background: linear-gradient(120deg, #f6d365, #fda085);
+}
+.container {
+    margin-top: 30px;
+}
+.header {
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;
+}
+.header h1 {color:#fff;}
+.card {border-radius:15px; box-shadow:0 5px 20px rgba(0,0,0,0.2);}
+.member-img {width:40px;height:40px;border-radius:50%;}
+.btn {border-radius:10px;}
+#notification {
+    position:fixed; top:10px; right:10px; padding:10px 20px; color:#fff; display:none; border-radius:10px; z-index:1000;
+}
+.nav-tabs .nav-link.active {background:#3498db; color:#fff;}
+.nav-tabs .nav-link {color:#3498db;}
+.language-switch {cursor:pointer; margin-left:10px; color:#fff; text-decoration:underline;}
 </style>
 </head>
 <body>
+<div class="container">
+    <div class="header">
+        <h1 id="pageTitle">نظام الحضور</h1>
+        <div>
+            <span class="language-switch" onclick="switchLanguage()">English</span>
+            <button id="adminLoginBtn" class="btn btn-light">دخول الأدمن</button>
+        </div>
+    </div>
 
-<header>
-  <h1 id="title">حضور الأعضاء</h1>
-  <div>
-    <button id="adminLoginBtn">دخول الأدمن</button>
-    <button class="lang-btn" onclick="setLang('ar')">AR</button>
-    <button class="lang-btn" onclick="setLang('en')">EN</button>
-  </div>
-</header>
+    <!-- User Panel -->
+    <div id="userPanel">
+        <div class="card p-3 mb-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <select id="selectMember" class="form-select">
+                        <option value="">-- اختر اسمك --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select id="weekSelect" class="form-select">
+                        <option value="">-- اختر الأسبوع --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button id="markPresent" class="btn btn-primary w-100">تسجيل الحضور</button>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="attendanceChart" height="100"></canvas>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display:none;">
+        <ul class="nav nav-tabs mb-3" id="adminTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-tab="membersTab" href="#">الأعضاء</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-tab="weeksTab" href="#">الأسابيع</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-tab="attendanceTab" href="#">الحضور</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-tab="reportsTab" href="#">التقارير</a>
+            </li>
+        </ul>
+
+        <!-- Members Tab -->
+        <div id="membersTab" class="tab-content active">
+            <div class="card p-3 mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-5"><input type="text" id="newMemberName" class="form-control" placeholder="اسم العضو"></div>
+                    <div class="col-md-5"><input type="text" id="newMemberImage" class="form-control" placeholder="رابط الصورة (اختياري)"></div>
+                    <div class="col-md-2"><button id="addMemberBtn" class="btn btn-success w-100">إضافة عضو</button></div>
+                </div>
+            </div>
+            <table class="table table-striped">
+                <thead><tr><th>#</th><th>الصورة</th><th>الاسم</th><th>إجمالي النقاط</th><th>المكافآت</th><th>تعديل</th><th>حذف</th></tr></thead>
+                <tbody id="membersTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Weeks Tab -->
+        <div id="weeksTab" class="tab-content" style="display:none;">
+            <div class="card p-3 mb-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4"><input type="text" id="newWeekName" class="form-control" placeholder="اسم الأسبوع"></div>
+                    <div class="col-md-3"><input type="date" id="newWeekStart" class="form-control"></div>
+                    <div class="col-md-3"><input type="date" id="newWeekEnd" class="form-control"></div>
+                    <div class="col-md-2"><button id="addWeekBtn" class="btn btn-success w-100">إضافة أسبوع</button></div>
+                </div>
+            </div>
+            <table class="table table-striped">
+                <thead><tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr></thead>
+                <tbody id="weeksTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Attendance Tab -->
+        <div id="attendanceTab" class="tab-content" style="display:none;">
+            <table class="table table-striped">
+                <thead><tr><th>#</th><th>العضو</th><th>الأسبوع</th><th>تاريخ</th><th>حذف</th></tr></thead>
+                <tbody id="attendanceRecordsBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reportsTab" class="tab-content" style="display:none;">
+            <h4>Top 10</h4>
+            <div id="topMembersList"></div>
+        </div>
+    </div>
+</div>
 
 <div id="notification"></div>
 
-<main>
-  <!-- تسجيل الحضور -->
-  <div class="card">
-    <h3 id="attendanceTitle">تسجيل الحضور</h3>
-    <label id="memberLabel">اختر العضو</label>
-    <select id="selectMember"></select>
-    <label id="weekLabel">اختر الأسبوع</label>
-    <select id="weekSelect"></select>
-    <button class="action-btn" id="markPresent">تسجيل الحضور</button>
-  </div>
-
-  <!-- التقارير -->
-  <div class="card">
-    <h3 id="reportTitle">التقارير</h3>
-    <canvas id="attendanceChart"></canvas>
-  </div>
-
-  <!-- لوحة الأدمن -->
-  <div class="card" id="adminPanel">
-    <h3 id="adminTitle">لوحة الأدمن</h3>
-    <label id="newMemberLabel">اسم العضو</label>
-    <input type="text" id="newMemberName">
-    <label id="newMemberImageLabel">رابط الصورة</label>
-    <input type="text" id="newMemberImage">
-    <button class="action-btn" id="addMemberBtn">إضافة عضو</button>
-
-    <label id="newWeekLabel">اسم الأسبوع</label>
-    <input type="text" id="newWeekName">
-    <label id="newWeekStartLabel">تاريخ البداية</label>
-    <input type="date" id="newWeekStart">
-    <label id="newWeekEndLabel">تاريخ النهاية</label>
-    <input type="date" id="newWeekEnd">
-    <button class="action-btn" id="addWeekBtn">إضافة أسبوع</button>
-
-    <h4 id="membersListTitle">الأعضاء</h4>
-    <table id="membersTable">
-      <thead><tr><th>#</th><th>صورة</th><th>الاسم</th><th>نقاط</th><th>الإجراءات</th></tr></thead>
-      <tbody></tbody>
-    </table>
-
-    <h4 id="weeksListTitle">الأسابيع</h4>
-    <table id="weeksTable">
-      <thead><tr><th>#</th><th>اسم الأسبوع</th><th>من</th><th>إلى</th><th>الإجراءات</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</main>
-
 <script>
-  // Firebase config
-  const firebaseConfig = {
+/* Firebase Realtime Database Configuration */
+const firebaseConfig = {
     apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
     authDomain: "angels-attendance.firebaseapp.com",
     databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
@@ -104,122 +142,180 @@
     messagingSenderId: "157249026489",
     appId: "1:157249026489:web:db2b420203bd81d9a19e68",
     measurementId: "G-2YDPSFPQYT"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-  let members = [], weeks = [], attendanceRecords = [];
-  const adminPass = 'admin123';
-  let lang = 'ar';
+/* بيانات وهمية */
+let members = [];
+let weeks = [];
+let attendanceRecords = [];
+let rewards = [];
 
-  function showNotification(msg,isSuccess=true){
+/* الإشعارات */
+function showNotification(message) {
     const n = document.getElementById('notification');
-    n.textContent = msg;
-    n.style.background = isSuccess?'#2ecc71':'#e74c3c';
-    n.style.display='block';
-    setTimeout(()=>{n.style.display='none';},3000);
-  }
+    n.textContent = message;
+    n.style.display = 'block';
+    setTimeout(()=>{n.style.display='none';}, 3000);
+}
 
-  function setLang(l){
-    lang = l;
-    document.getElementById('title').textContent = l==='ar'?'حضور الأعضاء':'Attendance';
-    document.getElementById('attendanceTitle').textContent = l==='ar'?'تسجيل الحضور':'Mark Attendance';
-    document.getElementById('memberLabel').textContent = l==='ar'?'اختر العضو':'Select Member';
-    document.getElementById('weekLabel').textContent = l==='ar'?'اختر الأسبوع':'Select Week';
-    document.getElementById('markPresent').textContent = l==='ar'?'تسجيل الحضور':'Mark Attendance';
-    document.getElementById('reportTitle').textContent = l==='ar'?'التقارير':'Reports';
-    document.getElementById('adminTitle').textContent = l==='ar'?'لوحة الأدمن':'Admin Panel';
-    document.getElementById('newMemberLabel').textContent = l==='ar'?'اسم العضو':'Member Name';
-    document.getElementById('newMemberImageLabel').textContent = l==='ar'?'رابط الصورة':'Image URL';
-    document.getElementById('addMemberBtn').textContent = l==='ar'?'إضافة عضو':'Add Member';
-    document.getElementById('newWeekLabel').textContent = l==='ar'?'اسم الأسبوع':'Week Name';
-    document.getElementById('newWeekStartLabel').textContent = l==='ar'?'تاريخ البداية':'Start Date';
-    document.getElementById('newWeekEndLabel').textContent = l==='ar'?'تاريخ النهاية':'End Date';
-    document.getElementById('addWeekBtn').textContent = l==='ar'?'إضافة أسبوع':'Add Week';
-    document.getElementById('membersListTitle').textContent = l==='ar'?'الأعضاء':'Members';
-    document.getElementById('weeksListTitle').textContent = l==='ar'?'الأسابيع':'Weeks';
-  }
+/* توليد صورة افتراضية */
+function getAvatar(name) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`;
+}
 
-  function loadData(){
-    db.ref('members').once('value').then(snapshot=>{members=snapshot.val()||[]; populateMembers(); });
-    db.ref('weeks').once('value').then(snapshot=>{weeks=snapshot.val()||[]; populateWeeks(); });
-    db.ref('attendance').once('value').then(snapshot=>{attendanceRecords=snapshot.val()||[]; updateChart(); });
-  }
+/* تحميل البيانات */
+function loadData() {
+    db.ref('members').once('value', snapshot=>{members=snapshot.val()||[]; populateMembers(); populateMemberSelect();});
+    db.ref('weeks').once('value', snapshot=>{weeks=snapshot.val()||[]; populateWeeks(); populateWeekSelect();});
+    db.ref('attendance').once('value', snapshot=>{attendanceRecords=snapshot.val()||[]; populateAttendance(); updateChart(); updateTop10();});
+}
 
-  function populateMembers(){
-    const select = document.getElementById('selectMember');
-    select.innerHTML='<option value="">--</option>';
-    members.forEach((m,i)=>{ let opt=document.createElement('option'); opt.value=i; opt.textContent=m.name; select.appendChild(opt);});
-    const tbody=document.querySelector('#membersTable tbody');
-    tbody.innerHTML='';
-    members.forEach((m,i)=>{
-      let tr=document.createElement('tr');
-      tr.innerHTML=`<td>${i+1}</td><td><img src="${m.image}" class="member-img"></td><td>${m.name}</td>
-      <td>${attendanceRecords.filter(a=>a.member==i && a.present).length}</td>
-      <td></td>`;
-      tbody.appendChild(tr);
-    });
-  }
+/* حفظ البيانات */
+function saveData(path, data) {
+    db.ref(path).set(data);
+}
 
-  function populateWeeks(){
-    const select=document.getElementById('weekSelect');
-    select.innerHTML='';
-    weeks.forEach((w,i)=>{ let opt=document.createElement('option'); opt.value=i; opt.textContent=w.name; select.appendChild(opt);});
-    const tbody=document.querySelector('#weeksTable tbody');
-    tbody.innerHTML='';
-    weeks.forEach((w,i)=>{
-      let tr=document.createElement('tr');
-      tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td><td></td>`;
-      tbody.appendChild(tr);
-    });
-  }
+/* إضافة عضو */
+document.getElementById('addMemberBtn').addEventListener('click', ()=>{
+    const name=document.getElementById('newMemberName').value.trim();
+    const img=document.getElementById('newMemberImage').value.trim()||getAvatar(name);
+    if(!name){alert('ادخل اسم العضو'); return;}
+    const id=members.length?Math.max(...members.map(m=>m.id))+1:1;
+    members.push({id,name,image:img,points:0});
+    saveData('members', members);
+    populateMembers(); populateMemberSelect();
+    showNotification('تم إضافة العضو');
+    document.getElementById('newMemberName').value=''; document.getElementById('newMemberImage').value='';
+});
 
-  document.getElementById('markPresent').addEventListener('click',()=>{
-    const memberIdx=parseInt(document.getElementById('selectMember').value);
-    const weekIdx=parseInt(document.getElementById('weekSelect').value);
-    if(isNaN(memberIdx)||isNaN(weekIdx)){ showNotification('اختر العضو والأسبوع',false); return; }
-    attendanceRecords.push({member:memberIdx,week:weekIdx,present:true});
-    db.ref('attendance').set(attendanceRecords);
-    updateChart();
-    showNotification('تم تسجيل الحضور');
-  });
-
-  document.getElementById('addMemberBtn').addEventListener('click',()=>{
-    const name=document.getElementById('newMemberName').value;
-    const img=document.getElementById('newMemberImage').value || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff';
-    if(!name){ showNotification('ادخل اسم العضو',false); return; }
-    members.push({name:name,image:img});
-    db.ref('members').set(members);
-    populateMembers();
-  });
-
-  document.getElementById('addWeekBtn').addEventListener('click',()=>{
-    const name=document.getElementById('newWeekName').value;
+/* إضافة أسبوع */
+document.getElementById('addWeekBtn').addEventListener('click', ()=>{
+    const name=document.getElementById('newWeekName').value.trim();
     const from=document.getElementById('newWeekStart').value;
     const to=document.getElementById('newWeekEnd').value;
-    if(!name || !from || !to){ showNotification('املأ كل الحقول',false); return; }
-    weeks.push({name:name,from:from,to:to});
-    db.ref('weeks').set(weeks);
-    populateWeeks();
-  });
+    if(!name||!from||!to){alert('املأ كل الحقول'); return;}
+    const id=weeks.length?Math.max(...weeks.map(w=>w.id))+1:1;
+    weeks.push({id,name,from,to});
+    saveData('weeks', weeks);
+    populateWeeks(); populateWeekSelect();
+    showNotification('تم إضافة الأسبوع');
+    document.getElementById('newWeekName').value=''; document.getElementById('newWeekStart').value=''; document.getElementById('newWeekEnd').value='';
+});
 
-  // Chart
-  const ctx=document.getElementById('attendanceChart').getContext('2d');
-  const chart=new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'الحضور',data:[],backgroundColor:'#3498db'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
-  function updateChart(){
-    const weekIdx=parseInt(document.getElementById('weekSelect').value);
-    chart.data.labels=members.map(m=>m.name);
-    chart.data.datasets[0].data=members.map((m,i)=>attendanceRecords.filter(a=>a.member==i && a.week==weekIdx && a.present).length);
-    chart.update();
-  }
+/* اختيار عضو وأسبوع وتسجيل حضور */
+document.getElementById('markPresent').addEventListener('click', ()=>{
+    const memberId=parseInt(document.getElementById('selectMember').value);
+    const weekId=parseInt(document.getElementById('weekSelect').value);
+    if(!memberId||!weekId){alert('اختر العضو والأسبوع'); return;}
+    const exists=attendanceRecords.find(ar=>ar.memberId===memberId && ar.weekId===weekId);
+    if(exists){showNotification('تم تسجيل الحضور مسبقاً'); return;}
+    attendanceRecords.push({memberId,weekId,date:new Date().toISOString()});
+    saveData('attendance', attendanceRecords);
+    showNotification('تم تسجيل الحضور');
+    populateAttendance(); updateChart(); updateTop10();
+});
 
-  document.getElementById('adminLoginBtn').addEventListener('click',()=>{
-    const pwd=prompt('كلمة مرور الأدمن');
-    if(pwd===adminPass) document.getElementById('adminPanel').style.display='block';
-    else showNotification('كلمة المرور خطأ',false);
-  });
+/* Populate Members Table & Select */
+function populateMembers(){
+    const tbody=document.getElementById('membersTableBody');
+    tbody.innerHTML='';
+    members.forEach((m,i)=>{
+        let tr=document.createElement('tr');
+        tr.innerHTML=`<td>${i+1}</td>
+        <td><img src="${m.image}" class="member-img"></td>
+        <td>${m.name}</td>
+        <td>${m.points||0}</td>
+        <td>${m.rewards||''}</td>
+        <td><button class="btn btn-primary btn-sm" onclick="editMember(${i})">تعديل</button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteMember(${i})">حذف</button></td>`;
+        tbody.appendChild(tr);
+    });
+}
+function populateMemberSelect(){
+    const sel=document.getElementById('selectMember');
+    sel.innerHTML='<option value="">-- اختر اسمك --</option>';
+    members.forEach(m=>{let o=document.createElement('option'); o.value=m.id; o.textContent=m.name; sel.appendChild(o);});
+}
 
-  window.onload=loadData;
+/* Populate Weeks Table & Select */
+function populateWeeks(){
+    const tbody=document.getElementById('weeksTableBody');
+    tbody.innerHTML='';
+    weeks.forEach((w,i)=>{
+        let tr=document.createElement('tr');
+        tr.innerHTML=`<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td>
+        <td><button class="btn btn-primary btn-sm" onclick="editWeek(${i})">تعديل</button></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteWeek(${i})">حذف</button></td>`;
+        tbody.appendChild(tr);
+    });
+}
+function populateWeekSelect(){
+    const sel=document.getElementById('weekSelect');
+    sel.innerHTML='<option value="">-- اختر الأسبوع --</option>';
+    weeks.forEach(w=>{let o=document.createElement('option'); o.value=w.id; o.textContent=w.name; sel.appendChild(o);});
+}
+
+/* Attendance Records */
+function populateAttendance(){
+    const tbody=document.getElementById('attendanceRecordsBody');
+    tbody.innerHTML='';
+    attendanceRecords.forEach((ar,i)=>{
+        const member=members.find(m=>m.id===ar.memberId);
+        const week=weeks.find(w=>w.id===ar.weekId);
+        if(member&&week){
+            let tr=document.createElement('tr');
+            tr.innerHTML=`<td>${i+1}</td><td>${member.name}</td><td>${week.name}</td><td>${new Date(ar.date).toLocaleString()}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteAttendance(${i})">حذف</button></td>`;
+            tbody.appendChild(tr);
+        }
+    });
+}
+
+/* Delete Functions */
+function deleteMember(i){if(confirm('هل تريد حذف العضو؟')){members.splice(i,1);saveData('members',members);populateMembers();populateMemberSelect();}}
+function deleteWeek(i){if(confirm('هل تريد حذف الأسبوع؟')){weeks.splice(i,1);saveData('weeks',weeks);populateWeeks();populateWeekSelect();}}
+function deleteAttendance(i){attendanceRecords.splice(i,1);saveData('attendance',attendanceRecords);populateAttendance();}
+function editMember(i){const name=prompt('اسم جديد',members[i].name); if(name){members[i].name=name; saveData('members',members); populateMembers(); populateMemberSelect();}}
+function editWeek(i){const name=prompt('اسم جديد',weeks[i].name); if(name){weeks[i].name=name; saveData('weeks',weeks); populateWeeks(); populateWeekSelect();}}
+
+/* Chart */
+const ctx=document.getElementById('attendanceChart').getContext('2d');
+let chart=new Chart(ctx,{type:'bar',data:{labels:[],datasets:[{label:'الحضور',data:[],backgroundColor:'#3498db'}]},options:{responsive:true}});
+function updateChart(){chart.data.labels=members.map(m=>m.name);chart.data.datasets[0].data=members.map(m=>attendanceRecords.filter(a=>a.memberId===m.id).length);chart.update();}
+
+/* Top 10 */
+function updateTop10(){
+    const top10=members.map(m=>({name:m.name,points:attendanceRecords.filter(a=>a.memberId===m.id).length})).sort((a,b)=>b.points-a.points).slice(0,10);
+    const container=document.getElementById('topMembersList'); container.innerHTML='';
+    top10.forEach((m,i)=>{let div=document.createElement('div'); div.textContent=`${i+1}. ${m.name} - ${m.points} نقاط`; container.appendChild(div);});
+}
+
+/* Admin Tabs */
+document.querySelectorAll('#adminTabs .nav-link').forEach(a=>{
+    a.addEventListener('click', e=>{
+        e.preventDefault();
+        document.querySelectorAll('#adminTabs .nav-link').forEach(n=>n.classList.remove('active'));
+        a.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+        document.getElementById(a.dataset.tab).style.display='block';
+    });
+});
+
+/* Admin Login */
+document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
+    const pass=prompt('كلمة سر الأدمن'); if(pass==='admin'){document.getElementById('adminPanel').style.display='block'; showNotification('تم الدخول كأدمن');}else{alert('كلمة السر خاطئة');}
+});
+
+/* Language Switch */
+let currentLang='ar';
+function switchLanguage(){
+    if(currentLang==='ar'){currentLang='en'; document.getElementById('pageTitle').textContent='Attendance System'; document.getElementById('markPresent').textContent='Mark Attendance'; document.getElementById('adminLoginBtn').textContent='Admin Login';}else{currentLang='ar'; document.getElementById('pageTitle').textContent='نظام الحضور'; document.getElementById('markPresent').textContent='تسجيل الحضور'; document.getElementById('adminLoginBtn').textContent='دخول الأدمن';}
+}
+
+/* Init */
+loadData();
 </script>
 </body>
 </html>

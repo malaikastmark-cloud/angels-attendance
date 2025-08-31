@@ -1,230 +1,1557 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angels Attendance</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body {font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #74ABE2, #5563DE); color:#fff;}
-.container {margin-top: 30px;}
-.card {background-color: rgba(0,0,0,0.6); border-radius: 15px; padding:20px;}
-button {border-radius: 10px;}
-.nav-tabs .nav-link.active {background-color:#3498db; color:#fff;}
-.member-img {width:40px; height:40px; border-radius:50%;}
-.notification {position: fixed; top:20px; right:20px; padding:15px; border-radius:10px; display:none; z-index:9999;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حضور خدام ملايكة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- إضافة Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        header::before, header::after {
+            content: "✨";
+            position: absolute;
+            top: 15px;
+            font-size: 2rem;
+        }
+        
+        header::before {
+            left: 20px;
+        }
+        
+        header::after {
+            right: 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        tr:hover {
+            background: #f1f1f1;
+            transform: scale(1.01);
+            transition: transform 0.2s;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-info {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        select, input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tabs .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            background: #f0f0f0;
+            transition: all 0.3s;
+        }
+        
+        .tabs .tab.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            flex: 1;
+            min-width: 200px;
+            transition: transform 0.3s;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 10px 0;
+        }
+        
+        .summary-subtitle {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .card-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .medal {
+            font-size: 1.5rem;
+            margin-left: 5px;
+        }
+        
+        .medal-gold { color: gold; }
+        .medal-silver { color: silver; }
+        .medal-bronze { color: #cd7f32; }
+        
+        .top-members-list {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .top-members-list h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .top-member-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .top-member-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .top-member-item:last-child {
+            border-bottom: none;
+        }
+        
+        .top-member-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .top-member-points {
+            background: #3498db;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        
+        .report-section {
+            margin-bottom: 30px;
+        }
+        
+        .report-section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1.3rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            animation: notify 0.5s;
+        }
+        
+        @keyframes notify {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .member-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #3498db;
+        }
+        
+        .reward-badge {
+            background: gold;
+            color: #333;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .member-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .member-stat-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .member-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .member-stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .firebase-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            background: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .firebase-connected {
+            color: #2ecc71;
+        }
+        
+        .firebase-disconnected {
+            color: #e74c3c;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            select, input {
+                width: 100%;
+            }
+            
+            .card-container {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .firebase-status {
+                bottom: 80px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Angels Attendance</h2>
-    <button id="adminLoginBtn" class="btn btn-warning">دخول الأدمن</button>
-  </div>
-  <div id="userInterface" class="card">
-    <div class="mb-3">
-      <label>اختر اسمك:</label>
-      <select id="selectMember" class="form-select"></select>
-    </div>
-    <div class="mb-3">
-      <label>اختر الأسبوع:</label>
-      <select id="weekSelect" class="form-select"></select>
-    </div>
-    <button id="markPresent" class="btn btn-success w-100">تسجيل الحضور</button>
-  </div>
+    <div class="container">
+        <header>
+            <h1>🌟 نظام حضور خدام ملايكة</h1>
+            <p>الحضور يساوي نقطة</p>
+        </header>
 
-  <div id="adminInterface" class="card mt-4" style="display:none;">
-    <ul class="nav nav-tabs" id="adminTabs">
-      <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#membersTab">الأعضاء</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#weeksTab">الأسابيع</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#attendanceTab">الحضور</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#reportsTab">التقارير</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#eventsTab">المناسبات</a></li>
-    </ul>
-    <div class="tab-content mt-3">
-      <div class="tab-pane fade show active" id="membersTab">
-        <h4>إدارة الأعضاء</h4>
-        <div class="mb-3 d-flex gap-2">
-          <input id="newMemberName" type="text" class="form-control" placeholder="اسم العضو">
-          <input id="newMemberImage" type="text" class="form-control" placeholder="رابط الصورة">
-          <button id="addMemberBtn" class="btn btn-primary">إضافة</button>
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل البيانات...</p>
         </div>
-        <table class="table table-dark table-striped">
-          <thead><tr><th>#</th><th>الصورة</th><th>الاسم</th><th>الإجراءات</th></tr></thead>
-          <tbody id="membersTableBody"></tbody>
-        </table>
-      </div>
-      <div class="tab-pane fade" id="weeksTab">
-        <h4>إدارة الأسابيع</h4>
-        <div class="mb-3 d-flex gap-2">
-          <input id="newWeekName" type="text" class="form-control" placeholder="اسم الأسبوع">
-          <input id="newWeekStart" type="date" class="form-control">
-          <input id="newWeekEnd" type="date" class="form-control">
-          <button id="addWeekBtn" class="btn btn-primary">إضافة</button>
+
+        <div class="notification" id="notification"></div>
+        
+        <div class="firebase-status firebase-connected" id="firebaseStatus">✓ متصل بقاعدة البيانات</div>
+
+        <div class="tab-content active" id="userAttendance">
+            <h2>تسجيل الحضور</h2>
+            <div class="controls">
+                <label>اختر اسمك: </label>
+                <select id="selectMember">
+                    <option value="">-- اختر اسمك --</option>
+                </select>
+                <label>اختر الأسبوع: </label>
+                <select id="weekSelect">
+                    <option value="">-- اختر الأسبوع --</option>
+                </select>
+            </div>
+            <div class="controls">
+                <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الصورة</th>
+                        <th>اسم العضو</th>
+                        <th>الأسبوع</th>
+                        <th>الحضور</th>
+                        <th>النقاط</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    <!-- سيتم تعبئة البيانات هنا -->
+                </tbody>
+            </table>
+            <div class="controls">
+                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
+                <span>النقاط: <span id="totalPoints">0</span></span>
+            </div>
         </div>
-        <table class="table table-dark table-striped">
-          <thead><tr><th>#</th><th>اسم الأسبوع</th><th>من</th><th>إلى</th><th>الإجراءات</th></tr></thead>
-          <tbody id="weeksTableBody"></tbody>
-        </table>
-      </div>
-      <div class="tab-pane fade" id="attendanceTab">
-        <h4>الحضور</h4>
-        <table class="table table-dark table-striped">
-          <thead><tr><th>#</th><th>العضو</th><th>الأسبوع</th><th>تاريخ</th><th>الإجراء</th></tr></thead>
-          <tbody id="attendanceRecordsBody"></tbody>
-        </table>
-      </div>
-      <div class="tab-pane fade" id="reportsTab">
-        <h4>التقارير</h4>
-        <canvas id="attendanceChart"></canvas>
-        <div id="top10List" class="mt-3"></div>
-      </div>
-      <div class="tab-pane fade" id="eventsTab">
-        <h4>المناسبات والأعياد</h4>
-        <p>إضافة أحداث، مهام، أو أعياد ميلاد مع إشعارات داخل الصفحة</p>
-      </div>
+
+        <div class="controls" style="margin-top:20px;">
+            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
+        </div>
+
+        <div class="modal" id="adminLoginModal">
+            <div class="modal-content">
+                <h2>تسجيل دخول الأدمن</h2>
+                <input type="password" id="adminPassword" placeholder="كلمة السر">
+                <div class="controls">
+                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
+                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="adminTabs" style="display:none;">
+            <div class="tabs">
+                <div class="tab active" data-tab="members">إدارة الأعضاء</div>
+                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
+                <div class="tab" data-tab="attendance">إدارة الحضور</div>
+                <div class="tab" data-tab="reports">التقارير</div>
+            </div>
+
+            <div class="tab-content active" id="members">
+                <h2>إدارة الأعضاء</h2>
+                <div class="controls">
+                    <input type="text" id="newMemberName" placeholder="اسم العضو">
+                    <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
+                    <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
+                </div>
+                <table id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الصورة</th>
+                            <th>اسم العضو</th>
+                            <th>النقاط</th>
+                            <th>المكافآت</th>
+                            <th>تعديل</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم تعبئة البيانات هنا -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="weeks">
+                <h2>إدارة الأسابيع</h2>
+                <div class="controls">
+                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                    <input type="date" id="newWeekStart">
+                    <input type="date" id="newWeekEnd">
+                    <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
+                </div>
+                <table id="weeksTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم الأسبوع</th>
+                            <th>من</th>
+                            <th>إلى</th>
+                            <th>تعديل</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم تعبئة البيانات هنا -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="attendance">
+                <h2>إدارة تسجيلات الحضور</h2>
+                <div class="controls">
+                    <label>اختر أسبوع: </label>
+                    <select id="deleteWeekSelect">
+                        <option value="">-- اختر الأسبوع --</option>
+                    </select>
+                    <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
+                </div>
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>العضو</th>
+                            <th>الأسبوع</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceRecordsBody">
+                        <!-- سيتم تعبئة البيانات هنا -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="reports">
+                <h2>التقارير والإحصائيات</h2>
+                
+                <div class="export-buttons">
+                    <button class="btn btn-info" id="printReportBtn"><i class="fas fa-print"></i> طباعة التقرير</button>
+                    <button class="btn btn-success" id="exportExcelBtn"><i class="fas fa-file-excel"></i> تصدير لإكسل</button>
+                </div>
+                
+                <div class="report-section">
+                    <h3>📊 إحصائيات عامة</h3>
+                    <div class="card-container">
+                        <div class="summary-card">
+                            <h3>إجمالي الحضور</h3>
+                            <div class="summary-value" id="reportAttendance">0</div>
+                            <div class="summary-subtitle">حضور جميع الأسابيع</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>النقاط الممنوحة</h3>
+                            <div class="summary-value" id="reportPoints">0</div>
+                            <div class="summary-subtitle">مجموع النقاط</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>عدد الأعضاء</h3>
+                            <div class="summary-value" id="reportMembers">0</div>
+                            <div class="summary-subtitle">إجمالي الأعضاء المسجلين</div>
+                        </div>
+                        <div class="summary-card">
+                            <h3>عدد الأسابيع</h3>
+                            <div class="summary-value" id="reportWeeks">0</div>
+                            <div class="summary-subtitle">إجمالي الأسابيع</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>🏆 الـ 10 الأوائل في الحضور</h3>
+                    <div class="top-members-list" id="topMembersList">
+                        <p>جاري تحميل البيانات...</p>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>📈 نسبة الحضور للأسبوع الحالي</h3>
+                    <canvas id="attendanceChart" style="margin-top:20px;max-height:300px;"></canvas>
+                </div>
+
+                <div class="report-section">
+                    <h3>👥 إحصائيات الأعضاء</h3>
+                    <div id="membersStatsContainer">
+                        <!-- سيتم تعبئة البيانات هنا -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-<div id="notification" class="notification"></div>
 
-<script>
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
-  authDomain: "angels-attendance.firebaseapp.com",
-  databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-  projectId: "angels-attendance",
-  storageBucket: "angels-attendance.firebasestorage.app",
-  messagingSenderId: "157249026489",
-  appId: "1:157249026489:web:db2b420203bd81d9a19e68",
-  measurementId: "G-2YDPSFPQYT"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-let members = [];
-let weeks = [];
-let attendanceRecords = [];
-const adminPass = 'admin123';
-
-function showNotification(msg) {
-  const note = document.getElementById('notification');
-  note.textContent = msg;
-  note.style.display = 'block';
-  setTimeout(()=>{ note.style.display='none'; }, 3000);
-}
-
-// Load data
-function loadData() {
-  db.ref('/members').once('value').then(snapshot=>{ members = snapshot.val() || []; populateMembersTable(); populateMemberSelect(); });
-  db.ref('/weeks').once('value').then(snapshot=>{ weeks = snapshot.val() || []; populateWeeksTable(); populateWeekSelect(); });
-  db.ref('/attendance').once('value').then(snapshot=>{ attendanceRecords = snapshot.val() || []; populateAttendanceTable(); updateChart(); });
-}
-
-function populateMemberSelect() {
-  const sel = document.getElementById('selectMember');
-  sel.innerHTML = '<option value="">-- اختر اسمك --</option>';
-  members.forEach(m=>{ sel.innerHTML += `<option value='${m.id}'>${m.name}</option>`; });
-}
-
-function populateWeekSelect() {
-  const sel = document.getElementById('weekSelect');
-  sel.innerHTML='';
-  weeks.forEach(w=>{ sel.innerHTML += `<option value='${w.id}'>${w.name}</option>`; });
-}
-
-function populateMembersTable() {
-  const tbody = document.getElementById('membersTableBody');
-  tbody.innerHTML='';
-  members.forEach((m,i)=>{ 
-    tbody.innerHTML += `<tr><td>${i+1}</td><td><img src='${m.image}' class='member-img'></td><td>${m.name}</td><td><button class='btn btn-sm btn-warning editMember' data-id='${m.id}'>تعديل</button> <button class='btn btn-sm btn-danger deleteMember' data-id='${m.id}'>حذف</button></td></tr>`;
-  });
-}
-
-function populateWeeksTable() {
-  const tbody = document.getElementById('weeksTableBody');
-  tbody.innerHTML='';
-  weeks.forEach((w,i)=>{ 
-    tbody.innerHTML += `<tr><td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td><td><button class='btn btn-sm btn-warning editWeek' data-id='${w.id}'>تعديل</button> <button class='btn btn-sm btn-danger deleteWeek' data-id='${w.id}'>حذف</button></td></tr>`;
-  });
-}
-
-function populateAttendanceTable() {
-  const tbody = document.getElementById('attendanceRecordsBody');
-  tbody.innerHTML='';
-  attendanceRecords.forEach((a,i)=>{ 
-    const member = members.find(m=>m.id===a.memberId);
-    const week = weeks.find(w=>w.id===a.weekId);
-    if(member && week){
-      tbody.innerHTML += `<tr><td>${i+1}</td><td>${member.name}</td><td>${week.name}</td><td>${new Date(a.date).toLocaleString()}</td><td><button class='btn btn-sm btn-danger deleteAttendance' data-index='${i}'>حذف</button></td></tr>`;
-    }
-  });
-}
-
-function markAttendance(){
-  const memberId = parseInt(document.getElementById('selectMember').value);
-  const weekId = parseInt(document.getElementById('weekSelect').value);
-  if(!memberId || !weekId){ alert('اختر العضو والأسبوع'); return;}
-  const exists = attendanceRecords.find(a=>a.memberId===memberId && a.weekId===weekId);
-  if(exists){ showNotification('تم تسجيل الحضور مسبقاً'); return;}
-  const newRecord = {memberId, weekId, date: new Date().toISOString()};
-  attendanceRecords.push(newRecord);
-  db.ref('/attendance').set(attendanceRecords).then(()=>{ showNotification('تم تسجيل الحضور'); populateAttendanceTable(); updateChart(); updateTop10(); });
-}
-
-document.getElementById('markPresent').addEventListener('click', markAttendance);
-
-// Admin login
-document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
-  const pwd = prompt('أدخل كلمة سر الأدمن:');
-  if(pwd===adminPass){ document.getElementById('adminInterface').style.display='block'; document.getElementById('userInterface').style.display='none'; showNotification('تم تسجيل دخول الأدمن'); }
-  else alert('كلمة السر خاطئة');
-});
-
-// Add member
-document.getElementById('addMemberBtn').addEventListener('click', ()=>{
-  const name=document.getElementById('newMemberName').value;
-  const image=document.getElementById('newMemberImage').value || 'https://ui-avatars.com/api/?name='+encodeURIComponent(name);
-  if(!name){alert('أدخل اسم العضو'); return;}
-  const id = members.length? Math.max(...members.map(m=>m.id))+1 :1;
-  members.push({id,name,image});
-  db.ref('/members').set(members).then(()=>{ populateMembersTable(); populateMemberSelect(); showNotification('تم إضافة العضو'); });
-});
-
-// Add week
-document.getElementById('addWeekBtn').addEventListener('click', ()=>{
-  const name=document.getElementById('newWeekName').value;
-  const from=document.getElementById('newWeekStart').value;
-  const to=document.getElementById('newWeekEnd').value;
-  if(!name || !from || !to){alert('املأ جميع الحقول'); return;}
-  const id = weeks.length? Math.max(...weeks.map(w=>w.id))+1 :1;
-  weeks.push({id,name,from,to});
-  db.ref('/weeks').set(weeks).then(()=>{ populateWeeksTable(); populateWeekSelect(); showNotification('تم إضافة الأسبوع'); });
-});
-
-// Chart and Top10
-const ctx = document.getElementById('attendanceChart').getContext('2d');
-let chart = new Chart(ctx,{type:'bar',data:{labels:[], datasets:[{label:'الحضور',data:[],backgroundColor:'#3498db'}]}, options:{responsive:true}});
-function updateChart(){
-  chart.data.labels = members.map(m=>m.name);
-  chart.data.datasets[0].data = members.map(m=>attendanceRecords.filter(a=>a.memberId===m.id).length);
-  chart.update();
-}
-function updateTop10(){
-  const topDiv = document.getElementById('top10List');
-  const memberPoints = members.map(m=>({name:m.name, points:attendanceRecords.filter(a=>a.memberId===m.id).length}));
-  memberPoints.sort((a,b)=>b.points-a.points);
-  topDiv.innerHTML='';
-  memberPoints.slice(0,10).forEach((m,i)=>{ topDiv.innerHTML+=`<p>${i+1} - ${m.name} : ${m.points} نقاط</p>`; });
-}
-
-loadData();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // بيانات التطبيق
+        let members = [
+            {id:1, name:'🧒 Mary Karam', image: 'https://ui-avatars.com/api/?name=Mary+Karam&background=3498db&color=fff'},
+            {id:2, name:'👦 Eman Makin', image: 'https://ui-avatars.com/api/?name=Eman+Makin&background=2ecc71&color=fff'},
+            {id:3, name:'👧 Rizk Gerges', image: 'https://ui-avatars.com/api/?name=Rizk+Gerges&background=e74c3c&color=fff'}
+        ];
+        
+        let weeks = [
+            {id:1, name:'الاسبوع الاول', from:'2025-08-29', to:'2025-08-29'}
+        ];
+        
+        let attendanceRecords = [];
+        let rewards = [];
+        
+        // كلمة السر
+        const adminPass = 'admin123';
+        
+        // تهيئة Firebase
+        let db = null;
+        let isFirebaseConnected = false;
+        
+        function initializeFirebase() {
+            try {
+                // إعدادات Firebase الافتراضية (يجب استبدالها بإعداداتك الخاصة)
+                const firebaseConfig = {
+                    apiKey: "AIzaSyAEXAMPLEEXAMPLEEXAMPLEEXAMPLE",
+                    authDomain: "your-project-id.firebaseapp.com",
+                    databaseURL: "https://your-project-id-default-rtdb.firebaseio.com",
+                    projectId: "your-project-id",
+                    storageBucket: "your-project-id.appspot.com",
+                    messagingSenderId: "1234567890",
+                    appId: "1:1234567890:web:abc123def456"
+                };
+                
+                // تهيئة Firebase
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                isFirebaseConnected = true;
+                
+                // تحديث حالة الاتصال
+                document.getElementById('firebaseStatus').textContent = '✓ متصل بقاعدة البيانات';
+                document.getElementById('firebaseStatus').className = 'firebase-status firebase-connected';
+                
+                // تحميل البيانات من Firebase
+                loadDataFromFirebase();
+                
+            } catch (error) {
+                console.error('خطأ في تهيئة Firebase:', error);
+                document.getElementById('firebaseStatus').textContent = '✗ غير متصل بقاعدة البيانات (وضع عدم الاتصال)';
+                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+                
+                // استخدام البيانات المحلية في حالة الخطأ
+                loadFromLocalStorage();
+            }
+        }
+        
+        async function loadDataFromFirebase() {
+            if (!isFirebaseConnected) return;
+            
+            showLoading();
+            
+            try {
+                // جلب البيانات من Firebase Realtime Database
+                const membersSnapshot = await db.ref('members').once('value');
+                const weeksSnapshot = await db.ref('weeks').once('value');
+                const attendanceSnapshot = await db.ref('attendance').once('value');
+                const rewardsSnapshot = await db.ref('rewards').once('value');
+                
+                // تحديث البيانات المحلية
+                members = membersSnapshot.val() ? Object.values(membersSnapshot.val()) : members;
+                weeks = weeksSnapshot.val() ? Object.values(weeksSnapshot.val()) : weeks;
+                attendanceRecords = attendanceSnapshot.val() ? Object.values(attendanceSnapshot.val()) : attendanceRecords;
+                rewards = rewardsSnapshot.val() ? Object.values(rewardsSnapshot.val()) : rewards;
+                
+                // حفظ نسخة محلية للاستخدام دون اتصال
+                saveToLocalStorage();
+                
+                // تحديث الواجهة
+                populateData();
+                updateReports();
+                hideLoading();
+                
+                showNotification('تم تحميل البيانات بنجاح');
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات من Firebase:', error);
+                document.getElementById('firebaseStatus').textContent = '✗ خطأ في تحميل البيانات (وضع عدم الاتصال)';
+                document.getElementById('firebaseStatus').className = 'firebase-status firebase-disconnected';
+                
+                // استخدام البيانات المحلية في حالة الخطأ
+                loadFromLocalStorage();
+                hideLoading();
+            }
+        }
+        
+        async function saveToFirebase() {
+            if (!isFirebaseConnected) return;
+            
+            try {
+                // حفظ البيانات إلى Realtime Database
+                await db.ref('members').set(members);
+                await db.ref('weeks').set(weeks);
+                await db.ref('attendance').set(attendanceRecords);
+                await db.ref('rewards').set(rewards);
+                
+                showNotification('تم حفظ البيانات بنجاح');
+            } catch (error) {
+                console.error('خطأ في حفظ البيانات إلى Firebase:', error);
+                showNotification('خطأ في حفظ البيانات', false);
+            }
+        }
+        
+        // وظائف المساعدة
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        function saveToLocalStorage() {
+            const data = {
+                members: members,
+                weeks: weeks,
+                attendanceRecords: attendanceRecords,
+                rewards: rewards
+            };
+            localStorage.setItem('angelsAttendance', JSON.stringify(data));
+        }
+        
+        function loadFromLocalStorage() {
+            const data = JSON.parse(localStorage.getItem('angelsAttendance'));
+            if (data) {
+                members = data.members || members;
+                weeks = data.weeks || weeks;
+                attendanceRecords = data.attendanceRecords || attendanceRecords;
+                rewards = data.rewards || rewards;
+            }
+            populateData();
+            updateReports();
+        }
+        
+        function populateData(){
+            const selectMember = document.getElementById('selectMember');
+            selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
+            members.forEach(m => {
+                let option = document.createElement('option'); 
+                option.value = m.id; 
+                option.textContent = m.name; 
+                selectMember.appendChild(option);
+            });
+        
+            const weekSelect = document.getElementById('weekSelect');
+            weekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
+            weeks.forEach(w => {
+                let option = document.createElement('option'); 
+                option.value = w.id; 
+                option.textContent = w.name; 
+                weekSelect.appendChild(option);
+            });
+        
+            // تعبئة قائمة الأسابيع في إدارة الحضور
+            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
+            deleteWeekSelect.innerHTML = '<option value="">-- اختر الأسبوع --</option>';
+            weeks.forEach(w => {
+                let option = document.createElement('option'); 
+                option.value = w.id; 
+                option.textContent = w.name; 
+                deleteWeekSelect.appendChild(option);
+            });
+        
+            const tbody = document.getElementById('attendanceTableBody'); 
+            tbody.innerHTML = '';
+            
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            const selectedWeek = weeks.find(w => w.id == selectedWeekId);
+            
+            if (!selectedWeek) {
+                tbody.innerHTML = '<tr><td colspan="6">اختر أسبوعاً لعرض البيانات</td></tr>';
+                return;
+            }
+            
+            members.forEach((m, i) => {
+                // التحقق من وجود سجل حضور لهذا العضو في هذا الأسبوع
+                const attendanceRecord = attendanceRecords.find(ar => 
+                    ar.memberId === m.id && ar.weekId == selectedWeekId
+                );
+                
+                const isPresent = attendanceRecord ? attendanceRecord.present : false;
+                
+                let tr = document.createElement('tr'); 
+                tr.dataset.member = m.id;
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
+                    <td>${m.name}</td>
+                    <td>${selectedWeek ? selectedWeek.name : ''}</td>
+                    <td class="attendance-value">${isPresent ? '1' : '0'}</td>
+                    <td class="points">${isPresent ? '1' : '0'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('totalMembers').textContent = members.length;
+            updateAttendanceStats();
+            populateAdminTables();
+            populateAttendanceRecords();
+        }
+        
+        // تعبئة الجداول الإدارية
+        function populateAdminTables(){
+            const membersTbody = document.querySelector('#membersTable tbody');
+            membersTbody.innerHTML = '';
+            members.forEach((m, i) => {
+                // حساب النقاط الإجمالية لكل عضو
+                const totalPoints = attendanceRecords.filter(ar => 
+                    ar.memberId === m.id && ar.present
+                ).length;
+                
+                // الحصول على مكافآت العضو
+                const memberRewards = rewards.filter(r => r.memberId === m.id);
+                const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
+                
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td><img src="${m.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${m.name}"></td>
+                    <td>${m.name}</td>
+                    <td>${totalPoints}</td>
+                    <td>${rewardsText}</td>
+                    <td><button class='btn btn-primary editMember' data-id='${m.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteMember' data-id='${m.id}'>حذف</button></td>
+                `;
+                membersTbody.appendChild(tr);
+            });
+            
+            const weeksTbody = document.querySelector('#weeksTable tbody');
+            weeksTbody.innerHTML = '';
+            weeks.forEach((w, i) => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td>${w.name}</td>
+                    <td>${w.from}</td>
+                    <td>${w.to}</td>
+                    <td><button class='btn btn-primary editWeek' data-id='${w.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteWeek' data-id='${w.id}'>حذف</button></td>
+                `;
+                weeksTbody.appendChild(tr);
+            });
+        }
+        
+        // عرض سجلات الحضور
+        function populateAttendanceRecords() {
+            const tbody = document.querySelector('#attendanceRecordsBody');
+            tbody.innerHTML = '';
+            
+            if (attendanceRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">لا توجد سجلات حضور</td></tr>';
+                return;
+            }
+            
+            attendanceRecords.forEach((record, index) => {
+                const member = members.find(m => m.id === record.memberId);
+                const week = weeks.find(w => w.id == record.weekId);
+                
+                if (member && week) {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${member.name}</td>
+                        <td>${week.name}</td>
+                        <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
+                        <td><button class='btn btn-danger deleteAttendance' data-id='${record.id}'>حذف</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+        
+        // تحديث إحصائيات الحضور
+        function updateAttendanceStats(){
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            let count = 0;
+            let totalPoints = 0;
+            
+            if (!selectedWeekId) {
+                document.getElementById('attendanceCount').textContent = count;
+                document.getElementById('totalPoints').textContent = totalPoints;
+                return;
+            }
+            
+            // حساب الحضور لهذا الأسبوع فقط
+            const weekAttendance = attendanceRecords.filter(ar => 
+                ar.weekId == selectedWeekId && ar.present
+            );
+            
+            count = weekAttendance.length;
+            totalPoints = count;
+            
+            document.getElementById('attendanceCount').textContent = count;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            updateChart();
+        }
+        
+        // تحديث التقارير
+        function updateReports() {
+            // الإحصائيات العامة
+            const totalAttendance = attendanceRecords.filter(ar => ar.present).length;
+            const totalPoints = totalAttendance;
+            
+            document.getElementById('reportAttendance').textContent = totalAttendance;
+            document.getElementById('reportPoints').textContent = totalPoints;
+            document.getElementById('reportMembers').textContent = members.length;
+            document.getElementById('reportWeeks').textContent = weeks.length;
+            
+            // الـ 10 الأوائل
+            updateTopMembers();
+            
+            // إحصائيات الأعضاء
+            updateMembersStats();
+        }
+        
+        // تحديث قائمة الـ 10 الأوائل
+        function updateTopMembers() {
+            // حساب النقاط لكل عضو
+            const memberPoints = members.map(member => {
+                const points = attendanceRecords.filter(ar => 
+                    ar.memberId === member.id && ar.present
+                ).length;
+                return { name: member.name, points: points, image: member.image };
+            });
+            
+            // ترتيب تنازلي حسب النقاط
+            memberPoints.sort((a, b) => b.points - a.points);
+            
+            // أخذ أول 10 فقط
+            const top10 = memberPoints.slice(0, 10);
+            
+            // عرض النتائج
+            const topMembersList = document.getElementById('topMembersList');
+            topMembersList.innerHTML = '';
+            
+            if (top10.length === 0) {
+                topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
+                return;
+            }
+            
+            top10.forEach((member, index) => {
+                const item = document.createElement('div');
+                item.className = 'top-member-item';
+                
+                let medal = '';
+                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
+                
+                item.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
+                        <div class="top-member-name">${medal} ${member.name}</div>
+                    </div>
+                    <div class="top-member-points">${member.points} نقطة</div>
+                `;
+                topMembersList.appendChild(item);
+            });
+        }
+        
+        // تحديث إحصائيات الأعضاء
+        function updateMembersStats() {
+            const container = document.getElementById('membersStatsContainer');
+            container.innerHTML = '';
+            
+            // حساب إجمالي الأسابيع
+            const totalWeeks = weeks.length;
+            
+            members.forEach(member => {
+                // حساب حضور العضو
+                const memberAttendance = attendanceRecords.filter(ar => 
+                    ar.memberId === member.id && ar.present
+                ).length;
+                
+                // حساب نسبة الحضور
+                const attendancePercentage = totalWeeks > 0 ? Math.round((memberAttendance / totalWeeks) * 100) : 0;
+                
+                const statsDiv = document.createElement('div');
+                statsDiv.className = 'member-stats';
+                statsDiv.innerHTML = `
+                    <img src="${member.image || 'https://ui-avatars.com/api/?name=Member&background=ccc&color=fff'}" class="member-img" alt="${member.name}">
+                    <div style="flex:1">
+                        <h4>${member.name}</h4>
+                        <div style="display:flex;gap:10px;margin-top:5px;">
+                            <div class="member-stat-item">
+                                <div class="member-stat-value">${memberAttendance}</div>
+                                <div class="member-stat-label">حضور</div>
+                            </div>
+                            <div class="member-stat-item">
+                                <div class="member-stat-value">${attendancePercentage}%</div>
+                                <div class="member-stat-label">نسبة</div>
+                            </div>
+                            <div class="member-stat-item">
+                                <div class="member-stat-value">${memberAttendance}</div>
+                                <div class="member-stat-label">نقاط</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(statsDiv);
+            });
+        }
+        
+        // نظام المكافآت
+        function checkForRewards(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            const points = attendanceRecords.filter(ar => 
+                ar.memberId === memberId && ar.present
+            ).length;
+            
+            // مكافآت افتراضية
+            const rewardLevels = [
+                { points: 5, title: "ميدالية برونزية 🥉" },
+                { points: 10, title: "ميدالية فضية 🥈" },
+                { points: 15, title: "ميدالية ذهبية 🥇" },
+                { points: 20, title: "كأس التميز 🏆" }
+            ];
+            
+            rewardLevels.forEach(reward => {
+                // التحقق إذا وصل العضو لهذه النقاط ولم يحصل على المكافأة بعد
+                if (points >= reward.points) {
+                    const hasReward = rewards.some(r => 
+                        r.memberId === memberId && r.pointsRequired === reward.points
+                    );
+                    
+                    if (!hasReward) {
+                        // منح المكافأة
+                        const newReward = {
+                            id: Date.now(),
+                            memberId: memberId,
+                            pointsRequired: reward.points,
+                            title: reward.title,
+                            date: new Date().toISOString()
+                        };
+                        
+                        rewards.push(newReward);
+                        
+                        // إشعار بالمكافأة
+                        showNotification(`مبروك! ${member.name} حصل على ${reward.title}`, true);
+                        
+                        // حفظ البيانات
+                        saveToLocalStorage();
+                        if (isFirebaseConnected) saveToFirebase();
+                    }
+                }
+            });
+        }
+        
+        // طباعة التقرير
+        function printReport() {
+            const printContent = document.getElementById('reports').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // إعادة تحميل البيانات بعد الطباعة
+            populateData();
+        }
+        
+        // تصدير لإكسل
+        function exportToExcel() {
+            // تحضير البيانات
+            const data = [];
+            
+            // عناوين الأعمدة
+            data.push(['الاسم', 'النقاط', 'نسبة الحضور', 'المكافآت']);
+            
+            // بيانات الأعضاء
+            const totalWeeks = weeks.length;
+            
+            members.forEach(member => {
+                const points = attendanceRecords.filter(ar => 
+                    ar.memberId === member.id && ar.present
+                ).length;
+                
+                const attendancePercentage = totalWeeks > 0 ? Math.round((points / totalWeeks) * 100) : 0;
+                
+                const memberRewards = rewards.filter(r => r.memberId === member.id);
+                const rewardsText = memberRewards.map(r => r.title).join(', ') || 'لا يوجد';
+                
+                data.push([member.name, points, `${attendancePercentage}%`, rewardsText]);
+            });
+            
+            // إنشاء workbook
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'تقرير الحضور');
+            
+            // التحميل
+            XLSX.writeFile(wb, 'تقرير_الحضور.xlsx');
+        }
+        
+        // إضافة أعضاء
+        async function addMember(name, image = ''){
+            const id = Date.now();
+            const newMember = {id, name, image: image || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`};
+            
+            members.push(newMember);
+            saveToLocalStorage();
+            if (isFirebaseConnected) await saveToFirebase();
+            populateData();
+            showNotification('تم إضافة العضو بنجاح');
+        }
+        
+        // إضافة أسابيع
+        async function addWeek(name, from, to){
+            const id = Date.now();
+            const newWeek = {id, name, from, to};
+            
+            weeks.push(newWeek);
+            saveToLocalStorage();
+            if (isFirebaseConnected) await saveToFirebase();
+            populateData();
+            showNotification('تم إضافة الأسبوع بنجاح');
+        }
+        
+        // تسجيل الحضور للعضو المحدد
+        async function markAttendance() {
+            const memberId = parseInt(document.getElementById('selectMember').value);
+            const weekId = parseInt(document.getElementById('weekSelect').value);
+            
+            if (!memberId || !weekId) {
+                alert('يجب اختيار العضو والأسبوع أولاً');
+                return;
+            }
+            
+            const index = attendanceRecords.findIndex(ar => 
+                ar.memberId === memberId && ar.weekId == weekId
+            );
+            
+            if (index !== -1) {
+                // إذا كان موجوداً بالفعل، لا نفعل شيئاً (لا نسمح بالتسجيل المتكرر)
+                showNotification('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع', false);
+            } else {
+                // إضافة سجل جديد
+                const newAttendance = {
+                    id: Date.now(),
+                    memberId: memberId,
+                    weekId: weekId,
+                    present: true,
+                    date: new Date().toISOString()
+                };
+                
+                attendanceRecords.push(newAttendance);
+                
+                // التحقق من المكافآت
+                checkForRewards(memberId);
+                
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateData();
+                showNotification('تم تسجيل الحضور بنجاح!', true);
+            }
+        }
+        
+        // حذف تسجيل حضور محدد
+        async function deleteAttendanceRecord(id) {
+            if (confirm('هل تريد حذف تسجيل الحضور هذا؟')) {
+                attendanceRecords = attendanceRecords.filter(record => record.id !== id);
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateAttendanceRecords();
+                populateData(); // تحديث الجدول الرئيسي
+                showNotification('تم حذف تسجيل الحضور');
+            }
+        }
+        
+        // حذف كل الحضور لأسبوع محدد
+        async function deleteAllWeekAttendance() {
+            const weekId = parseInt(document.getElementById('deleteWeekSelect').value);
+            
+            if (!weekId) {
+                alert('يجب اختيار أسبوع أولاً');
+                return;
+            }
+            
+            if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
+                attendanceRecords = attendanceRecords.filter(ar => ar.weekId != weekId);
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateAttendanceRecords();
+                populateData(); // تحديث الجدول الرئيسي
+                showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
+            }
+        }
+        
+        // حذف عضو
+        async function deleteMember(id) {
+            if (confirm('هل تريد حذف العضو؟')) {
+                // حذف العضو
+                members = members.filter(m => m.id !== id);
+                
+                // حذف سجلات الحضور الخاصة بهذا العضو
+                attendanceRecords = attendanceRecords.filter(ar => ar.memberId !== id);
+                
+                // حذف مكافآت العضو
+                rewards = rewards.filter(r => r.memberId !== id);
+                
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateData();
+                showNotification('تم حذف العضو');
+            }
+        }
+        
+        // حذف أسبوع
+        async function deleteWeek(id) {
+            if (confirm('هل تريد حذف الأسبوع؟')) {
+                // حذف الأسبوع
+                weeks = weeks.filter(w => w.id !== id);
+                
+                // حذف سجلات الحضور الخاصة بهذا الأسبوع
+                attendanceRecords = attendanceRecords.filter(ar => ar.weekId != id);
+                
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateData();
+                showNotification('تم حذف الأسبوع');
+            }
+        }
+        
+        // تعديل عضو
+        async function editMember(id) {
+            const member = members.find(m => m.id === id);
+            if (!member) return;
+            
+            const newName = prompt('عدل اسم العضو:', member.name);
+            const newImage = prompt('عدل رابط الصورة (اتركه فارغاً إذا لا تريد تغييره):', member.image);
+            
+            if (newName) {
+                member.name = newName;
+                if (newImage) member.image = newImage;
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateData();
+                showNotification('تم تعديل بيانات العضو');
+            }
+        }
+        
+        // تعديل أسبوع
+        async function editWeek(id) {
+            const week = weeks.find(w => w.id === id);
+            if (!week) return;
+            
+            const newName = prompt('عدل اسم الأسبوع:', week.name);
+            const newFrom = prompt('عدل تاريخ البداية:', week.from);
+            const newTo = prompt('عدل تاريخ النهاية:', week.to);
+            
+            if (newName && newFrom && newTo) {
+                week.name = newName;
+                week.from = newFrom;
+                week.to = newTo;
+                saveToLocalStorage();
+                if (isFirebaseConnected) await saveToFirebase();
+                populateData();
+                showNotification('تم تعديل بيانات الأسبوع');
+            }
+        }
+        
+        // تبويبات الأدمن
+        document.querySelectorAll('#adminTabs .tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('#adminTabs .tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('#adminTabs .tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                
+                // إذا كان تبويب إدارة الحضور، قم بتحديث البيانات
+                if (tab.dataset.tab === 'attendance') {
+                    populateAttendanceRecords();
+                }
+                // إذا كان تبويب التقارير، قم بتحديث التقارير
+                else if (tab.dataset.tab === 'reports') {
+                    updateReports();
+                }
+            });
+        });
+        
+        // تسجيل دخول الأدمن
+        document.getElementById('adminLoginBtn').addEventListener('click', () => {
+            document.getElementById('adminLoginModal').style.display = 'flex';
+        });
+        
+        document.getElementById('cancelAdminLogin').addEventListener('click', () => {
+            document.getElementById('adminLoginModal').style.display = 'none';
+        });
+        
+        document.getElementById('confirmAdminLogin').addEventListener('click', () => {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === adminPass) {
+                document.getElementById('adminLoginModal').style.display = 'none';
+                document.getElementById('adminTabs').style.display = 'block';
+                document.getElementById('userAttendance').style.display = 'none';
+                document.getElementById('adminLoginBtn').style.display = 'none';
+                showNotification('تم تسجيل دخول الأدمن بنجاح');
+            } else {
+                alert('كلمة السر خطأ!');
+            }
+        });
+        
+        // أحداث النقر على الأزرار
+        document.getElementById('markPresent').addEventListener('click', markAttendance);
+        document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
+        document.getElementById('printReportBtn').addEventListener('click', printReport);
+        document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+        
+        document.getElementById('addMemberBtn').addEventListener('click', () => {
+            const name = document.getElementById('newMemberName').value;
+            const image = document.getElementById('newMemberImage').value;
+            if (!name) {
+                alert('ادخل اسم العضو');
+                return;
+            }
+            addMember(name, image); 
+            document.getElementById('newMemberName').value = '';
+            document.getElementById('newMemberImage').value = '';
+        });
+        
+        document.getElementById('addWeekBtn').addEventListener('click', () => {
+            const name = document.getElementById('newWeekName').value;
+            const from = document.getElementById('newWeekStart').value;
+            const to = document.getElementById('newWeekEnd').value;
+            if (!name || !from || !to) {
+                alert('املأ كل الحقول');
+                return;
+            }
+            addWeek(name, from, to);
+            document.getElementById('newWeekName').value = ''; 
+            document.getElementById('newWeekStart').value = ''; 
+            document.getElementById('newWeekEnd').value = '';
+        });
+        
+        // أحداث النقر على الأزرار الديناميكية
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('editMember')) {
+                const id = parseInt(e.target.dataset.id);
+                editMember(id);
+            }
+            
+            if (e.target.classList.contains('deleteMember')) {
+                const id = parseInt(e.target.dataset.id);
+                deleteMember(id);
+            }
+            
+            if (e.target.classList.contains('editWeek')) {
+                const id = parseInt(e.target.dataset.id);
+                editWeek(id);
+            }
+            
+            if (e.target.classList.contains('deleteWeek')) {
+                const id = parseInt(e.target.dataset.id);
+                deleteWeek(id);
+            }
+            
+            if (e.target.classList.contains('deleteAttendance')) {
+                const id = parseInt(e.target.dataset.id);
+                deleteAttendanceRecord(id);
+            }
+        });
+        
+        // تحديث البيانات عند تغيير الأسبوع
+        document.getElementById('weekSelect').addEventListener('change', populateData);
+        
+        // رسم بياني
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'الحضور',
+                    data: [],
+                    backgroundColor: ['#3498db','#2ecc71','#f39c12']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        function updateChart(){
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            
+            if (!selectedWeekId) {
+                chart.data.labels = [];
+                chart.data.datasets[0].data = [];
+                chart.update();
+                return;
+            }
+            
+            const data = members.map(member => {
+                const record = attendanceRecords.find(ar => 
+                    ar.memberId === member.id && ar.weekId == selectedWeekId
+                );
+                return record && record.present ? 1 : 0;
+            });
+            
+            chart.data.labels = members.map(m => m.name);
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+        
+        // تحميل البيانات عند بدء التشغيل
+        document.addEventListener('DOMContentLoaded', () => {
+            // إخفاء شاشة التحميل بعد وقت قصير للتأكد من عدم بقائها ظاهرة
+            setTimeout(() => {
+                hideLoading();
+            }, 2000);
+            
+            // تهيئة البيانات المحلية أولاً
+            loadFromLocalStorage();
+            
+            // محاولة الاتصال بـ Firebase
+            initializeFirebase();
+        });
+    </script>
 </body>
 </html>

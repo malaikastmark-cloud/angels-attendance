@@ -1,201 +1,251 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إدارة الحضور</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* أضف هنا تنسيقات CSS الخاصة بك */
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angels Attendance</title>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; direction: rtl; }
+  .container { padding: 20px; }
+  .hidden { display: none; }
+  .btn { padding: 5px 10px; cursor: pointer; border: none; border-radius: 4px; }
+  .btn-primary { background-color: #3498db; color: #fff; }
+  .btn-danger { background-color: #e74c3c; color: #fff; }
+  .btn-success { background-color: #2ecc71; color: #fff; }
+  .member-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+  #adminPanel { margin-top: 20px; }
+  input, select { padding: 5px; margin:5px 0; width: 100%; box-sizing: border-box; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>🌟 إدارة الحضور</h1>
-    </header>
+<div class="container">
 
-    <!-- إدارة الأعضاء -->
-    <section id="members">
-      <h2>إدارة الأعضاء</h2>
-      <button onclick="showAddMemberForm()">إضافة عضو</button>
-      <table id="membersTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم العضو</th>
-            <th>النقاط</th>
-            <th>تعديل</th>
-            <th>حذف</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- سيتم ملء البيانات هنا باستخدام JavaScript -->
-        </tbody>
-      </table>
-    </section>
-
-    <!-- إدارة الأسابيع -->
-    <section id="weeks">
-      <h2>إدارة الأسابيع</h2>
-      <button onclick="showAddWeekForm()">إضافة أسبوع</button>
-      <table id="weeksTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>اسم الأسبوع</th>
-            <th>من</th>
-            <th>إلى</th>
-            <th>تعديل</th>
-            <th>حذف</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- سيتم ملء البيانات هنا باستخدام JavaScript -->
-        </tbody>
-      </table>
-    </section>
-
-    <!-- نموذج إضافة عضو -->
-    <div id="addMemberForm" style="display:none;">
-      <h3>إضافة عضو جديد</h3>
-      <label for="memberName">اسم العضو:</label>
-      <input type="text" id="memberName" required>
-      <label for="weekSelect">الأسبوع:</label>
-      <select id="weekSelect"></select>
-      <button onclick="addMember()">إضافة</button>
-      <button onclick="closeAddMemberForm()">إغلاق</button>
-    </div>
-
-    <!-- نموذج إضافة أسبوع -->
-    <div id="addWeekForm" style="display:none;">
-      <h3>إضافة أسبوع جديد</h3>
-      <label for="weekName">اسم الأسبوع:</label>
-      <input type="text" id="weekName" required>
-      <label for="startDate">تاريخ البداية:</label>
-      <input type="date" id="startDate" required>
-      <label for="endDate">تاريخ النهاية:</label>
-      <input type="date" id="endDate" required>
-      <button onclick="addWeek()">إضافة</button>
-      <button onclick="closeAddWeekForm()">إغلاق</button>
-    </div>
+  <!-- شاشة تسجيل دخول الإدارة -->
+  <div id="adminLoginDiv">
+    <h2>تسجيل الدخول للإدارة</h2>
+    <input type="password" id="adminPassword" placeholder="كلمة المرور">
+    <button class="btn btn-primary" onclick="loginAdmin()">دخول</button>
   </div>
 
-  <script>
-    // تحميل البيانات عند تحميل الصفحة
-    window.onload = function() {
-      loadMembers();
-      loadWeeks();
-    };
+  <!-- واجهة العضو العادي -->
+  <div id="memberDiv" class="hidden">
+    <h2>تسجيل الحضور</h2>
+    <select id="memberSelect"></select>
+    <select id="weekSelect"></select>
+    <button class="btn btn-success" onclick="markAttendance()">تسجيل الحضور</button>
+    <p id="memberMessage"></p>
+    <hr>
+    <button class="btn btn-danger" onclick="showAdminLogin()">تسجيل دخول الإدارة</button>
+  </div>
 
-    // تحميل الأعضاء
-    function loadMembers() {
-      google.script.run.withSuccessHandler(function(members) {
-        const tableBody = document.querySelector('#membersTable tbody');
-        tableBody.innerHTML = '';
-        members.forEach(function(member, index) {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${member.id}</td>
-            <td>${member.name}</td>
-            <td>${member.points}</td>
-            <td><button onclick="editMember(${member.id})">تعديل</button></td>
-            <td><button onclick="deleteMember(${member.id})">حذف</button></td>
-          `;
-          tableBody.appendChild(row);
-        });
-      }).getMembers();
-    }
+  <!-- واجهة الإدارة -->
+  <div id="adminPanel" class="hidden">
+    <h2>لوحة الإدارة</h2>
+    <button class="btn btn-danger" onclick="logoutAdmin()">تسجيل خروج</button>
 
-    // تحميل الأسابيع
-    function loadWeeks() {
-      google.script.run.withSuccessHandler(function(weeks) {
-        const tableBody = document.querySelector('#weeksTable tbody');
-        tableBody.innerHTML = '';
-        weeks.forEach(function(week, index) {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${week.id}</td>
-            <td>${week.name}</td>
-            <td>${week.startDate}</td>
-            <td>${week.endDate}</td>
-            <td><button onclick="editWeek(${week.id})">تعديل</button></td>
-            <td><button onclick="deleteWeek(${week.id})">حذف</button></td>
-          `;
-          tableBody.appendChild(row);
-        });
-      }).getWeeks();
-    }
+    <h3>الأعضاء</h3>
+    <input type="text" id="newMemberName" placeholder="اسم العضو">
+    <input type="text" id="newMemberImage" placeholder="رابط صورة العضو">
+    <input type="date" id="newMemberBirthday" placeholder="تاريخ الميلاد">
+    <button class="btn btn-primary" onclick="addNewMember()">إضافة عضو</button>
+    <table id="membersList">
+      <tr><th>#</th><th>صورة</th><th>الاسم</th><th>ميلاد</th><th>حضور</th><th>تعديل</th><th>حذف</th></tr>
+    </table>
 
-    // إظهار نموذج إضافة عضو
-    function showAddMemberForm() {
-      document.getElementById('addMemberForm').style.display = 'block';
-      loadWeeksForSelect();
-    }
+    <h3>الأسابيع</h3>
+    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+    <input type="date" id="newWeekStart" placeholder="من">
+    <input type="date" id="newWeekEnd" placeholder="إلى">
+    <button class="btn btn-primary" onclick="addNewWeek()">إضافة أسبوع</button>
+    <table id="weeksList">
+      <tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr>
+    </table>
 
-    // إغلاق نموذج إضافة عضو
-    function closeAddMemberForm() {
-      document.getElementById('addMemberForm').style.display = 'none';
-    }
+    <h3>التقارير</h3>
+    <button class="btn btn-success" onclick="printReport()">طباعة التقرير</button>
+    <button class="btn btn-primary" onclick="exportToExcel()">تصدير لإكسل</button>
+    <button class="btn btn-primary" onclick="exportData()">تصدير نسخة احتياطية</button>
+    <canvas id="attendanceChart" style="max-width:500px;margin-top:20px;"></canvas>
+  </div>
 
-    // تحميل الأسابيع للاختيار
-    function loadWeeksForSelect() {
-      google.script.run.withSuccessHandler(function(weeks) {
-        const select = document.getElementById('weekSelect');
-        select.innerHTML = '';
-        weeks.forEach(function(week) {
-          const option = document.createElement('option');
-          option.value = week.id;
-          option.textContent = week.name;
-          select.appendChild(option);
-        });
-      }).getWeeks();
-    }
+</div>
 
-    // إضافة عضو
-    function addMember() {
-      const name = document.getElementById('memberName').value;
-      const week = document.getElementById('weekSelect').value;
-      google.script.run.withSuccessHandler(function() {
-        loadMembers();
-        closeAddMemberForm();
-      }).addMember(name, week);
-    }
+<script>
+// إعداد Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+  authDomain: "angels-attendance.firebaseapp.com",
+  databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+  projectId: "angels-attendance",
+  storageBucket: "angels-attendance.firebasestorage.app",
+  messagingSenderId: "157249026489",
+  appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+  measurementId: "G-2YDPSFPQYT"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    // تعديل عضو
-    function editMember(id) {
-      // تنفيذ عملية التعديل
-    }
+// بيانات محلية
+let members = [];
+let weeks = [];
+let attendanceRecords = [];
 
-    // حذف عضو
-    function deleteMember(id) {
-      google.script.run.withSuccessHandler(function() {
-        loadMembers();
-      }).deleteMember(id);
-    }
+// واجهة الإدارة
+function loginAdmin(){
+  const pass = document.getElementById('adminPassword').value;
+  if(pass === 'admin123'){
+    document.getElementById('adminLoginDiv').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+    document.getElementById('memberDiv').classList.add('hidden');
+    loadData();
+  } else { alert('كلمة المرور خاطئة'); }
+}
+function logoutAdmin(){
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('memberDiv').classList.remove('hidden');
+  document.getElementById('memberMessage').textContent = '';
+  populateMemberSelect();
+  populateWeekSelect();
+}
+function showAdminLogin(){
+  document.getElementById('memberDiv').classList.add('hidden');
+  document.getElementById('adminLoginDiv').classList.remove('hidden');
+}
 
-    // إظهار نموذج إضافة أسبوع
-    function showAddWeekForm() {
-      document.getElementById('addWeekForm').style.display = 'block';
-    }
+// تحميل البيانات من Firebase
+function loadData(){
+  db.ref('members').once('value', snap => {
+    members = snap.val() || [];
+    populateMembersList();
+    populateMemberSelect();
+  });
+  db.ref('weeks').once('value', snap => {
+    weeks = snap.val() || [];
+    populateWeeksList();
+    populateWeekSelect();
+  });
+  db.ref('attendanceRecords').once('value', snap => {
+    attendanceRecords = snap.val() || [];
+    updateAttendanceChart();
+  });
+}
 
-    // إغلاق نموذج إضافة أسبوع
-    function closeAddWeekForm() {
-      document.getElementById('addWeekForm').style.display = 'none';
-    }
+// حفظ البيانات Firebase
+function saveMembers(){ db.ref('members').set(members); }
+function saveWeeks(){ db.ref('weeks').set(weeks); }
+function saveAttendance(){ db.ref('attendanceRecords').set(attendanceRecords); }
 
-    // إضافة أسبوع
-    function addWeek() {
-      const name = document.getElementById('weekName').value;
-      const startDate = document.getElementById('startDate').value;
-      const endDate = document.getElementById('endDate').value;
-      google.script.run.withSuccessHandler(function() {
-        loadWeeks();
-        closeAddWeekForm();
-      }).addWeek(name, startDate, endDate);
-    }
+// ملء قائمة الأعضاء للواجهة الإدارية
+function populateMembersList(){
+  const el = document.getElementById('membersList');
+  el.innerHTML = '<tr><th>#</th><th>صورة</th><th>الاسم</th><th>ميلاد</th><th>حضور</th><th>تعديل</th><th>حذف</th></tr>';
+  members.forEach((m,i)=>{
+    const attendanceCount = attendanceRecords.filter(ar=>ar.memberId===m.id).length;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td>
+      <td><img src="${m.image}" class="member-img"></td>
+      <td>${m.name}</td>
+      <td>${m.birthday||''}</td>
+      <td>${attendanceCount}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="editMember(${m.id})"><i class="fas fa-edit"></i></button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteMember(${m.id})"><i class="fas fa-trash"></i></button></td>`;
+    el.appendChild(tr);
+  });
+}
 
-    // تعديل أسبوع
-    function editWeek(id
-::contentReference[oaicite:24]{index=24}
- 
+// ملء قائمة الأسابيع للواجهة الإدارية
+function populateWeeksList(){
+  const el = document.getElementById('weeksList');
+  el.innerHTML = '<tr><th>#</th><th>الاسم</th><th>من</th><th>إلى</th><th>تعديل</th><th>حذف</th></tr>';
+  weeks.forEach((w,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${w.name}</td><td>${w.from}</td><td>${w.to}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="editWeek(${w.id})"><i class="fas fa-edit"></i></button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteWeek(${w.id})"><i class="fas fa-trash"></i></button></td>`;
+    el.appendChild(tr);
+  });
+}
+
+// إضافة عضو جديد
+function addNewMember(){
+  const name = document.getElementById('newMemberName').value;
+  const image = document.getElementById('newMemberImage').value || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`;
+  const birthday = document.getElementById('newMemberBirthday').value;
+  if(!name){ alert('ادخل اسم العضو'); return; }
+  const id = Date.now();
+  members.push({id,name,image,birthday});
+  saveMembers(); populateMembersList(); populateMemberSelect();
+}
+
+// إضافة أسبوع جديد
+function addNewWeek(){
+  const name = document.getElementById('newWeekName').value;
+  const from = document.getElementById('newWeekStart').value;
+  const to = document.getElementById('newWeekEnd').value;
+  if(!name||!from||!to){ alert('ادخل بيانات الأسبوع'); return; }
+  const id = Date.now();
+  weeks.push({id,name,from,to});
+  saveWeeks(); populateWeeksList(); populateWeekSelect();
+}
+
+// حذف عضو
+function deleteMember(id){ members = members.filter(m=>m.id!==id); saveMembers(); populateMembersList(); populateMemberSelect(); }
+// حذف أسبوع
+function deleteWeek(id){ weeks = weeks.filter(w=>w.id!==id); saveWeeks(); populateWeeksList(); populateWeekSelect(); }
+
+// ملء قائمة الأعضاء للعضو العادي
+function populateMemberSelect(){
+  const sel = document.getElementById('memberSelect');
+  sel.innerHTML='';
+  members.forEach(m=>{ const opt=document.createElement('option'); opt.value=m.id; opt.textContent=m.name; sel.appendChild(opt); });
+}
+
+// ملء قائمة الأسابيع للعضو العادي
+function populateWeekSelect(){
+  const sel = document.getElementById('weekSelect');
+  sel.innerHTML='';
+  weeks.forEach(w=>{ const opt=document.createElement('option'); opt.value=w.id; opt.textContent=w.name; sel.appendChild(opt); });
+}
+
+// تسجيل الحضور
+function markAttendance(){
+  const memberId = parseInt(document.getElementById('memberSelect').value);
+  const weekId = parseInt(document.getElementById('weekSelect').value);
+  if(!memberId||!weekId){ alert('اختر العضو والأسبوع'); return; }
+  const already = attendanceRecords.find(ar=>ar.memberId===memberId && ar.weekId===weekId);
+  if(already){ document.getElementById('memberMessage').textContent='تم تسجيل الحضور مسبقاً'; return; }
+  attendanceRecords.push({memberId,weekId,present:true});
+  saveAttendance();
+  document.getElementById('memberMessage').textContent='تم تسجيل الحضور بنجاح';
+  updateAttendanceChart();
+}
+
+// تحديث مخطط الحضور
+function updateAttendanceChart(){
+  const ctx = document.getElementById('attendanceChart').getContext('2d');
+  const presentCount = attendanceRecords.length;
+  const absentCount = members.length*weeks.length - presentCount;
+  if(window.attChart) window.attChart.destroy();
+  window.attChart = new Chart(ctx,{
+    type:'doughnut',
+    data:{labels:['حاضرون','غائبون'],datasets:[{data:[presentCount,absentCount],backgroundColor:['#2ecc71','#e74c3c']}]},
+    options:{responsive:true}
+  });
+}
+
+// تهيئة البيانات عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('memberDiv').classList.remove('hidden');
+  populateMemberSelect();
+  populateWeekSelect();
+});
+</script>
+</body>
+</html>

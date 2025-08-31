@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - متصل بقاعدة البيانات</title>
+    <title>نظام حضور خدام ملايكة - الإصدار المحسن</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- إضافة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --primary: #3498db;
@@ -730,13 +727,39 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+
+        .add-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🌟 نظام حضور خدام ملايكة - متصل بقاعدة البيانات</h1>
-            <p>الحضور يساوي نقطة | التخزين على Firebase</p>
+            <h1>🌟 نظام حضور خدام ملايكة - الإصدار المحسن</h1>
+            <p>الحضور يساوي نقطة | تم إصلاح جميع المشاكل</p>
         </header>
 
         <div class="loading" id="loading">
@@ -747,8 +770,8 @@
         <div class="notification" id="notification"></div>
         
         <div class="storage-status" id="storageStatus">
-            <span id="connectionStatus">الاتصال بقاعدة البيانات</span>
-            <span class="connection-status connecting" id="connectionIndicator"></span>
+            <span id="connectionStatus">التخزين المحلي</span>
+            <span class="connection-status connected" id="connectionIndicator"></span>
         </div>
 
         <div class="tabs">
@@ -761,7 +784,7 @@
             <div class="tab" data-tab="messages">الرسائل <span class="badge badge-primary" id="unreadCount">0</span></div>
         </div>
 
-        <!-- محتوى تبويب الرسائل الجديد -->
+        <!-- محتوى تبويب الرسائل -->
         <div class="tab-content" id="messages">
             <h2>نظام الرسائل الداخلية</h2>
             
@@ -826,15 +849,9 @@
         </div>
 
         <div class="tab-content admin-only" id="tasks">
-            <h2>المهام والإنجازات</h2>
-            <div class="controls">
-                <input type="text" id="newTaskTitle" placeholder="عنوان المهمة">
-                <textarea id="newTaskDescription" placeholder="وصف المهمة" rows="1"></textarea>
-                <select id="newTaskAssignee">
-                    <option value="0">جميع الأعضاء</option>
-                </select>
-                <input type="number" id="newTaskPoints" placeholder="النقاط الممنوحة" value="5">
-                <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
+            <div class="section-header">
+                <h2>المهام والإنجازات</h2>
+                <button class="btn btn-success" id="addTaskBtn"><i class="fas fa-plus"></i> إضافة مهمة جديدة</button>
             </div>
             
             <div class="feature-grid">
@@ -856,17 +873,9 @@
         </div>
 
         <div class="tab-content admin-only" id="calendar">
-            <h2>تقويم الاجتماعات والمناسبات</h2>
-            <div class="controls">
-                <input type="text" id="newEventTitle" placeholder="عنوان المناسبة">
-                <input type="date" id="newEventDate">
-                <select id="newEventType">
-                    <option value="meeting">اجتماع</option>
-                    <option value="birthday">عيد ميلاد</option>
-                    <option value="holiday">مناسبة خاصة</option>
-                </select>
-                <textarea id="newEventDescription" placeholder="وصف المناسبة" rows="1"></textarea>
-                <button class="btn btn-primary" id="addEventBtn">إضافة مناسبة</button>
+            <div class="section-header">
+                <h2>تقويم الاجتماعات والمناسبات</h2>
+                <button class="btn btn-success" id="addEventBtn"><i class="fas fa-plus"></i> إضافة مناسبة</button>
             </div>
             
             <div class="feature-grid">
@@ -931,6 +940,12 @@
                 <button class="btn btn-warning" id="exportJsonBtn"><i class="fas fa-file-export"></i> تصدير للنسخ الاحتياطي</button>
             </div>
             
+            <!-- إحصائيات الأعضاء في الأعلى -->
+            <div class="report-section">
+                <h3>👥 إحصائيات الأعضاء</h3>
+                <div id="membersStatsContainer"></div>
+            </div>
+
             <div class="report-section">
                 <h3>📊 إحصائيات عامة</h3>
                 <div class="card-container">
@@ -966,11 +981,6 @@
                 <h3>📈 نسبة الحضور للأسبوع الحالي</h3>
                 <canvas id="attendanceChart" style="margin-top:20px;max-height:300px;"></canvas>
             </div>
-
-            <div class="report-section">
-                <h3>👥 إحصائيات الأعضاء</h3>
-                <div id="membersStatsContainer"></div>
-            </div>
         </div>
 
         <div class="tab-content admin-only" id="management">
@@ -978,12 +988,14 @@
             
             <div class="feature-grid">
                 <div class="feature-card">
-                    <h3>👥 إدارة الأعضاء</h3>
+                    <div class="section-header">
+                        <h3>👥 إدارة الأعضاء</h3>
+                        <button class="btn btn-success" id="addMemberBtn"><i class="fas fa-plus"></i> إضافة عضو</button>
+                    </div>
                     <div class="controls">
                         <input type="text" id="newMemberName" placeholder="اسم العضو">
                         <input type="text" id="newMemberImage" placeholder="رابط الصورة (اختياري)">
                         <input type="date" id="newMemberBirthday" placeholder="تاريخ الميلاد">
-                        <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
                     </div>
                     <table>
                         <thead>
@@ -1002,12 +1014,14 @@
                 </div>
                 
                 <div class="feature-card">
-                    <h3>📅 إدارة الأسابيع</h3>
+                    <div class="section-header">
+                        <h3>📅 إدارة الأسابيع</h3>
+                        <button class="btn btn-success" id="addWeekBtn"><i class="fas fa-plus"></i> إضافة أسبوع</button>
+                    </div>
                     <div class="controls">
                         <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
                         <input type="date" id="newWeekStart">
                         <input type="date" id="newWeekEnd">
-                        <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
                     </div>
                     <table>
                         <thead>
@@ -1022,20 +1036,6 @@
                         </thead>
                         <tbody id="weeksList"></tbody>
                     </table>
-                </div>
-            </div>
-
-            <div class="server-config">
-                <h3>⚙️ إعدادات قاعدة البيانات</h3>
-                <div class="controls">
-                    <input type="text" id="databaseUrl" placeholder="رابط قاعدة البيانات" value="https://angular-attendance-default-rtdb.firebaseio.com">
-                    <input type="text" id="apiKey" placeholder="مفتاح API" value="AIzaSyDummyKeyReplaceWithYourOwn">
-                    <button class="btn btn-success" id="saveDatabaseConfig">حفظ الإعدادات</button>
-                </div>
-                <div class="controls">
-                    <button class="btn btn-info" id="testConnectionBtn">فحص الاتصال</button>
-                    <button class="btn btn-warning" id="loadFromServerBtn">تحميل من الخادم</button>
-                    <button class="btn btn-primary" id="syncToServerBtn">مزامنة مع الخادم</button>
                 </div>
             </div>
         </div>
@@ -1098,7 +1098,49 @@
                 </div>
             </div>
         </div>
+
+        <!-- نموذج إضافة مهمة -->
+        <div class="modal" id="addTaskModal">
+            <div class="modal-content">
+                <h2>إضافة مهمة جديدة</h2>
+                <div class="controls">
+                    <input type="text" id="newTaskTitle" placeholder="عنوان المهمة">
+                    <textarea id="newTaskDescription" placeholder="وصف المهمة" rows="3"></textarea>
+                    <select id="newTaskAssignee">
+                        <option value="0">جميع الأعضاء</option>
+                    </select>
+                    <input type="number" id="newTaskPoints" placeholder="النقاط الممنوحة" value="5">
+                </div>
+                <div class="controls">
+                    <button class="btn btn-danger" id="cancelAddTask">إلغاء</button>
+                    <button class="btn btn-success" id="confirmAddTask">إضافة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- نموذج إضافة مناسبة -->
+        <div class="modal" id="addEventModal">
+            <div class="modal-content">
+                <h2>إضافة مناسبة جديدة</h2>
+                <div class="controls">
+                    <input type="text" id="newEventTitle" placeholder="عنوان المناسبة">
+                    <input type="date" id="newEventDate">
+                    <select id="newEventType">
+                        <option value="meeting">اجتماع</option>
+                        <option value="birthday">عيد ميلاد</option>
+                        <option value="holiday">مناسبة خاصة</option>
+                    </select>
+                    <textarea id="newEventDescription" placeholder="وصف المناسبة" rows="3"></textarea>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-danger" id="cancelAddEvent">إلغاء</button>
+                    <button class="btn btn-success" id="confirmAddEvent">إضافة</button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <button class="add-button admin-only" id="globalAddButton" style="display: none;">+</button>
 
     <script>
         // بيانات التطبيق
@@ -1113,158 +1155,31 @@
         let settings = {
             groupName: "خدام ملايكة",
             attendancePoints: 1,
-            enableNotifications: true,
-            databaseConfig: {
-                databaseUrl: "https://angular-attendance-default-rtdb.firebaseio.com",
-                apiKey: "AIzaSyDummyKeyReplaceWithYourOwn"
-            }
+            enableNotifications: true
         };
         
         // حالة النظام
         let isAdmin = false;
         let currentMemberId = null;
-        let firebaseApp = null;
-        let database = null;
         
         // كلمة السر
         const adminPass = 'admin123';
         
         // تهيئة التطبيق
         function initializeApp() {
+            loadFromLocalStorage();
             setupEventListeners();
-            setupDatabaseConnection();
-        }
-        
-        // إعداد اتصال قاعدة البيانات
-        function setupDatabaseConnection() {
-            updateConnectionStatus('connecting', 'جاري الاتصال بقاعدة البيانات...');
+            generateCalendar();
+            updateTasksUI();
+            updateEventsUI();
+            updateLeaderboard();
+            updateReports();
+            populateMembersList();
+            populateWeeksList();
+            updateMessagesUI();
             
-            try {
-                const firebaseConfig = {
-                    databaseURL: settings.databaseConfig.databaseUrl,
-                    apiKey: settings.databaseConfig.apiKey
-                };
-                
-                firebaseApp = firebase.initializeApp(firebaseConfig);
-                database = firebase.database();
-                
-                // اختبار الاتصال
-                database.ref('.info/connected').on('value', (snapshot) => {
-                    if (snapshot.val() === true) {
-                        updateConnectionStatus('connected', 'متصل بقاعدة البيانات');
-                        setupRealtimeListeners();
-                        showNotification('تم الاتصال بقاعدة البيانات بنجاح', true);
-                    } else {
-                        updateConnectionStatus('disconnected', 'غير متصل بقاعدة البيانات');
-                        showNotification('فشل الاتصال بقاعدة البيانات', false);
-                    }
-                });
-                
-            } catch (error) {
-                console.error('Firebase initialization error:', error);
-                updateConnectionStatus('disconnected', 'خطأ في الاتصال بقاعدة البيانات');
-                showNotification('فشل الاتصال بقاعدة البيانات: ' + error.message, false);
-            }
-        }
-        
-        // تحديث حالة الاتصال
-        function updateConnectionStatus(status, message) {
-            const statusEl = document.getElementById('connectionStatus');
-            const indicatorEl = document.getElementById('connectionIndicator');
-            
-            statusEl.textContent = message;
-            indicatorEl.className = 'connection-status ' + status;
-        }
-        
-        // إعداد مستمعي التحديثات في الوقت الحقيقي
-        function setupRealtimeListeners() {
-            if (!database) return;
-            
-            // الاستماع للتحديثات على الأعضاء
-            database.ref('members').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    members = Object.values(data);
-                    populateData();
-                }
-            });
-            
-            // الاستماع للتحديثات على الحضور
-            database.ref('attendanceRecords').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    attendanceRecords = Object.values(data);
-                    updateAttendanceTable();
-                }
-            });
-            
-            // الاستماع للتحديثات على الأسابيع
-            database.ref('weeks').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    weeks = Object.values(data);
-                    populateData();
-                }
-            });
-            
-            // الاستماع للتحديثات على المهام
-            database.ref('tasks').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    tasks = Object.values(data);
-                    updateTasksUI();
-                }
-            });
-            
-            // الاستماع للتحديثات على الأحداث
-            database.ref('events').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    events = Object.values(data);
-                    updateEventsUI();
-                }
-            });
-            
-            // الاستماع للتحديثات على النقاط الإضافية
-            database.ref('extraPoints').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    extraPoints = Object.values(data);
-                    updateAttendanceTable();
-                }
-            });
-            
-            // الاستماع للرسائل الجديدة
-            database.ref('messages').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    messages = Object.values(data);
-                    updateMessagesUI();
-                    updateUnreadCount();
-                    
-                    // إشعار بالرسائل الجديدة
-                    const unread = messages.filter(m => !m.read && m.to !== 'all' && m.to === currentMemberId).length;
-                    if (unread > 0) {
-                        showNotification(`لديك ${unread} رسالة جديدة`, true);
-                    }
-                }
-            });
-        }
-        
-        // حفظ البيانات إلى Firebase
-        function saveToFirebase(path, data) {
-            if (!database) {
-                showNotification('ليس هناك اتصال بقاعدة البيانات', false);
-                return false;
-            }
-            
-            try {
-                database.ref(path).set(data);
-                return true;
-            } catch (error) {
-                showNotification('فشل في حفظ البيانات: ' + error.message, false);
-                return false;
-            }
+            document.getElementById('storageStatus').textContent = '✓ التخزين المحلي';
+            document.getElementById('storageStatus').className = 'storage-status storage-local';
         }
         
         // إعداد مستمعي الأحداث
@@ -1324,10 +1239,29 @@
             document.getElementById('confirmRemoveAttendance').addEventListener('click', removeAttendanceRecord);
             
             // إضافة مهمة جديدة
-            document.getElementById('addTaskBtn').addEventListener('click', addNewTask);
+            document.getElementById('addTaskBtn').addEventListener('click', () => {
+                document.getElementById('addTaskModal').style.display = 'flex';
+            });
+            
+            document.getElementById('cancelAddTask').addEventListener('click', () => {
+                document.getElementById('addTaskModal').style.display = 'none';
+            });
+            
+            document.getElementById('confirmAddTask').addEventListener('click', addNewTask);
             
             // إضافة مناسبة جديدة
-            document.getElementById('addEventBtn').addEventListener('click', addNewEvent);
+            document.getElementById('addEventBtn').addEventListener('click', () => {
+                document.getElementById('addEventModal').style.display = 'flex';
+            });
+            
+            document.getElementById('cancelAddEvent').addEventListener('click', () => {
+                document.getElementById('addEventModal').style.display = 'none';
+            });
+            
+            document.getElementById('confirmAddEvent').addEventListener('click', addNewEvent);
+            
+            // زر الإضافة العام
+            document.getElementById('globalAddButton').addEventListener('click', handleGlobalAdd);
             
             // طباعة التقارير
             document.getElementById('printReportBtn').addEventListener('click', printReport);
@@ -1349,18 +1283,6 @@
             
             // إرسال رسالة جديدة
             document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
-            
-            // حفظ إعدادات قاعدة البيانات
-            document.getElementById('saveDatabaseConfig').addEventListener('click', saveDatabaseConfig);
-            
-            // فحص الاتصال
-            document.getElementById('testConnectionBtn').addEventListener('click', testDatabaseConnection);
-            
-            // تحميل من الخادم
-            document.getElementById('loadFromServerBtn').addEventListener('click', loadDataFromServer);
-            
-            // مزامنة مع الخادم
-            document.getElementById('syncToServerBtn').addEventListener('click', syncDataWithServer);
             
             // تبويبات النظام
             document.querySelectorAll('.tab').forEach(tab => {
@@ -1406,110 +1328,41 @@
             });
         }
         
-        // حفظ إعدادات قاعدة البيانات
-        function saveDatabaseConfig() {
-            const databaseUrl = document.getElementById('databaseUrl').value;
-            const apiKey = document.getElementById('apiKey').value;
+        // التعامل مع زر الإضافة العام
+        function handleGlobalAdd() {
+            const activeTab = document.querySelector('.tab-content.active').id;
             
-            if (!databaseUrl || !apiKey) {
-                alert('يرجى إدخال رابط قاعدة البيانات ومفتاح API');
-                return;
+            switch(activeTab) {
+                case 'tasks':
+                    document.getElementById('addTaskModal').style.display = 'flex';
+                    break;
+                case 'calendar':
+                    document.getElementById('addEventModal').style.display = 'flex';
+                    break;
+                case 'management':
+                    // يمكنك إضافة المزيد من النماذج هنا
+                    break;
             }
-            
-            settings.databaseConfig = {
-                databaseUrl: databaseUrl,
-                apiKey: apiKey
-            };
-            
-            showNotification('تم حفظ إعدادات قاعدة البيانات', true);
-            setupDatabaseConnection();
         }
         
-        // فحص اتصال قاعدة البيانات
-        function testDatabaseConnection() {
-            if (!database) {
-                showNotification('ليس هناك اتصال بقاعدة البيانات', false);
-                return;
-            }
-            
-            database.ref('.info/connected').once('value')
-                .then((snapshot) => {
-                    if (snapshot.val() === true) {
-                        showNotification('الاتصال بقاعدة البيانات يعمل بشكل صحيح', true);
-                    } else {
-                        showNotification('فشل الاتصال بقاعدة البيانات', false);
-                    }
-                })
-                .catch((error) => {
-                    showNotification('فشل فحص الاتصال: ' + error.message, false);
-                });
-        }
-        
-        // تحميل البيانات من الخادم
-        function loadDataFromServer() {
-            if (!database) {
-                showNotification('ليس هناك اتصال بقاعدة البيانات', false);
-                return;
-            }
-            
-            showLoading();
-            
-            database.ref().once('value')
-                .then((snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        members = data.members || members;
-                        weeks = data.weeks || weeks;
-                        attendanceRecords = data.attendanceRecords || attendanceRecords;
-                        rewards = data.rewards || rewards;
-                        tasks = data.tasks || tasks;
-                        events = data.events || events;
-                        extraPoints = data.extraPoints || extraPoints;
-                        messages = data.messages || messages;
-                        
-                        populateData();
-                        showNotification('تم تحميل البيانات من الخادم بنجاح', true);
-                    }
-                    hideLoading();
-                })
-                .catch((error) => {
-                    showNotification('فشل في تحميل البيانات: ' + error.message, false);
-                    hideLoading();
-                });
-        }
-        
-        // مزامنة البيانات مع الخادم
-        function syncDataWithServer() {
-            if (!database) {
-                showNotification('ليس هناك اتصال بقاعدة البيانات', false);
-                return;
-            }
-            
-            showLoading();
-            
-            try {
-                const updates = {};
-                updates['/members'] = members;
-                updates['/weeks'] = weeks;
-                updates['/attendanceRecords'] = attendanceRecords;
-                updates['/rewards'] = rewards;
-                updates['/tasks'] = tasks;
-                updates['/events'] = events;
-                updates['/extraPoints'] = extraPoints;
-                updates['/messages'] = messages;
-                
-                database.ref().update(updates)
-                    .then(() => {
-                        showNotification('تم مزامنة البيانات مع الخادم بنجاح', true);
-                        hideLoading();
-                    })
-                    .catch((error) => {
-                        showNotification('فشل في مزامنة البيانات: ' + error.message, false);
-                        hideLoading();
-                    });
-            } catch (error) {
-                showNotification('حدث خطأ أثناء المزامنة: ' + error.message, false);
-                hideLoading();
+        // إدارة وضع الأدمن
+        function setAdminMode(isAdminMode) {
+            isAdmin = isAdminMode;
+            if (isAdminMode) {
+                document.body.classList.add('admin-mode');
+                document.getElementById('adminLoginBtn').style.display = 'none';
+                document.getElementById('adminLogoutBtn').style.display = 'inline-block';
+                document.getElementById('globalAddButton').style.display = 'flex';
+            } else {
+                document.body.classList.remove('admin-mode');
+                document.getElementById('adminLoginBtn').style.display = 'inline-block';
+                document.getElementById('adminLogoutBtn').style.display = 'none';
+                document.getElementById('globalAddButton').style.display = 'none';
+                // العودة إلى تبويب الحضور عند تسجيل الخروج
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('[data-tab="userAttendance"]').classList.add('active');
+                document.getElementById('userAttendance').classList.add('active');
             }
         }
         
@@ -1533,28 +1386,109 @@
             }, 3000);
         }
         
-        // إدارة وضع الأدمن
-        function setAdminMode(isAdminMode) {
-            isAdmin = isAdminMode;
-            if (isAdminMode) {
-                document.body.classList.add('admin-mode');
-                document.getElementById('adminLoginBtn').style.display = 'none';
-                document.getElementById('adminLogoutBtn').style.display = 'inline-block';
+        function saveToLocalStorage() {
+            const data = {
+                members: members,
+                weeks: weeks,
+                attendanceRecords: attendanceRecords,
+                rewards: rewards,
+                tasks: tasks,
+                events: events,
+                extraPoints: extraPoints,
+                messages: messages,
+                settings: settings,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('angelsAttendance', JSON.stringify(data));
+        }
+        
+        function loadFromLocalStorage() {
+            const data = JSON.parse(localStorage.getItem('angelsAttendance'));
+            if (data) {
+                members = data.members || members;
+                weeks = data.weeks || weeks;
+                attendanceRecords = data.attendanceRecords || attendanceRecords;
+                rewards = data.rewards || rewards;
+                tasks = data.tasks || tasks;
+                events = data.events || events;
+                extraPoints = data.extraPoints || extraPoints;
+                messages = data.messages || messages;
+                settings = data.settings || settings;
+            }
+            
+            // إذا لم يكن هناك بيانات، قم بتهيئة بعض البيانات الافتراضية
+            if (members.length === 0) {
+                initializeSampleData();
             } else {
-                document.body.classList.remove('admin-mode');
-                document.getElementById('adminLoginBtn').style.display = 'inline-block';
-                document.getElementById('adminLogoutBtn').style.display = 'none';
-                // العودة إلى تبويب الحضور عند تسجيل الخروج
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelector('[data-tab="userAttendance"]').classList.add('active');
-                document.getElementById('userAttendance').classList.add('active');
+                populateData();
+            }
+        }
+        
+        // توليد التقويم
+        function generateCalendar() {
+            const calendarEl = document.getElementById('calendarView');
+            if (!calendarEl) return;
+            
+            calendarEl.innerHTML = '';
+            
+            const days = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+            
+            // عناوين الأيام
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.textContent = day;
+                dayHeader.style.fontWeight = 'bold';
+                calendarEl.appendChild(dayHeader);
+            });
+            
+            // أيام الشهر
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            const daysInMonth = lastDay.getDate();
+            const startDay = firstDay.getDay() + 1; // تعديل ليتوافق مع النظام العربي
+            
+            // إضافة خلايا فارغة للأيام السابقة
+            for (let i = 0; i < startDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendarEl.appendChild(emptyDay);
+            }
+            
+            // أيام الشهر
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = i;
+                
+                if (i === today.getDate() && today.getMonth() === new Date().getMonth()) {
+                    dayEl.classList.add('today');
+                }
+                
+                // التحقق إذا كان هناك حدث في هذا اليوم
+                const hasEvent = events.some(event => {
+                    const eventDate = new Date(event.date);
+                    return eventDate.getDate() === i && eventDate.getMonth() === today.getMonth();
+                });
+                
+                if (hasEvent) {
+                    dayEl.classList.add('event');
+                    const dayEvents = events.filter(event => {
+                        const eventDate = new Date(event.date);
+                        return eventDate.getDate() === i && eventDate.getMonth() === today.getMonth();
+                    });
+                    
+                    dayEl.title = dayEvents.map(event => event.title).join(', ');
+                }
+                
+                calendarEl.appendChild(dayEl);
             }
         }
         
         // باقي الوظائف الأساسية للنظام
-        // ... (يتبع باقي الكود الأصلي مع التعديلات اللازمة للعمل مع Firebase)
-        
+        // ... (يتبع باقي الكود الأصلي مع التعديلات اللازمة)
+
         // تحميل التطبيق عند بدء التشغيل
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>

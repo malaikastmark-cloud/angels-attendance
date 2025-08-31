@@ -1025,7 +1025,7 @@ document.getElementById('confirmAdminLogin').addEventListener('click', confirmAd
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
                 const passwordInput = document.getElementById('adminPassword');
-                passwordInput.classList.add极('login-failed');
+                passwordInput.classList.add('login-failed');
                 setTimeout(() => {
                     passwordInput.classList.remove('login-failed');
                 }, 500);

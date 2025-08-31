@@ -1,205 +1,241 @@
 <!DOCTYPE html>
-<html lang="en" dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Angels Attendance</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Reset */
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-            color: #333;
-        }
-
-        header {
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        main {
-            width: 90%;
-            max-width: 1200px;
-            margin-top: 30px;
-        }
-
-        .attendance-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            background: rgba(255,255,255,0.2);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-        }
-
-        .attendance-form label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .attendance-form select, .attendance-form button {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: none;
-            font-size: 1em;
-        }
-
-        .attendance-form select {
-            width: 100%;
-        }
-
-        .attendance-form button {
-            background: #6a11cb;
-            color: #fff;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        .attendance-form button:hover {
-            background: #2575fc;
-        }
-
-        .members-grid {
-            margin-top: 40px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .member-card {
-            background: rgba(255,255,255,0.3);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            transition: 0.3s;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-        }
-
-        .member-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.5);
-        }
-
-        .member-card img {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-            border: 2px solid #fff;
-        }
-
-        .member-name {
-            font-weight: bold;
-            color: #fff;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 20px;
-            text-align: center;
-            color: #fff;
-            font-size: 0.9em;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angels Attendance</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap');
+    body {
+        font-family: 'Cairo', sans-serif;
+        margin:0;
+        padding:0;
+        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+        min-height: 100vh;
+    }
+    header {
+        background: linear-gradient(90deg, #3498db, #8e44ad);
+        color:#fff;
+        padding: 20px;
+        text-align:center;
+    }
+    .container {
+        max-width: 1200px;
+        margin:20px auto;
+        padding:20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {text-align:center; margin-bottom:20px;}
+    .btn {
+        padding:10px 20px;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-weight:600;
+        transition:0.3s;
+        margin:5px 0;
+    }
+    .btn-primary {background:#3498db; color:#fff;}
+    .btn-primary:hover {background:#2980b9;}
+    .btn-success {background:#2ecc71; color:#fff;}
+    .btn-success:hover {background:#27ae60;}
+    .btn-danger {background:#e74c3c; color:#fff;}
+    .btn-danger:hover {background:#c0392b;}
+    .btn-logout {background:#f39c12; color:#fff; float:left;}
+    select, input[type=text], input[type=password], input[type=date] {
+        width:100%;
+        padding:10px;
+        margin:5px 0 15px 0;
+        border:1px solid #ccc;
+        border-radius:6px;
+        box-sizing:border-box;
+    }
+    .members-list {display:flex; flex-direction:column; gap:10px;}
+    .member-item {
+        padding:10px;
+        border-radius:8px;
+        color:#fff;
+        cursor:pointer;
+        transition:0.3s;
+    }
+    .member-item:hover {opacity:0.8;}
+    .hidden {display:none;}
+    .admin-section {margin-top:20px;}
+</style>
 </head>
 <body>
 
-<header>Angels Attendance</header>
+<header>
+    <h1>نظام حضور Angels</h1>
+</header>
 
-<main>
-    <div class="attendance-form">
-        <label for="memberSelect">Select Member:</label>
+<div class="container">
+    <!-- صفحة تسجيل الدخول الادمن -->
+    <div id="loginSection">
+        <h2>تسجيل دخول الادمن</h2>
+        <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
+        <button class="btn btn-primary" onclick="loginAdmin()">تسجيل الدخول</button>
+    </div>
+
+    <!-- واجهة العضو -->
+    <div id="memberSection" class="hidden">
+        <h2>تسجيل الحضور</h2>
         <select id="memberSelect">
-            <option value="" disabled selected>Select your name</option>
+            <option value="">اختر اسمك</option>
         </select>
-
-        <label for="weekSelect">Select Week:</label>
         <select id="weekSelect">
-            <option value="" disabled selected>Select week</option>
+            <option value="">اختر الأسبوع</option>
         </select>
-
-        <button id="submitAttendance">Confirm Attendance</button>
+        <button class="btn btn-success" onclick="markAttendance()">تسجيل الحضور</button>
+        <h3>أسماء الأعضاء</h3>
+        <div class="members-list" id="membersList"></div>
     </div>
 
-    <div class="members-grid" id="membersGrid">
-        <!-- Member cards go here -->
+    <!-- واجهة الادمن -->
+    <div id="adminSection" class="hidden">
+        <button class="btn btn-logout" onclick="logoutAdmin()">تسجيل الخروج</button>
+        <h2>لوحة الادمن</h2>
+        <div class="admin-section">
+            <h3>إضافة عضو جديد</h3>
+            <input type="text" id="newMemberName" placeholder="اسم العضو بالإنجليزي">
+            <input type="text" id="newMemberImage" placeholder="رابط صورة العضو (اختياري)">
+            <input type="date" id="newMemberBirthday" placeholder="تاريخ الميلاد (اختياري)">
+            <button class="btn btn-primary" onclick="addNewMember()">إضافة عضو</button>
+        </div>
+        <div class="admin-section">
+            <h3>إضافة أسبوع جديد</h3>
+            <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+            <input type="date" id="newWeekStart">
+            <input type="date" id="newWeekEnd">
+            <button class="btn btn-primary" onclick="addNewWeek()">إضافة أسبوع</button>
+        </div>
+        <div class="admin-section">
+            <h3>الأعضاء</h3>
+            <div id="adminMembersList"></div>
+        </div>
     </div>
-</main>
+</div>
 
-<footer>© 2025 Angels Attendance</footer>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
+import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js";
 
-<script>
-    // Sample data (replace with Firebase later)
-    const members = [
-        {id:1, name:'Alice', image:'https://ui-avatars.com/api/?name=Alice&background=ff6b6b&color=fff'},
-        {id:2, name:'Bob', image:'https://ui-avatars.com/api/?name=Bob&background=1dd1a1&color=fff'},
-        {id:3, name:'Charlie', image:'https://ui-avatars.com/api/?name=Charlie&background=ff9f43&color=fff'},
-        {id:4, name:'David', image:'https://ui-avatars.com/api/?name=David&background=5f27cd&color=fff'}
-    ];
+const firebaseConfig = {
+    apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+    authDomain: "angels-attendance.firebaseapp.com",
+    databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+    projectId: "angels-attendance",
+    storageBucket: "angels-attendance.appspot.com",
+    messagingSenderId: "157249026489",
+    appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+    measurementId: "G-2YDPSFPQYT"
+};
 
-    const weeks = [
-        {id:1, name:'Week 1'},
-        {id:2, name:'Week 2'},
-        {id:3, name:'Week 3'}
-    ];
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    const memberSelect = document.getElementById('memberSelect');
-    const weekSelect = document.getElementById('weekSelect');
-    const membersGrid = document.getElementById('membersGrid');
+let members = [];
+let weeks = [];
 
-    // Populate dropdowns
-    members.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = m.name;
-        memberSelect.appendChild(opt);
+const colors = ['#3498db','#2ecc71','#e74c3c','#9b59b6','#f39c12','#1abc9c','#e67e22','#16a085'];
+
+function loginAdmin(){
+    const pw = document.getElementById('adminPassword').value;
+    if(pw==='admin123'){
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('adminSection').classList.remove('hidden');
+        loadMembers();
+        loadWeeks();
+    } else {alert('كلمة المرور خاطئة');}
+}
+
+function logoutAdmin(){
+    document.getElementById('adminSection').classList.add('hidden');
+    document.getElementById('loginSection').classList.remove('hidden');
+}
+
+function loadMembers(){
+    const membersRef = ref(db,'members');
+    onValue(membersRef, snapshot=>{
+        members = [];
+        document.getElementById('memberSelect').innerHTML='<option value="">اختر اسمك</option>';
+        const listEl = document.getElementById('membersList');
+        const adminListEl = document.getElementById('adminMembersList');
+        listEl.innerHTML='';
+        adminListEl.innerHTML='';
+        let i=0;
+        snapshot.forEach(child=>{
+            const m = {id:child.key, ...child.val()};
+            members.push(m);
+            const option = document.createElement('option');
+            option.value=m.id; option.textContent=m.name;
+            document.getElementById('memberSelect').appendChild(option);
+
+            const div = document.createElement('div');
+            div.className='member-item';
+            div.style.background=colors[i%colors.length];
+            div.textContent=m.name;
+            listEl.appendChild(div);
+
+            const adminDiv = document.createElement('div');
+            adminDiv.textContent=`${m.name} (ID: ${m.id})`;
+            adminListEl.appendChild(adminDiv);
+            i++;
+        });
     });
+}
 
-    weeks.forEach(w => {
-        const opt = document.createElement('option');
-        opt.value = w.id;
-        opt.textContent = w.name;
-        weekSelect.appendChild(opt);
+function loadWeeks(){
+    const weeksRef = ref(db,'weeks');
+    onValue(weeksRef, snapshot=>{
+        weeks = [];
+        document.getElementById('weekSelect').innerHTML='<option value="">اختر الأسبوع</option>';
+        snapshot.forEach(child=>{
+            const w={id:child.key,...child.val()};
+            weeks.push(w);
+            const option=document.createElement('option');
+            option.value=w.id; option.textContent=w.name;
+            document.getElementById('weekSelect').appendChild(option);
+        });
     });
+}
 
-    // Populate member cards
-    members.forEach(m => {
-        const card = document.createElement('div');
-        card.className = 'member-card';
-        card.innerHTML = `
-            <img src="${m.image}" alt="${m.name}">
-            <div class="member-name">${m.name}</div>
-        `;
-        membersGrid.appendChild(card);
-    });
+function addNewMember(){
+    const name=document.getElementById('newMemberName').value.trim();
+    if(!name){alert('أدخل اسم العضو'); return;}
+    const image=document.getElementById('newMemberImage').value||`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`;
+    const birthday=document.getElementById('newMemberBirthday').value||'';
+    const membersRef=ref(db,'members');
+    push(membersRef,{name,image,birthday});
+    document.getElementById('newMemberName').value='';
+    document.getElementById('newMemberImage').value='';
+    document.getElementById('newMemberBirthday').value='';
+}
 
-    // Attendance submission
-    document.getElementById('submitAttendance').addEventListener('click', () => {
-        const memberId = memberSelect.value;
-        const weekId = weekSelect.value;
-        if(!memberId || !weekId){
-            alert('Please select member and week!');
-            return;
-        }
-        alert(`Attendance confirmed for member ID ${memberId}, week ID ${weekId}`);
-    });
+function addNewWeek(){
+    const name=document.getElementById('newWeekName').value.trim();
+    const from=document.getElementById('newWeekStart').value;
+    const to=document.getElementById('newWeekEnd').value;
+    if(!name||!from||!to){alert('أدخل جميع بيانات الأسبوع'); return;}
+    const weeksRef=ref(db,'weeks');
+    push(weeksRef,{name,from,to});
+    document.getElementById('newWeekName').value='';
+    document.getElementById('newWeekStart').value='';
+    document.getElementById('newWeekEnd').value='';
+}
+
+function markAttendance(){
+    const memberId=document.getElementById('memberSelect').value;
+    const weekId=document.getElementById('weekSelect').value;
+    if(!memberId||!weekId){alert('اختر اسمك والأسبوع'); return;}
+    const attendanceRef=ref(db,`attendance/${weekId}`);
+    const today=new Date().toISOString();
+    set(ref(db,`attendance/${weekId}/${memberId}`),{timestamp:today});
+    alert('تم تسجيل الحضور');
+}
+
 </script>
 
 </body>

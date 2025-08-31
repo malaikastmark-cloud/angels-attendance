@@ -1,117 +1,95 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Angels Attendance</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        body {
-            margin: 0;
-            font-family: 'Cairo', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            background: rgba(255,255,255,0.95);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 500px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        select, button {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        button {
-            background: #3498db;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #2980b9;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>تسجيل الحضور</h1>
-        <label for="memberSelect">اختر اسمك:</label>
-        <select id="memberSelect">
-            <option value="" disabled selected>اختر الاسم</option>
-        </select>
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-        <label for="weekSelect">اختر الأسبوع:</label>
-        <select id="weekSelect">
-            <option value="" disabled selected>اختر الأسبوع</option>
-        </select>
+export default function App() {
+  const [page, setPage] = useState("home");
+  const [members, setMembers] = useState([]);
+  const [newMember, setNewMember] = useState("");
 
-        <button onclick="submitAttendance()">تسجيل الحضور</button>
+  const addMember = () => {
+    if (newMember.trim() !== "") {
+      setMembers([...members, newMember]);
+      setNewMember("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 p-6">
+      <Card className="w-full max-w-2xl shadow-2xl rounded-2xl bg-white/90">
+        <CardContent className="p-6 space-y-6">
+          {/* الصفحة الرئيسية */}
+          {page === "home" && (
+            <div className="text-center space-y-6">
+              <h1 className="text-3xl font-bold text-gray-800">Attendance System</h1>
+
+              {/* اختيار الاسم */}
+              <div className="space-y-2">
+                <label className="block text-gray-600 font-semibold">Choose Name:</label>
+                <select className="w-full p-3 border rounded-lg shadow-md focus:ring-2 focus:ring-pink-400">
+                  <option>John</option>
+                  <option>Mary</option>
+                  <option>Alex</option>
+                </select>
+              </div>
+
+              {/* اختيار الأسبوع */}
+              <div className="space-y-2">
+                <label className="block text-gray-600 font-semibold">Choose Week:</label>
+                <select className="w-full p-3 border rounded-lg shadow-md focus:ring-2 focus:ring-pink-400">
+                  <option>Week 1</option>
+                  <option>Week 2</option>
+                  <option>Week 3</option>
+                  <option>Week 4</option>
+                </select>
+              </div>
+
+              {/* زر دخول الأدمن */}
+              <Button onClick={() => setPage("admin")} className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg shadow-lg">
+                Admin Page
+              </Button>
+            </div>
+          )}
+
+          {/* صفحة الأدمن */}
+          {page === "admin" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">Admin Panel</h2>
+                <Button onClick={() => setPage("home")} className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
+                  Back
+                </Button>
+              </div>
+
+              {/* إضافة عضو جديد */}
+              <div className="flex space-x-2">
+                <input
+                  value={newMember}
+                  onChange={(e) => setNewMember(e.target.value)}
+                  placeholder="Enter member name"
+                  className="flex-1 p-3 border rounded-lg shadow-md"
+                />
+                <Button onClick={addMember} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                  Add
+                </Button>
+              </div>
+
+              {/* عرض الأعضاء تحت بعض */}
+              <div className="space-y-3">
+                {members.map((member, index) => (
+                  <div
+                    key={index}
+                    className="p-3 rounded-lg shadow-md text-white font-semibold"
+                    style={{ backgroundColor: `hsl(${index * 60}, 70%, 50%)` }}
+                  >
+                    {member}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
-
-    <script>
-        // أمثلة بيانات الأعضاء والأسابيع
-        const members = [
-            { id: 1, name: 'Alice' },
-            { id: 2, name: 'Bob' },
-            { id: 3, name: 'Charlie' }
-        ];
-
-        const weeks = [
-            { id: 1, name: 'Week 1' },
-            { id: 2, name: 'Week 2' },
-            { id: 3, name: 'Week 3' }
-        ];
-
-        // تعبئة قائمة الأعضاء
-        const memberSelect = document.getElementById('memberSelect');
-        members.forEach(member => {
-            const option = document.createElement('option');
-            option.value = member.id;
-            option.textContent = member.name;
-            memberSelect.appendChild(option);
-        });
-
-        // تعبئة قائمة الأسابيع
-        const weekSelect = document.getElementById('weekSelect');
-        weeks.forEach(week => {
-            const option = document.createElement('option');
-            option.value = week.id;
-            option.textContent = week.name;
-            weekSelect.appendChild(option);
-        });
-
-        function submitAttendance() {
-            const memberId = memberSelect.value;
-            const weekId = weekSelect.value;
-            if (!memberId || !weekId) {
-                alert('يرجى اختيار الاسم والأسبوع!');
-                return;
-            }
-            alert(`تم تسجيل الحضور للعضو ${members.find(m=>m.id==memberId).name} للأسبوع ${weeks.find(w=>w.id==weekId).name}`);
-            // هنا ممكن تضيف الكود لرفع البيانات للفيريبيس أو التخزين المحلي
-        }
-    </script>
-</body>
-</html>
+  );
+}

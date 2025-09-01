@@ -1977,39 +1977,53 @@
             });
         }
         
-        // حذف مسابقة
-        function deleteContest(id) {
-            if (confirm('هل تريد حذف هذه المسابقة؟ سيتم خصم النقاط من العضو.')) {
-                const contestRef = database.ref('contests/' + id);
-                
-                contestRef.once('value').then((snapshot) => {
-                    const contest = snapshot.val();
-                    if (!contest) return;
-                    
-                    const memberRef = database.ref('members/' + contest.memberId);
-                    memberRef.once('value').then((snapshot) => {
-                        const member = snapshot.val();
-                        if (member) {
-                            const newPoints = Math.max(0, (member.points || 0) - contest.points);
-                            
-                            memberRef.update({
-                                points: newPoints
-                            }).then(() => {
-                                contestRef.remove().then(() => {
-                                    showNotification('تم حذف المسابقة وخصم النقاط من العضو');
-                                }).catch((error) => {
-                                    console.error("Error deleting contest:", error);
-                                    showNotification('فشل في حذف المسابقة: ' + error.message, false);
-                                });
+        // حذف مسابقة - الإصدار المصحح
+function deleteContest(id) {
+    if (confirm('هل تريد حذف هذه المسابقة؟')) {
+        const contestRef = database.ref('contests/' + id);
+        
+        contestRef.once('value').then((snapshot) => {
+            const contest = snapshot.val();
+            if (!contest) return;
+            
+            // البحث عن العضو في المصفوفة المحلية
+            const memberExists = members.find(m => m.id === contest.memberId);
+            
+            if (memberExists) {
+                // إذا كان العضو موجوداً، خصم النقاط منه
+                const memberRef = database.ref('members/' + contest.memberId);
+                memberRef.once('value').then((snapshot) => {
+                    const memberData = snapshot.val();
+                    if (memberData) {
+                        const newPoints = Math.max(0, (memberData.points || 0) - contest.points);
+                        
+                        memberRef.update({
+                            points: newPoints
+                        }).then(() => {
+                            contestRef.remove().then(() => {
+                                showNotification('تم حذف المسابقة وخصم النقاط من العضو');
                             }).catch((error) => {
-                                console.error("Error updating points:", error);
-                                showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                                console.error("Error deleting contest:", error);
+                                showNotification('فشل في حذف المسابقة: ' + error.message, false);
                             });
-                        }
-                    });
+                        }).catch((error) => {
+                            console.error("Error updating points:", error);
+                            showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                        });
+                    }
+                });
+            } else {
+                // إذا كان العضو محذوفاً، احذف المسابقة فقط
+                contestRef.remove().then(() => {
+                    showNotification('تم حذف المسابقة');
+                }).catch((error) => {
+                    console.error("Error deleting contest:", error);
+                    showNotification('فشل في حذف المسابقة: ' + error.message, false);
                 });
             }
-        }
+        });
+    }
+}
         
         // تحديث جدول المسابقات
         function updateContestsTable() {

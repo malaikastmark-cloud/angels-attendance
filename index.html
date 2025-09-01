@@ -8,7 +8,7 @@
     <!-- إضافة Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- Chart.js for modern reports -->
+    <!-- Chart.js for modern charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -155,7 +155,7 @@
         .btn-danger:hover {
             background: #c0392b;
             transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 极速5px 10px rgba(0, 0, 0, 0.2);
         }
         
         .btn-warning {
@@ -188,7 +188,7 @@
         .btn-secondary:hover {
             background: #636e70;
             transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 极速5px 10px rgba(0, 0, 0, 0.2);
         }
         
         .controls {
@@ -199,12 +199,17 @@
             align-items: center;
         }
         
-        select, input {
+        select, input, textarea {
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
             font-size: 1rem;
             min-width: 200px;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
         }
         
         .modal {
@@ -226,7 +231,7 @@
             border-radius: 15px;
             width: 400px;
             max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 极速0, 0, 0.3);
             animation: modalFadeIn 0.3s;
         }
         
@@ -274,7 +279,7 @@
         
         .summary-card h3 {
             color: #3498db;
-            margin-bottom: 15px;
+           极速 margin-bottom: 15px;
             font-size: 1.2rem;
         }
         
@@ -300,12 +305,12 @@
         .loading {
             display: none;
             text-align: center;
-            margin: 30px 0;
+            margin: 30px 极速0;
         }
         
         .loading-spinner {
             width: 50px;
-            height: 50px;
+            height极速: 50px;
             border: 5px solid #f3f3f3;
             border-top: 5px solid #3498db;
             border-radius: 50%;
@@ -352,7 +357,7 @@
         }
         
         .top-member-item:hover {
-            background: #f9f9f9;
+            background: #f9极速f9f9;
         }
         
         .top-member-item:last-child {
@@ -441,13 +446,13 @@
         
         .member-stat-item {
             background: #f8f9fa;
-            padding: 12px;
+            padding极速: 12px;
             border-radius: 8px;
             text-align: center;
             flex: 1;
         }
         
-        .member-stat-value {
+极速        .member-stat-value {
             font-size: 1.5rem;
             font-weight: bold;
             color: #3498db;
@@ -465,7 +470,7 @@
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 0.8rem;
-            background: #f8f9fa;
+            background: #极速f8f9fa;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
@@ -511,25 +516,16 @@
             align-items: center;
         }
         
-        /* Modern charts styling */
         .chart-container {
             background: white;
             border-radius: 10px;
             padding: 20px;
             margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
+            box-shadow: 0 5极速px 15px rgba(0, 0, 0, 0.极速1);
             height: 300px;
         }
         
-        .chart-title {
-            text-align: center;
-            color: #3498db;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .stats-grid {
+        .modern-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
@@ -540,8 +536,8 @@
             background: white;
             border-radius: 10px;
             padding: 20px;
-            text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
             transition: transform 0.3s;
         }
         
@@ -549,22 +545,22 @@
             transform: translateY(-5px);
         }
         
-        .stat-icon {
+        .stat-card i {
             font-size: 2.5rem;
             margin-bottom: 15px;
             color: #3498db;
         }
         
-        .stat-number {
+        .stat-card h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .stat-card .value {
             font-size: 2rem;
             font-weight: bold;
             color: #2ecc71;
-            margin: 10px 0;
-        }
-        
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
@@ -577,7 +573,7 @@
                 align-items: stretch;
             }
             
-            select, input {
+            select, input, textarea {
                 width: 100%;
             }
             
@@ -591,7 +587,7 @@
             
             .export-buttons {
                 flex-direction: column;
-            }
+极速            }
             
             header h1 {
                 font-size: 1.8rem;
@@ -606,7 +602,7 @@
                 align-items: stretch;
             }
             
-            .stats-grid {
+            .modern-stats {
                 grid-template-columns: 1fr;
             }
         }
@@ -620,13 +616,6 @@
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        /* Left alignment for member numbers */
-        .member-number {
-            text-align: left;
-            padding-left: 20px;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -658,7 +647,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="member-number">#</th>
+                        <th>#</th>
                         <th>الصورة</th>
                         <th>اسم العضو</th>
                         <th>الأسبوع</th>
@@ -671,7 +660,7 @@
                 </tbody>
             </table>
             <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
+                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span极速 id="totalMembers">0</span></span>
                 <span>النقاط: <span id="totalPoints">0</span></span>
             </div>
         </div>
@@ -693,7 +682,7 @@
 
         <div class="tab-content" id="adminTabs" style="display:none;">
             <div class="controls">
-                <button class="btn btn-secondary" id="backToUserView">
+                <button class="btn btn-secondary" id极速="backToUserView">
                     <i class="fas fa-arrow-right"></i> العودة إلى واجهة المستخدم
                 </button>
             </div>
@@ -705,8 +694,8 @@
                 <div class="tab" data-tab="contests">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
                 <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></div>
                 <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
-                <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
-                <div class="tab" data-tab="reports">التقارير</div>
+                <div class="tab" data极速-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
+                <极速div class="tab" data-tab="reports">التقارير</div>
             </div>
 
             <div class="tab-content active" id="members">
@@ -725,7 +714,7 @@
                 <table id="membersTable">
                     <thead>
                         <tr>
-                            <th class="member-number">#</th>
+                            <th>#</th>
                             <th>اسم العضو</th>
                             <th>النقاط</th>
                             <th>تعديل</th>
@@ -741,14 +730,14 @@
             <div class="tab-content" id="weeks">
                 <h2>إدارة الأسابيع</h2>
                 <div class="controls">
-                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                    <input type="text" id="new极速WeekName" placeholder="اسم الأسبوع">
                     <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
                 </div>
                 <table id="weeksTable">
                     <thead>
                         <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم الأسبوع</th>
+                            <th>#</th>
+                            <th>اسم الأسبوع</极速th>
                             <th>تعديل</th>
                             <th>حذف</th>
                         </tr>
@@ -785,14 +774,14 @@
                     <button class="btn btn-danger" id="deleteSelectedAttendance">حذف الحضور المحدد</button>
                 </div>
                 
-                <table id="attendanceRecordsTable">
+                <table id="attendanceTable">
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAllAttendance"></th>
-                            <th class="member-number">#</th>
+                            <th>#</th>
                             <th>العضو</th>
-                            <th>الأسبوع</th>
                             <th>النقاط</th>
+                            <th>الأسبوع</th>
                             <th>تاريخ التسجيل</th>
                         </tr>
                     </thead>
@@ -816,7 +805,7 @@
                         <option value="3">3 نقاط</option>
                         <option value="4">4 نقاط</option>
                         <option value="5">5 نقاط</option>
-                        <option value="6">6 نقاط</option>
+                        <option value="极速6">6 نقاط</option>
                         <option value="7">7 نقاط</option>
                         <option value="8">8 نقاط</option>
                         <option value="9">9 نقاط</option>
@@ -827,7 +816,7 @@
                 <table id="contestsTable">
                     <thead>
                         <tr>
-                            <th class="member-number">#</th>
+                            <th>#</th>
                             <th>اسم العضو</th>
                             <th>المسابقة</th>
                             <th>النقاط</th>
@@ -842,7 +831,7 @@
             </div>
 
             <div class="tab-content" id="birthdays">
-                <h2>أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></h2>
+                <h2>أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></极速i></h2>
                 
                 <div class="birthday-reminder">
                     <h3><i class="fas fa-bell"></i> تذكير: عيد ميلاد أحمد غداً</h3>
@@ -861,7 +850,7 @@
                 <table id="birthdaysTable">
                     <thead>
                         <tr>
-                            <th class="member-number">#</th>
+                            <th>#</th>
                             <th>اسم العضو</th>
                             <th>تاريخ الميلاد</th>
                             <th>الأيام المتبقية</th>
@@ -880,13 +869,13 @@
                 <div class="controls">
                     <input type="text" id="newEventName" placeholder="اسم المناسبة">
                     <input type="date" id="newEventDate">
-                    <input type="text" id="newEventDescription" placeholder="وصف المناسبة">
+                    <textarea id="newEventDescription" placeholder="وصف المناسبة"></textarea>
                     <button class="btn btn-primary" id="addEventBtn">إضافة مناسبة</button>
                 </div>
                 <table id="eventsTable">
                     <thead>
                         <tr>
-                            <th class="member-number">#</th>
+                            <th>#</th>
                             <th>اسم المناسبة</th>
                             <th>التاريخ</th>
                             <th>الوصف</th>
@@ -894,7 +883,7 @@
                             <th>حذف</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="eventsTableBody">
                         <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
@@ -909,17 +898,12 @@
                         <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <input type="date" id="newTaskDeadline">
-                    <select id="newTaskStatus">
-                        <option value="قيد التنفيذ">قيد التنفيذ</option>
-                        <option value="مكتملة">مكتملة</option>
-                        <option value="متأخرة">متأخرة</option>
-                    </select>
                     <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
                 </div>
                 <table id="tasksTable">
                     <thead>
-                        <tr>
-                            <th class="member-number">#</th>
+                        <极速tr>
+                            <th>#</th>
                             <th>اسم المهمة</th>
                             <th>المسؤول</th>
                             <th>الموعد النهائي</th>
@@ -928,7 +912,7 @@
                             <th>حذف</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tasksTableBody">
                         <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
@@ -937,43 +921,36 @@
             <div class="tab-content" id="reports">
                 <h2>التقارير والإحصائيات</h2>
                 
-                <div class="report-section">
-                    <h3>📊 إحصائيات عامة</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-users"></i></div>
-                            <div class="stat-number" id="reportMembers">0</div>
-                            <div class="stat-label">إجمالي الأعضاء</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
-                            <div class="stat-number" id="reportWeeks">0</div>
-                            <div class="stat-label">عدد الأسابيع</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="stat-number" id="reportAttendance">0</div>
-                            <div class="stat-label">إجمالي الحضور</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-star"></i></div>
-                            <div class="stat-number" id="reportPoints">0</div>
-                            <div class="stat-label">النقاط الممنوحة</div>
-                        </div>
+                <div class="modern-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3>إجمالي الأعضاء</极速h3>
+                        <div class="value" id="modernReportMembers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>إجمالي الحضور</h3>
+                        <div class="value" id="modernReportAttendance">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h3>النقاط الممنوحة</h3>
+                        <div class="value" id="modernReportPoints">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-week"></i>
+                        <h3>عدد الأسابيع</h3>
+                        <div class="value" id="modernReportWeeks">0</div>
                     </div>
                 </div>
 
                 <div class="report-section">
-                    <h3>📈 توزيع النقاط بين الأعضاء</h3>
-                    <div class="chart-container">
-                        <canvas id="pointsChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>📅 الحضور خلال الأسابيع</h3>
+                    <h3>📊 الرسوم البيانية</h3>
                     <div class="chart-container">
                         <canvas id="attendanceChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pointsChart"></canvas>
                     </div>
                 </div>
 
@@ -981,6 +958,13 @@
                     <h3>🏆 الـ 10 الأوائل في الحضور</h3>
                     <div class="top-members-list" id="topMembersList">
                         <p>لا توجد بيانات حتى الآن</p>
+                    </div>
+                </div>
+
+                <div class="report-section">
+                    <h3>👥 إحصائيات الأعضاء</h3>
+                    <div id="membersStatsContainer">
+                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </div>
                 </div>
             </div>
@@ -996,7 +980,7 @@
           projectId: "angels-attendance",
           storageBucket: "angels-attendance.firebasestorage.app",
           messagingSenderId: "157249026489",
-          appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+          appId: "极速1:157249026489:web:db2b420203bd81d9a19e68",
           measurementId: "G-2YDPSFPQYT"
         };
 
@@ -1073,13 +1057,12 @@
             attendanceRecords = [];
 
             if (data) {
-              Object.keys(data).forEach((key) => {
+              Object.keys(data).forEach((key极速) => {
                 attendanceRecords.push({
                   id: key,
                   memberId: data[key].memberId,
                   weekId: data[key].weekId,
-                  date: data[key].date,
-                  points: data[key].points || 1
+                  date: data[key].date
                 });
               });
             }
@@ -1115,7 +1098,7 @@
         }
 
         // دالة لتحميل أعياد الميلاد من Firebase
-        function loadBirthdaysFromFirebase() {
+        function loadBirthdaysFrom极速Firebase() {
           const birthdaysRef = database.ref('birthdays');
 
           birthdaysRef.on('value', (snapshot) => {
@@ -1175,7 +1158,7 @@
                   assigneeId: data[key].assigneeId,
                   assigneeName: data[key].assigneeName,
                   deadline: data[key].deadline,
-                  status: data[key].status
+                  status: data[key].status || 'قيد التنفيذ'
                 });
               });
             }
@@ -1195,18 +1178,6 @@
             loadEventsFromFirebase();
             loadTasksFromFirebase();
             updateReports();
-            
-            // التحقق من حالة الاتصال بـ Firebase
-            const databaseRef = database.ref(".info/connected");
-            databaseRef.on("value", (snap) => {
-                if (snap.val() === true) {
-                    console.log("Connected to Firebase");
-                    showNotification("متصل بقاعدة البيانات", true);
-                } else {
-                    console.log("Disconnected from Firebase");
-                    showNotification("غير متصل بقاعدة البيانات", false);
-                }
-            });
         }
         
         // إعداد مستمعي الأحداث
@@ -1251,7 +1222,6 @@
             document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
             document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
             document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
-            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
             
             // إدارة المسابقات
             document.getElementById('addContestBtn').addEventListener('click', addContest);
@@ -1276,7 +1246,7 @@
             });
             
             // إدارة المناسبات
-            document.getElementById('addEventBtn').addEventListener('click', addEvent);
+            document.getElementById极速('addEventBtn').addEventListener('click', addEvent);
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('editEvent')) {
                     const id = e.target.dataset.id;
@@ -1299,6 +1269,10 @@
                     const id = e.target.dataset.id;
                     deleteTask(id);
                 }
+                if (e.target.classList.contains('updateTaskStatus')) {
+                    const id = e.target.dataset.id;
+                    updateTaskStatus(id);
+                }
             });
             
             // إدارة التبويبات
@@ -1318,17 +1292,12 @@
                     this.classList.add('active');
                     
                     // إخفاء جميع محتويات التبويبات
-                    const tabContents = document.querySelectorAll('#adminTabs .tab-content');
+                    const tabContents = document.querySelectorAll('#adminTabs .极速tab-content');
                     tabContents.forEach(content => content.classList.remove('active'));
                     
                     // إظهار محتوى التبويب المحدد
-                    const tabId = this.getAttribute('data-tab');
+                    const tabId = this.getAttribute('data极速-tab');
                     document.getElementById(tabId).classList.add('active');
-                    
-                    // إذا كان التبويب هو التقارير، قم بتحديثها
-                    if (tabId === 'reports') {
-                        updateReports();
-                    }
                 });
             });
         }
@@ -1388,7 +1357,7 @@
             
             newMemberRef.set({
                 name: `${emoji} ${name}`,
-                points: 0
+                points极速: 0
             }).then(() => {
                 showNotification('تم إضافة العضو بنجاح');
                 nameInput.value = '';
@@ -1416,7 +1385,7 @@
                         name: `${emoji} ${newName}`
                     }).then(() => {
                         showNotification('تم تعديل بيانات العضو');
-                    }).catch((error) => {
+                    }).catch((error极速) => {
                         console.error("Error updating member:", error);
                         showNotification('فشل في تعديل العضو: ' + error.message, false);
                     });
@@ -1446,7 +1415,7 @@
             members.forEach((member, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${member.name}</td>
                     <td>${member.points}</td>
                     <td><button class='btn btn-primary editMember' data-id='${member.id}'>تعديل</button></td>
@@ -1516,7 +1485,7 @@
             const weeksRef = database.ref('weeks');
             const newWeekRef = weeksRef.push();
             
-            newWeekRef.set({
+            new极速WeekRef.set({
                 name: name
             }).then(() => {
                 showNotification('تم إضافة الأسبوع بنجاح');
@@ -1572,9 +1541,9 @@
             weeks.forEach((week, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${week.name}</td>
-                    <td><button class='btn btn-primary editWeek' data-id='${week.id}'>تعديل</button></td>
+                    <td><button class='btn btn-primary editWeek' data-id='${week.id极速}'>تعديل</极速button></td>
                     <td><button class='btn btn-danger deleteWeek' data-id='${week.id}'>حذف</button></td>
                 `;
                 weeksTbody.appendChild(tr);
@@ -1644,8 +1613,7 @@
                         newAttendanceRef.set({
                             memberId: memberId,
                             weekId: weekId,
-                            date: new Date().toISOString(),
-                            points: 1
+                            date: new Date().toISOString()
                         }).then(() => {
                             showNotification('تم تسجيل الحضور بنجاح!');
                         }).catch((error) => {
@@ -1691,7 +1659,7 @@
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td><img src="https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=3498db&color=fff" class="member-img" alt="${member.name}"></td>
                     <td>${member.name}</td>
                     <td>${currentWeek ? currentWeek.name : ''}</td>
@@ -1706,7 +1674,7 @@
         
         // تحديث إحصائيات الحضور
         function updateAttendanceStats() {
-            const selectedWeekId = document.getElementById('weekSelect').value;
+            const selected极速WeekId = document.getElementById('weekSelect').value;
             let count = 0;
             let totalPoints = 0;
             
@@ -1717,7 +1685,7 @@
             }
             
             const weekAttendance = attendanceRecords.filter(ar => ar.weekId === selectedWeekId);
-            count = weekAttendance.length;
+            count =极速 weekAttendance.length;
             
             totalPoints = members.reduce((sum, member) => sum + (member.points || 0), 0);
             
@@ -1728,7 +1696,7 @@
         
         // إضافة نقاط إضافية
         function addExtraPoints() {
-            const memberId = document.getElementById('extraPointMember').value;
+            const memberId = document.getElementById('extraPointMember').极速value;
             const points = parseInt(document.getElementById('extraPointsValue').value);
             const reason = document.getElementById('extraPointsReason').value;
             
@@ -1776,7 +1744,7 @@
                     
                     const member = members.find(m => m.id === record.memberId);
                     if (member) {
-                        const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
+                        const newPoints = Math.max(0, (member.points || 0) - 1);
                         updates[`members/${record.memberId}/points`] = newPoints;
                     }
                 });
@@ -1821,13 +1789,13 @@
                         
                         const member = members.find(m => m.id === record.memberId);
                         if (member) {
-                            const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
+                            const newPoints = Math.max(0, (member.points || 0) - 1);
                             updates[`members/${record.memberId}/points`] = newPoints;
                         }
                     }
                 });
                 
-                database.ref().update(updates).then(() => {
+                database.ref().update极速(updates).then(() => {
                     showNotification(`تم حذف ${selectedCheckboxes.length} سجل حضور`);
                 }).catch((error) => {
                     console.error("Error deleting attendance:", error);
@@ -1855,10 +1823,10 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><input type="checkbox" class="attendance-checkbox" data-id="${record.id}"></td>
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${member ? member.name : 'عضو محذوف'}</td>
+                    <td>${member ? member.points || 0 : 0}</td>
                     <td>${week ? week.name : 'أسبوع محذوف'}</td>
-                    <td>${record.points || 1}</td>
                     <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
                 `;
                 tbody.appendChild(tr);
@@ -1894,7 +1862,7 @@
                     }).then(() => {
                         // إضافة سجل المسابقة
                         const contestsRef = database.ref('contests');
-                        const newContestRef = contestsRef.push();
+                        const newContestRef = contests极速Ref.push();
                         
                         newContestRef.set({
                             memberId: memberId,
@@ -1927,13 +1895,13 @@
                     if (!contest) return;
                     
                     const memberRef = database.ref('members/' + contest.memberId);
-                    memberRef.once('value').then((snapshot) => {
+                    memberRef.once('value').then((snapshot)极速 => {
                         const member = snapshot.val();
-                        if (member) {
+                       极速 if (member) {
                             const newPoints = Math.max(0, (member.points || 0) - contest.points);
                             
                             memberRef.update({
-                                points: newPoints
+                                points: new极速Points
                             }).then(() => {
                                 contestRef.remove().then(() => {
                                     showNotification('تم حذف المسابقة وخصم النقاط من العضو');
@@ -1958,7 +1926,7 @@
             
             if (contests.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد مسابقات حتى الآن</td>`;
+                tr.innerHTML = `<td colspan="6" style极速="text-align:center;">لا توجد مسابقات حتى الآن</td>`;
                 tbody.appendChild(tr);
                 return;
             }
@@ -1968,10 +1936,10 @@
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${member ? member.name : 'عضو محذوف'}</td>
                     <td>${contest.contestName}</td>
-                    <td>${contest.points}</td>
+                   极速 <td>${contest.points}</td>
                     <td>${new Date(contest.date).toLocaleDateString('ar-EG')}</td>
                     <td><button class='btn btn-danger deleteContest' data-id='${contest.id}'>حذف</button></td>
                 `;
@@ -2077,12 +2045,12 @@
             }
             
             birthdays.forEach((birthday, index) => {
-                const member = members.find(m => m.id === birthday.memberId);
+                const member = members极速.find(m => m.id === birthday.memberId);
                 const daysLeft = daysUntilBirthday(birthday.date);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td极速>${index + 1}</td>
                     <td>${member ? member.name : 'عضو محذوف'}</td>
                     <td>${new Date(birthday.date).toLocaleDateString('ar-EG')}</td>
                     <td>${daysLeft} يوم</td>
@@ -2107,7 +2075,7 @@
             const eventsRef = database.ref('events');
             const newEventRef = eventsRef.push();
             
-            newEventRef.set({
+            newEventRef极速.set({
                 name: name,
                 date: date,
                 description: description
@@ -2115,7 +2083,7 @@
                 showNotification('تم إضافة المناسبة بنجاح');
                 
                 document.getElementById('newEventName').value = '';
-                document.getElementById('newEventDate').value = '';
+                document.getElementById('new极速EventDate').value = '';
                 document.getElementById('newEventDescription').value = '';
             }).catch((error) => {
                 console.error("Error adding event:", error);
@@ -2141,7 +2109,7 @@
                         date: newDate,
                         description: newDescription
                     }).then(() => {
-                        showNotification('تم تعديل بيانات المناسبة');
+                        showNotification('تم تعديل المناسبة');
                     }).catch((error) => {
                         console.error("Error updating event:", error);
                         showNotification('فشل في تعديل المناسبة: ' + error.message, false);
@@ -2152,13 +2120,13 @@
         
         // حذف مناسبة
         function deleteEvent(id) {
-            if (confirm('هل تريد حذف المناسبة؟')) {
+            if (confirm('هل تريد حذف هذه المناسبة؟')) {
                 const eventRef = database.ref('events/' + id);
                 
                 eventRef.remove().then(() => {
                     showNotification('تم حذف المناسبة');
                 }).catch((error) => {
-                    console.error("Error deleting event:", error);
+                    console.error("极速Error deleting event:", error);
                     showNotification('فشل في حذف المناسبة: ' + error.message, false);
                 });
             }
@@ -2166,7 +2134,7 @@
         
         // تحديث جدول المناسبات
         function updateEventsTable() {
-            const tbody = document.querySelector('#eventsTable tbody');
+            const tbody = document.getElementById('eventsTableBody');
             tbody.innerHTML = '';
             
             if (events.length === 0) {
@@ -2179,7 +2147,7 @@
             events.forEach((event, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${event.name}</td>
                     <td>${new Date(event.date).toLocaleDateString('ar-EG')}</td>
                     <td>${event.description}</td>
@@ -2195,9 +2163,8 @@
             const name = document.getElementById('newTaskName').value;
             const assigneeId = document.getElementById('newTaskAssignee').value;
             const deadline = document.getElementById('newTaskDeadline').value;
-            const status = document.getElementById('newTaskStatus').value;
             
-            if (!name || !assigneeId || !deadline || !status) {
+            if (!name || !assigneeId || !deadline) {
                 showNotification('يرجى ملء جميع الحقول', false);
                 return;
             }
@@ -2216,14 +2183,13 @@
                 assigneeId: assigneeId,
                 assigneeName: assignee.name,
                 deadline: deadline,
-                status: status
+                status: 'قيد التنفيذ'
             }).then(() => {
                 showNotification('تم إضافة المهمة بنجاح');
                 
                 document.getElementById('newTaskName').value = '';
                 document.getElementById('newTaskAssignee').value = '';
                 document.getElementById('newTaskDeadline').value = '';
-                document.getElementById('newTaskStatus').value = 'قيد التنفيذ';
             }).catch((error) => {
                 console.error("Error adding task:", error);
                 showNotification('فشل في إضافة المهمة: ' + error.message, false);
@@ -2240,15 +2206,13 @@
                 
                 const newName = prompt('عدل اسم المهمة:', task.name);
                 const newDeadline = prompt('عدل الموعد النهائي:', task.deadline);
-                const newStatus = prompt('عدل الحالة:', task.status);
                 
-                if (newName && newDeadline && newStatus) {
+                if (newName && newDeadline) {
                     taskRef.update({
                         name: newName,
-                        deadline: newDeadline,
-                        status: newStatus
+                        deadline: newDeadline
                     }).then(() => {
-                        showNotification('تم تعديل بيانات المهمة');
+                        showNotification('تم تعديل المهمة');
                     }).catch((error) => {
                         console.error("Error updating task:", error);
                         showNotification('فشل في تعديل المهمة: ' + error.message, false);
@@ -2259,21 +2223,44 @@
         
         // حذف مهمة
         function deleteTask(id) {
-            if (confirm('هل تريد حذف المهمة؟')) {
+            if (confirm('هل تريد حذف هذه المهمة؟')) {
                 const taskRef = database.ref('tasks/' + id);
                 
                 taskRef.remove().then(() => {
                     showNotification('تم حذف المهمة');
                 }).catch((error) => {
                     console.error("Error deleting task:", error);
-                    showNotification('فشل في حذف المهمة: ' + error.message, false);
+                    showNotification('فشل في حذف المهمة: '极速 + error.message, false);
                 });
             }
         }
         
+        // تحديث حالة المهمة
+        function updateTaskStatus(id) {
+            const taskRef = database.ref('tasks/' + id);
+            
+            taskRef.once('value').then((snapshot) => {
+                const task = snapshot.val();
+                if (!task) return;
+                
+                const newStatus = prompt('عدل حالة المهمة (قيد التنفيذ/مكتملة):', task.status);
+                
+                if (newStatus) {
+                    taskRef.update({
+                        status: newStatus
+                    }).then(() => {
+                        showNotification('تم تعديل حالة المهمة');
+                    }).catch((error) => {
+                        console.error("Error updating task status:", error);
+                        showNotification('فشل في تعديل حالة المهمة: ' + error.message, false);
+                    });
+                }
+            });
+        }
+        
         // تحديث جدول المهمات
         function updateTasksTable() {
-            const tbody = document.querySelector('#tasksTable tbody');
+            const tbody = document.getElementById('tasksTableBody');
             tbody.innerHTML = '';
             
             if (tasks.length === 0) {
@@ -2286,7 +2273,7 @@
             tasks.forEach((task, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td>${task.name}</td>
                     <td>${task.assigneeName}</td>
                     <td>${new Date(task.deadline).toLocaleDateString('ar-EG')}</td>
@@ -2305,39 +2292,44 @@
             document.getElementById('reportMembers').textContent = members.length;
             document.getElementById('reportWeeks').textContent = weeks.length;
             
+            // تحديث الإحصائيات الحديثة
+            document.getElementById('modernReportAttendance').textContent = attendanceRecords.length;
+            document.getElementById('modernReportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
+            document.getElementById('modernReportMembers').textContent = members.length;
+            document.getElementById('modernReportWeeks').textContent = weeks.length;
+            
             updateTopMembers();
+            updateMembersStats();
+            updateAttendanceRecordsTable();
             updateCharts();
         }
         
-        // تحديث المخططات البيانية
+        // تحديث الرسوم البيانية
         function updateCharts() {
-            updatePointsChart();
-            updateAttendanceChart();
-        }
-        
-        // تحديث مخطط النقاط
-        function updatePointsChart() {
-            const ctx = document.getElementById('pointsChart').getContext('2d');
+            // رسم بياني للحضور
+            const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
             
-            // تجهيز البيانات للمخطط
-            const memberNames = members.map(m => m.name);
-            const memberPoints = members.map(m => m.points || 0);
+            // تجميع بيانات الحضور حسب الأسبوع
+            const weeklyAttendance = {};
+            attendanceRecords.forEach(record => {
+                const week = weeks.find(w => w.id === record.weekId);
+                if (week) {
+                    if (!weeklyAttendance[week.name]) {
+                        weeklyAttendance[week.name] = 0;
+                    }
+                    weeklyAttendance[week.name]++;
+                }
+            });
             
-            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
-            if (window.pointsChartInstance) {
-                window.pointsChartInstance.destroy();
-            }
-            
-            // إنشاء مخطط جديد
-            window.pointsChartInstance = new Chart(ctx, {
+            const attendanceChart = new Chart(attendanceCtx, {
                 type: 'bar',
                 data: {
-                    labels: memberNames,
+                    labels: Object.keys(weeklyAttendance),
                     datasets: [{
-                        label: 'النقاط',
-                        data: memberPoints,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        label: 'عدد الحضور',
+                        data: Object.values(weeklyAttendance),
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
                         borderWidth: 1
                     }]
                 },
@@ -2346,64 +2338,73 @@
                     maintainAspectRatio: false,
                     scales: {
                         y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'توزيع النقاط بين الأعضاء'
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'عدد الحضور'
+                            }
                         },
-                        legend: {
-                            display: false
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'الأسابيع'
+                            }
                         }
                     }
                 }
             });
-        }
-        
-        // تحديث مخطط الحضور
-        function updateAttendanceChart() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
             
-            // تجهيز البيانات للمخطط
-            const weekNames = weeks.map(w => w.name);
-            const attendanceByWeek = weeks.map(week => {
-                return attendanceRecords.filter(ar => ar.weekId === week.id).length;
+            // رسم بياني للنقاط
+            const pointsCtx = document.getElementById('pointsChart').getContext('2d');
+            
+            // تجميع بيانات النقاط للأعضاء
+            const memberPoints = {};
+            members.forEach(member => {
+                if (member.points > 0) {
+                    memberPoints[member.name] = member.points;
+                }
             });
             
-            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
-            if (window.attendanceChartInstance) {
-                window.attendanceChartInstance.destroy();
-            }
+            // الحصول على أعلى 5 أعضاء من حيث النقاط
+            const topMembers = Object.entries(memberPoints)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
             
-            // إنشاء مخطط جديد
-            window.attendanceChartInstance = new Chart(ctx, {
-                type: 'line',
+            const pointsChart = new Chart(pointsCtx, {
+                type: 'pie',
                 data: {
-                    labels: weekNames,
+                    labels: topMembers.map(m => m[0]),
                     datasets: [{
-                        label: 'عدد الحضور',
-                        data: attendanceByWeek,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
+                        label: 'النقاط',
+                        data: topMembers.map(m => m[1]),
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(230, 126, 34, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            '极速rgba(155, 89, 182, 1)',
+                            'rgba(241, 196, 15, 1)',
+                            'rgba(230, 126, 34, 1)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
                     plugins: {
+                        legend: {
+                            position: 'bottom',
+                            rtl: true
+                        },
                         title: {
                             display: true,
-                            text: 'الحضور خلال الأسابيع'
+                            text: 'توزيع النقاط بين الأعضاء'
                         }
                     }
                 }
@@ -2442,6 +2443,29 @@
                     <div class="top-member-points">${member.points} نقطة</div>
                 `;
                 topMembersList.appendChild(item);
+            });
+        }
+        
+        // تحديث إحصائيات الأعضاء
+        function updateMembersStats() {
+            const container = document.getElementById('membersStatsContainer');
+            container.innerHTML = '';
+            
+            members.forEach(member => {
+                const statsDiv = document.createElement('div');
+                statsDiv.className = 'member-stats';
+                statsDiv.innerHTML = `
+                    <div style="flex:1">
+                        <h4>${member.name}</h4>
+                        <div style="display:flex;gap:10px;margin-top:5px;">
+                            <div class="member-stat-item">
+                                <div class="member-stat-value">${member.points || 0}</div>
+                                <div class="member-stat-label">نقاط</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(statsDiv);
             });
         }
         

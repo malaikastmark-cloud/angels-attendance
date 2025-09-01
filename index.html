@@ -491,6 +491,24 @@
             align-items: center;
         }
         
+        .birthday-reminder {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .birthday-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            margin: 10px 0;
+            border-radius: 8px;
+            align-items: center;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -615,6 +633,8 @@
                 <div class="tab active" data-tab="members">إدارة الأعضاء</div>
                 <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
                 <div class="tab" data-tab="attendance">إدارة الحضور</div>
+                <div class="tab" data-tab="contests">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
+                <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></div>
                 <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
                 <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
                 <div class="tab" data-tab="reports">التقارير</div>
@@ -707,6 +727,79 @@
                         </tr>
                     </thead>
                     <tbody id="attendanceRecordsBody">
+                        <!-- سيتم تعبئة البيانات من Firebase -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="contests">
+                <h2>إدارة المسابقات <i class="fas fa-trophy emoji-icon"></i></h2>
+                <div class="controls">
+                    <select id="contestMember">
+                        <option value="">-- اختر العضو --</option>
+                        <!-- سيتم تعبئة الخيارات من Firebase -->
+                    </select>
+                    <input type="text" id="contestName" placeholder="اسم المسابقة">
+                    <select id="contestPoints">
+                        <option value="1">1 نقطة</option>
+                        <option value="2">2 نقاط</option>
+                        <option value="3">3 نقاط</option>
+                        <option value="4">4 نقاط</option>
+                        <option value="5">5 نقاط</option>
+                        <option value="6">6 نقاط</option>
+                        <option value="7">7 نقاط</option>
+                        <option value="8">8 نقاط</option>
+                        <option value="9">9 نقاط</option>
+                        <option value="10">10 نقاط</option>
+                    </select>
+                    <button class="btn btn-primary" id="addContestBtn">إضافة نقاط المسابقة</button>
+                </div>
+                <table id="contestsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم العضو</th>
+                            <th>المسابقة</th>
+                            <th>النقاط</th>
+                            <th>التاريخ</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم تعبئة البيانات من Firebase -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-content" id="birthdays">
+                <h2>أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></h2>
+                
+                <div class="birthday-reminder">
+                    <h3><i class="fas fa-bell"></i> تذكير: عيد ميلاد أحمد غداً</h3>
+                </div>
+                
+                <div class="controls">
+                    <select id="birthdayMember">
+                        <option value="">-- اختر العضو --</option>
+                        <!-- سيتم تعبئة الخيارات من Firebase -->
+                    </select>
+                    <input type="date" id="birthdayDate">
+                    <button class="btn btn-primary" id="addBirthdayBtn">إضافة عيد ميلاد</button>
+                </div>
+                
+                <h3>قائمة أعياد الميلاد</h3>
+                <table id="birthdaysTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم العضو</th>
+                            <th>تاريخ الميلاد</th>
+                            <th>الأيام المتبقية</th>
+                            <th>تعديل</th>
+                            <th>حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
@@ -834,6 +927,8 @@
         let members = [];
         let weeks = [];
         let attendanceRecords = [];
+        let contests = [];
+        let birthdays = [];
         let events = [];
         let tasks = [];
         
@@ -911,12 +1006,60 @@
           });
         }
 
+        // دالة لتحميل المسابقات من Firebase
+        function loadContestsFromFirebase() {
+          const contestsRef = database.ref('contests');
+
+          contestsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            contests = [];
+
+            if (data) {
+              Object.keys(data).forEach((key) => {
+                contests.push({
+                  id: key,
+                  memberId: data[key].memberId,
+                  contestName: data[key].contestName,
+                  points: data[key].points,
+                  date: data[key].date
+                });
+              });
+            }
+
+            updateContestsTable();
+          });
+        }
+
+        // دالة لتحميل أعياد الميلاد من Firebase
+        function loadBirthdaysFromFirebase() {
+          const birthdaysRef = database.ref('birthdays');
+
+          birthdaysRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            birthdays = [];
+
+            if (data) {
+              Object.keys(data).forEach((key) => {
+                birthdays.push({
+                  id: key,
+                  memberId: data[key].memberId,
+                  date: data[key].date
+                });
+              });
+            }
+
+            updateBirthdaysTable();
+          });
+        }
+
         // تهيئة التطبيق
         function initializeApp() {
             setupEventListeners();
             loadMembersFromFirebase();
             loadWeeksFromFirebase();
             loadAttendanceFromFirebase();
+            loadContestsFromFirebase();
+            loadBirthdaysFromFirebase();
             updateReports();
         }
         
@@ -962,6 +1105,28 @@
             document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
             document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
             document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
+            
+            // إدارة المسابقات
+            document.getElementById('addContestBtn').addEventListener('click', addContest);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('deleteContest')) {
+                    const id = e.target.dataset.id;
+                    deleteContest(id);
+                }
+            });
+            
+            // إدارة أعياد الميلاد
+            document.getElementById('addBirthdayBtn').addEventListener('click', addBirthday);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editBirthday')) {
+                    const id = e.target.dataset.id;
+                    editBirthday(id);
+                }
+                if (e.target.classList.contains('deleteBirthday')) {
+                    const id = e.target.dataset.id;
+                    deleteBirthday(id);
+                }
+            });
             
             // إدارة المناسبات
             document.getElementById('addEventBtn').addEventListener('click', addEvent);
@@ -1124,10 +1289,14 @@
             const selectMember = document.getElementById('selectMember');
             const extraPointMember = document.getElementById('extraPointMember');
             const newTaskAssignee = document.getElementById('newTaskAssignee');
+            const contestMember = document.getElementById('contestMember');
+            const birthdayMember = document.getElementById('birthdayMember');
             
             selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
             extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
             newTaskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
+            contestMember.innerHTML = '<option value="">-- اختر العضو --</option>';
+            birthdayMember.innerHTML = '<option value="">-- اختر العضو --</option>';
             
             members.forEach(member => {
                 // selectMember
@@ -1147,6 +1316,18 @@
                 taskOption.value = member.id;
                 taskOption.textContent = member.name;
                 newTaskAssignee.appendChild(taskOption);
+                
+                // contestMember
+                const contestOption = document.createElement('option');
+                contestOption.value = member.id;
+                contestOption.textContent = member.name;
+                contestMember.appendChild(contestOption);
+                
+                // birthdayMember
+                const birthdayOption = document.createElement('option');
+                birthdayOption.value = member.id;
+                birthdayOption.textContent = member.name;
+                birthdayMember.appendChild(birthdayOption);
             });
         }
         
@@ -1505,6 +1686,234 @@
                     <td>${member ? member.name : 'عضو محذوف'}</td>
                     <td>${week ? week.name : 'أسبوع محذوف'}</td>
                     <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // إضافة مسابقة جديدة
+        function addContest() {
+            const memberId = document.getElementById('contestMember').value;
+            const contestName = document.getElementById('contestName').value;
+            const points = parseInt(document.getElementById('contestPoints').value);
+            
+            if (!memberId || !contestName) {
+                showNotification('يرجى اختيار العضو وإدخال اسم المسابقة', false);
+                return;
+            }
+            
+            const member = members.find(m => m.id === memberId);
+            if (!member) {
+                showNotification('العضو المحدد غير موجود', false);
+                return;
+            }
+            
+            // زيادة نقاط العضو
+            const memberRef = database.ref('members/' + memberId);
+            memberRef.once('value').then((snapshot) => {
+                const memberData = snapshot.val();
+                if (memberData) {
+                    const newPoints = (memberData.points || 0) + points;
+                    
+                    memberRef.update({
+                        points: newPoints
+                    }).then(() => {
+                        // إضافة سجل المسابقة
+                        const contestsRef = database.ref('contests');
+                        const newContestRef = contestsRef.push();
+                        
+                        newContestRef.set({
+                            memberId: memberId,
+                            contestName: contestName,
+                            points: points,
+                            date: new Date().toISOString()
+                        }).then(() => {
+                            showNotification(`تم إضافة ${points} نقطة لـ ${member.name} عن مسابقة ${contestName}`);
+                            
+                            document.getElementById('contestName').value = '';
+                        }).catch((error) => {
+                            console.error("Error adding contest:", error);
+                            showNotification('فشل في إضافة المسابقة: ' + error.message, false);
+                        });
+                    }).catch((error) => {
+                        console.error("Error updating points:", error);
+                        showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                    });
+                }
+            });
+        }
+        
+        // حذف مسابقة
+        function deleteContest(id) {
+            if (confirm('هل تريد حذف هذه المسابقة؟ سيتم خصم النقاط من العضو.')) {
+                const contestRef = database.ref('contests/' + id);
+                
+                contestRef.once('value').then((snapshot) => {
+                    const contest = snapshot.val();
+                    if (!contest) return;
+                    
+                    const memberRef = database.ref('members/' + contest.memberId);
+                    memberRef.once('value').then((snapshot) => {
+                        const member = snapshot.val();
+                        if (member) {
+                            const newPoints = Math.max(0, (member.points || 0) - contest.points);
+                            
+                            memberRef.update({
+                                points: newPoints
+                            }).then(() => {
+                                contestRef.remove().then(() => {
+                                    showNotification('تم حذف المسابقة وخصم النقاط من العضو');
+                                }).catch((error) => {
+                                    console.error("Error deleting contest:", error);
+                                    showNotification('فشل في حذف المسابقة: ' + error.message, false);
+                                });
+                            }).catch((error) => {
+                                console.error("Error updating points:", error);
+                                showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                            });
+                        }
+                    });
+                });
+            }
+        }
+        
+        // تحديث جدول المسابقات
+        function updateContestsTable() {
+            const tbody = document.querySelector('#contestsTable tbody');
+            tbody.innerHTML = '';
+            
+            if (contests.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد مسابقات حتى الآن</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            contests.forEach((contest, index) => {
+                const member = members.find(m => m.id === contest.memberId);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${member ? member.name : 'عضو محذوف'}</td>
+                    <td>${contest.contestName}</td>
+                    <td>${contest.points}</td>
+                    <td>${new Date(contest.date).toLocaleDateString('ar-EG')}</td>
+                    <td><button class='btn btn-danger deleteContest' data-id='${contest.id}'>حذف</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // إضافة عيد ميلاد
+        function addBirthday() {
+            const memberId = document.getElementById('birthdayMember').value;
+            const date = document.getElementById('birthdayDate').value;
+            
+            if (!memberId || !date) {
+                showNotification('يرجى اختيار العضو وتاريخ الميلاد', false);
+                return;
+            }
+            
+            const member = members.find(m => m.id === memberId);
+            if (!member) {
+                showNotification('العضو المحدد غير موجود', false);
+                return;
+            }
+            
+            const birthdaysRef = database.ref('birthdays');
+            const newBirthdayRef = birthdaysRef.push();
+            
+            newBirthdayRef.set({
+                memberId: memberId,
+                date: date
+            }).then(() => {
+                showNotification(`تم إضافة عيد ميلاد لـ ${member.name}`);
+                
+                document.getElementById('birthdayDate').value = '';
+            }).catch((error) => {
+                console.error("Error adding birthday:", error);
+                showNotification('فشل في إضافة عيد الميلاد: ' + error.message, false);
+            });
+        }
+        
+        // تعديل عيد ميلاد
+        function editBirthday(id) {
+            const birthdayRef = database.ref('birthdays/' + id);
+            
+            birthdayRef.once('value').then((snapshot) => {
+                const birthday = snapshot.val();
+                if (!birthday) return;
+                
+                const newDate = prompt('عدل تاريخ الميلاد:', birthday.date);
+                
+                if (newDate) {
+                    birthdayRef.update({
+                        date: newDate
+                    }).then(() => {
+                        showNotification('تم تعديل تاريخ الميلاد');
+                    }).catch((error) => {
+                        console.error("Error updating birthday:", error);
+                        showNotification('فشل في تعديل تاريخ الميلاد: ' + error.message, false);
+                    });
+                }
+            });
+        }
+        
+        // حذف عيد ميلاد
+        function deleteBirthday(id) {
+            if (confirm('هل تريد حذف تاريخ الميلاد؟')) {
+                const birthdayRef = database.ref('birthdays/' + id);
+                
+                birthdayRef.remove().then(() => {
+                    showNotification('تم حذف تاريخ الميلاد');
+                }).catch((error) => {
+                    console.error("Error deleting birthday:", error);
+                    showNotification('فشل في حذف تاريخ الميلاد: ' + error.message, false);
+                });
+            }
+        }
+        
+        // حساب الأيام المتبقية لعيد الميلاد
+        function daysUntilBirthday(birthdayDate) {
+            const today = new Date();
+            const nextBirthday = new Date(birthdayDate);
+            nextBirthday.setFullYear(today.getFullYear());
+            
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(today.getFullYear() + 1);
+            }
+            
+            const diffTime = nextBirthday - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays;
+        }
+        
+        // تحديث جدول أعياد الميلاد
+        function updateBirthdaysTable() {
+            const tbody = document.querySelector('#birthdaysTable tbody');
+            tbody.innerHTML = '';
+            
+            if (birthdays.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد أعياد ميلاد مسجلة حتى الآن</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            birthdays.forEach((birthday, index) => {
+                const member = members.find(m => m.id === birthday.memberId);
+                const daysLeft = daysUntilBirthday(birthday.date);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${member ? member.name : 'عضو محذوف'}</td>
+                    <td>${new Date(birthday.date).toLocaleDateString('ar-EG')}</td>
+                    <td>${daysLeft} يوم</td>
+                    <td><button class='btn btn-primary editBirthday' data-id='${birthday.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteBirthday' data-id='${birthday.id}'>حذف</button></td>
                 `;
                 tbody.appendChild(tr);
             });

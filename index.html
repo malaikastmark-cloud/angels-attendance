@@ -1287,18 +1287,15 @@
                         إضافية: 0
                     }
                 }).then(() => {
-                    showNotification('تم حذف جميع نقاط العضو');
-                }).catch((error) => {
-                    console.error("Error deleting points:", error);
-                    showNotification('فشل في حذف النقاط: ' + error.message, false);
-                );
-            }
-        }
-        
-        // حذف عضو
-        function deleteMember(id) {
-            if (confirm('هل تريد حذف العضو؟')) {
-                const memberRef = database.ref('members/' + id);
+                   showNotification('تم حذف جميع نقاط العضو');
+}).catch((error) => {
+    console.error("Error deleting points:", error);
+    showNotification('فشل في حذف النقاط: ' + error.message, false);
+});    
+// حذف عضو
+function deleteMember(id) {
+    if (confirm('هل تريد حذف العضو؟')) {
+        const memberRef = database.ref('members/' + id);
                 
                 memberRef.remove().then(() => {
                     showNotification('تم حذف العضو');

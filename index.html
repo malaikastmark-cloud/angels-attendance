@@ -587,6 +587,14 @@
             font-size: 0.8rem;
             margin: 2px;
         }
+        
+        .admin-only {
+            display: none;
+        }
+        
+        .admin-mode .admin-only {
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -623,7 +631,7 @@
                         <th>الأسبوع</th>
                         <th>الحضور</th>
                         <th>النقاط</th>
-                        <th>الإجراءات</th>
+                        <th class="admin-only">الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
@@ -638,6 +646,7 @@
 
         <div class="controls" style="margin-top:20px;">
             <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
+            <button class="btn btn-danger admin-only" id="adminLogoutBtn" style="display:none;">تسجيل خروج الأدمن</button>
         </div>
 
         <div class="modal" id="adminLoginModal">
@@ -676,7 +685,7 @@
                         <option value="🧒">🧒 طفل/طفلة</option>
                         <option value="👦">👦 ولد</option>
                         <option value="👧">👧 بنت</option>
-                        <option value👨">👨 رجل</option>
+                        <option value="👨">👨 رجل</option>
                         <option value="👩">👩 امرأة</option>
                     </select>
                     <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
@@ -912,6 +921,7 @@
         
         // كلمة السر
         const adminPass = 'admin123';
+        let isAdmin = false;
         
         // دالة لتحميل الأعضاء من Firebase
         function loadMembersFromFirebase() {
@@ -1024,6 +1034,7 @@
         function setupEventListeners() {
             // تسجيل دخول الأدمن
             document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
+            document.getElementById('adminLogoutBtn').addEventListener('click', adminLogout);
             document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
             document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
             
@@ -1100,6 +1111,16 @@
             document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
         }
         
+        // تسجيل خروج الأدمن
+        function adminLogout() {
+            isAdmin = false;
+            document.body.classList.remove('admin-mode');
+            document.getElementById('adminLogoutBtn').style.display = 'none';
+            document.getElementById('adminLoginBtn').style.display = 'block';
+            showNotification('تم تسجيل خروج الأدمن');
+            updateAttendanceTable();
+        }
+        
         // إعداد مستمعي أحداث التبويبات
         function setupTabListeners() {
             const tabs = document.querySelectorAll('.tabs .tab');
@@ -1142,10 +1163,13 @@
         function confirmAdminLogin() {
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === adminPass) {
+                isAdmin = true;
                 document.getElementById('adminLoginModal').style.display = 'none';
                 document.getElementById('adminTabs').style.display = 'block';
                 document.getElementById('userAttendance').style.display = 'none';
                 document.getElementById('adminLoginBtn').style.display = 'none';
+                document.getElementById('adminLogoutBtn').style.display = 'block';
+                document.body.classList.add('admin-mode');
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
                 const passwordInput = document.getElementById('adminPassword');
@@ -1162,7 +1186,6 @@
         function backToUserView() {
             document.getElementById('adminTabs').style.display = 'none';
             document.getElementById('userAttendance').style.display = 'block';
-            document.getElementById('adminLoginBtn').style.display = 'block';
         }
         
         // إضافة عضو جديد
@@ -1268,7 +1291,7 @@
                 }).catch((error) => {
                     console.error("Error deleting points:", error);
                     showNotification('فشل في حذف النقاط: ' + error.message, false);
-                });
+                );
             }
         }
         
@@ -1549,7 +1572,7 @@
                     <td>${currentWeek ? currentWeek.name : ''}</td>
                     <td class="attendance-value">${isPresent ? '✅ حاضر' : '❌ غائب'}</td>
                     <td class="points">${member.points || 0}</td>
-                    <td>
+                    <td class="admin-only">
                         ${isPresent ? `<button class='btn btn-danger small-btn deleteAttendance' data-id='${attendanceRecord.id}' data-member='${member.id}'>حذف الحضور</button>` : ''}
                     </td>
                 `;
@@ -1789,7 +1812,7 @@
                     <td>${competition.name}</td>
                     <td>${winner ? winner.name : 'غير معروف'}</td>
                     <td>${competition.points}</td>
-                    <td>${formattedDate}</td>
+                    <td>${formattedDate</td>
                     <td><button class='btn btn-danger small-btn deleteCompetition' data-id='${competition.id}' data-member='${competition.winnerId}' data-points='${competition.points}'>حذف</button></td>
                 `;
                 competitionsTbody.appendChild(tr);

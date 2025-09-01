@@ -541,13 +541,17 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
+
+        .auto-points-notification {
+            background: #9b59b6 !important;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🌟 نظام حضور خدام ملايكة</h1>
-            <p>الحضور يساوي نقطة</p>
+            <p>الحضور يساوي نقطة تلقائياً</p>
         </header>
 
         <div class="notification" id="notification"></div>
@@ -964,6 +968,9 @@
             
             // إدارة التبويبات
             setupTabListeners();
+            
+            // تحديث جدول الحضور عند تغيير الأسبوع
+            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
         }
         
         // إعداد مستمعي أحداث التبويبات
@@ -1242,7 +1249,7 @@
             });
         }
         
-        // تسجيل الحضور
+        // تسجيل الحضور وإضافة النقاط تلقائياً
         function markAttendance() {
             const memberId = document.getElementById('selectMember').value;
             const weekId = document.getElementById('weekSelect').value;
@@ -1267,35 +1274,35 @@
                 return;
             }
             
-            // زيادة نقاط العضو
-            const memberRef = database.ref('members/' + memberId);
-            memberRef.once('value').then((snapshot) => {
-                const member = snapshot.val();
-                if (member) {
-                    const newPoints = (member.points || 0) + 1;
-                    
-                    memberRef.update({
-                        points: newPoints
-                    }).then(() => {
-                        // إضافة سجل الحضور
-                        const attendanceRef = database.ref('attendance');
-                        const newAttendanceRef = attendanceRef.push();
+            // إضافة سجل الحضور
+            const attendanceRef = database.ref('attendance');
+            const newAttendanceRef = attendanceRef.push();
+            
+            newAttendanceRef.set({
+                memberId: memberId,
+                weekId: weekId,
+                date: new Date().toISOString()
+            }).then(() => {
+                // زيادة نقاط العضو تلقائياً
+                const memberRef = database.ref('members/' + memberId);
+                memberRef.once('value').then((snapshot) => {
+                    const member = snapshot.val();
+                    if (member) {
+                        const newPoints = (member.points || 0) + 1;
                         
-                        newAttendanceRef.set({
-                            memberId: memberId,
-                            weekId: weekId,
-                            date: new Date().toISOString()
+                        memberRef.update({
+                            points: newPoints
                         }).then(() => {
-                            showNotification('تم تسجيل الحضور بنجاح!');
+                            showNotification('تم تسجيل الحضور وإضافة النقطة تلقائياً!', true, true);
                         }).catch((error) => {
-                            console.error("Error adding attendance:", error);
-                            showNotification('فشل في تسجيل الحضور: ' + error.message, false);
+                            console.error("Error updating points:", error);
+                            showNotification('فشل في تحديث النقاط: ' + error.message, false);
                         });
-                    }).catch((error) => {
-                        console.error("Error updating points:", error);
-                        showNotification('فشل في تحديث النقاط: ' + error.message, false);
-                    });
-                }
+                    }
+                });
+            }).catch((error) => {
+                console.error("Error adding attendance:", error);
+                showNotification('فشل في تسجيل الحضور: ' + error.message, false);
             });
         }
         
@@ -1567,10 +1574,18 @@
         }
         
         // عرض الإشعارات
-        function showNotification(message, isSuccess = true) {
+        function showNotification(message, isSuccess = true, isAutoPoints = false) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+            
+            if (isAutoPoints) {
+                notification.style.background = '#9b59b6';
+                notification.classList.add('auto-points-notification');
+            } else {
+                notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+                notification.classList.remove('auto-points-notification');
+            }
+            
             notification.style.display = 'block';
             
             setTimeout(() => {

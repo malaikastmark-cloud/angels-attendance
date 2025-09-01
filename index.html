@@ -24,7 +24,7 @@
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
@@ -491,42 +491,6 @@
             align-items: center;
         }
         
-        .points-breakdown {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-        
-        .points-breakdown h4 {
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        .points-breakdown ul {
-            list-style-type: none;
-        }
-        
-        .points-breakdown li {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .points-breakdown li:last-child {
-            border-bottom: none;
-        }
-        
-        .points-source {
-            font-weight: bold;
-        }
-        
-        .points-value {
-            color: #2ecc71;
-            font-weight: bold;
-        }
-        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -577,31 +541,13 @@
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-
-        .auto-points-notification {
-            background: #9b59b6 !important;
-        }
-        
-        .small-btn {
-            padding: 6px 10px;
-            font-size: 0.8rem;
-            margin: 2px;
-        }
-        
-        .admin-only {
-            display: none;
-        }
-        
-        .admin-mode .admin-only {
-            display: inline-block;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🌟 نظام حضور خدام ملايكة</h1>
-            <p>الحضور يساوي نقطة تلقائياً</p>
+            <p>الحضور يساوي نقطة</p>
         </header>
 
         <div class="notification" id="notification"></div>
@@ -631,7 +577,6 @@
                         <th>الأسبوع</th>
                         <th>الحضور</th>
                         <th>النقاط</th>
-                        <th class="admin-only">الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
@@ -646,7 +591,6 @@
 
         <div class="controls" style="margin-top:20px;">
             <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
-            <button class="btn btn-danger admin-only" id="adminLogoutBtn" style="display:none;">تسجيل خروج الأدمن</button>
         </div>
 
         <div class="modal" id="adminLoginModal">
@@ -671,7 +615,6 @@
                 <div class="tab active" data-tab="members">إدارة الأعضاء</div>
                 <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
                 <div class="tab" data-tab="attendance">إدارة الحضور</div>
-                <div class="tab" data-tab="competitions">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
                 <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
                 <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
                 <div class="tab" data-tab="reports">التقارير</div>
@@ -696,7 +639,6 @@
                             <th>#</th>
                             <th>اسم العضو</th>
                             <th>النقاط</th>
-                            <th>تعديل النقاط</th>
                             <th>تعديل</th>
                             <th>حذف</th>
                         </tr>
@@ -749,45 +691,22 @@
                     <button class="btn btn-warning" id="addExtraPointsBtn">إضافة نقاط</button>
                 </div>
                 
+                <h3>سجلات الحضور</h3>
+                <div class="controls">
+                    <button class="btn btn-danger" id="deleteSelectedAttendance">حذف الحضور المحدد</button>
+                </div>
+                
                 <table id="attendanceTable">
                     <thead>
                         <tr>
+                            <th><input type="checkbox" id="selectAllAttendance"></th>
                             <th>#</th>
                             <th>العضو</th>
                             <th>الأسبوع</th>
                             <th>تاريخ التسجيل</th>
-                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="attendanceRecordsBody">
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="competitions">
-                <h2>إدارة المسابقات <i class="fas fa-trophy emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newCompetitionName" placeholder="اسم المسابقة">
-                    <select id="competitionWinner">
-                        <option value="">-- اختر الفائز --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="number" id="competitionPoints" placeholder="عدد النقاط" min="1" value="5">
-                    <button class="btn btn-primary" id="addCompetitionBtn">إضافة مسابقة</button>
-                </div>
-                <table id="competitionsTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>اسم المسابقة</th>
-                            <th>الفائز</th>
-                            <th>النقاط</th>
-                            <th>التاريخ</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
                         <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
@@ -884,8 +803,8 @@
                 </div>
 
                 <div class="report-section">
-                    <h3>👥 تفصيل النقاط حسب المصدر</h3>
-                    <div id="pointsBreakdownContainer">
+                    <h3>👥 إحصائيات الأعضاء</h3>
+                    <div id="membersStatsContainer">
                         <!-- سيتم تعبئة البيانات من Firebase -->
                     </div>
                 </div>
@@ -915,13 +834,11 @@
         let members = [];
         let weeks = [];
         let attendanceRecords = [];
-        let competitions = [];
         let events = [];
         let tasks = [];
         
         // كلمة السر
         const adminPass = 'admin123';
-        let isAdmin = false;
         
         // دالة لتحميل الأعضاء من Firebase
         function loadMembersFromFirebase() {
@@ -936,8 +853,7 @@
                 members.push({
                   id: key,
                   name: data[key].name,
-                  points: data[key].points || 0,
-                  pointsBreakdown: data[key].pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 }
+                  points: data[key].points || 0
                 });
               });
             }
@@ -995,38 +911,12 @@
           });
         }
 
-        // دالة لتحميل المسابقات من Firebase
-        function loadCompetitionsFromFirebase() {
-          const competitionsRef = database.ref('competitions');
-
-          competitionsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            competitions = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                competitions.push({
-                  id: key,
-                  name: data[key].name,
-                  winnerId: data[key].winnerId,
-                  points: data[key].points || 0,
-                  date: data[key].date
-                });
-              });
-            }
-
-            updateCompetitionsTable();
-            updateReports();
-          });
-        }
-
         // تهيئة التطبيق
         function initializeApp() {
             setupEventListeners();
             loadMembersFromFirebase();
             loadWeeksFromFirebase();
             loadAttendanceFromFirebase();
-            loadCompetitionsFromFirebase();
             updateReports();
         }
         
@@ -1034,7 +924,6 @@
         function setupEventListeners() {
             // تسجيل دخول الأدمن
             document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
-            document.getElementById('adminLogoutBtn').addEventListener('click', adminLogout);
             document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
             document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
             
@@ -1051,14 +940,6 @@
                 if (e.target.classList.contains('deleteMember')) {
                     const id = e.target.dataset.id;
                     deleteMember(id);
-                }
-                if (e.target.classList.contains('editPoints')) {
-                    const id = e.target.dataset.id;
-                    editPoints(id);
-                }
-                if (e.target.classList.contains('deletePoints')) {
-                    const id = e.target.dataset.id;
-                    deletePoints(id);
                 }
             });
             
@@ -1079,24 +960,8 @@
             document.getElementById('markPresent').addEventListener('click', markAttendance);
             document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
             document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('deleteAttendance')) {
-                    const id = e.target.dataset.id;
-                    const memberId = e.target.dataset.member;
-                    deleteAttendanceRecord(id, memberId);
-                }
-            });
-            
-            // إدارة المسابقات
-            document.getElementById('addCompetitionBtn').addEventListener('click', addCompetition);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('deleteCompetition')) {
-                    const id = e.target.dataset.id;
-                    const memberId = e.target.dataset.member;
-                    const points = e.target.dataset.points;
-                    deleteCompetition(id, memberId, points);
-                }
-            });
+            document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
+            document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
             
             // إدارة المناسبات
             document.getElementById('addEventBtn').addEventListener('click', addEvent);
@@ -1106,19 +971,6 @@
             
             // إدارة التبويبات
             setupTabListeners();
-            
-            // تحديث جدول الحضور عند تغيير الأسبوع
-            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
-        }
-        
-        // تسجيل خروج الأدمن
-        function adminLogout() {
-            isAdmin = false;
-            document.body.classList.remove('admin-mode');
-            document.getElementById('adminLogoutBtn').style.display = 'none';
-            document.getElementById('adminLoginBtn').style.display = 'block';
-            showNotification('تم تسجيل خروج الأدمن');
-            updateAttendanceTable();
         }
         
         // إعداد مستمعي أحداث التبويبات
@@ -1140,11 +992,6 @@
                     // إظهار محتوى التبويب المحدد
                     const tabId = this.getAttribute('data-tab');
                     document.getElementById(tabId).classList.add('active');
-                    
-                    // إذا كان تبويب المسابقات، قم بتحديث قائمة الفائزين
-                    if (tabId === 'competitions') {
-                        updateCompetitionWinnerSelect();
-                    }
                 });
             });
         }
@@ -1163,13 +1010,10 @@
         function confirmAdminLogin() {
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === adminPass) {
-                isAdmin = true;
                 document.getElementById('adminLoginModal').style.display = 'none';
                 document.getElementById('adminTabs').style.display = 'block';
                 document.getElementById('userAttendance').style.display = 'none';
                 document.getElementById('adminLoginBtn').style.display = 'none';
-                document.getElementById('adminLogoutBtn').style.display = 'block';
-                document.body.classList.add('admin-mode');
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
                 const passwordInput = document.getElementById('adminPassword');
@@ -1186,6 +1030,7 @@
         function backToUserView() {
             document.getElementById('adminTabs').style.display = 'none';
             document.getElementById('userAttendance').style.display = 'block';
+            document.getElementById('adminLoginBtn').style.display = 'block';
         }
         
         // إضافة عضو جديد
@@ -1206,14 +1051,7 @@
             
             newMemberRef.set({
                 name: `${emoji} ${name}`,
-                points: 0,
-                pointsBreakdown: {
-                    حضور: 0,
-                    مسابقات: 0,
-                    مهام: 0,
-                    مناسبات: 0,
-                    إضافية: 0
-                }
+                points: 0
             }).then(() => {
                 showNotification('تم إضافة العضو بنجاح');
                 nameInput.value = '';
@@ -1249,53 +1087,10 @@
             });
         }
         
-        // تعديل نقاط العضو
-        function editPoints(id) {
-            const memberRef = database.ref('members/' + id);
-            
-            memberRef.once('value').then((snapshot) => {
-                const member = snapshot.val();
-                if (!member) return;
-                
-                const newPoints = prompt('عدل نقاط العضو:', member.points || 0);
-                
-                if (newPoints !== null && !isNaN(newPoints)) {
-                    memberRef.update({
-                        points: parseInt(newPoints)
-                    }).then(() => {
-                        showNotification('تم تعديل نقاط العضو');
-                    }).catch((error) => {
-                        console.error("Error updating points:", error);
-                        showNotification('فشل في تعديل النقاط: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف نقاط العضو
-        function deletePoints(id) {
-            if (confirm('هل تريد حذف جميع نقاط العضو؟')) {
+        // حذف عضو
+        function deleteMember(id) {
+            if (confirm('هل تريد حذف العضو؟')) {
                 const memberRef = database.ref('members/' + id);
-                
-                memberRef.update({
-                    points: 0,
-                    pointsBreakdown: {
-                        حضور: 0,
-                        مسابقات: 0,
-                        مهام: 0,
-                        مناسبات: 0,
-                        إضافية: 0
-                    }
-                }).then(() => {
-                   showNotification('تم حذف جميع نقاط العضو');
-}).catch((error) => {
-    console.error("Error deleting points:", error);
-    showNotification('فشل في حذف النقاط: ' + error.message, false);
-});    
-// حذف عضو
-function deleteMember(id) {
-    if (confirm('هل تريد حذف العضو؟')) {
-        const memberRef = database.ref('members/' + id);
                 
                 memberRef.remove().then(() => {
                     showNotification('تم حذف العضو');
@@ -1317,12 +1112,8 @@ function deleteMember(id) {
                     <td>${index + 1}</td>
                     <td>${member.name}</td>
                     <td>${member.points}</td>
-                    <td>
-                        <button class='btn btn-warning small-btn editPoints' data-id='${member.id}'>تعديل النقاط</button>
-                        <button class='btn btn-danger small-btn deletePoints' data-id='${member.id}'>حذف النقاط</button>
-                    </td>
-                    <td><button class='btn btn-primary small-btn editMember' data-id='${member.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger small-btn deleteMember' data-id='${member.id}'>حذف</button></td>
+                    <td><button class='btn btn-primary editMember' data-id='${member.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteMember' data-id='${member.id}'>حذف</button></td>
                 `;
                 membersTbody.appendChild(tr);
             });
@@ -1356,20 +1147,6 @@ function deleteMember(id) {
                 taskOption.value = member.id;
                 taskOption.textContent = member.name;
                 newTaskAssignee.appendChild(taskOption);
-            });
-        }
-        
-        // تحديث قائمة الفائزين في المسابقات
-        function updateCompetitionWinnerSelect() {
-            const competitionWinner = document.getElementById('competitionWinner');
-            
-            competitionWinner.innerHTML = '<option value="">-- اختر الفائز --</option>';
-            
-            members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.id;
-                option.textContent = member.name;
-                competitionWinner.appendChild(option);
             });
         }
         
@@ -1444,8 +1221,8 @@ function deleteMember(id) {
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${week.name}</td>
-                    <td><button class='btn btn-primary small-btn editWeek' data-id='${week.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger small-btn deleteWeek' data-id='${week.id}'>حذف</button></td>
+                    <td><button class='btn btn-primary editWeek' data-id='${week.id}'>تعديل</button></td>
+                    <td><button class='btn btn-danger deleteWeek' data-id='${week.id}'>حذف</button></td>
                 `;
                 weeksTbody.appendChild(tr);
             });
@@ -1472,7 +1249,7 @@ function deleteMember(id) {
             });
         }
         
-        // تسجيل الحضور وإضافة النقاط تلقائياً
+        // تسجيل الحضور
         function markAttendance() {
             const memberId = document.getElementById('selectMember').value;
             const weekId = document.getElementById('weekSelect').value;
@@ -1497,38 +1274,35 @@ function deleteMember(id) {
                 return;
             }
             
-            // إضافة سجل الحضور
-            const attendanceRef = database.ref('attendance');
-            const newAttendanceRef = attendanceRef.push();
-            
-            newAttendanceRef.set({
-                memberId: memberId,
-                weekId: weekId,
-                date: new Date().toISOString()
-            }).then(() => {
-                // زيادة نقاط العضو تلقائياً
-                const memberRef = database.ref('members/' + memberId);
-                memberRef.once('value').then((snapshot) => {
-                    const member = snapshot.val();
-                    if (member) {
-                        const newPoints = (member.points || 0) + 1;
-                        const newPointsBreakdown = member.pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 };
-                        newPointsBreakdown.حضور = (newPointsBreakdown.حضور || 0) + 1;
+            // زيادة نقاط العضو
+            const memberRef = database.ref('members/' + memberId);
+            memberRef.once('value').then((snapshot) => {
+                const member = snapshot.val();
+                if (member) {
+                    const newPoints = (member.points || 0) + 1;
+                    
+                    memberRef.update({
+                        points: newPoints
+                    }).then(() => {
+                        // إضافة سجل الحضور
+                        const attendanceRef = database.ref('attendance');
+                        const newAttendanceRef = attendanceRef.push();
                         
-                        memberRef.update({
-                            points: newPoints,
-                            pointsBreakdown: newPointsBreakdown
+                        newAttendanceRef.set({
+                            memberId: memberId,
+                            weekId: weekId,
+                            date: new Date().toISOString()
                         }).then(() => {
-                            showNotification('تم تسجيل الحضور وإضافة النقطة تلقائياً!', true, true);
+                            showNotification('تم تسجيل الحضور بنجاح!');
                         }).catch((error) => {
-                            console.error("Error updating points:", error);
-                            showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                            console.error("Error adding attendance:", error);
+                            showNotification('فشل في تسجيل الحضور: ' + error.message, false);
                         });
-                    }
-                });
-            }).catch((error) => {
-                console.error("Error adding attendance:", error);
-                showNotification('فشل في تسجيل الحضور: ' + error.message, false);
+                    }).catch((error) => {
+                        console.error("Error updating points:", error);
+                        showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                    });
+                }
             });
         }
         
@@ -1549,7 +1323,7 @@ function deleteMember(id) {
             
             if (members.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="7" style="text-align:center;">لا توجد أعضاء مسجلين بعد</td>`;
+                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد أعضاء مسجلين بعد</td>`;
                 tbody.appendChild(tr);
                 return;
             }
@@ -1569,44 +1343,11 @@ function deleteMember(id) {
                     <td>${currentWeek ? currentWeek.name : ''}</td>
                     <td class="attendance-value">${isPresent ? '✅ حاضر' : '❌ غائب'}</td>
                     <td class="points">${member.points || 0}</td>
-                    <td class="admin-only">
-                        ${isPresent ? `<button class='btn btn-danger small-btn deleteAttendance' data-id='${attendanceRecord.id}' data-member='${member.id}'>حذف الحضور</button>` : ''}
-                    </td>
                 `;
                 tbody.appendChild(tr);
             });
             
             updateAttendanceStats();
-        }
-        
-        // حذف سجل حضور فردي
-        function deleteAttendanceRecord(recordId, memberId) {
-            if (confirm('هل تريد حذف سجل الحضور هذا؟ سيتم خصم نقطة من العضو')) {
-                // حذف سجل الحضور
-                const attendanceRef = database.ref('attendance/' + recordId);
-                attendanceRef.remove().then(() => {
-                    // خصم نقطة من العضو
-                    const memberRef = database.ref('members/' + memberId);
-                    memberRef.once('value').then((snapshot) => {
-                        const member = snapshot.val();
-                        if (member) {
-                            const newPoints = Math.max(0, (member.points || 0) - 1);
-                            const newPointsBreakdown = member.pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 };
-                            newPointsBreakdown.حضور = Math.max(0, (newPointsBreakdown.حضور || 0) - 1);
-                            
-                            memberRef.update({
-                                points: newPoints,
-                                pointsBreakdown: newPointsBreakdown
-                            }).then(() => {
-                                showNotification('تم حذف سجل الحضور وخصم نقطة من العضو');
-                            });
-                        }
-                    });
-                }).catch((error) => {
-                    console.error("Error deleting attendance record:", error);
-                    showNotification('فشل في حذف سجل الحضور: ' + error.message, false);
-                });
-            }
         }
         
         // تحديث إحصائيات الحضور
@@ -1647,12 +1388,9 @@ function deleteMember(id) {
                 const member = snapshot.val();
                 if (member) {
                     const newPoints = (member.points || 0) + points;
-                    const newPointsBreakdown = member.pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 };
-                    newPointsBreakdown.إضافية = (newPointsBreakdown.إضافية || 0) + points;
                     
                     memberRef.update({
-                        points: newPoints,
-                        pointsBreakdown: newPointsBreakdown
+                        points: newPoints
                     }).then(() => {
                         showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
                         
@@ -1685,11 +1423,7 @@ function deleteMember(id) {
                     const member = members.find(m => m.id === record.memberId);
                     if (member) {
                         const newPoints = Math.max(0, (member.points || 0) - 1);
-                        const newPointsBreakdown = member.pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 };
-                        newPointsBreakdown.حضور = Math.max(0, (newPointsBreakdown.حضور || 0) - 1);
-                        
                         updates[`members/${record.memberId}/points`] = newPoints;
-                        updates[`members/${record.memberId}/pointsBreakdown`] = newPointsBreakdown;
                     }
                 });
                 
@@ -1702,117 +1436,77 @@ function deleteMember(id) {
             }
         }
         
-        // إضافة مسابقة جديدة
-        function addCompetition() {
-            const name = document.getElementById('newCompetitionName').value;
-            const winnerId = document.getElementById('competitionWinner').value;
-            const points = parseInt(document.getElementById('competitionPoints').value);
+        // تحديد/إلغاء تحديد كل سجلات الحضور
+        function toggleSelectAllAttendance() {
+            const selectAll = document.getElementById('selectAllAttendance').checked;
+            const checkboxes = document.querySelectorAll('.attendance-checkbox');
             
-            if (!name || !winnerId || !points) {
-                showNotification('يرجى ملء جميع الحقول', false);
-                return;
-            }
-            
-            const winner = members.find(m => m.id === winnerId);
-            if (!winner) {
-                showNotification('العضو المحدد غير موجود', false);
-                return;
-            }
-            
-            const competitionsRef = database.ref('competitions');
-            const newCompetitionRef = competitionsRef.push();
-            
-            newCompetitionRef.set({
-                name: name,
-                winnerId: winnerId,
-                winnerName: winner.name,
-                points: points,
-                date: new Date().toISOString()
-            }).then(() => {
-                // زيادة نقاط العضو الفائز تلقائياً
-                const memberRef = database.ref('members/' + winnerId);
-                memberRef.once('value').then((snapshot) => {
-                    const member = snapshot.val();
-                    if (member) {
-                        const newPoints = (member.points || 0) + points;
-                        const newPointsBreakdown = member.pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 };
-                        newPointsBreakdown.مسابقات = (newPointsBreakdown.مسابقات || 0) + points;
-                        
-                        memberRef.update({
-                            points: newPoints,
-                            pointsBreakdown: newPointsBreakdown
-                        }).then(() => {
-                            showNotification(`تم إضافة المسابقة و${points} نقطة إلى ${winner.name} تلقائياً!`);
-                            
-                            document.getElementById('newCompetitionName').value = '';
-                            document.getElementById('competitionWinner').value = '';
-                            document.getElementById('competitionPoints').value = '5';
-                        });
-                    }
-                });
-            }).catch((error) => {
-                console.error("Error adding competition:", error);
-                showNotification('فشل في إضافة المسابقة: ' + error.message, false);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
             });
         }
         
-        // حذف مسابقة
-        function deleteCompetition(id, memberId, points) {
-            if (confirm('هل تريد حذف هذه المسابقة؟ سيتم خصم النقاط من العضو')) {
-                const competitionRef = database.ref('competitions/' + id);
+        // حذف سجلات الحضور المحددة
+        function deleteSelectedAttendance() {
+            const selectedCheckboxes = document.querySelectorAll('.attendance-checkbox:checked');
+            
+            if (selectedCheckboxes.length === 0) {
+                showNotification('يرجى تحديد سجلات الحضور المراد حذفها', false);
+                return;
+            }
+            
+            if (confirm(`هل تريد حذف ${selectedCheckboxes.length} سجل حضور؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
+                const updates = {};
                 
-                competitionRef.remove().then(() => {
-                    // خصم النقاط من العضو
-                    const memberRef = database.ref('members/' + memberId);
-                    memberRef.once('value').then((snapshot) => {
-                        const member = snapshot.val();
+                selectedCheckboxes.forEach(checkbox => {
+                    const recordId = checkbox.dataset.id;
+                    const record = attendanceRecords.find(ar => ar.id === recordId);
+                    
+                    if (record) {
+                        updates[`attendance/${recordId}`] = null;
+                        
+                        const member = members.find(m => m.id === record.memberId);
                         if (member) {
-                            const newPoints = Math.max(0, (member.points || 0) - points);
-                            const newPointsBreakdown = member.pointsBreakdown || { حضور: 0, مسابقات: 0, مهام: 0, مناسبات: 0, إضافية: 0 };
-                            newPointsBreakdown.مسابقات = Math.max(0, (newPointsBreakdown.مسابقات || 0) - points);
-                            
-                            memberRef.update({
-                                points: newPoints,
-                                pointsBreakdown: newPointsBreakdown
-                            }).then(() => {
-                                showNotification('تم حذف المسابقة وخصم النقاط من العضو');
-                            });
+                            const newPoints = Math.max(0, (member.points || 0) - 1);
+                            updates[`members/${record.memberId}/points`] = newPoints;
                         }
-                    });
+                    }
+                });
+                
+                database.ref().update(updates).then(() => {
+                    showNotification(`تم حذف ${selectedCheckboxes.length} سجل حضور`);
                 }).catch((error) => {
-                    console.error("Error deleting competition:", error);
-                    showNotification('فشل في حذف المسابقة: ' + error.message, false);
+                    console.error("Error deleting attendance:", error);
+                    showNotification('فشل في حذف سجلات الحضور: ' + error.message, false);
                 });
             }
         }
         
-        // تحديث جدول المسابقات
-        function updateCompetitionsTable() {
-            const competitionsTbody = document.querySelector('#competitionsTable tbody');
-            competitionsTbody.innerHTML = '';
+        // تحديث جدول سجلات الحضور في واجهة الأدمن
+        function updateAttendanceRecordsTable() {
+            const tbody = document.getElementById('attendanceRecordsBody');
+            tbody.innerHTML = '';
             
-            if (competitions.length === 0) {
+            if (attendanceRecords.length === 0) {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد مسابقات حتى الآن</td>`;
-                competitionsTbody.appendChild(tr);
+                tr.innerHTML = `<td colspan="5" style="text-align:center;">لا توجد سجلات حضور حتى الآن</td>`;
+                tbody.appendChild(tr);
                 return;
             }
             
-            competitions.forEach((competition, index) => {
-                const winner = members.find(m => m.id === competition.winnerId);
-                const date = new Date(competition.date);
-                const formattedDate = date.toLocaleDateString('ar-EG');
+            attendanceRecords.forEach((record, index) => {
+                const member = members.find(m => m.id === record.memberId);
+                const week = weeks.find(w => w.id === record.weekId);
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
+                    <td><input type="checkbox" class="attendance-checkbox" data-id="${record.id}"></td>
                     <td>${index + 1}</td>
-                    <td>${competition.name}</td>
-                    <td>${winner ? winner.name : 'غير معروف'}</td>
-                    <td>${competition.points}</td>
-                    <td>${formattedDate}</td>
-                    <td><button class='btn btn-danger small-btn deleteCompetition' data-id='${competition.id}' data-member='${competition.winnerId}' data-points='${competition.points}'>حذف</button></td>
+                    <td>${member ? member.name : 'عضو محذوف'}</td>
+                    <td>${week ? week.name : 'أسبوع محذوف'}</td>
+                    <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
                 `;
-                competitionsTbody.appendChild(tr);
+                tbody.appendChild(tr);
             });
         }
         
@@ -1892,7 +1586,8 @@ function deleteMember(id) {
             document.getElementById('reportWeeks').textContent = weeks.length;
             
             updateTopMembers();
-            updatePointsBreakdown();
+            updateMembersStats();
+            updateAttendanceRecordsTable();
         }
         
         // تحديث قائمة الـ 10 الأوائل
@@ -1930,52 +1625,34 @@ function deleteMember(id) {
             });
         }
         
-        // تحديث تفصيل النقاط حسب المصدر
-        function updatePointsBreakdown() {
-            const container = document.getElementById('pointsBreakdownContainer');
+        // تحديث إحصائيات الأعضاء
+        function updateMembersStats() {
+            const container = document.getElementById('membersStatsContainer');
             container.innerHTML = '';
             
             members.forEach(member => {
-                const breakdownDiv = document.createElement('div');
-                breakdownDiv.className = 'points-breakdown';
-                
-                let breakdownHTML = `
-                    <h4>${member.name} - إجمالي النقاط: ${member.points || 0}</h4>
-                    <ul>
+                const statsDiv = document.createElement('div');
+                statsDiv.className = 'member-stats';
+                statsDiv.innerHTML = `
+                    <div style="flex:1">
+                        <h4>${member.name}</h4>
+                        <div style="display:flex;gap:10px;margin-top:5px;">
+                            <div class="member-stat-item">
+                                <div class="member-stat-value">${member.points || 0}</div>
+                                <div class="member-stat-label">نقاط</div>
+                            </div>
+                        </div>
+                    </div>
                 `;
-                
-                if (member.pointsBreakdown) {
-                    for (const [source, points] of Object.entries(member.pointsBreakdown)) {
-                        if (points > 0) {
-                            breakdownHTML += `
-                                <li>
-                                    <span class="points-source">${source}:</span>
-                                    <span class="points-value">${points} نقطة</span>
-                                </li>
-                            `;
-                        }
-                    }
-                }
-                
-                breakdownHTML += '</ul>';
-                breakdownDiv.innerHTML = breakdownHTML;
-                container.appendChild(breakdownDiv);
+                container.appendChild(statsDiv);
             });
         }
         
         // عرض الإشعارات
-        function showNotification(message, isSuccess = true, isAutoPoints = false) {
+        function showNotification(message, isSuccess = true) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            
-            if (isAutoPoints) {
-                notification.style.background = '#9b59b6';
-                notification.classList.add('auto-points-notification');
-            } else {
-                notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-                notification.classList.remove('auto-points-notification');
-            }
-            
+            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
             notification.style.display = 'block';
             
             setTimeout(() => {

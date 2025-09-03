@@ -869,7 +869,12 @@
                 </div>
             </div>
         </div>
-
+<div class="report-section">
+    <h3>🏆 ترتيب الأعضاء based on النقاط</h3>
+    <div class="chart-container">
+        <canvas id="userRankingChart"></canvas>
+    </div>
+</div>
         <div class="controls" style="margin-top:20px;">
             <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
         </div>
@@ -2871,7 +2876,51 @@
             const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
             const userRank = sortedMembers.findIndex(m => m.id === currentUser.id) + 1;
             document.getElementById('userRank').textContent = userRank;
-            
+            // ⭐⭐ الرسم البياني الجديد based on النقاط ⭐⭐
+const ctx = document.getElementById('userRankingChart').getContext('2d');
+const memberNames = sortedMembers.map(m => m.name);
+const memberPoints = sortedMembers.map(m => m.points || 0);
+const userIndex = sortedMembers.findIndex(m => m.id === currentUser.id);
+
+// إذا كان هناك مخطط موجود، قم بتدميره أولاً
+if (window.userRankingChartInstance) {
+    window.userRankingChartInstance.destroy();
+}
+
+// تمييز المستخدم الحالي بلون مختلف
+const backgroundColors = memberNames.map((_, index) => 
+    index === userIndex ? '#3498db' : '#2ecc71'
+);
+
+// إنشاء المخطط
+window.userRankingChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: memberNames,
+        datasets: [{
+            label: 'النقاط',
+            data: memberPoints,
+            backgroundColor: backgroundColors,
+            borderColor: 'rgba(0, 0, 0, 0.1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y', // رسم أفقي
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'ترتيب الأعضاء based on النقاط - اللون الأزرق يمثل ترتيبك'
+            },
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+// ⭐⭐ نهاية الرسم البياني ⭐⭐
             // معدل الحضور
             const totalWeeks = weeks.length;
             const attendanceRate = totalWeeks > 0 ? Math.round((userAttendance / totalWeeks) * 100) : 0;

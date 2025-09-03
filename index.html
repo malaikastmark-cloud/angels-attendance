@@ -5,189 +5,374 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حضور خدام ملايكة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- إضافة Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <!-- Chart.js for modern reports -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* جميع الأنماط السابقة تبقى كما هي */
-
-        /* إضافة أنماط جديدة للجوائز والمسابقات */
-        .rewards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        .reward-card {
-            background: white;
-            border-radius: 10px;
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
             padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            border: 2px solid transparent;
-        }
-        
-        .reward-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .reward-card.gold {
-            border-color: gold;
-            background: linear-gradient(135deg, #fff9e6 0%, #ffeb99 100%);
-        }
-        
-        .reward-card.silver {
-            border-color: silver;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-        
-        .reward-card.bronze {
-            border-color: #cd7f32;
-            background: linear-gradient(135deg, #f8e9d9 0%, #e3cfba 100%);
-        }
-        
-        .reward-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-        
-        .reward-title {
-            font-weight: bold;
-            margin-bottom: 10px;
             color: #333;
         }
         
-        .reward-description {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-        
-        .reward-points {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2ecc71;
-        }
-        
-        .contest-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #9b59b6;
-        }
-        
-        .contest-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .contest-title {
-            font-weight: bold;
-            color: #9b59b6;
-            font-size: 1.2rem;
-        }
-        
-        .contest-date {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        .contest-description {
-            margin-bottom: 15px;
-            color: #555;
-        }
-        
-        .contest-participants {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .participant-badge {
-            background: #3498db;
-            color: white;
-            padding: 5px 10px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            font-size: 0.8rem;
-        }
-        
-        .challenge-progress {
-            margin: 15px 0;
-        }
-        
-        .progress-bar {
-            height: 20px;
-            background: #f0f0f0;
-            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            position: relative;
             overflow: hidden;
         }
         
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);
-            border-radius: 10px;
-            transition: width 0.5s;
-        }
-        
-        .progress-text {
+        header {
+            background: #3498db;
+            color: white;
+            padding: 20px;
             text-align: center;
-            margin-top: 5px;
-            font-size: 0.9rem;
-            color: #7f8c8d;
+            border-radius: 10px;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 极速飞艇);
         }
         
-        .achievement-badge {
-            display: inline-block;
-            background: #ffd700;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin: 5px;
+        header::before, header::after {
+            content: "✨";
+            position: absolute;
+            top: 15px;
+            font-size: 2rem;
+        }
+        
+        header::before {
+            left: 20px;
+        }
+        
+        header::after {
+            right: 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
             font-weight: bold;
         }
         
-        .leaderboard {
-            margin: 20px 0;
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        tr:hover {
+            background: #f1f1f1;
+            transform: scale(1.01);
+            transition: transform 0.2s;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-info {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: #7f8c8d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #636e70;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-reset {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background: #ee5253;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        select, input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tabs .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            background: #f0f0f0;
+            transition: all 0.3s;
+        }
+        
+        .tabs .tab.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 3px 极速飞艇 rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            flex: 1;
+            min-width: 200px;
+            transition: transform 0.3s;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 10px 0;
+        }
+        
+        .summary-subtitle {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .card-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .medal {
+            font-size: 1.5rem;
+            margin-left: 5px;
+        }
+        
+        .medal-gold { color: gold; }
+        .medal-silver { color: silver; }
+        .medal-bronze { color: #cd7f32; }
+        
+        .top-members-list {
+            margin-top: 20px;
             background: white;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .leaderboard-item {
+        .top-members-list h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .top-member-item {
             display: flex;
             justify-content: space-between;
             padding: 12px;
             border-bottom: 1px solid #eee;
             align-items: center;
+            transition: background 0.3s;
         }
         
-        .leaderboard-item:last-child {
+        .top-member-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .top-member-item:last-child {
             border-bottom: none;
         }
         
-        .leaderboard-rank {
+        .top-member-name {
             font-weight: bold;
-            width: 30px;
-            text-align: center;
+            font-size: 极速飞艇;
         }
         
-        .leaderboard-name {
-            flex: 1;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-        
-        .leaderboard-points {
+        .top-member-points {
             background: #3498db;
             color: white;
             padding: 6px 12px;
@@ -195,20 +380,449 @@
             font-weight: bold;
         }
         
-        /* تحسينات للرسم البياني في تقاريري */
-        .user-charts-container {
+        .report-section {
+            margin-bottom: 30px;
+        }
+        
+        .report-section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1.3rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            animation: notify 0.5s;
+        }
+        
+        @keyframes notify {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .member-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #3498db;
+        }
+        
+        .reward-badge {
+            background: gold;
+            color: #333;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .member-stats {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 极速飞艇;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .member-stat-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .member-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .member-stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .firebase-status {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            background: #f8f9fa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .firebase-connected {
+            color: #2ecc71;
+        }
+        
+        .firebase-disconnected {
+            color: #e74c3c;
+        }
+        
+        .emoji-icon {
+            font-size: 1.2rem;
+            margin-left: 5px;
+        }
+        
+        .extra-point-form {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .birthday-reminder {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .birthday-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            margin: 10px 0;
+            border-radius: 8px;
+            align-items: center;
+        }
+        
+        /* Modern charts styling */
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            height: 300px;
+        }
+        
+        .chart-title {
+            text-align: center;
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            select, input {
+                width: 100%;
+            }
+            
+            .card-container {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .firebase-status {
+                bottom: 80px;
+            }
+            
+            .extra-point-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .login-failed {
+            animation: shake 0.5s;
+            border: 2px solid #e74c3c !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        /* Left alignment for member numbers */
+        .member-number {
+            text-align: left;
+            padding-left: 20px;
+            font-weight: bold;
+        }
+        
+        /* New styles for biometric authentication */
+        .biometric-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .biometric-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        .member-confirmation {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 极速飞艇;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            border-right: 4px solid #2ecc71;
+        }
+        
+        .incorrect-password {
+            animation: shake 0.5s;
+            border-color: #e74c3c !important;
+        }
+        
+        .biometric-btn {
+            background: #9b59b6;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .biometric-btn:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+        
+        .biometric-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .fallback-verification {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3e0;
+            border-radius: 8px;
+            border-left: 4px solid #ff9800;
+            display: none;
+        }
+        
+        .fallback-verification.active {
+            display: block;
+        }
+        
+        /* New styles for user reports tab */
+        .user-reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .user-report-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .user-report-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .user-report-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        .user-report-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 10px 0;
+        }
+        
+        .user-report-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .user-ranking {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .ranking-medal {
+            font-size: 2rem;
+        }
+
+        /* New styles for enhanced user reports */
+        .user-report-chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            height: 250px;
+        }
+
+        .user-ranking-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-progress {
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .ranking-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .ranking-info {
+            display:极速飞艇;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .ranking-info span {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+
+        .ranking-position {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .performance-charts {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin: 20px 0;
         }
-        
+
         @media (max-width: 768px) {
-            .user-charts-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .rewards-grid {
+            .performance-charts {
                 grid-template-columns: 1fr;
             }
         }
@@ -226,15 +840,71 @@
         <div class="tabs">
             <div class="tab active" data-tab="userAttendance">تسجيل الحضور</div>
             <div class="tab" data-tab="userReports">تقاريري</div>
-            <div class="tab" data-tab="rewards">الجوائز والمسابقات</div>
         </div>
 
         <div class="tab-content active" id="userAttendance">
-            <!-- محتوى تسجيل الحضور الحالي يبقى كما هو -->
+            <h2>تسجيل الحضور</h2>
+            <div class="controls">
+                <label>اختر اسمك: </label>
+                <select id="selectMember">
+                    <option value="">-- اختر اسمك --</option>
+                    <!-- سيتم تعبئة الخيارات من Firebase -->
+                </select>
+                <label>اختر الأسبوع: </label>
+                <select id="weekSelect">
+                    <!-- سيتم تعبئة الخيارات من Firebase -->
+                </select>
+            </div>
+            
+            <div class="biometric-section" id="biometricSection">
+                <div class="member-confirmation">
+                    <img id="confirmMemberImg" class="member-img" src="">
+                    <span id="confirmMemberName"></span>
+                </div>
+                
+                <p>لتأكيد هويتك، يرجى استخدام البصمة أو التعرف على الوجه</p>
+                
+                <button class="biometric-btn" id="biometricBtn">
+                    <i class="fas fa-fingerprint"></i> التأكد بالبصمة/الوجه
+                </button>
+                
+                <div class="fallback-verification" id="fallbackVerification">
+                    <h4>طريقة بديلة للتحقق</h4>
+                    <div class="controls">
+                        <input type="password" id="memberPassword" placeholder="كلمة السر الخاصة بك">
+                        <button class="btn btn-primary" id="verifyPasswordBtn">تأكيد</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th class="member-number">#</th>
+                        <th>الصورة</th>
+                        <th>اسم العضو</th>
+                        <th>الأسبوع</th>
+                        <th>الحضور</th>
+                        <th>النقاط</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    <!-- سيتم تعبئة البيانات من Firebase -->
+                </tbody>
+            </table>
+            <div class="controls">
+                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
+                <span>النقاط: <span id="totalPoints">0</span></span>
+            </div>
         </div>
 
         <div class="tab-content" id="userReports">
             <h2>تقاريري الشخصية</h2>
+            
             <div class="user-reports-grid">
                 <div class="user-report-card">
                     <div class="user-report-icon"><i class="fas fa-calendar-check"></i></div>
@@ -244,7 +914,7 @@
                 
                 <div class="user-report-card">
                     <div class="user-report-icon"><i class="fas fa-star"></i></div>
-                    <div class="user-report-number" id="userTotalPoints">0</div>
+                    <div class="极速飞艇" id="userTotalPoints">0</div>
                     <div class="user-report-label">إجمالي النقاط</div>
                 </div>
                 
@@ -252,100 +922,385 @@
                     <div class="user-report-icon"><i class="fas fa-trophy"></i></div>
                     <div class="user-report-number" id="userRank">-</div>
                     <div class="user-report-label">ترتيبي بين الأعضاء</div>
+                    <div class="user-ranking" id="userRankingMedal"></div>
                 </div>
                 
                 <div class="user-report-card">
                     <div class="user-report-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="user-report-number" id="userPerformance">0%</div>
+                    <div class="user-report-number"极速飞艇="userPerformance">0%</div>
                     <div class="user-report-label">معدل الحضور</div>
                 </div>
             </div>
             
-            <div class="user-charts-container">
-                <div class="report-section">
-                    <h3>📊 تطور النقاط خلال الأسابيع</h3>
-                    <div class="chart-container">
-                        <canvas id="userPointsChart"></canvas>
-                    </div>
+            <div class="user-ranking-card">
+                <h3>🏆 ترتيبي بين الأعضاء</h3>
+                <div class="ranking-position" id="userRankPosition">-</div>
+                <div class="ranking-progress">
+                    <div class="ranking-progress-bar" id="rankingProgressBar" style="width: 0%">0%</div>
+                </div>
+                <div class="ranking-info">
+                    <span id="userPointsInfo">0 نقطة</span>
+                    <span id="topMemberPointsInfo">0 نقطة</span>
+                </div>
+            </div>
+            
+            <div class="performance-charts">
+                <div class="user-report-chart-container">
+                    <canvas id="userAttendanceChart"></canvas>
                 </div>
                 
-                <div class="report-section">
-                    <h3>🏆 ترتيبي بناء على النقاط</h3>
-                    <div class="chart-container">
-                        <canvas id="userRankChart"></canvas>
-                    </div>
+                <div class="user-report-chart-container">
+                    <canvas id="userPointsComparisonChart"></canvas>
                 </div>
             </div>
             
             <div class="report-section">
-                <h3>🎯 إنجازاتي</h3>
-                <div id="userAchievements">
-                    <!-- سيتم تعبئة الإنجازات من JavaScript -->
-                </div>
+                <h3>📊 تطور النقاط خلال الأسابيع</h3>
+                <极速飞艇 class="chart-container">
+                    <canvas id="userPointsChart"></canvas>
+                </极速飞艇>
             </div>
         </div>
 
-        <div class="tab-content" id="rewards">
-            <h2>🎁 نظام الجوائز والمكافآت</h2>
-            
-            <div class="report-section">
-                <h3>🏆 الجوائز المتاحة</h3>
-                <div class="rewards-grid">
-                    <div class="reward-card gold">
-                        <div class="reward-icon">🥇</div>
-                        <div class="reward-title">جائزة المواظبة الذهبية</div>
-                        <div class="reward-description">للحصول على 90% حضور أو أكثر</div>
-                        <div class="reward-points">+10 نقاط</div>
-                    </div>
-                    
-                    <div class="reward-card silver">
-                        <div class="reward-icon">🥈</div>
-                        <div class="reward-title">جائزة التميز الفضي</div>
-                        <div class="reward-description">للحصول على 75% حضور أو أكثر</div>
-                        <div class="reward-points">+5 نقاط</div>
-                    </div>
-                    
-                    <div class="reward-card bronze">
-                        <div class="reward-icon">🥉</div>
-                        <div class="reward-title">جائزة المشاركة البرونزية</div>
-                        <div class="reward-description">للحصول على 50% حضور أو أكثر</div>
-                        <div class="reward-points">+3 نقاط</div>
-                    </div>
-                    
-                    <div class="reward-card">
-                        <div class="reward-icon">⭐</div>
-                        <div class="reward-title">جائزة الأسبوع المثالي</div>
-                        <div class="reward-description">للحضور في 4 أسابيع متتالية</div>
-                        <div class="reward-points">+7 نقاط</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="report-section">
-                <h3>🚀 المسابقات والتحديات الحالية</h3>
-                <div id="currentContests">
-                    <!-- سيتم تعبئة المسابقات من JavaScript -->
-                </div>
-            </div>
-            
-            <div class="report-section">
-                <h3>📊 لوحة المتصدرين</h3>
-                <div class="leaderboard">
-                    <div id="topLeaders">
-                        <!-- سيتم تعبئة المتصدرين من JavaScript -->
-                    </div>
+        <div class="controls" style="margin-top:20px;">
+            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
+        </div>
+
+        <div class="modal" id="adminLoginModal">
+            <div class="modal-content">
+                <h2>تسجيل دخول الأدمن</h2>
+                <input type="password" id="adminPassword" placeholder="كلمة السر">
+                <div class="controls">
+                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
+                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
                 </div>
             </div>
         </div>
-
-        <!-- باقي المحتوى يبقى كما هو -->
-
+        
     </div>
 
     <script>
-        // بيانات التطبيق تبقى كما هي
-
-        // دالة لتحديث تقارير المستخدم
+        // بيانات التطبيق
+        let members = [
+            { id: "1", name: "👦 أحمد محمد", points: 12, password: "1234" },
+            { id: "2", name: "👧 سارة أحمد", points: 8, password: "1234" },
+            { id: "3", name: "👦 علي محمود", points: 15, password: "1234" },
+            { id: "4", name: "👧 مريم خالد", points: 10, password: "1234" }
+        ];
+        
+        let weeks = [
+            { id: "1", name: "الأسبوع الأول" },
+            { id: "2", name: "الأسبوع الثاني" },
+            { id: "3", name: "الأسبوع الثالث" },
+            { id: "4", name: "الأسبوع الرابع" }
+        ];
+        
+        let attendanceRecords = [];
+        let currentUser = null;
+        
+        // كلمة السر
+        const adminPass = 'admin123';
+        
+        // تهيئة التطبيق
+        function initializeApp() {
+            setupEventListeners();
+            updateSelectMember();
+            updateWeekSelects();
+            updateAttendanceTable();
+            updateReports();
+            setupTabListeners();
+        }
+        
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // تسجيل دخول الأدمن
+            document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
+            document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
+            document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
+            
+            // إدارة الحضور
+            document.getElementById('markPresent').addEventListener('click', markAttendance);
+            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
+            document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
+            
+            // التحقق بالبصمة
+            document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
+            document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
+        }
+        
+        // إعداد مستمعي أحداث التبويبات
+        function setupTabListeners() {
+            const tabs = document.querySelectorAll('.tabs .tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // إزالة النشاط من جميع التبويبات
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // إضافة النشاط للتبويب المحدد
+                    this.classList.add('active');
+                    
+                    // إخفاء جميع محتويات التبويبات
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // إظهار محتوى التبويب المحدد
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // إذا كان التبويب هو التقارير، قم بتحديثها
+                    if (tabId === 'userReports') {
+                        updateUserReports();
+                    }
+                });
+            });
+        }
+        
+        // تسجيل دخول الأدمن
+        function showAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').classList.remove('login-failed');
+        }
+        
+        function hideAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'none';
+        }
+        
+        function confirmAdminLogin() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === adminPass) {
+                document.getElementById('adminLoginModal').style.display = 'none';
+                showNotification('تم تسجيل دخول الأدمن بنجاح');
+            } else {
+                const passwordInput = document.getElementById('adminPassword');
+                passwordInput.classList.add('login-failed');
+                setTimeout(() => {
+                    passwordInput.classList.remove('login-failed');
+                }, 500);
+                
+                showNotification('كلمة السر خاطئة!', false);
+            }
+        }
+        
+        // عند اختيار عضو من القائمة
+        function handleMemberSelection() {
+            const memberId = document.getElementById('selectMember').value;
+            if (!memberId) {
+                document.getElementById('biometricSection').classList.remove('active');
+                return;
+            }
+            
+            const member = members.find(m => m.id === memberId);
+            if (member) {
+                document.getElementById('confirmMemberName').textContent = member.name;
+                document.getElementById('confirmMemberImg').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=3498db&color=fff`;
+                document.getElementById('biometricSection').classList.add('active');
+                currentUser = member;
+            }
+        }
+        
+        // التحقق بالبصمة/الوجه
+        async function startBiometricVerification() {
+            if (!currentUser) {
+                showNotification('يرجى اختيار عضو أولاً', false);
+                return;
+            }
+            
+            try {
+                showNotification('جاري التحقق من البصمة/الوجه...');
+                
+                // محاكاة الانتظار للتحقق
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const isVerified = true; // محاكاة للنجاح
+                
+                if (isVerified) {
+                    showNotification('تم التحقق من الهوية بنجاح!');
+                    document.getElementById('markPresent').disabled = false;
+                } else {
+                    showNotification('فشل التحقق من الهوية', false);
+                    document.getElementById('fallbackVerification').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error in biometric verification:', error);
+                showNotification('فشل التحقق من الهوية', false);
+                document.getElementById('fallbackVerification').classList.add('active');
+            }
+        }
+        
+        // التحقق بكلمة السر (الطريقة البديلة)
+        async function verifyPassword() {
+            const password = document.getElementById('memberPassword').value;
+            if (!password) {
+                showNotification('يرجى إدخال كلمة السر', false);
+                return;
+            }
+            
+            if (password === currentUser.password) {
+                showNotification('تم التحقق من الهوية بنجاح!');
+                document.getElementById('markPresent').disabled = false;
+                document.getElementById('fallbackVerification').classList.remove('active');
+            } else {
+                showNotification('كلمة السر خاطئة', false);
+                document.getElementById('memberPassword').classList.add('incorrect-password');
+                setTimeout(() => {
+                    document.getElementById('memberPassword').classList.remove('incorrect-password');
+                }, 500);
+            }
+        }
+        
+        // تحديث قائمة الأعضاء المنسدلة
+        function updateSelectMember() {
+            const selectMember = document.getElementById('selectMember');
+            
+            selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
+            
+            members.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                selectMember.appendChild(option);
+            });
+        }
+        
+        // تحديث قوائم الأسابيع المنسدلة
+        function updateWeekSelects() {
+            const weekSelect = document.getElementById('weekSelect');
+            
+            weekSelect.innerHTML = '';
+            
+            weeks.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week.id;
+                option.textContent = week.name;
+                weekSelect.appendChild(option);
+            });
+        }
+        
+        // تسجيل الحضور
+        function markAttendance() {
+            const memberId = document.getElementById('selectMember').value;
+            const weekId = document.getElementById('weekSelect').value;
+            
+            if (!memberId) {
+                showNotification('يرجى اختيار العضو أولاً', false);
+                return;
+            }
+            
+            if (!weekId) {
+                showNotification('يرجى اختيار الأسبوع أولاً', false);
+                return;
+            }
+            
+            // التحقق من عدم تسجيل الحضور مسبقاً
+            const existingRecord = attendanceRecords.find(ar => 
+                ar.memberId === memberId && ar.weekId === weekId
+            );
+            
+            if (existingRecord) {
+                showNotification('لقد تم تسجيل حضور هذا العضو already في هذا الأسبوع', false);
+                return;
+            }
+            
+            // زيادة نقاط العضو
+            const member = members.find(m => m.id === memberId);
+            if (member) {
+                member.points = (member.points || 0) + 1;
+                
+                // إضافة سجل الحضور
+                attendanceRecords.push({
+                    id: Date.now().toString(),
+                    memberId: memberId,
+                    weekId: weekId,
+                    date: new Date().toISOString(),
+                    points: 1
+                });
+                
+                showNotification('تم تسجيل الحضور بنجاح!');
+                document.getElementById('markPresent').disabled = true;
+                
+                updateAttendanceTable();
+                updateReports();
+                updateUserReports();
+            }
+        }
+        
+        // تحديث جدول الحضور
+        function updateAttendanceTable() {
+            const tbody = document.getElementById('attendanceTableBody');
+            tbody.innerHTML = '';
+            
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            
+            if (!selectedWeekId && weeks.length > 0) {
+                document.getElementById('weekSelect').value = weeks[0].id;
+                updateAttendanceTable();
+                return;
+            }
+            
+            const currentWeek = weeks.find(w => w.id === selectedWeekId);
+            
+            if (members.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد أعضاء مسجلين بعد</td>`;
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            members.forEach((member, index) => {
+                const attendanceRecord = attendanceRecords.find(ar => 
+                    ar.memberId === member.id && ar.weekId === selectedWeekId
+                );
+                
+                const isPresent = attendanceRecord ? true : false;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="member-number">${index + 1}</td>
+                    <td><img src="https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=3498db&color=fff" class="member-img" alt="${member.name}"></td>
+                    <td>${member.name}</td>
+                    <td>${currentWeek ? currentWeek.name : ''}</td>
+                    <td class="attendance-value">${isPresent ? '✅ حاضر' : '❌ غائب'}</td>
+                    <td class="points">${member.points || 0}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            updateAttendanceStats();
+        }
+        
+        // تحديث إحصائيات الحضور
+        function updateAttendanceStats() {
+            const selectedWeekId = document.getElementById('weekSelect').value;
+            let count = 0;
+            let totalPoints = 0;
+            
+            if (!selectedWeekId) {
+                document.getElementById('attendanceCount').textContent = count;
+                document.getElementById('totalPoints').textContent = totalPoints;
+                return;
+            }
+            
+            const weekAttendance = attendanceRecords.filter(ar => ar.weekId === selectedWeekId);
+            count = weekAttendance.length;
+            
+            totalPoints = members.reduce((sum, member) => sum + (member.points || 0), 0);
+            
+            document.getElementById('attendanceCount').textContent = count;
+            document.getElementById('totalMembers').textContent = members.length;
+            document.getElementById('totalPoints').textContent = totalPoints;
+        }
+        
+        // تحديث التقارير
+        function updateReports() {
+            document.getElementById('reportAttendance').textContent = attendanceRecords.length;
+            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
+            document.getElementById('reportMembers').textContent = members.length;
+            document.getElementById('reportWeeks').textContent = weeks.length;
+        }
+        
+        // تحديث تقارير المستخدم
         function updateUserReports() {
             if (!currentUser) return;
             
@@ -366,231 +1321,55 @@
             const attendanceRate = totalWeeks > 0 ? Math.round((userAttendance / totalWeeks) * 100) : 0;
             document.getElementById('userPerformance').textContent = `${attendanceRate}%`;
             
-            // تحديث مخطط نقاط المستخدم
-            updateUserPointsChart();
+            // إضافة ميدالية حسب الترتيب
+            const rankingMedal = document.getElementById('userRankingMedal');
+            rankingMedal.innerHTML = '';
             
-            // تحديث مخطط الترتيب
-            updateUserRankChart();
-            
-            // تحديث الإنجازات
-            updateUserAchievements();
-        }
-
-        // دالة لتحديث مخطط الترتيب
-        function updateUserRankChart() {
-            const ctx = document.getElementById('userRankChart').getContext('2d');
-            
-            // تجهيز البيانات للمخطط
-            const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const top10Members = sortedMembers.slice(0, 10);
-            
-            const memberNames = top10Members.map(m => m.name);
-            const memberPoints = top10Members.map(m => m.points || 0);
-            
-            // تحديد موقع المستخدم الحالي
-            const userIndex = top10Members.findIndex(m => m.id === currentUser.id);
-            const backgroundColors = memberNames.map((_, index) => 
-                index === userIndex ? '#3498db' : '#2ecc71'
-            );
-            
-            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
-            if (window.userRankChartInstance) {
-                window.userRankChartInstance.destroy();
+            if (userRank === 1) {
+                rankingMedal.innerHTML = '<span class="ranking-medal">🥇</span>';
+            } else if (userRank === 2) {
+                rankingMedal.innerHTML = '<span class="ranking-medal">🥈</span>';
+            } else if (userRank === 3) {
+                rankingMedal.innerHTML = '<span class="ranking-medal">🥉</span>';
             }
             
-            // إنشاء مخطط جديد
-            window.userRankChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: memberNames,
-                    datasets: [{
-                        label: 'النقاط',
-                        data: memberPoints,
-                        backgroundColor: backgroundColors,
-                        borderColor: 'rgba(0, 0, 0, 0.1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'النقاط'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'الـ 10 الأوائل حسب النقاط'
-                        },
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
+            // تحديث معلومات الترتيب
+            updateUserRankingInfo();
         }
-
-        // دالة لتحديث إنجازات المستخدم
-        function updateUserAchievements() {
+        
+        // تحديث معلومات الترتيب
+        function updateUserRankingInfo() {
             if (!currentUser) return;
             
-            const userAttendance = attendanceRecords.filter(ar => ar.memberId === currentUser.id).length;
-            const totalWeeks = weeks.length;
-            const attendanceRate = totalWeeks > 0 ? (userAttendance / totalWeeks) * 100 : 0;
-            
-            const achievementsContainer = document.getElementById('userAchievements');
-            achievementsContainer.innerHTML = '';
-            
-            const achievements = [
-                {
-                    title: 'المواظبة الذهبية',
-                    description: 'الحصول على 90% حضور أو أكثر',
-                    achieved: attendanceRate >= 90,
-                    icon: '🥇'
-                },
-                {
-                    title: 'التميز الفضي',
-                    description: 'الحصول على 75% حضور أو أكثر',
-                    achieved: attendanceRate >= 75,
-                    icon: '🥈'
-                },
-                {
-                    title: 'المشاركة البرونزية',
-                    description: 'الحصول على 50% حضور أو أكثر',
-                    achieved: attendanceRate >= 50,
-                    icon: '🥉'
-                },
-                {
-                    title: 'المثابرة',
-                    description: 'الحضور لمدة 4 أسابيع متتالية',
-                    achieved: checkConsecutiveWeeks(4),
-                    icon: '⭐'
-                },
-                {
-                    title: 'الروح التنافسية',
-                    description: 'الوصول إلى المركز الأول في النقاط',
-                    achieved: checkTopRank(1),
-                    icon: '🏆'
-                }
-            ];
-            
-            achievements.forEach(achievement => {
-                const achievementEl = document.createElement('div');
-                achievementEl.className = `achievement-badge ${achievement.achieved ? 'achieved' : 'not-achieved'}`;
-                achievementEl.innerHTML = `
-                    ${achievement.icon} ${achievement.title}
-                    ${achievement.achieved ? '✅' : '❌'}
-                `;
-                achievementEl.title = achievement.description;
-                achievementsContainer.appendChild(achievementEl);
-            });
-        }
-
-        // دالة للتحقق من الأسابيع المتتالية
-        function checkConsecutiveWeeks(weeksCount) {
-            // تنفيذ منطق التحقق من الأسابيع المتتالية
-            // هذه دالة افتراضية، تحتاج إلى تنفيذ حسب هيكل بياناتك
-            return false;
-        }
-
-        // دالة للتحقق من الوصول لمركز معين
-        function checkTopRank(rank) {
             const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
             const userRank = sortedMembers.findIndex(m => m.id === currentUser.id) + 1;
-            return userRank === rank;
+            const topMemberPoints = sortedMembers.length > 0 ? sortedMembers[0].points || 0 : 0;
+            
+            document.getElementById('userRankPosition').textContent = `المركز ${userRank} من ${sortedMembers.length}`;
+            
+            // تحديث شريط التقدم
+            const progressPercentage = topMemberPoints > 0 ? Math.round((currentUser.points || 0) / topMemberPoints * 100) : 0;
+            const progressBar = document.getElementById('rankingProgressBar');
+            progressBar.style.width = `${progressPercentage}%`;
+            progressBar.textContent = `${progressPercentage}%`;
+            
+            // تحديث معلومات النقاط
+            document.getElementById('userPointsInfo').textContent = `${currentUser.points || 0} نقطة`;
+            document.getElementById('topMemberPointsInfo').textContent = `${topMemberPoints} نقطة`;
         }
-
-        // دالة لتحديث المسابقات الحالية
-        function updateCurrentContests() {
-            const contestsContainer = document.getElementById('currentContests');
-            contestsContainer.innerHTML = '';
+        
+        // عرض الإشعارات
+        function showNotification(message, isSuccess = true) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+            notification.style.display = 'block';
             
-            // مسابقات افتراضية - يمكن جلبها من Firebase
-            const contests = [
-                {
-                    title: 'تحدي الحضور الكامل',
-                    description: 'احضر جميع الأسابيع هذا الشهر واربح 10 نقاط إضافية',
-                    endDate: '2023-12-31',
-                    participants: 15,
-                    maxParticipants: 30
-                },
-                {
-                    title: 'مسابقة الأنشطة',
-                    description: 'شارك في 3 أنشطة مختلفة خلال أسبوعين',
-                    endDate: '2023-12-20',
-                    participants: 8,
-                    maxParticipants: 20
-                }
-            ];
-            
-            contests.forEach(contest => {
-                const contestEl = document.createElement('div');
-                contestEl.className = 'contest-card';
-                contestEl.innerHTML = `
-                    <div class="contest-header">
-                        <div class="contest-title">${contest.title}</div>
-                        <div class="contest-date">ينتهي في: ${new Date(contest.endDate).toLocaleDateString('ar-EG')}</div>
-                    </div>
-                    <div class="contest-description">${contest.description}</div>
-                    <div class="challenge-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(contest.participants / contest.maxParticipants) * 100}%"></div>
-                        </div>
-                        <div class="progress-text">${contest.participants} / ${contest.maxParticipants} مشارك</div>
-                    </div>
-                `;
-                contestsContainer.appendChild(contestEl);
-            });
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
         }
-
-        // دالة لتحديث لوحة المتصدرين
-        function updateLeaderboard() {
-            const leadersContainer = document.getElementById('topLeaders');
-            leadersContainer.innerHTML = '';
-            
-            const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const top10 = sortedMembers.slice(0, 10);
-            
-            top10.forEach((member, index) => {
-                const leaderEl = document.createElement('div');
-                leaderEl.className = 'leaderboard-item';
-                leaderEl.innerHTML = `
-                    <div class="leaderboard-rank">${index + 1}</div>
-                    <div class="leaderboard-name">${member.name}</div>
-                    <div class="leaderboard-points">${member.points || 0} نقطة</div>
-                `;
-                leadersContainer.appendChild(leaderEl);
-            });
-        }
-
-        // تحديث التبويبات الجديدة عند التبديل إليها
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-                
-                if (tabId === 'rewards') {
-                    updateCurrentContests();
-                    updateLeaderboard();
-                }
-            });
-        });
-
-        // تهيئة التطبيق
-        function initializeApp() {
-            // الكود الأصلي للتهيئة يبقى كما هو
-            
-            // إضافة تحميل البيانات الإضافية
-            updateCurrentContests();
-            updateLeaderboard();
-        }
-
+        
         // بدء التطبيق عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>

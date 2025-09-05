@@ -868,13 +868,15 @@
                     <canvas id="userPointsChart"></canvas>
                 </div>
             </div>
+            
+            <div class="report-section">
+                <h3>🏆 ترتيب الأعضاء بناءً على النقاط</h3>
+                <div class="chart-container">
+                    <canvas id="userRankingChart"></canvas>
+                </div>
+            </div>
         </div>
-<div class="report-section">
-    <h3>🏆 ترتيب الأعضاء based on النقاط</h3>
-    <div class="chart-container">
-        <canvas id="userRankingChart"></canvas>
-    </div>
-</div>
+
         <div class="controls" style="margin-top:20px;">
             <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
         </div>
@@ -1261,6 +1263,7 @@
         let tasks = [];
         let securityLogs = [];
         let currentUser = null;
+        let securitySettings = { level: 'none' };
         
         // كلمة السر
         const adminPass = 'admin123';
@@ -1459,6 +1462,19 @@
           });
         }
 
+        // دالة لتحميل إعدادات الأمان من Firebase
+        function loadSecuritySettingsFromFirebase() {
+          const securitySettingsRef = database.ref('securitySettings');
+
+          securitySettingsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              securitySettings = data;
+              document.getElementById('securityLevel').value = securitySettings.level || 'none';
+            }
+          });
+        }
+
         // تهيئة التطبيق
         function initializeApp() {
             setupEventListeners();
@@ -1470,6 +1486,7 @@
             loadEventsFromFirebase();
             loadTasksFromFirebase();
             loadSecurityLogsFromFirebase();
+            loadSecuritySettingsFromFirebase();
             updateReports();
             setupTabListeners();
             
@@ -1688,10 +1705,19 @@
                 document.getElementById('confirmMemberImg').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=3498db&color=fff`;
                 document.getElementById('biometricSection').classList.add('active');
                 currentUser = member;
+                
+                // تفعيل أو تعطيل زر الحضور بناءً على إعدادات الأمان
+                if (securitySettings.level === 'none') {
+                    document.getElementById('markPresent').disabled = false;
+                    document.getElementById('biometricSection').style.display = 'none';
+                } else {
+                    document.getElementById('markPresent').disabled = true;
+                    document.getElementById('biometricSection').style.display = 'block';
+                }
             }
         }
         
-        // التحقق بالبصمة/الوجه
+        // التحقق بالبصمة/الوجه - نسخة محسنة
         async function startBiometricVerification() {
             if (!currentUser) {
                 showNotification('يرجى اختيار عضو أولاً', false);
@@ -1699,29 +1725,49 @@
             }
             
             try {
-                // محاكاة للتحقق بالبصمة (سيتم استبدالها بالواجهة الفعلية)
+                // محاكاة أكثر واقعية للتحقق بالبصمة
                 showNotification('جاري التحقق من البصمة/الوجه...');
+                document.getElementById('biometricBtn').disabled = true;
                 
-                // محاكاة الانتظار للتحقق
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // محاكاة عملية المسح
+                let scanProgress = 0;
+                const scanInterval = setInterval(() => {
+                    scanProgress += 10;
+                    document.getElementById('biometricBtn').innerHTML = `<i class="fas fa-fingerprint"></i> جاري المسح (${scanProgress}%)`;
+                    
+                    if (scanProgress >= 100) {
+                        clearInterval(scanInterval);
+                        
+                        // محاكاة نجاح أو فشل العملية (80% نجاح)
+                        const isVerified = Math.random() > 0.2;
+                        
+                        if (isVerified) {
+                            showNotification('تم التحقق من الهوية بنجاح!');
+                            document.getElementById('biometricBtn').innerHTML = '<i class="fas fa-fingerprint"></i> تم التحقق بنجاح';
+                            document.getElementById('biometricBtn').style.background = '#2ecc71';
+                            document.getElementById('markPresent').disabled = false;
+                            logSecurityEvent(currentUser.id, 'biometric', 'success');
+                        } else {
+                            showNotification('فشل التحقق من الهوية', false);
+                            document.getElementById('biometricBtn').innerHTML = '<i class="fas fa-fingerprint"></i> فشل التحقق - حاول مرة أخرى';
+                            document.getElementById('biometricBtn').style.background = '#e74c3c';
+                            document.getElementById('fallbackVerification').classList.add('active');
+                            logSecurityEvent(currentUser.id, 'biometric', 'failed');
+                        }
+                        
+                        setTimeout(() => {
+                            document.getElementById('biometricBtn').disabled = false;
+                            document.getElementById('biometricBtn').innerHTML = '<i class="fas fa-fingerprint"></i> التأكد بالبصمة/الوجه';
+                            document.getElementById('biometricBtn').style.background = '';
+                        }, 2000);
+                    }
+                }, 300);
                 
-                // في الواقع، هنا سيتم استخدام WebAuthn API للتحقق من البصمة
-                // const isVerified = await verifyBiometric();
-                const isVerified = true; // محاكاة للنجاح
-                
-                if (isVerified) {
-                    showNotification('تم التحقق من الهوية بنجاح!');
-                    document.getElementById('markPresent').disabled = false;
-                    logSecurityEvent(currentUser.id, 'biometric', 'success');
-                } else {
-                    showNotification('فشل التحقق من الهوية', false);
-                    document.getElementById('fallbackVerification').classList.add('active');
-                    logSecurityEvent(currentUser.id, 'biometric', 'failed');
-                }
             } catch (error) {
                 console.error('Error in biometric verification:', error);
                 showNotification('فشل التحقق من الهوية', false);
                 document.getElementById('fallbackVerification').classList.add('active');
+                document.getElementById('biometricBtn').disabled = false;
                 logSecurityEvent(currentUser.id, 'biometric', 'error');
             }
         }
@@ -2150,7 +2196,7 @@
                 return;
             }
             
-            members.forEach((member, index) => {
+            members.forEach((member, index) {
                 const attendanceRecord = attendanceRecords.find(ar => 
                     ar.memberId === member.id && ar.weekId === selectedWeekId
                 );
@@ -2316,7 +2362,7 @@
                 return;
             }
             
-            attendanceRecords.forEach((record, index) => {
+            attendanceRecords.forEach((record, index) {
                 const member = members.find(m => m.id === record.memberId);
                 const week = weeks.find(w => w.id === record.weekId);
                 
@@ -2417,6 +2463,7 @@
                                 }).catch((error) => {
                                     console.error("Error updating points:", error);
                                     showNotification('فشل في تحديث النقاط: ' + error.message, false);
+                                    contestRef.remove();
                                 });
                             }
                         });
@@ -2558,7 +2605,7 @@
                 return;
             }
             
-            birthdays.forEach((birthday, index) => {
+            birthdays.forEach((birthday, index) {
                 const member = members.find(m => m.id === birthday.memberId);
                 const daysLeft = daysUntilBirthday(birthday.date);
                 
@@ -2680,7 +2727,7 @@
             const status = document.getElementById('newTaskStatus').value;
             
             if (!name || !assigneeId || !deadline || !status) {
-                showNotification('يرجى ملء جميع الحقول', false);
+                showNotification('يرجى ملء جميع الحول', false);
                 return;
             }
             
@@ -2783,8 +2830,17 @@
         // حفظ إعدادات الأمان
         function saveSecuritySettings() {
             const securityLevel = document.getElementById('securityLevel').value;
-            showNotification('تم حفظ إعدادات الأمان بنجاح');
-            // هنا يمكنك حفظ الإعدادات في Firebase إذا أردت
+            
+            const securitySettingsRef = database.ref('securitySettings');
+            securitySettingsRef.set({
+                level: securityLevel
+            }).then(() => {
+                securitySettings.level = securityLevel;
+                showNotification('تم حفظ إعدادات الأمان بنجاح');
+            }).catch((error) => {
+                console.error("Error saving security settings:", error);
+                showNotification('فشل في حفظ إعدادات الأمان: ' + error.message, false);
+            });
         }
         
         // إعادة تعيين كلمة السر من الأدمن
@@ -2876,51 +2932,7 @@
             const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
             const userRank = sortedMembers.findIndex(m => m.id === currentUser.id) + 1;
             document.getElementById('userRank').textContent = userRank;
-            // ⭐⭐ الرسم البياني الجديد based on النقاط ⭐⭐
-const ctx = document.getElementById('userRankingChart').getContext('2d');
-const memberNames = sortedMembers.map(m => m.name);
-const memberPoints = sortedMembers.map(m => m.points || 0);
-const userIndex = sortedMembers.findIndex(m => m.id === currentUser.id);
-
-// إذا كان هناك مخطط موجود، قم بتدميره أولاً
-if (window.userRankingChartInstance) {
-    window.userRankingChartInstance.destroy();
-}
-
-// تمييز المستخدم الحالي بلون مختلف
-const backgroundColors = memberNames.map((_, index) => 
-    index === userIndex ? '#3498db' : '#2ecc71'
-);
-
-// إنشاء المخطط
-window.userRankingChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: memberNames,
-        datasets: [{
-            label: 'النقاط',
-            data: memberPoints,
-            backgroundColor: backgroundColors,
-            borderColor: 'rgba(0, 0, 0, 0.1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        indexAxis: 'y', // رسم أفقي
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            title: {
-                display: true,
-                text: 'ترتيب الأعضاء based on النقاط - اللون الأزرق يمثل ترتيبك'
-            },
-            legend: {
-                display: false
-            }
-        }
-    }
-});
-// ⭐⭐ نهاية الرسم البياني ⭐⭐
+            
             // معدل الحضور
             const totalWeeks = weeks.length;
             const attendanceRate = totalWeeks > 0 ? Math.round((userAttendance / totalWeeks) * 100) : 0;
@@ -2940,6 +2952,9 @@ window.userRankingChartInstance = new Chart(ctx, {
             
             // تحديث مخطط نقاط المستخدم
             updateUserPointsChart();
+            
+            // تحديث مخطط ترتيب الأعضاء
+            updateUserRankingChart(sortedMembers, userRank);
         }
         
         // تحديث مخطط نقاط المستخدم
@@ -3005,6 +3020,58 @@ window.userRankingChartInstance = new Chart(ctx, {
                         title: {
                             display: true,
                             text: 'تطور النقاط خلال الأسابيع'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // تحديث مخطط ترتيب الأعضاء
+        function updateUserRankingChart(sortedMembers, userRank) {
+            const ctx = document.getElementById('userRankingChart').getContext('2d');
+            
+            // أخذ أول 10 أعضاء فقط للرسم البياني
+            const topMembers = sortedMembers.slice(0, 10);
+            const memberNames = topMembers.map(m => m.name);
+            const memberPoints = topMembers.map(m => m.points || 0);
+            
+            // تحديد موقع المستخدم الحالي في القائمة
+            const userIndex = topMembers.findIndex(m => m.id === currentUser.id);
+            
+            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
+            if (window.userRankingChartInstance) {
+                window.userRankingChartInstance.destroy();
+            }
+            
+            // تمييز المستخدم الحالي بلون مختلف
+            const backgroundColors = memberNames.map((_, index) => 
+                index === userIndex ? '#3498db' : '#2ecc71'
+            );
+            
+            // إنشاء المخطط
+            window.userRankingChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: memberNames,
+                    datasets: [{
+                        label: 'النقاط',
+                        data: memberPoints,
+                        backgroundColor: backgroundColors,
+                        borderColor: 'rgba(0, 0, 0, 0.1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'ترتيب الأعضاء بناءً على النقاط - اللون الأزرق يمثل ترتيبك'
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 }

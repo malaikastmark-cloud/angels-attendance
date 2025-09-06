@@ -698,7 +698,7 @@
             margin-top: 15px;
             padding: 15px;
             background: #fff3e0;
-            border-radius: 8px;
+            borderRadius: 8px;
             border-left: 4px solid #ff9800;
             display: none;
         }
@@ -790,6 +790,18 @@
             padding: 15px;
             border-radius: 8px;
             margin: 15px 0;
+        }
+        
+        /* New styles for ranking details */
+        .ranking-details {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .ranking-details span {
+            font-weight: bold;
+            color: #3498db;
         }
     </style>
 </head>
@@ -890,8 +902,9 @@
                 <div class="user-report-card">
                     <div class="user-report-icon"><i class="fas fa-trophy"></i></div>
                     <div class="user-report-number" id="userRank">-</div>
-                    <div class="user-report-label">ترتيبي بين الأعضاء</div>
+                    <div class="user-report-label">ترتيبي حسب النقاط</div>
                     <div class="user-ranking" id="userRankingMedal"></div>
+                    <div class="ranking-details" id="rankingDetails"></div>
                 </div>
                 
                 <div class="user-report-card">
@@ -928,413 +941,19 @@
                 </div>
             </div>
         </div>
-
-        <div class="tab-content" id="adminTabs" style="display:none;">
-            <div class="controls">
-                <button class="btn btn-secondary" id="backToUserView">
-                    <i class="fas fa-arrow-right"></i> العودة إلى واجهة المستخدم
-                </button>
-                <button class="btn btn-info" id="exportDataBtn">
-                    <i class="fas fa-download"></i> تصدير البيانات
-                </button>
-                <button class="btn btn-warning" id="backupDataBtn">
-                    <i class="fas fa-save"></i> نسخ احتياطي
-                </button>
-            </div>
-
-            <div class="tabs">
-                <div class="tab active" data-tab="members">إدارة الأعضاء</div>
-                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
-                <div class="tab" data-tab="attendance">إدارة الحضور</div>
-                <div class="tab" data-tab="security">الأمان والتحقق</div>
-                <div class="tab" data-tab="contests">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
-                <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></div>
-                <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
-                <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
-                <div class="tab" data-tab="reports">التقارير</div>
-            </div>
-
-            <div class="tab-content active" id="members">
-                <h2>إدارة الأعضاء</h2>
-                <div class="controls">
-                    <input type="text" id="newMemberName" placeholder="اسم العضو">
-                    <select id="newMemberEmoji">
-                        <option value="🧒">🧒 </option>
-                        <option value="👦">👦 </option>
-                        <option value="👧">👧 </option>
-                        <option value="👨">👨 </option>
-                        <option value="👩">👩 </option>
-                    </select>
-                    <input type="password" id="newMemberPassword" placeholder="كلمة السر (اختياري)">
-                    <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
-                </div>
-                <table id="membersTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم العضو</th>
-                            <th>النقاط</th>
-                            <th>كلمة السر</th>
-                            <th>تعديل</th>
-                            <th>حذف النقاط</th>
-                            <th>حذف العضو</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="weeks">
-                <h2>إدارة الأسابيع</h2>
-                <div class="controls">
-                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-                    <input type="date" id="newWeekDate" placeholder="تاريخ الأسبوع">
-                    <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
-                </div>
-                <table id="weeksTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم الأسبوع</th>
-                            <th>التاريخ</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="attendance">
-                <h2>إدارة تسجيلات الحضور</h2>
-                <div class="controls">
-                    <label>اختر أسبوع: </label>
-                    <select id="deleteWeekSelect">
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
-                </div>
-                
-                <div class="extra-point-form">
-                    <h3>إضافة نقاط إضافية <i class="fas fa-star emoji-icon"></i></h3>
-                    <select id="extraPointMember">
-                        <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
-                    <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
-                    <button class="btn btn-warning" id="addExtraPointsBtn">إضافة نقاط</button>
-                </div>
-                
-                <h3>سجلات الحضور</h3>
-                <div class="controls">
-                    <button class="btn btn-danger" id="deleteSelectedAttendance">حذف الحضور المحدد</button>
-                </div>
-                
-                <table id="attendanceRecordsTable">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="selectAllAttendance"></th>
-                            <th class="member-number">#</th>
-                            <th>العضو</th>
-                            <th>الأسبوع</th>
-                            <th>النقاط</th>
-                            <th>تاريخ التسجيل</th>
-                        </tr>
-                    </thead>
-                    <tbody id="attendanceRecordsBody">
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="security">
-                <h2>إعدادات الأمان والتحقق</h2>
-                
-                <div class="security-settings">
-                    <h3>الإعدادات العامة</h3>
-                    <div class="controls">
-                        <label>تفعيل نظام التحقق: </label>
-                        <select id="securityLevel">
-                            <option value="none">لا يوجد تحقق</option>
-                            <option value="password">كلمة سر فقط</option>
-                            <option value="biometric">بصمة/وجه (إن أمكن)</option>
-                        </select>
-                        <button class="btn btn-primary" id="saveSecuritySettings">حفظ الإعدادات</button>
-                    </div>
-                </div>
-                
-                <div class="admin-password-form">
-                    <h3>تغيير كلمة سر الأدمن</h3>
-                    <div class="controls">
-                        <div class="password-field">
-                            <input type="password" id="currentAdminPassword" placeholder="كلمة السر الحالية">
-                            <span class="toggle-password" id="toggleCurrentAdminPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <div class="password-field">
-                            <input type="password" id="newAdminPassword" placeholder="كلمة السر الجديدة">
-                            <span class="toggle-password" id="toggleNewAdminPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <div class="password-field">
-                            <input type="password" id="confirmAdminPassword" placeholder="تأكيد كلمة السر">
-                            <span class="toggle-password" id="toggleConfirmAdminPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <button class="btn btn-warning" id="changeAdminPasswordBtn">تغيير كلمة السر</button>
-                    </div>
-                </div>
-                
-                <div class="report-section">
-                    <h3>إعادة تعيين كلمات السر</h3>
-                    <div class="controls">
-                        <select id="resetMemberPassword">
-                            <option value="">-- اختر العضو --</option>
-                            <!-- سيتم تعبئة الخيارات من Firebase -->
-                        </select>
-                        <div class="password-field">
-                            <input type="password" id="newPasswordValue" placeholder="كلمة السر الجديدة">
-                            <span class="toggle-password" id="toggleNewPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <button class="btn btn-warning" id="resetPasswordBtn">إعادة تعيين</button>
-                    </div>
-                </div>
-                
-                <div class="report-section">
-                    <h3>سجل محاولات التسجيل</h3>
-                    <table id="securityLogsTable">
-                        <thead>
-                            <tr>
-                                <th class="member-number">#</th>
-                                <th>العضو</th>
-                                <th>التاريخ</th>
-                                <th>النوع</th>
-                                <th>الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- سيتم تعبئة البيانات من Firebase -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="tab-content" id="contests">
-                <h2>إدارة المسابقات <i class="fas fa-trophy emoji-icon"></i></h2>
-                <div class="controls">
-                    <select id="contestMember">
-                        <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="text" id="contestName" placeholder="اسم المسابقة">
-                    <select id="contestPoints">
-                        <option value="1">1 نقطة</option>
-                        <option value="2">2 نقاط</option>
-                        <option value="3">3 نقاط</option>
-                        <option value="4">4 نقاط</option>
-                        <option value="5">5 نقاط</option>
-                        <option value="6">6 نقاط</option>
-                        <option value="7">7 نقاط</option>
-                        <option value="8">8 نقاط</option>
-                        <option value="9">9 نقاط</option>
-                        <option value="10">10 نقاط</option>
-                    </select>
-                    <button class="btn btn-primary" id="addContestBtn">إضافة نقاط المسابقة</button>
-                </div>
-                <table id="contestsTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم العضو</th>
-                            <th>المسابقة</th>
-                            <th>النقاط</th>
-                            <th>التاريخ</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="birthdays">
-                <h2>أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></h2>
-                
-                <div class="birthday-reminder" id="birthdayReminder">
-                    <h3><i class="fas fa-bell"></i> تذكير أعياد الميلاد القادمة</h3>
-                    <div id="upcomingBirthdays"></div>
-                </div>
-                
-                <div class="controls">
-                    <select id="birthdayMember">
-                        <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="date" id="birthdayDate">
-                    <button class="btn btn-primary" id="addBirthdayBtn">إضافة عيد ميلاد</button>
-                </div>
-                
-                <h3>قائمة أعياد الميلاد</h3>
-                <table id="birthdaysTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم العضو</th>
-                            <th>تاريخ الميلاد</th>
-                            <th>الأيام المتبقية</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="events">
-                <h2>إدارة المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newEventName" placeholder="اسم المناسبة">
-                    <input type="date" id="newEventDate">
-                    <input type="text" id="newEventDescription" placeholder="وصف المناسبة">
-                    <button class="btn btn-primary" id="addEventBtn">إضافة مناسبة</button>
-                </div>
-                <table id="eventsTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم المناسبة</th>
-                            <th>التاريخ</th>
-                            <th>الوصف</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="tasks">
-                <h2>إدارة المهمات <i class="fas fa-tasks emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newTaskName" placeholder="اسم المهمة">
-                    <select id="newTaskAssignee">
-                        <option value="">-- اختر المسؤول --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="date" id="newTaskDeadline">
-                    <select id="newTaskStatus">
-                        <option value="قيد التنفيذ">قيد التنفيذ</option>
-                        <option value="مكتملة">مكتملة</option>
-                        <option value="متأخرة">متأخرة</option>
-                    </select>
-                    <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
-                </div>
-                <table id="tasksTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم المهمة</th>
-                            <th>المسؤول</th>
-                            <th>الموعد النهائي</th>
-                            <th>الحالة</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="reports">
-                <h2>التقارير والإحصائيات</h2>
-                
-                <div class="report-section">
-                    <h3>📊 إحصائيات عامة</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-users"></i></div>
-                            <div class="stat-number" id="reportMembers">0</div>
-                            <div class="stat-label">إجمالي الأعضاء</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
-                            <div class="stat-number" id="reportWeeks">0</div>
-                            <div class="stat-label">عدد الأسابيع</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="stat-number" id="reportAttendance">0</div>
-                            <div class="stat-label">إجمالي الحضور</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-star"></i></div>
-                            <div class="stat-number" id="reportPoints">0</div>
-                            <div class="stat-label">النقاط الممنوحة</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>📈 توزيع النقاط بين الأعضاء</h3>
-                    <div class="chart-container">
-                        <canvas id="pointsChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>📅 الحضور خلال الأسابيع</h3>
-                    <div class="chart-container">
-                        <canvas id="attendanceChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>🏆 الـ 10 الأوائل في الحضور</h3>
-                    <div class="top-members-list" id="topMembersList">
-                        <p>لا توجد بيانات حتى الآن</p>
-                    </div>
-                </div>
-                
-                <div class="export-buttons">
-                    <button class="btn btn-success" id="exportAttendanceBtn">
-                        <i class="fas fa-file-excel"></i> تصدير تقرير الحضور
-                    </button>
-                    <button class="btn btn-info" id="exportMembersBtn">
-                        <i class="fas fa-file-csv"></i> تصدير بيانات الأعضاء
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
-          apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
-          authDomain: "angels-attendance.firebaseapp.com",
-          databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-          projectId: "angels-attendance",
-          storageBucket: "angels-attendance.firebasestorage.app",
-          messagingSenderId: "157249026489",
-          appId: "1:157249026489:web:db2b420203bd81d9a19e68",
-          measurementId: "G-2YDPSFPQYT"
+            apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
+            authDomain: "angels-attendance.firebaseapp.com",
+            databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
+            projectId: "angels-attendance",
+            storageBucket: "angels-attendance.firebasestorage.app",
+            messagingSenderId: "157249026489",
+            appId: "1:157249026489:web:db2b420203bd81d9a19e68",
+            measurementId: "G-2YDPSFPQYT"
         };
 
         // Initialize Firebase
@@ -1346,228 +965,132 @@
         let members = [];
         let weeks = [];
         let attendanceRecords = [];
-        let contests = [];
-        let birthdays = [];
-        let events = [];
-        let tasks = [];
-        let securityLogs = [];
         let currentUser = null;
-        let adminPassword = 'admin123'; // سيتم تحميلها من Firebase لاحقاً
+        let adminPassword = 'admin123'; // كلمة سر الأدمن الافتراضية
         
         // دالة لتحميل الأعضاء من Firebase
         function loadMembersFromFirebase() {
-          const membersRef = database.ref('members');
+            const membersRef = database.ref('members');
+            
+            // إضافة بعض الأعضاء الافتراضيين إذا لم يكن هناك أعضاء
+            membersRef.once('value').then((snapshot) => {
+                if (!snapshot.exists()) {
+                    const defaultMembers = [
+                        { name: '👦 أحمد', points: 0, password: '1234' },
+                        { name: '👧 سارة', points: 0, password: '1234' },
+                        { name: '👦 محمد', points: 0, password: '1234' },
+                        { name: '👦 يوسف', points: 0, password: '1234' },
+                        { name: '👧 فاطمة', points: 0, password: '1234' },
+                        { name: '👦 خالد', points: 0, password: '1234' }
+                    ];
+                    
+                    defaultMembers.forEach((member, index) => {
+                        const newMemberRef = membersRef.push();
+                        newMemberRef.set(member);
+                    });
+                }
+            });
 
-          membersRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            members = [];
+            membersRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                members = [];
 
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                members.push({
-                  id: key,
-                  name: data[key].name,
-                  points: data[key].points || 0,
-                  password: data[key].password || "1234" // كلمة سر افتراضية
-                });
-              });
-            }
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        members.push({
+                            id: key,
+                            name: data[key].name,
+                            points: data[key].points || 0,
+                            password: data[key].password || "1234"
+                        });
+                    });
+                }
 
-            updateMembersTable();
-            updateSelectMember();
-            updateReports();
-            updateUserReports();
-          });
+                updateSelectMember();
+                updateAttendanceTable();
+                updateUserReports();
+            });
         }
 
         // دالة لتحميل الأسابيع من Firebase
         function loadWeeksFromFirebase() {
-          const weeksRef = database.ref('weeks');
+            const weeksRef = database.ref('weeks');
+            
+            // إضافة بعض الأسابيع الافتراضية إذا لم يكن هناك أسابيع
+            weeksRef.once('value').then((snapshot) => {
+                if (!snapshot.exists()) {
+                    const defaultWeeks = [
+                        { name: 'الأسبوع الأول', date: '2023-09-01' },
+                        { name: 'الأسبوع الثاني', date: '2023-09-08' },
+                        { name: 'الأسبوع الثالث', date: '2023-09-15' },
+                        { name: 'الأسبوع الرابع', date: '2023-09-22' }
+                    ];
+                    
+                    defaultWeeks.forEach((week, index) => {
+                        const newWeekRef = weeksRef.push();
+                        newWeekRef.set(week);
+                    });
+                }
+            });
 
-          weeksRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            weeks = [];
+            weeksRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                weeks = [];
 
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                weeks.push({
-                  id: key,
-                  name: data[key].name,
-                  date: data[key].date || new Date().toISOString()
-                });
-              });
-              
-              // ترتيب الأسابيع حسب التاريخ
-              weeks.sort((a, b) => new Date(b.date) - new Date(a.date));
-            }
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        weeks.push({
+                            id: key,
+                            name: data[key].name,
+                            date: data[key].date || new Date().toISOString()
+                        });
+                    });
+                    
+                    // ترتيب الأسابيع حسب التاريخ
+                    weeks.sort((a, b) => new Date(b.date) - new Date(a.date));
+                }
 
-            updateWeekSelects();
-            updateWeeksTable();
-            updateReports();
-          });
+                updateWeekSelects();
+                updateAttendanceTable();
+            });
         }
 
         // دالة لتحميل الحضور من Firebase
         function loadAttendanceFromFirebase() {
-          const attendanceRef = database.ref('attendance');
+            const attendanceRef = database.ref('attendance');
 
-          attendanceRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            attendanceRecords = [];
+            attendanceRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                attendanceRecords = [];
 
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                attendanceRecords.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  weekId: data[key].weekId,
-                  date: data[key].date,
-                  points: data[key].points || 1
-                });
-              });
-            }
+                if (data) {
+                    Object.keys(data).forEach((key) => {
+                        attendanceRecords.push({
+                            id: key,
+                            memberId: data[key].memberId,
+                            weekId: data[key].weekId,
+                            date: data[key].date,
+                            points: data[key].points || 1
+                        });
+                    });
+                }
 
-            updateAttendanceTable();
-            updateAttendanceRecordsTable();
-            updateReports();
-            updateUserReports();
-          });
-        }
-
-        // دالة لتحميل المسابقات من Firebase
-        function loadContestsFromFirebase() {
-          const contestsRef = database.ref('contests');
-
-          contestsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            contests = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                contests.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  contestName: data[key].contestName,
-                  points: data[key].points,
-                  date: data[key].date
-                });
-              });
-            }
-
-            updateContestsTable();
-          });
-        }
-
-        // دالة لتحميل أعياد الميلاد من Firebase
-        function loadBirthdaysFromFirebase() {
-          const birthdaysRef = database.ref('birthdays');
-
-          birthdaysRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            birthdays = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                birthdays.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  date: data[key].date
-                });
-              });
-            }
-
-            updateBirthdaysTable();
-            updateUpcomingBirthdays();
-          });
-        }
-
-        // دالة لتحميل المناسبات من Firebase
-        function loadEventsFromFirebase() {
-          const eventsRef = database.ref('events');
-
-          eventsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            events = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                events.push({
-                  id: key,
-                  name: data[key].name,
-                  date: data[key].date,
-                  description: data[key].description
-                });
-              });
-            }
-
-            updateEventsTable();
-          });
-        }
-
-        // دالة لتحميل المهمات من Firebase
-        function loadTasksFromFirebase() {
-          const tasksRef = database.ref('tasks');
-
-          tasksRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            tasks = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                tasks.push({
-                  id: key,
-                  name: data[key].name,
-                  assigneeId: data[key].assigneeId,
-                  assigneeName: data[key].assigneeName,
-                  deadline: data[key].deadline,
-                  status: data[key].status
-                });
-              });
-            }
-
-            updateTasksTable();
-          });
-        }
-
-        // دالة لتحميل سجلات الأمان من Firebase
-        function loadSecurityLogsFromFirebase() {
-          const securityLogsRef = database.ref('securityLogs');
-
-          securityLogsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            securityLogs = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                securityLogs.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  timestamp: data[key].timestamp,
-                  type: data[key].type,
-                  status: data[key].status
-                });
-              });
-            }
-
-            updateSecurityLogsTable();
-          });
+                updateAttendanceTable();
+                updateUserReports();
+            });
         }
 
         // دالة لتحميل إعدادات النظام من Firebase
         function loadSystemSettingsFromFirebase() {
-          const settingsRef = database.ref('systemSettings');
+            const settingsRef = database.ref('systemSettings');
 
-          settingsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            
-            if (data && data.adminPassword) {
-              adminPassword = data.adminPassword;
-            }
-            
-            if (data && data.securityLevel) {
-              document.getElementById('securityLevel').value = data.securityLevel;
-            }
-          });
+            settingsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data && data.adminPassword) {
+                    adminPassword = data.adminPassword;
+                }
+            });
         }
 
         // تهيئة التطبيق
@@ -1576,13 +1099,7 @@
             loadMembersFromFirebase();
             loadWeeksFromFirebase();
             loadAttendanceFromFirebase();
-            loadContestsFromFirebase();
-            loadBirthdaysFromFirebase();
-            loadEventsFromFirebase();
-            loadTasksFromFirebase();
-            loadSecurityLogsFromFirebase();
             loadSystemSettingsFromFirebase();
-            updateReports();
             setupTabListeners();
             
             // التحقق من حالة الاتصال بـ Firebase
@@ -1605,115 +1122,20 @@
             document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
             document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
             
-            // العودة إلى واجهة المستخدم
-            document.getElementById('backToUserView').addEventListener('click', backToUserView);
-            
-            // إدارة الأعضاء
-            document.getElementById('addMemberBtn').addEventListener('click', addMember);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editMember')) {
-                    const id = e.target.dataset.id;
-                    editMember(id);
-                }
-                if (e.target.classList.contains('deleteMember')) {
-                    const id = e.target.dataset.id;
-                    deleteMember(id);
-                }
-                if (e.target.classList.contains('resetPoints')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.dataset.name;
-                    resetMemberPoints(id, name);
-                }
-                if (e.target.classList.contains('resetPassword')) {
-                    const id = e.target.dataset.id;
-                    resetPassword(id);
-                }
-            });
-            
-            // إدارة الأسابيع
-            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editWeek')) {
-                    const id = e.target.dataset.id;
-                    editWeek(id);
-                }
-                if (e.target.classList.contains('deleteWeek')) {
-                    const id = e.target.dataset.id;
-                    deleteWeek(id);
-                }
-            });
-            
-            // إدارة الحضور
-            document.getElementById('markPresent').addEventListener('click', markAttendance);
-            document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
-            document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
-            document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
-            document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
-            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
+            // عند اختيار عضو
             document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
+            
+            // عند تغيير الأسبوع
+            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
+            
+            // تسجيل الحضور
+            document.getElementById('markPresent').addEventListener('click', markAttendance);
             
             // التحقق بالبصمة
             document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
+            
+            // التحقق بكلمة السر
             document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
-            
-            // إدارة الأمان
-            document.getElementById('saveSecuritySettings').addEventListener('click', saveSecuritySettings);
-            document.getElementById('resetPasswordBtn').addEventListener('click', resetPasswordFromAdmin);
-            document.getElementById('changeAdminPasswordBtn').addEventListener('click', changeAdminPassword);
-            
-            // إدارة المسابقات
-            document.getElementById('addContestBtn').addEventListener('click', addContest);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('deleteContest')) {
-                    const id = e.target.dataset.id;
-                    deleteContest(id);
-                }
-            });
-            
-            // إدارة أعياد الميلاد
-            document.getElementById('addBirthdayBtn').addEventListener('click', addBirthday);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editBirthday')) {
-                    const id = e.target.dataset.id;
-                    editBirthday(id);
-                }
-                if (e.target.classList.contains('deleteBirthday')) {
-                    const id = e.target.dataset.id;
-                    deleteBirthday(id);
-                }
-            });
-            
-            // إدارة المناسبات
-            document.getElementById('addEventBtn').addEventListener('click', addEvent);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editEvent')) {
-                    const id = e.target.dataset.id;
-                    editEvent(id);
-                }
-                if (e.target.classList.contains('deleteEvent')) {
-                    const id = e.target.dataset.id;
-                    deleteEvent(id);
-                }
-            });
-            
-            // إدارة المهمات
-            document.getElementById('addTaskBtn').addEventListener('click', addTask);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editTask')) {
-                    const id = e.target.dataset.id;
-                    editTask(id);
-                }
-                if (e.target.classList.contains('deleteTask')) {
-                    const id = e.target.dataset.id;
-                    deleteTask(id);
-                }
-            });
-            
-            // تصدير البيانات
-            document.getElementById('exportDataBtn').addEventListener('click', exportData);
-            document.getElementById('backupDataBtn').addEventListener('click', backupData);
-            document.getElementById('exportAttendanceBtn').addEventListener('click', exportAttendanceReport);
-            document.getElementById('exportMembersBtn').addEventListener('click', exportMembersReport);
             
             // إظهار/إخفاء كلمات السر
             setupPasswordVisibilityToggles();
@@ -1765,9 +1187,6 @@
                     document.getElementById(tabId).classList.add('active');
                     
                     // إذا كان التبويب هو التقارير، قم بتحديثها
-                    if (tabId === 'reports') {
-                        updateReports();
-                    }
                     if (tabId === 'userReports') {
                         updateUserReports();
                     }
@@ -1790,10 +1209,6 @@
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === adminPassword) {
                 document.getElementById('adminLoginModal').style.display = 'none';
-                document.getElementById('adminTabs').style.display = 'block';
-                document.getElementById('userAttendance').style.display = 'none';
-                document.getElementById('userReports').style.display = 'none';
-                document.getElementById('adminLoginBtn').style.display = 'none';
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
             } else {
                 const passwordInput = document.getElementById('adminPassword');
@@ -1804,57 +1219,6 @@
                 
                 showNotification('كلمة السر خاطئة!', false);
             }
-        }
-        
-        // تغيير كلمة سر الأدمن
-        function changeAdminPassword() {
-            const currentPwd = document.getElementById('currentAdminPassword').value;
-            const newPwd = document.getElementById('newAdminPassword').value;
-            const confirmPwd = document.getElementById('confirmAdminPassword').value;
-            
-            if (!currentPwd || !newPwd || !confirmPwd) {
-                showNotification('يرجى ملء جميع الحقول', false);
-                return;
-            }
-            
-            if (currentPwd !== adminPassword) {
-                showNotification('كلمة السر الحالية غير صحيحة', false);
-                return;
-            }
-            
-            if (newPwd !== confirmPwd) {
-                showNotification('كلمة السر الجديدة غير متطابقة', false);
-                return;
-            }
-            
-            // حفظ كلمة السر الجديدة في Firebase
-            const settingsRef = database.ref('systemSettings');
-            settingsRef.update({
-                adminPassword: newPwd
-            }).then(() => {
-                adminPassword = newPwd;
-                showNotification('تم تغيير كلمة السر بنجاح');
-                
-                // مسح الحقول
-                document.getElementById('currentAdminPassword').value = '';
-                document.getElementById('newAdminPassword').value = '';
-                document.getElementById('confirmAdminPassword').value = '';
-            }).catch((error) => {
-                console.error("Error changing admin password:", error);
-                showNotification('فشل في تغيير كلمة السر: ' + error.message, false);
-            });
-        }
-        
-        // العودة إلى واجهة المستخدم
-        function backToUserView() {
-            document.getElementById('adminTabs').style.display = 'none';
-            document.getElementById('userAttendance').style.display = 'block';
-            document.getElementById('userReports').style.display = 'none';
-            document.getElementById('adminLoginBtn').style.display = 'block';
-            
-            // تفعيل التبويب الأول
-            document.querySelectorAll('.tabs .tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector('[data-tab="userAttendance"]').classList.add('active');
         }
         
         // عند اختيار عضو من القائمة
@@ -1882,30 +1246,26 @@
             }
             
             try {
-                // محاكاة للتحقق بالبصمة (سيتم استبدالها بالواجهة الفعلية)
+                // محاكاة للتحقق بالبصمة
                 showNotification('جاري التحقق من البصمة/الوجه...');
                 
                 // محاكاة الانتظار للتحقق
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 
                 // في الواقع، هنا سيتم استخدام WebAuthn API للتحقق من البصمة
-                // const isVerified = await verifyBiometric();
                 const isVerified = true; // محاكاة للنجاح
                 
                 if (isVerified) {
                     showNotification('تم التحقق من الهوية بنجاح!');
                     document.getElementById('markPresent').disabled = false;
-                    logSecurityEvent(currentUser.id, 'biometric', 'success');
                 } else {
                     showNotification('فشل التحقق من الهوية', false);
                     document.getElementById('fallbackVerification').classList.add('active');
-                    logSecurityEvent(currentUser.id, 'biometric', 'failed');
                 }
             } catch (error) {
                 console.error('Error in biometric verification:', error);
                 showNotification('فشل التحقق من الهوية', false);
                 document.getElementById('fallbackVerification').classList.add('active');
-                logSecurityEvent(currentUser.id, 'biometric', 'error');
             }
         }
         
@@ -1921,390 +1281,40 @@
                 showNotification('تم التحقق من الهوية بنجاح!');
                 document.getElementById('markPresent').disabled = false;
                 document.getElementById('fallbackVerification').classList.remove('active');
-                logSecurityEvent(currentUser.id, 'password', 'success');
             } else {
                 showNotification('كلمة السر خاطئة', false);
                 document.getElementById('memberPassword').classList.add('incorrect-password');
                 setTimeout(() => {
                     document.getElementById('memberPassword').classList.remove('incorrect-password');
                 }, 500);
-                logSecurityEvent(currentUser.id, 'password', 'failed');
             }
-        }
-        
-        // تسجيل حدث أمان
-        function logSecurityEvent(memberId, type, status) {
-            const securityLogsRef = database.ref('securityLogs');
-            const newLogRef = securityLogsRef.push();
-            
-            newLogRef.set({
-                memberId: memberId,
-                type: type,
-                status: status,
-                timestamp: new Date().toISOString()
-            }).catch((error) => {
-                console.error("Error logging security event:", error);
-            });
-        }
-        
-        // إضافة عضو جديد
-        function addMember() {
-            const nameInput = document.getElementById('newMemberName');
-            const emojiSelect = document.getElementById('newMemberEmoji');
-            const passwordInput = document.getElementById('newMemberPassword');
-
-            const name = nameInput.value;
-            const emoji = emojiSelect.value;
-            const password = passwordInput.value || Math.random().toString(36).substring(2, 8);
-            
-            if (!name) {
-                showNotification('يرجى إدخال اسم العضو', false);
-                return;
-            }
-            
-            const membersRef = database.ref('members');
-            const newMemberRef = membersRef.push();
-            
-            newMemberRef.set({
-                name: `${emoji} ${name}`,
-                points: 0,
-                password: password
-            }).then(() => {
-                showNotification('تم إضافة العضو بنجاح');
-                nameInput.value = '';
-                passwordInput.value = '';
-            }).catch((error) => {
-                console.error("Error adding member:", error);
-                showNotification('فشل في إضافة العضو: ' + error.message, false);
-            });
-        }
-        
-        // تعديل عضو
-        function editMember(id) {
-            const memberRef = database.ref('members/' + id);
-            
-            memberRef.once('value').then((snapshot) => {
-                const member = snapshot.val();
-                if (!member) return;
-                
-                const emoji = member.name.charAt(0);
-                const currentName = member.name.substring(2);
-                
-                const newName = prompt('عدل اسم العضو:', currentName);
-                
-                if (newName) {
-                    memberRef.update({
-                        name: `${emoji} ${newName}`
-                    }).then(() => {
-                        showNotification('تم تعديل بيانات العضو');
-                    }).catch((error) => {
-                        console.error("Error updating member:", error);
-                        showNotification('فشل في تعديل العضو: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // إعادة تعيين كلمة السر
-        function resetPassword(id) {
-            const member = members.find(m => m.id === id);
-            if (!member) return;
-            
-            const newPassword = prompt(`أدخل كلمة السر الجديدة لـ ${member.name}:`, Math.random().toString(36).substring(2, 8));
-            
-            if (newPassword) {
-                const memberRef = database.ref('members/' + id);
-                memberRef.update({
-                    password: newPassword
-                }).then(() => {
-                    showNotification(`تم إعادة تعيين كلمة السر لـ ${member.name}`);
-                }).catch((error) => {
-                    console.error("Error resetting password:", error);
-                    showNotification('فشل في إعادة تعيين كلمة السر: ' + error.message, false);
-                });
-            }
-        }
-        
-        // حذف عضو
-        function deleteMember(id) {
-            if (confirm('هل تريد حذف العضو؟ سيتم حذف جميع بياناته أيضًا.')) {
-                const memberRef = database.ref('members/' + id);
-                
-                memberRef.remove().then(() => {
-                    showNotification('تم حذف العضو');
-                    
-                    // حذف سجلات الحضور الخاصة بالعضو
-                    const attendanceUpdates = {};
-                    attendanceRecords.forEach(record => {
-                        if (record.memberId === id) {
-                            attendanceUpdates[`attendance/${record.id}`] = null;
-                        }
-                    });
-                    
-                    // حذف المسابقات الخاصة بالعضو
-                    const contestUpdates = {};
-                    contests.forEach(contest => {
-                        if (contest.memberId === id) {
-                            contestUpdates[`contests/${contest.id}`] = null;
-                        }
-                    });
-                    
-                    // حذف أعياد الميلاد الخاصة بالعضو
-                    const birthdayUpdates = {};
-                    birthdays.forEach(birthday => {
-                        if (birthday.memberId === id) {
-                            birthdayUpdates[`birthdays/${birthday.id}`] = null;
-                        }
-                    });
-                    
-                    // تطبيق جميع التحديثات
-                    database.ref().update({
-                        ...attendanceUpdates,
-                        ...contestUpdates,
-                        ...birthdayUpdates
-                    });
-                    
-                }).catch((error) => {
-                    console.error("Error deleting member:", error);
-                    showNotification('فشل في حذف العضو: ' + error.message, false);
-                });
-            }
-        }
-        
-        // دالة حذف نقاط العضو
-        function resetMemberPoints(memberId, memberName) {
-            if (confirm(`هل تريد حذف جميع نقاط ${memberName}؟`)) {
-                const memberRef = database.ref('members/' + memberId);
-                
-                memberRef.update({
-                    points: 0
-                }).then(() => {
-                    showNotification(`تم حذف نقاط ${memberName} بنجاح`);
-                    
-                    // حذف سجلات الحضور الخاصة بالعضو
-                    const attendanceUpdates = {};
-                    attendanceRecords.forEach(record => {
-                        if (record.memberId === memberId) {
-                            attendanceUpdates[`attendance/${record.id}`] = null;
-                        }
-                    });
-                    
-                    // حذف المسابقات الخاصة بالعضو
-                    const contestUpdates = {};
-                    contests.forEach(contest => {
-                        if (contest.memberId === memberId) {
-                            contestUpdates[`contests/${contest.id}`] = null;
-                        }
-                    });
-                    
-                    // تطبيق جميع التحديثات
-                    if (Object.keys(attendanceUpdates).length > 0) {
-                        database.ref().update(attendanceUpdates);
-                    }
-                    
-                    if (Object.keys(contestUpdates).length > 0) {
-                        database.ref().update(contestUpdates);
-                    }
-                    
-                }).catch((error) => {
-                    console.error("Error resetting points:", error);
-                    showNotification('فشل في حذف النقاط: ' + error.message, false);
-                });
-            }
-        }
-        
-        // تحديث جدول الأعضاء
-        function updateMembersTable() {
-            const membersTbody = document.querySelector('#membersTable tbody');
-            membersTbody.innerHTML = '';
-            
-            members.forEach((member, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${member.name}</td>
-                    <td>${member.points}</td>
-                    <td>••••••</td>
-                    <td><button class='btn btn-primary editMember' data-id='${member.id}'>تعديل</button></td>
-                    <td><button class='btn btn-reset resetPoints' data-id='${member.id}' data-name='${member.name}'>حذف النقاط</button></td>
-                    <td><button class='btn btn-danger deleteMember' data-id='${member.id}'>حذف العضو</button></td>
-                `;
-                membersTbody.appendChild(tr);
-            });
         }
         
         // تحديث قائمة الأعضاء المنسدلة
         function updateSelectMember() {
             const selectMember = document.getElementById('selectMember');
-            const extraPointMember = document.getElementById('extraPointMember');
-            const newTaskAssignee = document.getElementById('newTaskAssignee');
-            const contestMember = document.getElementById('contestMember');
-            const birthdayMember = document.getElementById('birthdayMember');
-            const resetMemberPassword = document.getElementById('resetMemberPassword');
             
             selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
-            extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
-            newTaskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
-            contestMember.innerHTML = '<option value="">-- اختر العضو --</option>';
-            birthdayMember.innerHTML = '<option value="">-- اختر العضو --</option>';
-            resetMemberPassword.innerHTML = '<option value="">-- اختر العضو --</option>';
             
             members.forEach(member => {
-                // selectMember
                 const option = document.createElement('option');
                 option.value = member.id;
                 option.textContent = member.name;
                 selectMember.appendChild(option);
-                
-                // extraPointMember
-                const extraOption = document.createElement('option');
-                extraOption.value = member.id;
-                extraOption.textContent = member.name;
-                extraPointMember.appendChild(extraOption);
-                
-                // newTaskAssignee
-                const taskOption = document.createElement('option');
-                taskOption.value = member.id;
-                taskOption.textContent = member.name;
-                newTaskAssignee.appendChild(taskOption);
-                
-                // contestMember
-                const contestOption = document.createElement('option');
-                contestOption.value = member.id;
-                contestOption.textContent = member.name;
-                contestMember.appendChild(contestOption);
-                
-                // birthdayMember
-                const birthdayOption = document.createElement('option');
-                birthdayOption.value = member.id;
-                birthdayOption.textContent = member.name;
-                birthdayMember.appendChild(birthdayOption);
-                
-                // resetMemberPassword
-                const resetOption = document.createElement('option');
-                resetOption.value = member.id;
-                resetOption.textContent = member.name;
-                resetMemberPassword.appendChild(resetOption);
-            });
-        }
-        
-        // إضافة أسبوع جديد
-        function addWeek() {
-            const nameInput = document.getElementById('newWeekName');
-            const dateInput = document.getElementById('newWeekDate');
-            const name = nameInput.value;
-            const date = dateInput.value || new Date().toISOString();
-            
-            if (!name) {
-                showNotification('يرجى إدخال اسم الأسبوع', false);
-                return;
-            }
-            
-            const weeksRef = database.ref('weeks');
-            const newWeekRef = weeksRef.push();
-            
-            newWeekRef.set({
-                name: name,
-                date: date
-            }).then(() => {
-                showNotification('تم إضافة الأسبوع بنجاح');
-                nameInput.value = '';
-                dateInput.value = '';
-            }).catch((error) => {
-                console.error("Error adding week:", error);
-                showNotification('فشل في إضافة الأسبوع: ' + error.message, false);
-            });
-        }
-        
-        // تعديل أسبوع
-        function editWeek(id) {
-            const weekRef = database.ref('weeks/' + id);
-            
-            weekRef.once('value').then((snapshot) => {
-                const week = snapshot.val();
-                if (!week) return;
-                
-                const newName = prompt('عدل اسم الأسبوع:', week.name);
-                const newDate = prompt('عدل تاريخ الأسبوع (YYYY-MM-DD):', week.date.substring(0, 10));
-                
-                if (newName && newDate) {
-                    weekRef.update({
-                        name: newName,
-                        date: newDate
-                    }).then(() => {
-                        showNotification('تم تعديل بيانات الأسبوع');
-                    }).catch((error) => {
-                        console.error("Error updating week:", error);
-                        showNotification('فشل في تعديل الأسبوع: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف أسبوع
-        function deleteWeek(id) {
-            if (confirm('هل تريد حذف الأسبوع؟ سيتم حذف جميع سجلات الحضور الخاصة به أيضًا.')) {
-                const weekRef = database.ref('weeks/' + id);
-                
-                weekRef.remove().then(() => {
-                    showNotification('تم حذف الأسبوع');
-                    
-                    // حذف سجلات الحضور الخاصة بالأسبوع
-                    const attendanceUpdates = {};
-                    attendanceRecords.forEach(record => {
-                        if (record.weekId === id) {
-                            attendanceUpdates[`attendance/${record.id}`] = null;
-                        }
-                    });
-                    
-                    // تطبيق التحديثات
-                    if (Object.keys(attendanceUpdates).length > 0) {
-                        database.ref().update(attendanceUpdates);
-                    }
-                    
-                }).catch((error) => {
-                    console.error("Error deleting week:", error);
-                    showNotification('فشل في حذف الأسبوع: ' + error.message, false);
-                });
-            }
-        }
-        
-        // تحديث جدول الأسابيع
-        function updateWeeksTable() {
-            const weeksTbody = document.querySelector('#weeksTable tbody');
-            weeksTbody.innerHTML = '';
-            
-            weeks.forEach((week, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${week.name}</td>
-                    <td>${new Date(week.date).toLocaleDateString('ar-EG')}</td>
-                    <td><button class='btn btn-primary editWeek' data-id='${week.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger deleteWeek' data-id='${week.id}'>حذف</button></td>
-                `;
-                weeksTbody.appendChild(tr);
             });
         }
         
         // تحديث قوائم الأسابيع المنسدلة
         function updateWeekSelects() {
             const weekSelect = document.getElementById('weekSelect');
-            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
             
             weekSelect.innerHTML = '';
-            deleteWeekSelect.innerHTML = '';
             
             weeks.forEach(week => {
                 const option = document.createElement('option');
                 option.value = week.id;
                 option.textContent = week.name;
                 weekSelect.appendChild(option);
-                
-                const deleteOption = document.createElement('option');
-                deleteOption.value = week.id;
-                deleteOption.textContent = week.name;
-                deleteWeekSelect.appendChild(deleteOption);
             });
         }
         
@@ -2333,37 +1343,33 @@
                 return;
             }
             
-            // زيادة نقاط العضو
+            // زيادة نقاط العضو في Firebase
             const memberRef = database.ref('members/' + memberId);
-            memberRef.once('value').then((snapshot) => {
-                const member = snapshot.val();
+            memberRef.transaction((member) => {
                 if (member) {
-                    const newPoints = (member.points || 0) + 1;
-                    
-                    memberRef.update({
-                        points: newPoints
-                    }).then(() => {
-                        // إضافة سجل الحضور
-                        const attendanceRef = database.ref('attendance');
-                        const newAttendanceRef = attendanceRef.push();
-                        
-                        newAttendanceRef.set({
-                            memberId: memberId,
-                            weekId: weekId,
-                            date: new Date().toISOString(),
-                            points: 1
-                        }).then(() => {
-                            showNotification('تم تسجيل الحضور بنجاح!');
-                            document.getElementById('markPresent').disabled = true;
-                        }).catch((error) => {
-                            console.error("Error adding attendance:", error);
-                            showNotification('فشل في تسجيل الحضور: ' + error.message, false);
-                        });
-                    }).catch((error) => {
-                        console.error("Error updating points:", error);
-                        showNotification('فشل في تحديث النقاط: ' + error.message, false);
-                    });
+                    member.points = (member.points || 0) + 1;
                 }
+                return member;
+            }).then(() => {
+                // إضافة سجل الحضور إلى Firebase
+                const attendanceRef = database.ref('attendance');
+                const newAttendanceRef = attendanceRef.push();
+                
+                newAttendanceRef.set({
+                    memberId: memberId,
+                    weekId: weekId,
+                    date: new Date().toISOString(),
+                    points: 1
+                }).then(() => {
+                    showNotification('تم تسجيل الحضور بنجاح!');
+                    document.getElementById('markPresent').disabled = true;
+                }).catch((error) => {
+                    console.error("Error adding attendance:", error);
+                    showNotification('فشل في تسجيل الحضور: ' + error.message, false);
+                });
+            }).catch((error) => {
+                console.error("Error updating points:", error);
+                showNotification('فشل في تحديث النقاط: ' + error.message, false);
             });
         }
         
@@ -2433,740 +1439,7 @@
             document.getElementById('totalPoints').textContent = totalPoints;
         }
         
-        // إضافة نقاط إضافية
-        function addExtraPoints() {
-            const memberId = document.getElementById('extraPointMember').value;
-            const points = parseInt(document.getElementById('extraPointsValue').value);
-            const reason = document.getElementById('extraPointsReason').value;
-            
-            if (!memberId || !points || !reason) {
-                showNotification('يرجى ملء جميع الحقول', false);
-                return;
-            }
-            
-            const memberRef = database.ref('members/' + memberId);
-            memberRef.once('value').then((snapshot) => {
-                const member = snapshot.val();
-                if (member) {
-                    const newPoints = (member.points || 0) + points;
-                    
-                    memberRef.update({
-                        points: newPoints
-                    }).then(() => {
-                        showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
-                        
-                        document.getElementById('extraPointsValue').value = '1';
-                        document.getElementById('extraPointsReason').value = '';
-                    }).catch((error) => {
-                        console.error("Error adding points:", error);
-                        showNotification('فشل في إضافة النقاط: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف كل الحضور لأسبوع محدد
-        function deleteAllWeekAttendance() {
-            const weekId = document.getElementById('deleteWeekSelect').value;
-            
-            if (!weekId) {
-                showNotification('يرجى اختيار أسبوع أولاً', false);
-                return;
-            }
-            
-            if (confirm(`هل تريد حذف كل تسجيلات الحضور للأسبوع المحدد؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
-                const weekRecords = attendanceRecords.filter(ar => ar.weekId === weekId);
-                
-                const updates = {};
-                weekRecords.forEach(record => {
-                    updates[`attendance/${record.id}`] = null;
-                    
-                    const member = members.find(m => m.id === record.memberId);
-                    if (member) {
-                        const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
-                        updates[`members/${record.memberId}/points`] = newPoints;
-                    }
-                });
-                
-                database.ref().update(updates).then(() => {
-                    showNotification('تم حذف جميع تسجيلات الحضور لهذا الأسبوع');
-                }).catch((error) => {
-                    console.error("Error deleting attendance:", error);
-                    showNotification('فشل في حذف الحضور: ' + error.message, false);
-                });
-            }
-        }
-        
-        // تحديد/إلغاء تحديد كل سجلات الحضور
-        function toggleSelectAllAttendance() {
-            const selectAll = document.getElementById('selectAllAttendance').checked;
-            const checkboxes = document.querySelectorAll('.attendance-checkbox');
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll;
-            });
-        }
-        
-        // حذف سجلات الحضور المحددة
-        function deleteSelectedAttendance() {
-            const selectedCheckboxes = document.querySelectorAll('.attendance-checkbox:checked');
-            
-            if (selectedCheckboxes.length === 0) {
-                showNotification('يرجى تحديد سجلات الحضور المراد حذفها', false);
-                return;
-            }
-            
-            if (confirm(`هل تريد حذف ${selectedCheckboxes.length} سجل حضور؟ هذا الإجراء لا يمكن التراجع عنه!`)) {
-                const updates = {};
-                
-                selectedCheckboxes.forEach(checkbox => {
-                    const recordId = checkbox.dataset.id;
-                    const record = attendanceRecords.find(ar => ar.id === recordId);
-                    
-                    if (record) {
-                        updates[`attendance/${recordId}`] = null;
-                        
-                        const member = members.find(m => m.id === record.memberId);
-                        if (member) {
-                            const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
-                            updates[`members/${record.memberId}/points`] = newPoints;
-                        }
-                    }
-                });
-                
-                database.ref().update(updates).then(() => {
-                    showNotification(`تم حذف ${selectedCheckboxes.length} سجل حضور`);
-                }).catch((error) => {
-                    console.error("Error deleting attendance:", error);
-                    showNotification('فشل في حذف سجلات الحضور: ' + error.message, false);
-                });
-            }
-        }
-        
-        // تحديث جدول سجلات الحضور في واجهة الأدمن
-        function updateAttendanceRecordsTable() {
-            const tbody = document.getElementById('attendanceRecordsBody');
-            tbody.innerHTML = '';
-            
-            if (attendanceRecords.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد سجلات حضور حتى الآن</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-            
-            attendanceRecords.forEach((record, index) => {
-                const member = members.find(m => m.id === record.memberId);
-                const week = weeks.find(w => w.id === record.weekId);
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><input type="checkbox" class="attendance-checkbox" data-id="${record.id}"></td>
-                    <td class="member-number">${index + 1}</td>
-                    <td>${member ? member.name : 'عضو محذوف'}</td>
-                    <td>${week ? week.name : 'أسبوع محذوف'}</td>
-                    <td>${record.points || 1}</td>
-                    <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        // إضافة مسابقة جديدة
-        function addContest() {
-            const memberId = document.getElementById('contestMember').value;
-            const contestName = document.getElementById('contestName').value;
-            const points = parseInt(document.getElementById('contestPoints').value);
-            
-            if (!memberId || !contestName) {
-                showNotification('يرجى اختيار العضو وإدخال اسم المسابقة', false);
-                return;
-            }
-            
-            const member = members.find(m => m.id === memberId);
-            if (!member) {
-                showNotification('العضو المحدد غير موجود', false);
-                return;
-            }
-            
-            // زيادة نقاط العضو
-            const memberRef = database.ref('members/' + memberId);
-            memberRef.once('value').then((snapshot) => {
-                const memberData = snapshot.val();
-                if (memberData) {
-                    const newPoints = (memberData.points || 0) + points;
-                    
-                    memberRef.update({
-                        points: newPoints
-                    }).then(() => {
-                        // إضافة سجل المسابقة
-                        const contestsRef = database.ref('contests');
-                        const newContestRef = contestsRef.push();
-                        
-                        newContestRef.set({
-                            memberId: memberId,
-                            contestName: contestName,
-                            points: points,
-                            date: new Date().toISOString()
-                        }).then(() => {
-                            showNotification(`تم إضافة ${points} نقطة لـ ${member.name} عن مسابقة ${contestName}`);
-                            
-                            document.getElementById('contestName').value = '';
-                        }).catch((error) => {
-                            console.error("Error adding contest:", error);
-                            showNotification('فشل في إضافة المسابقة: ' + error.message, false);
-                        });
-                    }).catch((error) => {
-                        console.error("Error updating points:", error);
-                        showNotification('فشل في تحديث النقاط: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف مسابقة - الإصدار المصحح
-        function deleteContest(id) {
-            if (confirm('هل تريد حذف هذه المسابقة؟ سيتم خصم النقاط من العضو.')) {
-                const contestRef = database.ref('contests/' + id);
-                
-                contestRef.once('value').then((snapshot) => {
-                    const contest = snapshot.val();
-                    if (!contest) return;
-                    
-                    // البحث عن العضو في المصفوفة المحلية
-                    const memberExists = members.find(m => m.id === contest.memberId);
-                    
-                    if (memberExists) {
-                        // إذا كان العضو موجوداً، خصم النقاط منه
-                        const memberRef = database.ref('members/' + contest.memberId);
-                        memberRef.once('value').then((snapshot) => {
-                            const memberData = snapshot.val();
-                            if (memberData) {
-                                const newPoints = Math.max(0, (memberData.points || 0) - contest.points);
-                                
-                                memberRef.update({
-                                    points: newPoints
-                                }).then(() => {
-                                    contestRef.remove().then(() => {
-                                        showNotification('تم حذف المسابقة وخصم النقاط من العضو');
-                                    }).catch((error) => {
-                                        console.error("Error deleting contest:", error);
-                                        showNotification('فشل في حذف المسابقة: ' + error.message, false);
-                                    });
-                                }).catch((error) => {
-                                    console.error("Error updating points:", error);
-                                    showNotification('فشل في تحديث النقاط: ' + error.message, false);
-                                });
-                            }
-                        });
-                    } else {
-                        // إذا كان العضو محذوفاً، احذف المسابقة فقط
-                        contestRef.remove().then(() => {
-                            showNotification('تم حذف المسابقة');
-                        }).catch((error) => {
-                            console.error("Error deleting contest:", error);
-                            showNotification('فشل في حذف المسابقة: ' + error.message, false);
-                        });
-                    }
-                });
-            }
-        }
-        
-        // تحديث جدول المسابقات
-        function updateContestsTable() {
-            const tbody = document.querySelector('#contestsTable tbody');
-            tbody.innerHTML = '';
-            
-            if (contests.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد مسابقات حتى الآن</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-            
-            contests.forEach((contest, index) => {
-                const member = members.find(m => m.id === contest.memberId);
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${member ? member.name : 'عضو محذوف'}</td>
-                    <td>${contest.contestName}</td>
-                    <td>${contest.points}</td>
-                    <td>${new Date(contest.date).toLocaleDateString('ar-EG')}</td>
-                    <td><button class='btn btn-danger deleteContest' data-id='${contest.id}'>حذف</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        // إضافة عيد ميلاد
-        function addBirthday() {
-            const memberId = document.getElementById('birthdayMember').value;
-            const date = document.getElementById('birthdayDate').value;
-            
-            if (!memberId || !date) {
-                showNotification('يرجى اختيار العضو وتاريخ الميلاد', false);
-                return;
-            }
-            
-            const member = members.find(m => m.id === memberId);
-            if (!member) {
-                showNotification('العضو المحدد غير موجود', false);
-                return;
-            }
-            
-            const birthdaysRef = database.ref('birthdays');
-            const newBirthdayRef = birthdaysRef.push();
-            
-            newBirthdayRef.set({
-                memberId: memberId,
-                date: date
-            }).then(() => {
-                showNotification(`تم إضافة عيد ميلاد لـ ${member.name}`);
-                
-                document.getElementById('birthdayDate').value = '';
-            }).catch((error) => {
-                console.error("Error adding birthday:", error);
-                showNotification('فشل في إضافة عيد الميلاد: ' + error.message, false);
-            });
-        }
-        
-        // تعديل عيد ميلاد
-        function editBirthday(id) {
-            const birthdayRef = database.ref('birthdays/' + id);
-            
-            birthdayRef.once('value').then((snapshot) => {
-                const birthday = snapshot.val();
-                if (!birthday) return;
-                
-                const newDate = prompt('عدل تاريخ الميلاد:', birthday.date);
-                
-                if (newDate) {
-                    birthdayRef.update({
-                        date: newDate
-                    }).then(() => {
-                        showNotification('تم تعديل تاريخ الميلاد');
-                    }).catch((error) => {
-                        console.error("Error updating birthday:", error);
-                        showNotification('فشل في تعديل تاريخ الميلاد: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف عيد ميلاد
-        function deleteBirthday(id) {
-            if (confirm('هل تريد حذف تاريخ الميلاد؟')) {
-                const birthdayRef = database.ref('birthdays/' + id);
-                
-                birthdayRef.remove().then(() => {
-                    showNotification('تم حذف تاريخ الميلاد');
-                }).catch((error) => {
-                    console.error("Error deleting birthday:", error);
-                    showNotification('فشل في حذف تاريخ الميلاد: ' + error.message, false);
-                });
-            }
-        }
-        
-        // حساب الأيام المتبقية لعيد الميلاد
-        function daysUntilBirthday(birthdayDate) {
-            const today = new Date();
-            const nextBirthday = new Date(birthdayDate);
-            nextBirthday.setFullYear(today.getFullYear());
-            
-            if (nextBirthday < today) {
-                nextBirthday.setFullYear(today.getFullYear() + 1);
-            }
-            
-            const diffTime = nextBirthday - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return diffDays;
-        }
-        
-        // تحديث جدول أعياد الميلاد
-        function updateBirthdaysTable() {
-            const tbody = document.querySelector('#birthdaysTable tbody');
-            tbody.innerHTML = '';
-            
-            if (birthdays.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد أعياد ميلاد مسجلة حتى الآن</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-            
-            birthdays.forEach((birthday, index) => {
-                const member = members.find(m => m.id === birthday.memberId);
-                const daysLeft = daysUntilBirthday(birthday.date);
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${member ? member.name : 'عضو محذوف'}</td>
-                    <td>${new Date(birthday.date).toLocaleDateString('ar-EG')}</td>
-                    <td>${daysLeft} يوم</td>
-                    <td><button class='btn btn-primary editBirthday' data-id='${birthday.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger deleteBirthday' data-id='${birthday.id}'>حذف</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        // تحديث أعياد الميلاد القادمة
-        function updateUpcomingBirthdays() {
-            const upcomingBirthdaysDiv = document.getElementById('upcomingBirthdays');
-            upcomingBirthdaysDiv.innerHTML = '';
-            
-            if (birthdays.length === 0) {
-                upcomingBirthdaysDiv.innerHTML = '<p>لا توجد أعياد ميلاد مسجلة</p>';
-                return;
-            }
-            
-            const today = new Date();
-            const upcoming = [];
-            
-            birthdays.forEach(birthday => {
-                const member = members.find(m => m.id === birthday.memberId);
-                if (!member) return;
-                
-                const daysLeft = daysUntilBirthday(birthday.date);
-                
-                if (daysLeft <= 30) { // عرض الأعياد في الشهر القادم فقط
-                    upcoming.push({
-                        memberName: member.name,
-                        date: birthday.date,
-                        daysLeft: daysLeft
-                    });
-                }
-            });
-            
-            // ترتيب حسب الأيام المتبقية
-            upcoming.sort((a, b) => a.daysLeft - b.daysLeft);
-            
-            if (upcoming.length === 0) {
-                upcomingBirthdaysDiv.innerHTML = '<p>لا توجد أعياد ميلاد قريبة</p>';
-                return;
-            }
-            
-            upcoming.forEach(bday => {
-                const bdayItem = document.createElement('div');
-                bdayItem.className = 'birthday-item';
-                
-                let message = '';
-                if (bday.daysLeft === 0) {
-                    message = `اليوم هو عيد ميلاد ${bday.memberName}! 🎉`;
-                } else if (bday.daysLeft === 1) {
-                    message = `غداً عيد ميلاد ${bday.memberName}`;
-                } else {
-                    message = `باقي ${bday.daysLeft} يوم على عيد ميلاد ${bday.memberName}`;
-                }
-                
-                bdayItem.innerHTML = `
-                    <span>${message}</span>
-                    <span>${new Date(bday.date).toLocaleDateString('ar-EG')}</span>
-                `;
-                
-                upcomingBirthdaysDiv.appendChild(bdayItem);
-            });
-        }
-        
-        // إضافة مناسبة
-        function addEvent() {
-            const name = document.getElementById('newEventName').value;
-            const date = document.getElementById('newEventDate').value;
-            const description = document.getElementById('newEventDescription').value;
-            
-            if (!name || !date || !description) {
-                showNotification('يرجى ملء جميع الحقول', false);
-                return;
-            }
-            
-            const eventsRef = database.ref('events');
-            const newEventRef = eventsRef.push();
-            
-            newEventRef.set({
-                name: name,
-                date: date,
-                description: description
-            }).then(() => {
-                showNotification('تم إضافة المناسبة بنجاح');
-                
-                document.getElementById('newEventName').value = '';
-                document.getElementById('newEventDate').value = '';
-                document.getElementById('newEventDescription').value = '';
-            }).catch((error) => {
-                console.error("Error adding event:", error);
-                showNotification('فشل في إضافة المناسبة: ' + error.message, false);
-            });
-        }
-        
-        // تعديل مناسبة
-        function editEvent(id) {
-            const eventRef = database.ref('events/' + id);
-            
-            eventRef.once('value').then((snapshot) => {
-                const event = snapshot.val();
-                if (!event) return;
-                
-                const newName = prompt('عدل اسم المناسبة:', event.name);
-                const newDate = prompt('عدل تاريخ المناسبة:', event.date);
-                const newDescription = prompt('عدل وصف المناسبة:', event.description);
-                
-                if (newName && newDate && newDescription) {
-                    eventRef.update({
-                        name: newName,
-                        date: newDate,
-                        description: newDescription
-                    }).then(() => {
-                        showNotification('تم تعديل بيانات المناسبة');
-                    }).catch((error) => {
-                        console.error("Error updating event:", error);
-                        showNotification('فشل في تعديل المناسبة: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف مناسبة
-        function deleteEvent(id) {
-            if (confirm('هل تريد حذف المناسبة؟')) {
-                const eventRef = database.ref('events/' + id);
-                
-                eventRef.remove().then(() => {
-                    showNotification('تم حذف المناسبة');
-                }).catch((error) => {
-                    console.error("Error deleting event:", error);
-                    showNotification('فشل في حذف المناسبة: ' + error.message, false);
-                });
-            }
-        }
-        
-        // تحديث جدول المناسبات
-        function updateEventsTable() {
-            const tbody = document.querySelector('#eventsTable tbody');
-            tbody.innerHTML = '';
-            
-            if (events.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="6" style="text-align:center;">لا توجد مناسبات حتى الآن</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-            
-            events.forEach((event, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${event.name}</td>
-                    <td>${new Date(event.date).toLocaleDateString('ar-EG')}</td>
-                    <td>${event.description}</td>
-                    <td><button class='btn btn-primary editEvent' data-id='${event.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger deleteEvent' data-id='${event.id}'>حذف</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        // إضافة مهمة
-        function addTask() {
-            const name = document.getElementById('newTaskName').value;
-            const assigneeId = document.getElementById('newTaskAssignee').value;
-            const deadline = document.getElementById('newTaskDeadline').value;
-            const status = document.getElementById('newTaskStatus').value;
-            
-            if (!name || !assigneeId || !deadline || !status) {
-                showNotification('يرجى ملء جميع الحقول', false);
-                return;
-            }
-            
-            const assignee = members.find(m => m.id === assigneeId);
-            if (!assignee) {
-                showNotification('العضو المحدد غير موجود', false);
-                return;
-            }
-            
-            const tasksRef = database.ref('tasks');
-            const newTaskRef = tasksRef.push();
-            
-            newTaskRef.set({
-                name: name,
-                assigneeId: assigneeId,
-                assigneeName: assignee.name,
-                deadline: deadline,
-                status: status
-            }).then(() => {
-                showNotification('تم إضافة المهمة بنجاح');
-                
-                document.getElementById('newTaskName').value = '';
-                document.getElementById('newTaskAssignee').value = '';
-                document.getElementById('newTaskDeadline').value = '';
-                document.getElementById('newTaskStatus').value = 'قيد التنفيذ';
-            }).catch((error) => {
-                console.error("Error adding task:", error);
-                showNotification('فشل في إضافة المهمة: ' + error.message, false);
-            });
-        }
-        
-        // تعديل مهمة
-        function editTask(id) {
-            const taskRef = database.ref('tasks/' + id);
-            
-            taskRef.once('value').then((snapshot) => {
-                const task = snapshot.val();
-                if (!task) return;
-                
-                const newName = prompt('عدل اسم المهمة:', task.name);
-                const newDeadline = prompt('عدل الموعد النهائي:', task.deadline);
-                const newStatus = prompt('عدل الحالة:', task.status);
-                
-                if (newName && newDeadline && newStatus) {
-                    taskRef.update({
-                        name: newName,
-                        deadline: newDeadline,
-                        status: newStatus
-                    }).then(() => {
-                        showNotification('تم تعديل بيانات المهمة');
-                    }).catch((error) => {
-                        console.error("Error updating task:", error);
-                        showNotification('فشل في تعديل المهمة: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف مهمة
-        function deleteTask(id) {
-            if (confirm('هل تريد حذف المهمة؟')) {
-                const taskRef = database.ref('tasks/' + id);
-                
-                taskRef.remove().then(() => {
-                    showNotification('تم حذف المهمة');
-                }).catch((error) => {
-                    console.error("Error deleting task:", error);
-                    showNotification('فشل في حذف المهمة: ' + error.message, false);
-                });
-            }
-        }
-        
-        // تحديث جدول المهمات
-        function updateTasksTable() {
-            const tbody = document.querySelector('#tasksTable tbody');
-            tbody.innerHTML = '';
-            
-            if (tasks.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="7" style="text-align:center;">لا توجد مهمات حتى الآن</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-            
-            tasks.forEach((task, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${task.name}</td>
-                    <td>${task.assigneeName}</td>
-                    <td>${new Date(task.deadline).toLocaleDateString('ar-EG')}</td>
-                    <td>${task.status}</td>
-                    <td><button class='btn btn-primary editTask' data-id='${task.id}'>تعديل</button></td>
-                    <td><button class='btn btn-danger deleteTask' data-id='${task.id}'>حذف</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        // حفظ إعدادات الأمان
-        function saveSecuritySettings() {
-            const securityLevel = document.getElementById('securityLevel').value;
-            
-            const settingsRef = database.ref('systemSettings');
-            settingsRef.update({
-                securityLevel: securityLevel
-            }).then(() => {
-                showNotification('تم حفظ إعدادات الأمان بنجاح');
-            }).catch((error) => {
-                console.error("Error saving security settings:", error);
-                showNotification('فشل في حفظ الإعدادات: ' + error.message, false);
-            });
-        }
-        
-        // إعادة تعيين كلمة السر من الأدمن
-        function resetPasswordFromAdmin() {
-            const memberId = document.getElementById('resetMemberPassword').value;
-            const newPassword = document.getElementById('newPasswordValue').value;
-            
-            if (!memberId || !newPassword) {
-                showNotification('يرجى اختيار العضو وإدخال كلمة السر الجديدة', false);
-                return;
-            }
-            
-            const member = members.find(m => m.id === memberId);
-            if (!member) {
-                showNotification('العضو المحدد غير موجود', false);
-                return;
-            }
-            
-            const memberRef = database.ref('members/' + memberId);
-            memberRef.update({
-                password: newPassword
-            }).then(() => {
-                showNotification(`تم إعادة تعيين كلمة السر لـ ${member.name}`);
-                document.getElementById('newPasswordValue').value = '';
-            }).catch((error) => {
-                console.error("Error resetting password:", error);
-                showNotification('فشل في إعادة تعيين كلمة السر: ' + error.message, false);
-            });
-        }
-        
-        // تحديث جدول سجلات الأمان
-        function updateSecurityLogsTable() {
-            const tbody = document.querySelector('#securityLogsTable tbody');
-            tbody.innerHTML = '';
-            
-            if (securityLogs.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="5" style="text-align:center;">لا توجد سجلات أمان حتى الآن</td>`;
-                tbody.appendChild(tr);
-                return;
-            }
-            
-            // عرض آخر 50 سجل فقط
-            const recentLogs = securityLogs.slice(-50).reverse();
-            
-            recentLogs.forEach((log, index) => {
-                const member = members.find(m => m.id === log.memberId);
-                const tr = document.createElement('tr');
-                
-                let statusColor = '';
-                if (log.status === 'success') statusColor = '#2ecc71';
-                else if (log.status === 'failed') statusColor = '#e74c3c';
-                else statusColor = '#f39c12';
-                
-                tr.innerHTML = `
-                    <td class="member-number">${index + 1}</td>
-                    <td>${member ? member.name : 'عضو محذوف'}</td>
-                    <td>${new Date(log.timestamp).toLocaleString('ar-EG')}</td>
-                    <td>${log.type === 'biometric' ? 'بصمة/وجه' : 'كلمة سر'}</td>
-                    <td style="color: ${statusColor}; font-weight: bold;">${log.status === 'success' ? 'نجاح' : log.status === 'failed' ? 'فشل' : 'خطأ'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-        
-        // تحديث التقارير
-        function updateReports() {
-            document.getElementById('reportAttendance').textContent = attendanceRecords.length;
-            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
-            document.getElementById('reportMembers').textContent = members.length;
-            document.getElementById('reportWeeks').textContent = weeks.length;
-            
-            updateTopMembers();
-            updateCharts();
-        }
-        
-        // تحديث تقارير المستخدم
+        // دالة تحديث تقارير المستخدم - النسخة المعدلة
         function updateUserReports() {
             if (!currentUser) return;
             
@@ -3177,10 +1450,10 @@
             // إجمالي النقاط
             document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
             
-           // ترتيب المستخدم حسب النقاط - التصحيح هنا
-const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
-document.getElementById('userRank').textContent = userRank;
+            // حساب الترتيب حسب النقاط - التعديل هنا
+            const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+            document.getElementById('userRank').textContent = userRank;
             
             // معدل الحضور
             const totalWeeks = weeks.length;
@@ -3197,6 +1470,16 @@ document.getElementById('userRank').textContent = userRank;
                 rankingMedal.innerHTML = '<span class="ranking-medal">🥈</span>';
             } else if (userRank === 3) {
                 rankingMedal.innerHTML = '<span class="ranking-medal">🥉</span>';
+            }
+            
+            // إضافة تفاصيل الترتيب - جديد
+            const rankingDetails = document.getElementById('rankingDetails');
+            if (userRank === 1) {
+                rankingDetails.innerHTML = `أنت الأول! <span>${currentUser.points}</span> نقطة`;
+            } else if (userRank > 1) {
+                const topMemberPoints = sortedByPoints[0].points;
+                const pointsDifference = topMemberPoints - currentUser.points;
+                rankingDetails.innerHTML = `تبقى <span>${pointsDifference}</span> نقطة للوصول إلى المركز الأول`;
             }
             
             // تحديث مخطط نقاط المستخدم
@@ -3270,242 +1553,6 @@ document.getElementById('userRank').textContent = userRank;
                     }
                 }
             });
-        }
-        
-        // تحديث المخططات البيانية
-        function updateCharts() {
-            updatePointsChart();
-            updateAttendanceChart();
-        }
-        
-        // تحديث مخطط النقاط
-        function updatePointsChart() {
-            const ctx = document.getElementById('pointsChart').getContext('2d');
-            
-            // تجهيز البيانات للمخطط
-            const memberNames = members.map(m => m.name);
-            const memberPoints = members.map(m => m.points || 0);
-            
-            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
-            if (window.pointsChartInstance) {
-                window.pointsChartInstance.destroy();
-            }
-            
-            // إنشاء مخطط جديد
-            window.pointsChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: memberNames,
-                    datasets: [{
-                        label: 'النقاط',
-                        data: memberPoints,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'توزيع النقاط بين الأعضاء'
-                        },
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-        }
-        
-        // تحديث مخطط الحضور
-        function updateAttendanceChart() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            
-            // تجهيز البيانات للمخطط
-            const weekNames = weeks.map(w => w.name);
-            const attendanceByWeek = weeks.map(week => {
-                return attendanceRecords.filter(ar => ar.weekId === week.id).length;
-            });
-            
-            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
-            if (window.attendanceChartInstance) {
-                window.attendanceChartInstance.destroy();
-            }
-            
-            // إنشاء مخطط جديد
-            window.attendanceChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: weekNames,
-                    datasets: [{
-                        label: 'عدد الحضور',
-                        data: attendanceByWeek,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'الحضور خلال الأسابيع'
-                        }
-                    }
-                }
-            });
-        }
-        
-        // تحديث قائمة الـ 10 الأوائل
-        function updateTopMembers() {
-            const memberPoints = members.map(member => {
-                return { name: member.name, points: member.points || 0 };
-            });
-            
-            memberPoints.sort((a, b) => b.points - a.points);
-            
-            const top10 = memberPoints.slice(0, 10);
-            
-            const topMembersList = document.getElementById('topMembersList');
-            topMembersList.innerHTML = '';
-            
-            if (top10.length === 0) {
-                topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
-                return;
-            }
-            
-            top10.forEach((member, index) => {
-                const item = document.createElement('div');
-                item.className = 'top-member-item';
-                
-                let medal = '';
-                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
-                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
-                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
-                
-                item.innerHTML = `
-                    <div class="top-member-name">${medal} ${member.name}</div>
-                    <div class="top-member-points">${member.points} نقطة</div>
-                `;
-                topMembersList.appendChild(item);
-            });
-        }
-        
-        // تصدير البيانات
-        function exportData() {
-            // إنشاء كائن يحتوي على جميع البيانات
-            const data = {
-                members: members,
-                weeks: weeks,
-                attendance: attendanceRecords,
-                contests: contests,
-                birthdays: birthdays,
-                events: events,
-                tasks: tasks,
-                exportDate: new Date().toISOString()
-            };
-            
-            // تحويل البيانات إلى JSON
-            const jsonData = JSON.stringify(data, null, 2);
-            
-            // إنشاء ملف للتحميل
-            const blob = new Blob([jsonData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            // إنشاء رابط للتحميل
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `angels_attendance_backup_${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            
-            // تنظيف
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 100);
-            
-            showNotification('تم تصدير البيانات بنجاح');
-        }
-        
-        // نسخ احتياطي
-        function backupData() {
-            exportData(); // حالياً نفس وظيفة التصدير
-            showNotification('تم إنشاء نسخة احتياطية بنجاح');
-        }
-        
-        // تصدير تقرير الحضور
-        function exportAttendanceReport() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            
-            // عنوان التقرير
-            csvContent += "تقرير الحضور - نظام خدام ملايكة\r\n";
-            csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
-            
-            // بيانات الأعضاء
-            csvContent += "الرقم,اسم العضو,النقاط,عدد أيام الحضور\r\n";
-            
-            members.forEach((member, index) => {
-                const attendanceCount = attendanceRecords.filter(ar => ar.memberId === member.id).length;
-                csvContent += `${index + 1},${member.name},${member.points || 0},${attendanceCount}\r\n`;
-            });
-            
-            // إنشاء رابط للتحميل
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `تقرير_الحضور_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('تم تصدير تقرير الحضور بنجاح');
-        }
-        
-        // تصدير بيانات الأعضاء
-        function exportMembersReport() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            
-            // عنوان التقرير
-            csvContent += "بيانات الأعضاء - نظام خدام ملايكة\r\n";
-            csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
-            
-            // بيانات الأعضاء
-            csvContent += "الرقم,اسم العضو,النقاط,كلمة السر\r\n";
-            
-            members.forEach((member, index) => {
-                csvContent += `${index + 1},${member.name},${member.points || 0},${member.password}\r\n`;
-            });
-            
-            // إنشاء رابط للتحميل
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `بيانات_الأعضاء_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('تم تصدير بيانات الأعضاء بنجاح');
         }
         
         // عرض الإشعارات

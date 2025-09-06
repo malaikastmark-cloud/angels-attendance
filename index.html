@@ -1598,7 +1598,7 @@
             });
         }
         
-       // إعداد مستمعي الأحداث
+      // إعداد مستمعي الأحداث
 function setupEventListeners() {
     // تسجيل دخول الأدمن
     document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
@@ -1638,19 +1638,20 @@ function setupEventListeners() {
             showNotification('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور', false);
         }
     });
+
+    // إدارة الأسابيع
+    document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('editWeek')) {
+            const id = e.target.dataset.id;
+            editWeek(id);
+        }
+        if (e.target.classList.contains('deleteWeek')) {
+            const id = e.target.dataset.id;
+            deleteWeek(id);
+        }
+    });
 }
-            // إدارة الأسابيع
-            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editWeek')) {
-                    const id = e.target.dataset.id;
-                    editWeek(id);
-                }
-                if (e.target.classList.contains('deleteWeek')) {
-                    const id = e.target.dataset.id;
-                    deleteWeek(id);
-                }
-            });
             
             // إدارة الحضور
             document.getElementById('markPresent').addEventListener('click', markAttendance);

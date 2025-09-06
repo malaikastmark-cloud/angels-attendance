@@ -3177,9 +3177,19 @@
             // إجمالي النقاط
             document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
             
-           // ترتيب المستخدم حسب النقاط - التصحيح هنا
-const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+          // ترتيب الأعضاء تنازلياً حسب النقاط
+const membersSortedByPoints = [...members].sort((a, b) => {
+    return (b.points || 0) - (a.points || 0);
+});
+
+// إيجاد ترتيب المستخدم الحالي بين جميع الأعضاء
+let userRank = 1; // افترض أنه الأول
+for (let i = 0; i < membersSortedByPoints.length; i++) {
+    if (membersSortedByPoints[i].id === currentUser.id) {
+        userRank = i + 1; // لأنه الفهرس يبدأ من الصفر
+        break;
+    }
+}
 document.getElementById('userRank').textContent = userRank;
             
             // معدل الحضور

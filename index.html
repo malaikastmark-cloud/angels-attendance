@@ -1610,6 +1610,29 @@ function setupEventListeners() {
     
     // إدارة الأعضاء
     document.getElementById('addMemberBtn').addEventListener('click', addMember);
+    
+    // إدارة الأسابيع
+    document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+    
+    // إدارة الحضور
+    document.getElementById('markPresent').addEventListener('click', markAttendance);
+    document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
+    document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
+    document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
+    document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
+    document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
+    document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
+    
+    // (الكود الجديد هنا) مستمع حدث لتبويب تقاريري
+    document.querySelector('[data-tab="userReports"]').addEventListener('click', function() {
+        if (currentUser) {
+            updateUserReports();
+        } else {
+            showNotification('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور', false);
+        }
+    });
+
+    // النقر على العناصر ديناميكياً
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('editMember')) {
             const id = e.target.dataset.id;
@@ -1628,20 +1651,6 @@ function setupEventListeners() {
             const id = e.target.dataset.id;
             resetPassword(id);
         }
-    });
-    
-    // (الكود الجديد هنا) مستمع حدث لتبويب تقاريري
-    document.querySelector('[data-tab="userReports"]').addEventListener('click', function() {
-        if (currentUser) {
-            updateUserReports();
-        } else {
-            showNotification('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور', false);
-        }
-    });
-
-    // إدارة الأسابيع
-    document.getElementById('addWeekBtn').addEventListener('click', addWeek);
-    document.addEventListener('click', function(e) {
         if (e.target.classList.contains('editWeek')) {
             const id = e.target.dataset.id;
             editWeek(id);
@@ -1652,15 +1661,6 @@ function setupEventListeners() {
         }
     });
 }
-            
-            // إدارة الحضور
-            document.getElementById('markPresent').addEventListener('click', markAttendance);
-            document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
-            document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
-            document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
-            document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
-            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
-            document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
             
             // التحقق بالبصمة
             document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);

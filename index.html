@@ -1598,38 +1598,47 @@
             });
         }
         
-        // إعداد مستمعي الأحداث
-        function setupEventListeners() {
-            // تسجيل دخول الأدمن
-            document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
-            document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
-            document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
-            
-            // العودة إلى واجهة المستخدم
-            document.getElementById('backToUserView').addEventListener('click', backToUserView);
-            
-            // إدارة الأعضاء
-            document.getElementById('addMemberBtn').addEventListener('click', addMember);
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editMember')) {
-                    const id = e.target.dataset.id;
-                    editMember(id);
-                }
-                if (e.target.classList.contains('deleteMember')) {
-                    const id = e.target.dataset.id;
-                    deleteMember(id);
-                }
-                if (e.target.classList.contains('resetPoints')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.dataset.name;
-                    resetMemberPoints(id, name);
-                }
-                if (e.target.classList.contains('resetPassword')) {
-                    const id = e.target.dataset.id;
-                    resetPassword(id);
-                }
-            });
-            
+       // إعداد مستمعي الأحداث
+function setupEventListeners() {
+    // تسجيل دخول الأدمن
+    document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
+    document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
+    document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
+    
+    // العودة إلى واجهة المستخدم
+    document.getElementById('backToUserView').addEventListener('click', backToUserView);
+    
+    // إدارة الأعضاء
+    document.getElementById('addMemberBtn').addEventListener('click', addMember);
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('editMember')) {
+            const id = e.target.dataset.id;
+            editMember(id);
+        }
+        if (e.target.classList.contains('deleteMember')) {
+            const id = e.target.dataset.id;
+            deleteMember(id);
+        }
+        if (e.target.classList.contains('resetPoints')) {
+            const id = e.target.dataset.id;
+            const name = e.target.dataset.name;
+            resetMemberPoints(id, name);
+        }
+        if (e.target.classList.contains('resetPassword')) {
+            const id = e.target.dataset.id;
+            resetPassword(id);
+        }
+    });
+    
+    // (الكود الجديد هنا) مستمع حدث لتبويب تقاريري
+    document.querySelector('[data-tab="userReports"]').addEventListener('click', function() {
+        if (currentUser) {
+            updateUserReports();
+        } else {
+            showNotification('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور', false);
+        }
+    });
+}
             // إدارة الأسابيع
             document.getElementById('addWeekBtn').addEventListener('click', addWeek);
             document.addEventListener('click', function(e) {

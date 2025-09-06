@@ -149,6 +149,36 @@
             transform: translateY(-2px);
         }
         
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+        
+        .btn-info {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #7f8c8d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #636e70;
+            transform: translateY(-2px);
+        }
+        
         .controls {
             margin: 15px 0;
             display: flex;
@@ -252,6 +282,21 @@
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
         
+        .admin-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-section h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -341,8 +386,175 @@
                     <i class="fas fa-arrow-right"></i> العودة إلى واجهة المستخدم
                 </button>
             </div>
-            <h2>لوحة تحكم الأدمن</h2>
-            <p>مرحبًا بك في لوحة تحكم الأدمن. هنا يمكنك إدارة النظام بالكامل.</p>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="members">إدارة الأعضاء</div>
+                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
+                <div class="tab" data-tab="attendance">إدارة الحضور</div>
+                <div class="tab" data-tab="reports">التقارير</div>
+            </div>
+
+            <div class="tab-content active" id="members">
+                <h2>إدارة الأعضاء</h2>
+                <div class="admin-section">
+                    <h3>إضافة عضو جديد</h3>
+                    <div class="controls">
+                        <input type="text" id="newMemberName" placeholder="اسم العضو">
+                        <select id="newMemberEmoji">
+                            <option value="🧒">🧒 طفل</option>
+                            <option value="👦">👦 ولد</option>
+                            <option value="👧">👧 بنت</option>
+                            <option value="👨">👨 رجل</option>
+                            <option value="👩">👩 امرأة</option>
+                        </select>
+                        <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>قائمة الأعضاء</h3>
+                    <table id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>اسم العضو</th>
+                                <th>النقاط</th>
+                                <th>كلمة السر</th>
+                                <th>تعديل</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="weeks">
+                <h2>إدارة الأسابيع</h2>
+                <div class="admin-section">
+                    <h3>إضافة أسبوع جديد</h3>
+                    <div class="controls">
+                        <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                        <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>قائمة الأسابيع</h3>
+                    <table id="weeksTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>اسم الأسبوع</th>
+                                <th>تعديل</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="attendance">
+                <h2>إدارة الحضور</h2>
+                <div class="admin-section">
+                    <h3>حذف الحضور</h3>
+                    <div class="controls">
+                        <label>اختر أسبوع: </label>
+                        <select id="deleteWeekSelect">
+                        </select>
+                        <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>إضافة نقاط إضافية</h3>
+                    <div class="controls">
+                        <select id="extraPointMember">
+                            <option value="">-- اختر العضو --</option>
+                        </select>
+                        <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
+                        <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
+                        <button class="btn btn-warning" id="addExtraPointsBtn">إضافة نقاط</button>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>سجلات الحضور</h3>
+                    <table id="attendanceRecordsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>العضو</th>
+                                <th>الأسبوع</th>
+                                <th>النقاط</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-content" id="reports">
+                <h2>التقارير والإحصائيات</h2>
+                <div class="admin-section">
+                    <h3>إحصائيات عامة</h3>
+                    <div class="controls">
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center; min-width: 150px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #3498db;"><i class="fas fa-users"></i></div>
+                                <div style="font-size: 1.8rem; font-weight: bold;" id="reportMembers">3</div>
+                                <div style="color: #7f8c8d;">إجمالي الأعضاء</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center; min-width: 150px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #3498db;"><i class="fas fa-calendar-week"></i></div>
+                                <div style="font-size: 1.8rem; font-weight: bold;" id="reportWeeks">3</div>
+                                <div style="color: #7f8c8d;">عدد الأسابيع</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center; min-width: 150px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #3498db;"><i class="fas fa-check-circle"></i></div>
+                                <div style="font-size: 1.8rem; font-weight: bold;" id="reportAttendance">0</div>
+                                <div style="color: #7f8c8d;">إجمالي الحضور</div>
+                            </div>
+                            <div style="background: white; padding: 15px; border-radius: 10px; text-align: center; min-width: 150px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
+                                <div style="font-size: 1.5rem; color: #3498db;"><i class="fas fa-star"></i></div>
+                                <div style="font-size: 1.8rem; font-weight: bold;" id="reportPoints">30</div>
+                                <div style="color: #7f8c8d;">النقاط الممنوحة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>توزيع النقاط بين الأعضاء</h3>
+                    <div class="chart-container">
+                        <canvas id="pointsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h3>الـ 5 الأوائل في الحضور</h3>
+                    <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+                            <div>👦 أحمد</div>
+                            <div style="background: #3498db; color: white; padding: 4px 12px; border-radius: 15px;">12 نقطة</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+                            <div>👦 محمد</div>
+                            <div style="background: #3498db; color: white; padding: 4px 12px; border-radius: 15px;">10 نقطة</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+                            <div>👧 سارة</div>
+                            <div style="background: #3498db; color: white; padding: 4px 12px; border-radius: 15px;">8 نقطة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -389,6 +601,24 @@
                     confirmAdminLogin();
                 }
             });
+            
+            // إدارة التبويبات في واجهة الأدمن
+            document.querySelectorAll('#adminTabs .tabs .tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // إزالة النشاط من جميع التبويبات
+                    document.querySelectorAll('#adminTabs .tabs .tab').forEach(t => t.classList.remove('active'));
+                    
+                    // إضافة النشاط للتبويب المحدد
+                    this.classList.add('active');
+                    
+                    // إخفاء جميع محتويات التبويبات
+                    document.querySelectorAll('#adminTabs .tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // إظهار محتوى التبويب المحدد
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
         }
         
         // عرض نافذة تسجيل دخول الأدمن
@@ -424,6 +654,9 @@
                 });
                 adminLoginBtn.style.display = 'none';
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
+                
+                // تحديث بيانات الأدمن
+                updateAdminData();
             } else {
                 adminPassword.classList.add('login-failed');
                 setTimeout(() => {
@@ -444,6 +677,70 @@
             document.querySelector('[data-tab="userAttendance"]').classList.add('active');
             
             showNotification('تم العودة إلى واجهة المستخدم');
+        }
+        
+        // تحديث بيانات الأدمن
+        function updateAdminData() {
+            // تعبئة القوائم المنسدلة في واجهة الأدمن
+            const extraPointMember = document.getElementById('extraPointMember');
+            extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
+            members.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                extraPointMember.appendChild(option);
+            });
+            
+            const deleteWeekSelect = document.getElementById('deleteWeekSelect');
+            deleteWeekSelect.innerHTML = '';
+            weeks.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week.id;
+                option.textContent = week.name;
+                deleteWeekSelect.appendChild(option);
+            });
+            
+            // تحديث جدول الأعضاء
+            updateMembersTable();
+            
+            // تحديث جدول الأسابيع
+            updateWeeksTable();
+        }
+        
+        // تحديث جدول الأعضاء في واجهة الأدمن
+        function updateMembersTable() {
+            const tbody = document.querySelector('#membersTable tbody');
+            tbody.innerHTML = '';
+            
+            members.forEach((member, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${member.name}</td>
+                    <td>${member.points || 0}</td>
+                    <td>${member.password || '1234'}</td>
+                    <td><button class='btn btn-primary'>تعديل</button></td>
+                    <td><button class='btn btn-danger'>حذف</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // تحديث جدول الأسابيع في واجهة الأدمن
+        function updateWeeksTable() {
+            const tbody = document.querySelector('#weeksTable tbody');
+            tbody.innerHTML = '';
+            
+            weeks.forEach((week, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${week.name}</td>
+                    <td><button class='btn btn-primary'>تعديل</button></td>
+                    <td><button class='btn btn-danger'>حذف</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
         
         // عرض الإشعارات
@@ -470,9 +767,9 @@
             
             // إعداد بيانات تجريبية
             members = [
-                { id: '1', name: '👦 أحمد', points: 10, password: '1234' },
+                { id: '1', name: '👦 أحمد', points: 12, password: '1234' },
                 { id: '2', name: '👧 سارة', points: 8, password: '1234' },
-                { id: '3', name: '👦 محمد', points: 12, password: '1234' }
+                { id: '3', name: '👦 محمد', points: 10, password: '1234' }
             ];
             
             weeks = [

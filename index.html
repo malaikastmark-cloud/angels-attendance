@@ -3177,10 +3177,10 @@
             // إجمالي النقاط
             document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
             
-            // ترتيب المستخدم
-            const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const userRank = sortedMembers.findIndex(m => m.id === currentUser.id) + 1;
-            document.getElementById('userRank').textContent = userRank;
+           // ترتيب المستخدم حسب النقاط - التصحيح هنا
+const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+document.getElementById('userRank').textContent = userRank;
             
             // معدل الحضور
             const totalWeeks = weeks.length;

@@ -426,7 +426,7 @@
             background: gold;
             color: #333;
             padding: 4px 10px;
-            borderRadius: 10px;
+            border-radius: 10px;
             font-size: 0.8rem;
             margin-left: 5px;
             font-weight: bold;
@@ -874,15 +874,6 @@
 
         <div class="tab-content" id="userReports">
             <h2>تقاريري الشخصية</h2>
-            <!-- إضافة قائمة اختيار العضو للتقارير -->
-            <div class="controls">
-                <label>اختر اسمك لعرض التقرير: </label>
-                <select id="selectMemberForReport">
-                    <option value="">-- اختر اسمك --</option>
-                    <!-- سيتم تعبئة الخيارات من Firebase -->
-                </select>
-            </div>
-            
             <div class="user-reports-grid">
                 <div class="user-report-card">
                     <div class="user-report-icon"><i class="fas fa-calendar-check"></i></div>
@@ -971,7 +962,7 @@
                         <option value="🧒">🧒 </option>
                         <option value="👦">👦 </option>
                         <option value="👧">👧 </option>
-                        <option value👨">👨 </option>
+                        <option value="👨">👨 </option>
                         <option value="👩">👩 </option>
                     </select>
                     <input type="password" id="newMemberPassword" placeholder="كلمة السر (اختياري)">
@@ -1238,7 +1229,7 @@
             </div>
 
             <div class="tab-content" id="tasks">
-                <h2>إدارة الم重要ات <i class="fas fa-tasks emoji-icon"></i></h2>
+                <h2>إدارة المهمات <i class="fas fa-tasks emoji-icon"></i></h2>
                 <div class="controls">
                     <input type="text" id="newTaskName" placeholder="اسم المهمة">
                     <select id="newTaskAssignee">
@@ -1664,18 +1655,6 @@
             // التحقق بالبصمة
             document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
             document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
-            
-            // إعداد مستمع لقائمة اختيار العضو في التقارير
-            document.getElementById('selectMemberForReport').addEventListener('change', function() {
-                const memberId = this.value;
-                if (memberId) {
-                    const member = members.find(m => m.id === memberId);
-                    if (member) {
-                        currentUser = member;
-                        updateUserReports();
-                    }
-                }
-            });
             
             // إدارة الأمان
             document.getElementById('saveSecuritySettings').addEventListener('click', saveSecuritySettings);
@@ -2127,7 +2106,7 @@
                         database.ref().update(contestUpdates);
                     }
                     
-                ).catch((error) => {
+                }).catch((error) => {
                     console.error("Error resetting points:", error);
                     showNotification('فشل في حذف النقاط: ' + error.message, false);
                 });
@@ -2157,7 +2136,6 @@
         // تحديث قائمة الأعضاء المنسدلة
         function updateSelectMember() {
             const selectMember = document.getElementById('selectMember');
-            const selectMemberForReport = document.getElementById('selectMemberForReport');
             const extraPointMember = document.getElementById('extraPointMember');
             const newTaskAssignee = document.getElementById('newTaskAssignee');
             const contestMember = document.getElementById('contestMember');
@@ -2165,7 +2143,6 @@
             const resetMemberPassword = document.getElementById('resetMemberPassword');
             
             selectMember.innerHTML = '<option value="">-- اختر اسمك --</option>';
-            selectMemberForReport.innerHTML = '<option value="">-- اختر اسمك --</option>';
             extraPointMember.innerHTML = '<option value="">-- اختر العضو --</option>';
             newTaskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
             contestMember.innerHTML = '<option value="">-- اختر العضو --</option>';
@@ -2178,12 +2155,6 @@
                 option.value = member.id;
                 option.textContent = member.name;
                 selectMember.appendChild(option);
-                
-                // selectMemberForReport
-                const reportOption = document.createElement('option');
-                reportOption.value = member.id;
-                reportOption.textContent = member.name;
-                selectMemberForReport.appendChild(reportOption);
                 
                 // extraPointMember
                 const extraOption = document.createElement('option');
@@ -2648,7 +2619,7 @@
                     }).catch((error) => {
                         console.error("Error updating points:", error);
                         showNotification('فشل في تحديث النقاط: ' + error.message, false);
-                    );
+                    });
                 }
             });
         }
@@ -2965,7 +2936,7 @@
                 
                 eventRef.remove().then(() => {
                     showNotification('تم حذف المناسبة');
-                ).catch((error) => {
+                }).catch((error) => {
                     console.error("Error deleting event:", error);
                     showNotification('فشل في حذف المناسبة: ' + error.message, false);
                 });
@@ -3197,12 +3168,6 @@
         
         // تحديث تقارير المستخدم
         function updateUserReports() {
-            if (!currentUser && members.length > 0) {
-                // إذا لم يكن هناك مستخدم محدد، نستخدم الأول كافتراضي
-                currentUser = members[0];
-                document.getElementById('selectMemberForReport').value = currentUser.id;
-            }
-            
             if (!currentUser) return;
             
             // إجمالي أيام الحضور
@@ -3212,10 +3177,10 @@
             // إجمالي النقاط
             document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
             
-            // ترتيب المستخدم حسب النقاط - التصحيح هنا
-            const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
-            document.getElementById('userRank').textContent = userRank;
+           // ترتيب المستخدم حسب النقاط - التصحيح هنا
+const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+document.getElementById('userRank').textContent = userRank;
             
             // معدل الحضور
             const totalWeeks = weeks.length;
@@ -3241,8 +3206,6 @@
         // تحديث مخطط نقاط المستخدم
         function updateUserPointsChart() {
             const ctx = document.getElementById('userPointsChart').getContext('2d');
-            
-            if (!currentUser || weeks.length === 0) return;
             
             // تجهيز البيانات للمخطط
             const userPointsByWeek = [];
@@ -3315,15 +3278,6 @@
             updateAttendanceChart();
         }
         
-        // تحديث مخطط النقاط
-        function updatePointsChart() {
-            const ctx = document.getElementById('pointsChart').getContext('2d');
-            
-            // تجهيز البيانات للمخطط
-            const memberNames = members.map(m => m.name);
-            const memberPoints = members.map(m => m.points || 0);
-            
-            // إذا كان هناك مخطط موجود، قم بتدميره
         // تحديث مخطط النقاط
         function updatePointsChart() {
             const ctx = document.getElementById('pointsChart').getContext('2d');
@@ -3437,7 +3391,7 @@
                 return;
             }
             
-            top10.forEach((member, index) {
+            top10.forEach((member, index) => {
                 const item = document.createElement('div');
                 item.className = 'top-member-item';
                 

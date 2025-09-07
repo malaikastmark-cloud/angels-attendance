@@ -3002,7 +3002,7 @@
                 document.getElementById('newTaskName').value = '';
                 document.getElementById('newTaskAssignee').value = '';
                 document.getElementById('newTaskDeadline').value = '';
-                document.getElementById('newTaskStatus').value = 'قيد التنفيذ';
+               document.getElementById('newTaskStatus').value = 'قيد التنفيذ';
             }).catch((error) => {
                 console.error("Error adding task:", error);
                 showNotification('فشل في إضافة المهمة: ' + error.message, false);
@@ -3135,7 +3135,7 @@
             // عرض آخر 50 سجل فقط
             const recentLogs = securityLogs.slice(-50).reverse();
             
-            recentLogs.forEach((log, index) => {
+            recentLogs.forEach((log, index) {
                 const member = members.find(m => m.id === log.memberId);
                 const tr = document.createElement('tr');
                 
@@ -3177,10 +3177,10 @@
             // إجمالي النقاط
             document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
             
-           // ترتيب المستخدم حسب النقاط - التصحيح هنا
-const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
-document.getElementById('userRank').textContent = userRank;
+            // ترتيب المستخدم حسب النقاط - التصحيح هنا
+            const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+            document.getElementById('userRank').textContent = userRank;
             
             // معدل الحضور
             const totalWeeks = weeks.length;
@@ -3375,13 +3375,9 @@ document.getElementById('userRank').textContent = userRank;
         
         // تحديث قائمة الـ 10 الأوائل
         function updateTopMembers() {
-            const memberPoints = members.map(member => {
-                return { name: member.name, points: member.points || 0 };
-            });
-            
-            memberPoints.sort((a, b) => b.points - a.points);
-            
-            const top10 = memberPoints.slice(0, 10);
+            // ترتيب الأعضاء حسب النقاط (من الأعلى إلى الأقل)
+            const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const top10 = sortedMembers.slice(0, 10);
             
             const topMembersList = document.getElementById('topMembersList');
             topMembersList.innerHTML = '';
@@ -3462,7 +3458,10 @@ document.getElementById('userRank').textContent = userRank;
             // بيانات الأعضاء
             csvContent += "الرقم,اسم العضو,النقاط,عدد أيام الحضور\r\n";
             
-            members.forEach((member, index) => {
+            // ترتيب الأعضاء حسب النقاط (من الأعلى إلى الأقل)
+            const sortedMembers = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+            
+            sortedMembers.forEach((member, index) => {
                 const attendanceCount = attendanceRecords.filter(ar => ar.memberId === member.id).length;
                 csvContent += `${index + 1},${member.name},${member.points || 0},${attendanceCount}\r\n`;
             });

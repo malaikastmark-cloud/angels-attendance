@@ -325,13 +325,14 @@
         }
         
         @keyframes spin {
-            0% { transform: rotate(0deg); }
+            from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
         
         .medal {
             font-size: 1.5rem;
             margin-left: 5px;
+            display: inline-block;
         }
         
         .medal-gold { color: gold; }
@@ -682,6 +683,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
+            margin-bottom: 10px;
         }
         
         .biometric-btn:hover {
@@ -791,6 +793,13 @@
             border-radius: 8px;
             margin: 15px 0;
         }
+        
+        .password-option {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e8f4f8;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -827,14 +836,8 @@
                     <span id="confirmMemberName"></span>
                 </div>
                 
-                <p>لتأكيد هويتك، يرجى استخدام البصمة أو التعرف على الوجه</p>
-                
-                <button class="biometric-btn" id="biometricBtn">
-                    <i class="fas fa-fingerprint"></i> التأكد بالبصمة/الوجه
-                </button>
-                
-                <div class="fallback-verification" id="fallbackVerification">
-                    <h4>طريقة بديلة للتحقق</h4>
+                <div class="password-option">
+                    <p>لتأكيد هويتك، يرجى إدخال كلمة السر الخاصة بك</p>
                     <div class="controls">
                         <div class="password-field">
                             <input type="password" id="memberPassword" placeholder="كلمة السر الخاصة بك">
@@ -936,7 +939,7 @@
                 </button>
                 <button class="btn btn-info" id="exportDataBtn">
                     <i class="fas fa-download"></i> تصدير البيانات
-                </button>
+                    </button>
                 <button class="btn btn-warning" id="backupDataBtn">
                     <i class="fas fa-save"></i> نسخ احتياطي
                 </button>
@@ -965,7 +968,7 @@
                         <option value="👨">👨 </option>
                         <option value="👩">👩 </option>
                     </select>
-                    <input type="password" id="newMemberPassword" placeholder="كلمة السر (اختياري)">
+                    <input type="password" id="newMemberPassword" placeholder="كلمة السر (مطلوبة)">
                     <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
                 </div>
                 <table id="membersTable">
@@ -1061,7 +1064,7 @@
                         <label>تفعيل نظام التحقق: </label>
                         <select id="securityLevel">
                             <option value="none">لا يوجد تحقق</option>
-                            <option value="password">كلمة سر فقط</option>
+                            <option value="password" selected>كلمة سر فقط</option>
                             <option value="biometric">بصمة/وجه (إن أمكن)</option>
                         </select>
                         <button class="btn btn-primary" id="saveSecuritySettings">حفظ الإعدادات</button>
@@ -1652,8 +1655,7 @@
             document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
             document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
             
-            // التحقق بالبصمة
-            document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
+            // التحقق بكلمة السر
             document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
             
             // إدارة الأمان
@@ -1874,42 +1876,7 @@
             }
         }
         
-        // التحقق بالبصمة/الوجه
-        async function startBiometricVerification() {
-            if (!currentUser) {
-                showNotification('يرجى اختيار عضو أولاً', false);
-                return;
-            }
-            
-            try {
-                // محاكاة للتحقق بالبصمة (سيتم استبدالها بالواجهة الفعلية)
-                showNotification('جاري التحقق من البصمة/الوجه...');
-                
-                // محاكاة الانتظار للتحقق
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // في الواقع، هنا سيتم استخدام WebAuthn API للتحقق من البصمة
-                // const isVerified = await verifyBiometric();
-                const isVerified = true; // محاكاة للنجاح
-                
-                if (isVerified) {
-                    showNotification('تم التحقق من الهوية بنجاح!');
-                    document.getElementById('markPresent').disabled = false;
-                    logSecurityEvent(currentUser.id, 'biometric', 'success');
-                } else {
-                    showNotification('فشل التحقق من الهوية', false);
-                    document.getElementById('fallbackVerification').classList.add('active');
-                    logSecurityEvent(currentUser.id, 'biometric', 'failed');
-                }
-            } catch (error) {
-                console.error('Error in biometric verification:', error);
-                showNotification('فشل التحقق من الهوية', false);
-                document.getElementById('fallbackVerification').classList.add('active');
-                logSecurityEvent(currentUser.id, 'biometric', 'error');
-            }
-        }
-        
-        // التحقق بكلمة السر (الطريقة البديلة)
+        // التحقق بكلمة السر
         async function verifyPassword() {
             const password = document.getElementById('memberPassword').value;
             if (!password) {
@@ -1920,7 +1887,6 @@
             if (password === currentUser.password) {
                 showNotification('تم التحقق من الهوية بنجاح!');
                 document.getElementById('markPresent').disabled = false;
-                document.getElementById('fallbackVerification').classList.remove('active');
                 logSecurityEvent(currentUser.id, 'password', 'success');
             } else {
                 showNotification('كلمة السر خاطئة', false);
@@ -1955,10 +1921,15 @@
 
             const name = nameInput.value;
             const emoji = emojiSelect.value;
-            const password = passwordInput.value || Math.random().toString(36).substring(2, 8);
+            const password = passwordInput.value;
             
             if (!name) {
                 showNotification('يرجى إدخال اسم العضو', false);
+                return;
+            }
+            
+            if (!password) {
+                showNotification('يرجى إدخال كلمة السر', false);
                 return;
             }
             
@@ -2262,7 +2233,7 @@
                         database.ref().update(attendanceUpdates);
                     }
                     
-                }).catch((error) => {
+                ).catch((error) => {
                     console.error("Error deleting week:", error);
                     showNotification('فشل في حذف الأسبوع: ' + error.message, false);
                 });
@@ -2318,7 +2289,7 @@
                 return;
             }
             
-            if (!weekId) {
+                       if (!weekId) {
                 showNotification('يرجى اختيار الأسبوع أولاً', false);
                 return;
             }
@@ -2748,6 +2719,28 @@
                     }).then(() => {
                         showNotification('تم تعديل تاريخ الميلاد');
                     }).catch((error) => {
+                         console.error("Error updating birthday:", error);
+                        showNotification('فشل في تعديل تاريخ الميلاد: ' + error.message, false);
+                    });
+                }
+            });
+        }
+// تعديل عيد ميلاد
+        function editBirthday(id) {
+            const birthdayRef = database.ref('birthdays/' + id);
+            
+            birthdayRef.once('value').then((snapshot) => {
+                const birthday = snapshot.val();
+                if (!birthday) return;
+                
+                const newDate = prompt('عدل تاريخ الميلاد:', birthday.date);
+                
+                if (newDate) {
+                    birthdayRef.update({
+                        date: newDate
+                    }).then(() => {
+                        showNotification('تم تعديل تاريخ الميلاد');
+                    }).catch((error) => {
                         console.error("Error updating birthday:", error);
                         showNotification('فشل في تعديل تاريخ الميلاد: ' + error.message, false);
                     });
@@ -2864,7 +2857,7 @@
                 }
                 
                 bdayItem.innerHTML = `
-                    <span>${message}</span>
+                    <span>${message</span>
                     <span>${new Date(bday.date).toLocaleDateString('ar-EG')}</span>
                 `;
                 
@@ -3017,7 +3010,7 @@
                 const task = snapshot.val();
                 if (!task) return;
                 
-                const newName = prompt('عدل اسم الم重要ة:', task.name);
+                const newName = prompt('عدل اسم المهمة:', task.name);
                 const newDeadline = prompt('عدل الموعد النهائي:', task.deadline);
                 const newStatus = prompt('عدل الحالة:', task.status);
                 
@@ -3028,7 +3021,7 @@
                         status: newStatus
                     }).then(() => {
                         showNotification('تم تعديل بيانات المهمة');
-                    }).catch((error) => {
+                    ).catch((error) => {
                         console.error("Error updating task:", error);
                         showNotification('فشل في تعديل المهمة: ' + error.message, false);
                     });
@@ -3135,7 +3128,7 @@
             // عرض آخر 50 سجل فقط
             const recentLogs = securityLogs.slice(-50).reverse();
             
-            recentLogs.forEach((log, index) => {
+            recentLogs.forEach((log, index) {
                 const member = members.find(m => m.id === log.memberId);
                 const tr = document.createElement('tr');
                 
@@ -3336,6 +3329,55 @@
             });
             
             // إذا كان هناك مخطط موجود، قم بتدميره أولاً
+            if (window.pointsChartInstance) {
+                window.pointsChartInstance.destroy();
+            }
+            
+            // إنشاء مخطط جديد
+            window.pointsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: memberNames,
+                    datasets: [{
+                        label: 'النقاط',
+                        data: memberPoints,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'توزيع النقاط بين الأعضاء'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+                // تحديث مخطط الحضور
+        function updateAttendanceChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            // تجهيز البيانات للمخطط
+            const weekNames = weeks.map(w => w.name);
+            const attendanceByWeek = weeks.map(week => {
+                return attendanceRecords.filter(ar => ar.weekId === week.id).length;
+            });
+            
+            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
             if (window.attendanceChartInstance) {
                 window.attendanceChartInstance.destroy();
             }
@@ -3525,3 +3567,4 @@
     </script>
 </body>
 </html>
+            

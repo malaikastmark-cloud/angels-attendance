@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حضور خدام ملايكة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- إضافة Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- Chart.js for modern reports -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -1248,7 +1246,7 @@
                     <thead>
                         <tr>
                             <th class="member-number">#</th>
-                            <th>اسم المهمة</th>
+                            <th>اسم الم重要ة</th>
                             <th>المسؤول</th>
                             <th>الموعد النهائي</th>
                             <th>الحالة</th>
@@ -2634,9 +2632,9 @@
                     if (!contest) return;
                     
                     // البحث عن العضو في المصفوفة المحلية
-                    const memberExists = members.find(m => m.id === contest.memberId);
+                    const member = members.find(m => m.id === contest.memberId);
                     
-                    if (memberExists) {
+                    if (member) {
                         // إذا كان العضو موجوداً، خصم النقاط منه
                         const memberRef = database.ref('members/' + contest.memberId);
                         memberRef.once('value').then((snapshot) => {
@@ -3177,10 +3175,10 @@
             // إجمالي النقاط
             document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
             
-           // ترتيب المستخدم حسب النقاط - التصحيح هنا
-const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
-document.getElementById('userRank').textContent = userRank;
+            // ترتيب المستخدم حسب النقاط - التصحيح هنا
+            const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+            document.getElementById('userRank').textContent = userRank;
             
             // معدل الحضور
             const totalWeeks = weeks.length;
@@ -3300,228 +3298,228 @@ document.getElementById('userRank').textContent = userRank;
                         label: 'النقاط',
                         data: memberPoints,
                         backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'توزيع النقاط بين الأعضاء'
-                        },
-                        legend: {
-                            display: false
-                        }
-                    }
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
-            });
-        }
-        
-        // تحديث مخطط الحضور
-        function updateAttendanceChart() {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            
-            // تجهيز البيانات للمخطط
-            const weekNames = weeks.map(w => w.name);
-            const attendanceByWeek = weeks.map(week => {
-                return attendanceRecords.filter(ar => ar.weekId === week.id).length;
-            });
-            
-            // إذا كان هناك مخطط موجود، قم بتدميره أولاً
-            if (window.attendanceChartInstance) {
-                window.attendanceChartInstance.destroy();
-            }
-            
-            // إنشاء مخطط جديد
-            window.attendanceChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: weekNames,
-                    datasets: [{
-                        label: 'عدد الحضور',
-                        data: attendanceByWeek,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    }]
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'توزيع النقاط بين الأعضاء'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'الحضور خلال الأسابيع'
-                        }
-                    }
+                legend: {
+                    display: false
                 }
-            });
-        }
-        
-        // تحديث قائمة الـ 10 الأوائل
-        function updateTopMembers() {
-            const memberPoints = members.map(member => {
-                return { name: member.name, points: member.points || 0 };
-            });
-            
-            memberPoints.sort((a, b) => b.points - a.points);
-            
-            const top10 = memberPoints.slice(0, 10);
-            
-            const topMembersList = document.getElementById('topMembersList');
-            topMembersList.innerHTML = '';
-            
-            if (top10.length === 0) {
-                topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
-                return;
             }
-            
-            top10.forEach((member, index) => {
-                const item = document.createElement('div');
-                item.className = 'top-member-item';
-                
-                let medal = '';
-                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
-                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
-                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
-                
-                item.innerHTML = `
-                    <div class="top-member-name">${medal} ${member.name}</div>
-                    <div class="top-member-points">${member.points} نقطة</div>
-                `;
-                topMembersList.appendChild(item);
-            });
         }
-        
-        // تصدير البيانات
-        function exportData() {
-            // إنشاء كائن يحتوي على جميع البيانات
-            const data = {
-                members: members,
-                weeks: weeks,
-                attendance: attendanceRecords,
-                contests: contests,
-                birthdays: birthdays,
-                events: events,
-                tasks: tasks,
-                exportDate: new Date().toISOString()
-            };
-            
-            // تحويل البيانات إلى JSON
-            const jsonData = JSON.stringify(data, null, 2);
-            
-            // إنشاء ملف للتحميل
-            const blob = new Blob([jsonData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            // إنشاء رابط للتحميل
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `angels_attendance_backup_${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            
-            // تنظيف
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 100);
-            
-            showNotification('تم تصدير البيانات بنجاح');
+    });
+}
+
+// تحديث مخطط الحضور
+function updateAttendanceChart() {
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    
+    // تجهيز البيانات للمخطط
+    const weekNames = weeks.map(w => w.name);
+    const attendanceByWeek = weeks.map(week => {
+        return attendanceRecords.filter(ar => ar.weekId === week.id).length;
+    });
+    
+    // إذا كان هناك مخطط موجود، قم بتدميره أولاً
+    if (window.attendanceChartInstance) {
+        window.attendanceChartInstance.destroy();
+    }
+    
+    // إنشاء مخطط جديد
+    window.attendanceChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: weekNames,
+            datasets: [{
+                label: 'عدد الحضور',
+                data: attendanceByWeek,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'الحضور خلال الأسابيع'
+                }
+            }
         }
+    });
+}
+
+// تحديث قائمة الـ 10 الأوائل
+function updateTopMembers() {
+    const memberPoints = members.map(member => {
+        return { name: member.name, points: member.points || 0 };
+    });
+    
+    memberPoints.sort((a, b) => b.points - a.points);
+    
+    const top10 = memberPoints.slice(0, 10);
+    
+    const topMembersList = document.getElementById('topMembersList');
+    topMembersList.innerHTML = '';
+    
+    if (top10.length === 0) {
+        topMembersList.innerHTML = '<p>لا توجد بيانات حتى الآن</p>';
+        return;
+    }
+    
+    top10.forEach((member, index) => {
+        const item = document.createElement('div');
+        item.className = 'top-member-item';
         
-        // نسخ احتياطي
-        function backupData() {
-            exportData(); // حالياً نفس وظيفة التصدير
-            showNotification('تم إنشاء نسخة احتياطية بنجاح');
-        }
+        let medal = '';
+        if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+        else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+        else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
         
-        // تصدير تقرير الحضور
-        function exportAttendanceReport() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            
-            // عنوان التقرير
-            csvContent += "تقرير الحضور - نظام خدام ملايكة\r\n";
-            csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
-            
-            // بيانات الأعضاء
-            csvContent += "الرقم,اسم العضو,النقاط,عدد أيام الحضور\r\n";
-            
-            members.forEach((member, index) => {
-                const attendanceCount = attendanceRecords.filter(ar => ar.memberId === member.id).length;
-                csvContent += `${index + 1},${member.name},${member.points || 0},${attendanceCount}\r\n`;
-            });
-            
-            // إنشاء رابط للتحميل
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `تقرير_الحضور_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('تم تصدير تقرير الحضور بنجاح');
-        }
-        
-        // تصدير بيانات الأعضاء
-        function exportMembersReport() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            
-            // عنوان التقرير
-            csvContent += "بيانات الأعضاء - نظام خدام ملايكة\r\n";
-            csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
-            
-            // بيانات الأعضاء
-            csvContent += "الرقم,اسم العضو,النقاط,كلمة السر\r\n";
-            
-            members.forEach((member, index) => {
-                csvContent += `${index + 1},${member.name},${member.points || 0},${member.password}\r\n`;
-            });
-            
-            // إنشاء رابط للتحميل
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `بيانات_الأعضاء_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            
-            link.click();
-            document.body.removeChild(link);
-            
-            showNotification('تم تصدير بيانات الأعضاء بنجاح');
-        }
-        
-        // عرض الإشعارات
-        function showNotification(message, isSuccess = true) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // بدء التطبيق عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        item.innerHTML = `
+            <div class="top-member-name">${medal} ${member.name}</div>
+            <div class="top-member-points">${member.points} نقطة</div>
+        `;
+        topMembersList.appendChild(item);
+    });
+}
+
+// تصدير البيانات
+function exportData() {
+    // إنشاء كائن يحتوي على جميع البيانات
+    const data = {
+        members: members,
+        weeks: weeks,
+        attendance: attendanceRecords,
+        contests: contests,
+        birthdays: birthdays,
+        events: events,
+        tasks: tasks,
+        exportDate: new Date().toISOString()
+    };
+    
+    // تحويل البيانات إلى JSON
+    const jsonData = JSON.stringify(data, null, 2);
+    
+    // إنشاء ملف للتحميل
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    // إنشاء رابط للتحميل
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `angels_attendance_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // تنظيف
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, 100);
+    
+    showNotification('تم تصدير البيانات بنجاح');
+}
+
+// نسخ احتياطي
+function backupData() {
+    exportData(); // حالياً نفس وظيفة التصدير
+    showNotification('تم إنشاء نسخة احتياطية بنجاح');
+}
+
+// تصدير تقرير الحضور
+function exportAttendanceReport() {
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+    
+    // عنوان التقرير
+    csvContent += "تقرير الحضور - نظام خدام ملايكة\r\n";
+    csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
+    
+    // بيانات الأعضاء
+    csvContent += "الرقم,اسم العضو,النقاط,عدد أيام الحضور\r\n";
+    
+    members.forEach((member, index) => {
+        const attendanceCount = attendanceRecords.filter(ar => ar.memberId === member.id).length;
+        csvContent += `${index + 1},${member.name},${member.points || 0},${attendanceCount}\r\n`;
+    });
+    
+    // إنشاء رابط للتحميل
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `تقرير_الحضور_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('تم تصدير تقرير الحضور بنجاح');
+}
+
+// تصدير بيانات الأعضاء
+function exportMembersReport() {
+    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+    
+    // عنوان التقرير
+    csvContent += "بيانات الأعضاء - نظام خدام ملايكة\r\n";
+    csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
+    
+    // بيانات الأعضاء
+    csvContent += "الرقم,اسم العضو,النقاط,كلمة السر\r\n";
+    
+    members.forEach((member, index) => {
+        csvContent += `${index + 1},${member.name},${member.points || 0},${member.password}\r\n`;
+    });
+    
+    // إنشاء رابط للتحميل
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `بيانات_الأعضاء_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('تم تصدير بيانات الأعضاء بنجاح');
+}
+
+// عرض الإشعارات
+function showNotification(message, isSuccess = true) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.background = isSuccess ? '#2ecc71' : '#e74c3c';
+    notification.style.display = 'block';
+    
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+
+// بدء التطبيق عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - تالانتون</title>
+    <title>نظام حضور خدام ملايكة - Talanton</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -790,7 +790,7 @@
             margin: 15px 0;
         }
 
-        /* تالانتون styles */
+        /* Talanton styles */
         .talanton-balance {
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             color: #333;
@@ -850,8 +850,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌟 نظام حضور خدام ملايكة - تالانتون</h1>
-            <p>الحضور يساوي تالانتون</p>
+            <h1>🌟 نظام حضور خدام ملايكة - Talanton</h1>
+            <p>الحضور يساوي talanton</p>
         </header>
 
         <div class="notification" id="notification"></div>
@@ -859,7 +859,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="userAttendance">تسجيل الحضور</div>
             <div class="tab" data-tab="userReports">تقاريري</div>
-            <div class="tab" data-tab="talantonStore">متجر التالانتون</div>
+            <div class="tab" data-tab="talantonStore">متجر Talanton</div>
         </div>
 
         <div class="tab-content active" id="userAttendance">
@@ -914,7 +914,7 @@
                         <th>اسم العضو</th>
                         <th>الأسبوع</th>
                         <th>الحضور</th>
-                        <th>التالانتون</th>
+                        <th>Talanton</th>
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
@@ -923,7 +923,7 @@
             </table>
             <div class="controls">
                 <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
-                <span>التالانتون: <span id="totalPoints">0</span></span>
+                <span>Talanton: <span id="totalPoints">0</span></span>
             </div>
         </div>
 
@@ -931,7 +931,7 @@
             <h2>تقاريري الشخصية</h2>
             
             <div class="talanton-balance">
-                <h3>رصيد التالانتون</h3>
+                <h3>رصيد Talanton</h3>
                 <div class="talanton-value" id="userTalantonBalance">0</div>
                 <p>إجمالي النقاط التي جمعتها</p>
             </div>
@@ -946,7 +946,7 @@
                 <div class="user-report-card">
                     <div class="user-report-icon"><i class="fas fa-star"></i></div>
                     <div class="user-report-number" id="userTotalPoints">0</div>
-                    <div class="user-report-label">إجمالي التالانتون</div>
+                    <div class="user-report-label">إجمالي Talanton</div>
                 </div>
                 
                 <div class="user-report-card">
@@ -964,14 +964,14 @@
             </div>
             
             <div class="report-section">
-                <h3>📊 تطور التالانتون خلال الأسابيع</h3>
+                <h3>📊 تطور Talanton خلال الأسابيع</h3>
                 <div class="chart-container">
                     <canvas id="userPointsChart"></canvas>
                 </div>
             </div>
 
             <div class="report-section">
-                <h3>📋 حركات التالانتون</h3>
+                <h3>📋 حركات Talanton</h3>
                 <div id="userTransactions">
                     <!-- سيتم تعبئة البيانات من Firebase -->
                 </div>
@@ -979,40 +979,40 @@
         </div>
 
         <div class="tab-content" id="talantonStore">
-            <h2>🏪 متجر التالانتون</h2>
+            <h2>🏪 متجر Talanton</h2>
             
             <div class="talanton-balance">
                 <h3>رصيدك الحالي</h3>
                 <div class="talanton-value" id="storeBalance">0</div>
-                <p>تالانتون متاحة للصرف</p>
+                <p>Talanton متاحة للصرف</p>
             </div>
             
             <div class="store-items">
                 <div class="store-item">
                     <h4>📘 كتاب روحي</h4>
                     <p>كتاب مفيد للخدمة والروحانيات</p>
-                    <div class="item-price">50 تالانتون</div>
+                    <div class="item-price">50 Talanton</div>
                     <button class="btn btn-primary buy-btn" data-item="كتاب روحي" data-price="50">شراء</button>
                 </div>
                 
                 <div class="store-item">
                     <h4>✏️ قلم خدمة</h4>
                     <p>قلم مميز للخدام</p>
-                    <div class="item-price">30 تالانتون</div>
+                    <div class="item-price">30 Talanton</div>
                     <button class="btn btn-primary buy-btn" data-item="قلم خدمة" data-price="30">شراء</button>
                 </div>
                 
                 <div class="store-item">
                     <h4>🎵 اختيار ترنيمة</h4>
                     <p>اختر ترنيمة الاجتماع القادم</p>
-                    <div class="item-price">100 تالانتون</div>
+                    <div class="item-price">100 Talanton</div>
                     <button class="btn btn-primary buy-btn" data-item="اختيار ترنيمة" data-price="100">شراء</button>
                 </div>
                 
                 <div class="store-item">
                     <h4>☕ وجبة خفيفة</h4>
                     <p>وجبة خفيفة بعد الاجتماع</p>
-                    <div class="item-price">40 تالانتون</div>
+                    <div class="item-price">40 Talanton</div>
                     <button class="btn btn-primary buy-btn" data-item="وجبة خفيفة" data-price="40">شراء</button>
                 </div>
             </div>
@@ -1067,7 +1067,7 @@
                 <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></div>
                 <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
                 <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
-                <div class="tab" data-tab="talantonAdmin">إدارة التالانتون</div>
+                <div class="tab" data-tab="talantonAdmin">إدارة Talanton</div>
                 <div class="tab" data-tab="reports">التقارير</div>
             </div>
 
@@ -1090,7 +1090,7 @@
                         <tr>
                             <th class="member-number">#</th>
                             <th>اسم العضو</th>
-                            <th>التالانتون</th>
+                            <th>Talanton</th>
                             <th>كلمة السر</th>
                             <th>تعديل</th>
                             <th>حذف النقاط</th>
@@ -1137,14 +1137,14 @@
                 </div>
                 
                 <div class="extra-point-form">
-                    <h3>إضافة تالانتون إضافية <i class="fas fa-star emoji-icon"></i></h3>
+                    <h3>إضافة Talanton إضافية <i class="fas fa-star emoji-icon"></i></h3>
                     <select id="extraPointMember">
                         <option value="">-- اختر العضو --</option>
                         <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
-                    <input type="number" id="extraPointsValue" placeholder="عدد التالانتون" min="1" value="1">
+                    <input type="number" id="extraPointsValue" placeholder="عدد Talanton" min="1" value="1">
                     <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
-                    <button class="btn btn-warning" id="addExtraPointsBtn">إضافة تالانتون</button>
+                    <button class="btn btn-warning" id="addExtraPointsBtn">إضافة Talanton</button>
                 </div>
                 
                 <h3>سجلات الحضور</h3>
@@ -1159,7 +1159,7 @@
                             <th class="member-number">#</th>
                             <th>العضو</th>
                             <th>الأسبوع</th>
-                            <th>التالانتون</th>
+                            <th>Talanton</th>
                             <th>تاريخ التسجيل</th>
                         </tr>
                     </thead>
@@ -1255,9 +1255,9 @@
                     </select>
                     <input type="text" id="contestName" placeholder="اسم المسابقة">
                     <select id="contestPoints">
-                        <option value="1">1 تالانتون</option>
-                        <option value="2">2 تالانتون</option>
-                        <option value="3">3 تالانتون</option>
+                        <option value="1">1 Talanton</option>
+                        <option value="2">2 Talanton</option>
+                        <option value="3">3 Talanton</option>
                         <option value="5">5 تالانتون</option>
                         <option value="10">10 تالانتون</option>
                     </select>

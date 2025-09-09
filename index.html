@@ -1261,7 +1261,7 @@
                         <option value="5">5 تالانتون</option>
                         <option value="10">10 تالانتون</option>
                     </select>
-                    <button class="btn btn-primary" id="addContestBtn">إضافة تالانتون المسابقة</button>
+                    <button class="btn btn-primary" id="addContestBtn">إضافة Talanton المسابقة</button>
                 </div>
                 <table id="contestsTable">
                     <thead>
@@ -1375,10 +1375,10 @@
             </div>
 
             <div class="tab-content" id="talantonAdmin">
-                <h2>إدارة التالانتون <i class="fas fa-coins"></i></h2>
+                <h2>إدارة Talanton <i class="fas fa-coins"></i></h2>
                 
                 <div class="controls">
-                    <h3>إجمالي التالانتون في النظام: <span id="totalTalantonSystem">0</span></h3>
+                    <h3>إجمالي Talanton في النظام: <span id="totalTalantonSystem">0</span></h3>
                 </div>
                 
                 <div class="report-section">
@@ -1402,7 +1402,7 @@
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-coins"></i></div>
                             <div class="stat-number" id="totalSpent">0</div>
-                            <div class="stat-label">تالانتون مستهلكة</div>
+                            <div class="stat-label">Talanton مستهلكة</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-star"></i></div>
@@ -1437,13 +1437,13 @@
                         <div class="stat-card">
                             <div class="stat-icon"><i class="fas fa-star"></i></div>
                             <div class="stat-number" id="reportPoints">0</div>
-                            <div class="stat-label">التالانتون الممنوحة</div>
+                            <div class="stat-label">Talanton الممنوحة</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="report-section">
-                    <h3>📈 توزيع التالانتون بين الأعضاء</h3>
+                    <h3>📈 توزيع Talanton بين الأعضاء</h3>
                     <div class="chart-container">
                         <canvas id="pointsChart"></canvas>
                     </div>
@@ -1589,7 +1589,7 @@
           });
         }
 
-        // دالة لتحميل حركات التالانتون من Firebase
+        // دالة لتحميل حركات Talanton من Firebase
         function loadTalantonTransactionsFromFirebase() {
           const transactionsRef = database.ref('talantonTransactions');
 
@@ -2254,7 +2254,7 @@
                         }
                     });
                     
-                    // حذف حركات التالانتون الخاصة بالعضو
+                    // حذف حركات Talanton الخاصة بالعضو
                     const talantonUpdates = {};
                     talantonTransactions.forEach(transaction => {
                         if (transaction.userId === id) {
@@ -2303,7 +2303,7 @@
                         }
                     });
                     
-                    // حذف حركات التالانتون الخاصة بالعضو
+                    // حذف حركات Talanton الخاصة بالعضو
                     const talantonUpdates = {};
                     talantonTransactions.forEach(transaction => {
                         if (transaction.userId === memberId) {
@@ -2693,7 +2693,7 @@
                         // إضافة حركة تالانتون
                         addTalantonTransaction(memberId, points, reason);
                         
-                        showNotification(`تم إضافة ${points} تالانتون إلى ${member.name} بسبب: ${reason}`);
+                        showNotification(`تم إضافة ${points} Talanton إلى ${member.name} بسبب: ${reason}`);
                         
                         document.getElementById('extraPointsValue').value = '1';
                         document.getElementById('extraPointsReason').value = '';
@@ -2726,7 +2726,7 @@
                         const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
                         updates[`members/${record.memberId}/points`] = newPoints;
                         
-                        // إضافة حركة تالانتون سلبية
+                        // إضافة حركة Talanton سلبية
                         addTalantonTransaction(record.memberId, -1, 'حذف حضور');
                     }
                 });
@@ -2774,7 +2774,7 @@
                             const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
                             updates[`members/${record.memberId}/points`] = newPoints;
                             
-                            // إضافة حركة تالانتون سلبية
+                            // إضافة حركة Talanton سلبية
                             addTalantonTransaction(record.memberId, -1, 'حذف حضور');
                         }
                     }
@@ -2858,7 +2858,7 @@
                             // إضافة حركة تالانتون
                             addTalantonTransaction(memberId, points, `مسابقة: ${contestName}`);
                             
-                            showNotification(`تم إضافة ${points} تالانتون لـ ${member.name} عن مسابقة ${contestName}`);
+                            showNotification(`تم إضافة ${points} Talanton لـ ${member.name} عن مسابقة ${contestName}`);
                             
                             document.getElementById('contestName').value = '';
                         }).catch((error) => {
@@ -2875,7 +2875,7 @@
         
         // حذف مسابقة - الإصدار المصحح
         function deleteContest(id) {
-            if (confirm('هل تريد حذف هذه المسابقة؟ سيتم خصم التالانتون من العضو.')) {
+            if (confirm('هل تريد حذف هذه المسابقة؟ سيتم خصم Talanton من العضو.')) {
                 const contestRef = database.ref('contests/' + id);
                 
                 contestRef.once('value').then((snapshot) => {
@@ -2896,11 +2896,11 @@
                                 memberRef.update({
                                     points: newPoints
                                 }).then(() => {
-                                    // إضافة حركة تالانتون سلبية
+                                    // إضافة حركة Talanton سلبية
                                     addTalantonTransaction(contest.memberId, -contest.points, 'حذف مسابقة');
                                     
                                     contestRef.remove().then(() => {
-                                        showNotification('تم حذف المسابقة وخصم التالانتون من العضو');
+                                        showNotification('تم حذف المسابقة وخصم Talanton من العضو');
                                     }).catch((error) => {
                                         console.error("Error deleting contest:", error);
                                         showNotification('فشل في حذف المسابقة: ' + error.message, false);
@@ -3407,7 +3407,7 @@
             });
         }
         
-        // تحديث رصيد التالانتون للمستخدم
+        // تحديث رصيد Talanton للمستخدم
         function updateUserTalantonBalance() {
             if (!currentUser) return;
             
@@ -3431,7 +3431,7 @@
             transactionsContainer.innerHTML = '';
             
             if (userTransactions.length === 0) {
-                transactionsContainer.innerHTML = '<p>لا توجد حركات تالانتون حتى الآن</p>';
+                transactionsContainer.innerHTML = '<p>لا توجد حركات Talanton حتى الآن</p>';
                 return;
             }
             
@@ -3473,10 +3473,10 @@
             }
             
             if (confirm(`هل تريد شراء ${itemName} بسعر ${itemPrice} تالانتون؟`)) {
-                // إضافة حركة تالانتون سلبية
+                // إضافة حركة Talanton سلبية
                 addTalantonTransaction(currentUser.id, -itemPrice, `شراء: ${itemName}`);
                 
-                showNotification(`تم شراء ${itemName} بنجاح! تم خصم ${itemPrice} تالانتون من رصيدك`);
+                showNotification(`تم شراء ${itemName} بنجاح! تم خصم ${itemPrice} Talanton من رصيدك`);
                 
                 // إضافة إلى سجل المشتريات
                 addPurchaseHistory(currentUser.id, itemName, itemPrice);
@@ -3870,7 +3870,7 @@
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             
             // عنوان التقرير
-            csvContent += "تقرير التالانتون - نظام خدام ملايكة\r\n";
+            csvContent += "تقرير Talanton - نظام خدام ملايكة\r\n";
             csvContent += `تاريخ التصدير: ${new Date().toLocaleDateString('ar-EG')}\r\n\r\n`;
             
             // بيانات التالانتون
@@ -3894,7 +3894,7 @@
             link.click();
             document.body.removeChild(link);
             
-            showNotification('تم تصدير تقرير التالانتون بنجاح');
+            showNotification('تم تصدير تقرير Talanton بنجاح');
         }
         
         // عرض الإشعارات

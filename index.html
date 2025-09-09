@@ -889,6 +889,14 @@
             display: inline-block;
             font-weight: bold;
         }
+        
+        /* Admin login button */
+        .admin-login-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -1067,8 +1075,91 @@
             </div>
         </div>
 
-        <!-- باقي المحتوى كما هو -->
+        <!-- زر تسجيل دخول الأدمن -->
+        <div class="admin-login-container">
+            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
+        </div>
 
+        <!-- نافذة تسجيل دخول الأدمن -->
+        <div class="modal" id="adminLoginModal">
+            <div class="modal-content">
+                <h2>تسجيل دخول الأدمن</h2>
+                <div class="password-field">
+                    <input type="password" id="adminPassword" placeholder="كلمة السر">
+                    <span class="toggle-password" id="toggleAdminPassword">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
+                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- واجهة الأدمن (ستظهر بعد تسجيل الدخول) -->
+        <div class="tab-content" id="adminTabs" style="display:none;">
+            <div class="controls">
+                <button class="btn btn-secondary" id="backToUserView">
+                    <i class="fas fa-arrow-right"></i> العودة إلى واجهة المستخدم
+                </button>
+                <button class="btn btn-info" id="exportDataBtn">
+                    <i class="fas fa-download"></i> تصدير البيانات
+                </button>
+                <button class="btn btn-warning" id="backupDataBtn">
+                    <i class="fas fa-save"></i> نسخ احتياطي
+                </button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="members">إدارة الأعضاء</div>
+                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
+                <div class="tab" data-tab="attendance">إدارة الحضور</div>
+                <div class="tab" data-tab="security">الأمان والتحقق</div>
+                <div class="tab" data-tab="contests">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
+                <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></div>
+                <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
+                <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
+                <div class="tab" data-tab="talantonAdmin">إدارة Talanton</div>
+                <div class="tab" data-tab="reports">التقارير</div>
+            </div>
+
+            <!-- محتوى واجهة الأدمن -->
+            <div class="tab-content active" id="members">
+                <h2>إدارة الأعضاء</h2>
+                <div class="controls">
+                    <input type="text" id="newMemberName" placeholder="اسم العضو">
+                    <select id="newMemberEmoji">
+                        <option value="🧒">🧒 </option>
+                        <option value="👦">👦 </option>
+                        <option value="👧">👧 </option>
+                        <option value="👨">👨 </option>
+                        <option value="👩">👩 </option>
+                    </select>
+                    <input type="password" id="newMemberPassword" placeholder="كلمة السر (اختياري)">
+                    <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
+                </div>
+                <table id="membersTable">
+                    <thead>
+                        <tr>
+                            <th class="member-number">#</th>
+                            <th>اسم العضو</th>
+                            <th>Talanton</th>
+                            <th>كلمة السر</th>
+                            <th>تعديل</th>
+                            <th>حذف النقاط</th>
+                            <th>حذف العضو</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- سيتم تعبئة البيانات من Firebase -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- باقي محتوى واجهة الأدمن -->
+            
+        </div>
     </div>
 
     <script>
@@ -1102,7 +1193,7 @@
         let storeItems = [];
         let purchases = [];
         let currentUser = null;
-        let adminPassword = 'admin123'; // سيتم تحميلها من Firebase لاحقاً
+        let adminPassword = 'admin123'; // كلمة سر الأدمن الافتراضية
         
         // دالة لتحميل الأعضاء من Firebase
         function loadMembersFromFirebase() {
@@ -1211,7 +1302,130 @@
         
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
-            // ... (الكود الحالي)
+            // تسجيل دخول الأدمن
+            document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
+            document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
+            document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
+            
+            // العودة إلى واجهة المستخدم
+            document.getElementById('backToUserView').addEventListener('click', backToUserView);
+            
+            // إدارة الأعضاء
+            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editMember')) {
+                    const id = e.target.dataset.id;
+                    editMember(id);
+                }
+                if (e.target.classList.contains('deleteMember')) {
+                    const id = e.target.dataset.id;
+                    deleteMember(id);
+                }
+                if (e.target.classList.contains('resetPoints')) {
+                    const id = e.target.dataset.id;
+                    const name = e.target.dataset.name;
+                    resetMemberPoints(id, name);
+                }
+                if (e.target.classList.contains('resetPassword')) {
+                    const id = e.target.dataset.id;
+                    resetPassword(id);
+                }
+            });
+            
+            // إدارة الأسابيع
+            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editWeek')) {
+                    const id = e.target.dataset.id;
+                    editWeek(id);
+                }
+                if (e.target.classList.contains('deleteWeek')) {
+                    const id = e.target.dataset.id;
+                    deleteWeek(id);
+                }
+            });
+            
+            // إدارة الحضور
+            document.getElementById('markPresent').addEventListener('click', markAttendance);
+            document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
+            document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
+            document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
+            document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
+            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
+            document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
+            
+            // التحقق بالبصمة
+            document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
+            document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
+            
+            // إدارة الأمان
+            document.getElementById('saveSecuritySettings').addEventListener('click', saveSecuritySettings);
+            document.getElementById('resetPasswordBtn').addEventListener('click', resetPasswordFromAdmin);
+            document.getElementById('changeAdminPasswordBtn').addEventListener('click', changeAdminPassword);
+            
+            // إدارة المسابقات
+            document.getElementById('addContestBtn').addEventListener('click', addContest);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('deleteContest')) {
+                    const id = e.target.dataset.id;
+                    deleteContest(id);
+                }
+            });
+            
+            // إدارة أعياد الميلاد
+            document.getElementById('addBirthdayBtn').addEventListener('click', addBirthday);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editBirthday')) {
+                    const id = e.target.dataset.id;
+                    editBirthday(id);
+                }
+                if (e.target.classList.contains('deleteBirthday')) {
+                    const id = e.target.dataset.id;
+                    deleteBirthday(id);
+                }
+            });
+            
+            // إدارة المناسبات
+            document.getElementById('addEventBtn').addEventListener('click', addEvent);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editEvent')) {
+                    const id = e.target.dataset.id;
+                    editEvent(id);
+                }
+                if (e.target.classList.contains('deleteEvent')) {
+                    const id = e.target.dataset.id;
+                    deleteEvent(id);
+                }
+            });
+            
+            // إدارة المهمات
+            document.getElementById('addTaskBtn').addEventListener('click', addTask);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editTask')) {
+                    const id = e.target.dataset.id;
+                    editTask(id);
+                }
+                if (e.target.classList.contains('deleteTask')) {
+                    const id = e.target.dataset.id;
+                    deleteTask(id);
+                }
+            });
+            
+            // إدارة التالانتون
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('buy-btn')) {
+                    const item = e.target.dataset.item;
+                    const price = parseInt(e.target.dataset.price);
+                    buyItem(item, price);
+                }
+            });
+            
+            // تصدير البيانات
+            document.getElementById('exportDataBtn').addEventListener('click', exportData);
+            document.getElementById('backupDataBtn').addEventListener('click', backupData);
+            document.getElementById('exportAttendanceBtn').addEventListener('click', exportAttendanceReport);
+            document.getElementById('exportMembersBtn').addEventListener('click', exportMembersReport);
+            document.getElementById('exportTalantonReportBtn').addEventListener('click', exportTalantonReport);
             
             // أحداث جديدة للمتجر
             document.getElementById('addItemBtn').addEventListener('click', addStoreItem);
@@ -1232,6 +1446,110 @@
             
             // حدث جديد لعرض رصيد العضو
             document.getElementById('selectMember').addEventListener('change', showMemberBalance);
+            
+            // إظهار/إخفاء كلمات السر
+            setupPasswordVisibilityToggles();
+        }
+        
+        // إعداد أزرار إظهار/إخفاء كلمات السر
+        function setupPasswordVisibilityToggles() {
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+        }
+        
+        // إعداد مستمعي أحداث التبويبات
+        function setupTabListeners() {
+            const tabs = document.querySelectorAll('.tabs .tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // إزالة النشاط من جميع التبويبات
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // إضافة النشاط للتبويب المحدد
+                    this.classList.add('active');
+                    
+                    // إخفاء جميع محتويات التبويبات
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // إظهار محتوى التبويب المحدد
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // إذا كان التبويب هو التقارير، قم بتحديثها
+                    if (tabId === 'reports') {
+                        updateReports();
+                    }
+                    if (tabId === 'userReports') {
+                        updateUserReports();
+                    }
+                    if (tabId === 'talantonStore') {
+                        updateStoreBalance();
+                    }
+                });
+            });
+        }
+        
+        // تسجيل دخول الأدمن
+        function showAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').classList.remove('login-failed');
+        }
+        
+        function hideAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'none';
+        }
+        
+        function confirmAdminLogin() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === adminPassword) {
+                document.getElementById('adminLoginModal').style.display = 'none';
+                document.getElementById('adminTabs').style.display = 'block';
+                document.getElementById('userAttendance').style.display = 'none';
+                document.getElementById('userReports').style.display = 'none';
+                document.getElementById('talantonStore').style.display = 'none';
+                document.getElementById('adminLoginBtn').style.display = 'none';
+                showNotification('تم تسجيل دخول الأدمن بنجاح');
+            } else {
+                const passwordInput = document.getElementById('adminPassword');
+                passwordInput.classList.add('login-failed');
+                setTimeout(() => {
+                    passwordInput.classList.remove('login-failed');
+                }, 500);
+                
+                showNotification('كلمة السر خاطئة!', false);
+            }
+        }
+        
+        // العودة إلى واجهة المستخدم
+        function backToUserView() {
+            document.getElementById('adminTabs').style.display = 'none';
+            document.getElementById('userAttendance').style.display = 'block';
+            document.getElementById('userReports').style.display = 'none';
+            document.getElementById('talantonStore').style.display = 'none';
+            document.getElementById('adminLoginBtn').style.display = 'block';
+            
+            // تفعيل التبويب الأول
+            document.querySelectorAll('.tabs .tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector('[data-tab="userAttendance"]').classList.add('active');
         }
         
         // عند اختيار عضو من القائمة
@@ -1321,182 +1639,6 @@
             }).catch((error) => {
                 console.error("Error adding store item:", error);
                 showNotification('فشل في إضافة العنصر: ' + error.message, false);
-            });
-        }
-        
-        // تعديل عنصر في المتجر
-        function editStoreItem(id) {
-            const itemRef = database.ref('storeItems/' + id);
-            
-            itemRef.once('value').then((snapshot) => {
-                const item = snapshot.val();
-                if (!item) return;
-                
-                const newName = prompt('عدل اسم العنصر:', item.name);
-                const newPrice = prompt('عدل سعر العنصر:', item.price);
-                const newDescription = prompt('عدل وصف العنصر:', item.description);
-                
-                if (newName && newPrice && newDescription) {
-                    itemRef.update({
-                        name: newName,
-                        price: newPrice,
-                        description: newDescription
-                    }).then(() => {
-                        showNotification('تم تعديل بيانات العنصر');
-                    }).catch((error) => {
-                        console.error("Error updating store item:", error);
-                        showNotification('فشل في تعديل العنصر: ' + error.message, false);
-                    });
-                }
-            });
-        }
-        
-        // حذف عنصر من المتجر
-        function deleteStoreItem(id) {
-            if (confirm('هل تريد حذف هذا العنصر من المتجر؟')) {
-                const itemRef = database.ref('storeItems/' + id);
-                
-                itemRef.remove().then(() => {
-                    showNotification('تم حذف العنصر من المتجر');
-                }).catch((error) => {
-                    console.error("Error deleting store item:", error);
-                    showNotification('فشل في حذف العنصر: ' + error.message, false);
-                });
-            }
-        }
-        
-        // شراء عنصر من المتجر
-        function buyStoreItem(itemId) {
-            if (!currentUser) {
-                showNotification('يرجى تسجيل الدخول أولاً', false);
-                return;
-            }
-            
-            const item = storeItems.find(i => i.id === itemId);
-            if (!item) {
-                showNotification('العنصر المحدد غير موجود', false);
-                return;
-            }
-            
-            if (currentUser.points < item.price) {
-                showNotification('رصيدك غير كافي لشراء هذا العنصر', false);
-                return;
-            }
-            
-            if (confirm(`هل تريد شراء ${item.name} بسعر ${item.price} تالانتون؟`)) {
-                // خصم السعر من رصيد العضو
-                const memberRef = database.ref('members/' + currentUser.id);
-                const newPoints = currentUser.points - item.price;
-                
-                memberRef.update({
-                    points: newPoints
-                }).then(() => {
-                    // إضافة حركة Talanton سلبية
-                    addTalantonTransaction(currentUser.id, -item.price, `شراء: ${item.name}`);
-                    
-                    // إضافة إلى سجل المشتريات
-                    addPurchaseHistory(currentUser.id, item.id, item.name, item.price);
-                    
-                    showNotification(`تم شراء ${item.name} بنجاح! تم خصم ${item.price} Talanton من رصيدك`);
-                }).catch((error) => {
-                    console.error("Error updating points:", error);
-                    showNotification('فشل في عملية الشراء: ' + error.message, false);
-                });
-            }
-        }
-        
-        // إضافة إلى سجل المشتريات
-        function addPurchaseHistory(userId, itemId, itemName, price) {
-            const purchasesRef = database.ref('purchases');
-            const newPurchaseRef = purchasesRef.push();
-            
-            newPurchaseRef.set({
-                userId: userId,
-                itemId: itemId,
-                itemName: itemName,
-                price: price,
-                date: new Date().toISOString()
-            }).catch((error) => {
-                console.error("Error adding purchase:", error);
-            });
-        }
-        
-        // تحديث عناصر المتجر في الواجهة
-        function updateStoreItems() {
-            const storeItemsList = document.getElementById('storeItemsList');
-            const availableStoreItems = document.getElementById('availableStoreItems');
-            
-            storeItemsList.innerHTML = '';
-            availableStoreItems.innerHTML = '';
-            
-            if (storeItems.length === 0) {
-                storeItemsList.innerHTML = '<p>لا توجد عناصر في المتجر حتى الآن</p>';
-                availableStoreItems.innerHTML = '<p>لا توجد عناصر متاحة للشراء حتى الآن</p>';
-                return;
-            }
-            
-            // عرض عناصر المتجر للإدارة
-            storeItems.forEach((item, index) => {
-                const itemCard = document.createElement('div');
-                itemCard.className = 'store-item-card';
-                itemCard.innerHTML = `
-                    <div class="store-item-info">
-                        <h4>${item.name}</h4>
-                        <p>${item.description}</p>
-                        <div class="item-price">${item.price} Talanton</div>
-                    </div>
-                    <div class="store-item-actions">
-                        <button class="btn btn-primary edit-store-item" data-id="${item.id}">تعديل</button>
-                        <button class="btn btn-danger delete-store-item" data-id="${item.id}">حذف</button>
-                    </div>
-                `;
-                storeItemsList.appendChild(itemCard);
-            });
-            
-            // عرض عناصر المتجر للشراء
-            storeItems.forEach(item => {
-                const storeItem = document.createElement('div');
-                storeItem.className = 'store-item';
-                storeItem.innerHTML = `
-                    <h4>${item.name}</h4>
-                    <p>${item.description}</p>
-                    <div class="item-price">${item.price} Talanton</div>
-                    <button class="btn btn-primary buy-item" data-id="${item.id}">شراء</button>
-                `;
-                availableStoreItems.appendChild(storeItem);
-            });
-        }
-        
-        // تحديث سجل المشتريات
-        function updatePurchaseHistory() {
-            const purchaseHistory = document.getElementById('purchaseHistory');
-            purchaseHistory.innerHTML = '';
-            
-            if (purchases.length === 0) {
-                purchaseHistory.innerHTML = '<p>لا توجد مشتريات حتى الآن</p>';
-                return;
-            }
-            
-            // عرض آخر 20 عملية شراء فقط
-            const recentPurchases = purchases.slice(-20).reverse();
-            
-            recentPurchases.forEach(purchase => {
-                const member = members.find(m => m.id === purchase.userId);
-                const purchaseDiv = document.createElement('div');
-                purchaseDiv.className = 'transaction-item';
-                
-                purchaseDiv.innerHTML = `
-                    <div>
-                        <strong>${purchase.itemName}</strong>
-                        <br>
-                        <small>${member ? member.name : 'عضو محذوف'} - ${new Date(purchase.date).toLocaleDateString('ar-EG')}</small>
-                    </div>
-                    <div class="transaction-negative">
-                        <strong>-${purchase.price} تالانتون</strong>
-                    </div>
-                `;
-                
-                purchaseHistory.appendChild(purchaseDiv);
             });
         }
         

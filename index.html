@@ -1658,141 +1658,236 @@
             showLoading(false);
         }
         
-        // إعداد مستمعي الأحداث
-        function setupEventListeners() {
-            // تسجيل دخول الأدمن
-            document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
-            document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
-            document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
-            
-            // العودة إلى واجهة المستخدم
-            document.getElementById('backToUserView').addEventListener('click', backToUserView);
-            
-            // إدارة الأعضاء
-            document.getElementById('addMemberBtn').addEventListener('click', addMember);
-            
-            // إدارة الأسابيع
-            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
-            
-            // إدارة الحضور
-            document.getElementById('markPresent').addEventListener('click', markAttendance);
-            document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
-            document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
-            document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
-            document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
-            
-            // التحقق بالبصمة
-            document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
-            document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
-            
-            // إدارة الأمان
-            document.getElementById('saveSecuritySettings').addEventListener('click', saveSecuritySettings);
-            document.getElementById('resetPasswordBtn').addEventListener('click', resetPasswordFromAdmin);
-            document.getElementById('changeAdminPasswordBtn').addEventListener('click', changeAdminPassword);
-            
-            // إدارة المسابقات
-            document.getElementById('addContestBtn').addEventListener('click', addContest);
-            
-            // إدارة أعياد الميلاد
-            document.getElementById('addBirthdayBtn').addEventListener('click', addBirthday);
-            
-            // إدارة المناسبات
-            document.getElementById('addEventBtn').addEventListener('click', addEvent);
-            
-            // إدارة المهمات
-            document.getElementById('addTaskBtn').addEventListener('click', addTask);
-            
-            // إدارة المتجر
-            document.getElementById('addItemBtn').addEventListener('click', addStoreItem);
-            
-            // تصدير البيانات
-            document.getElementById('exportDataBtn').addEventListener('click', exportData);
-            document.getElementById('backupDataBtn').addEventListener('click', backupData);
-            document.getElementById('exportAttendanceBtn').addEventListener('click', exportAttendanceReport);
-            document.getElementById('exportMembersBtn').addEventListener('click', exportMembersReport);
-            document.getElementById('exportTalantonReportBtn').addEventListener('click', exportTalantonReport);
-            document.getElementById('exportTalantonBtn').addEventListener('click', exportTalantonReport);
-            
-            // أحداث النقر على الأزرار العامة
-            document.addEventListener('click', function(e) {
-                // أحداث الأعضاء
-                if (e.target.classList.contains('editMember')) {
-                    const id = e.target.dataset.id;
-                    editMember(id);
-                }
-                if (e.target.classList.contains('deleteMember')) {
-                    const id = e.target.dataset.id;
-                    deleteMember(id);
-                }
-                if (e.target.classList.contains('resetPoints')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.dataset.name;
-                    resetMemberPoints(id, name);
-                }
-                
-                // أحداث الأسابيع
-                if (e.target.classList.contains('editWeek')) {
-                    const id = e.target.dataset.id;
-                    editWeek(id);
-                }
-                if (e.target.classList.contains('deleteWeek')) {
-                    const id = e.target.dataset.id;
-                    deleteWeek(id);
-                }
-                
-                // أحداث المسابقات
-                if (e.target.classList.contains('deleteContest')) {
-                    const id = e.target.dataset.id;
-                    deleteContest(id);
-                }
-                
-                // أحداث أعياد الميلاد
-                if (e.target.classList.contains('editBirthday')) {
-                    const id = e.target.dataset.id;
-                    editBirthday(id);
-                }
-                if (e.target.classList.contains('deleteBirthday')) {
-                    const id = e.target.dataset.id;
-                    deleteBirthday(id);
-                }
-                
-                // أحداث المناسبات
-                if (e.target.classList.contains('editEvent')) {
-                    const id = e.target.dataset.id;
-                    editEvent(id);
-                }
-                if (e.target.classList.contains('deleteEvent')) {
-                    const id = e.target.dataset.id;
-                    deleteEvent(id);
-                }
-                
-                // أحداث المهمات
-                if (e.target.classList.contains('editTask')) {
-                    const id = e.target.dataset.id;
-                    editTask(id);
-                }
-                if (e.target.classList.contains('deleteTask')) {
-                    const id = e.target.dataset.id;
-                    deleteTask(id);
-                }
-                
-                // أحداث المتجر
-                if (e.target.classList.contains('buy-btn')) {
-                    const itemId = e.target.dataset.item;
-                    const price = parseInt(e.target.dataset.price);
-                    buyItem(itemId, price);
-                }
-            });
-            
-            // إظهار/إخفاء كلمات السر
-            setupPasswordVisibilityToggles();
-            
-            // عند اختيار عضو
-            document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
-            
-            // عند اختيار أسبوع
-            document.getElementById('weekSelect').addEventListener('change', handleWeekSelection);
+       // إعداد مستمعي الأحداث مع التحقق من وجود العناصر
+function setupEventListeners() {
+    // تسجيل دخول الأدمن (مع التحقق من وجود العنصر)
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    if (adminLoginBtn) {
+        adminLoginBtn.addEventListener('click', showAdminLogin);
+    }
+    
+    const cancelAdminLogin = document.getElementById('cancelAdminLogin');
+    if (cancelAdminLogin) {
+        cancelAdminLogin.addEventListener('click', hideAdminLogin);
+    }
+    
+    const confirmAdminLogin = document.getElementById('confirmAdminLogin');
+    if (confirmAdminLogin) {
+        confirmAdminLogin.addEventListener('click', confirmAdminLogin);
+    }
+    
+    // العودة إلى واجهة المستخدم
+    const backToUserView = document.getElementById('backToUserView');
+    if (backToUserView) {
+        backToUserView.addEventListener('click', backToUserView);
+    }
+    
+    // إدارة الأعضاء
+    const addMemberBtn = document.getElementById('addMemberBtn');
+    if (addMemberBtn) {
+        addMemberBtn.addEventListener('click', addMember);
+    }
+    
+    // إدارة الأسابيع
+    const addWeekBtn = document.getElementById('addWeekBtn');
+    if (addWeekBtn) {
+        addWeekBtn.addEventListener('click', addWeek);
+    }
+    
+    // إدارة الحضور
+    const markPresent = document.getElementById('markPresent');
+    if (markPresent) {
+        markPresent.addEventListener('click', markAttendance);
+    }
+    
+    const deleteAttendanceBtn = document.getElementById('deleteAttendanceBtn');
+    if (deleteAttendanceBtn) {
+        deleteAttendanceBtn.addEventListener('click', deleteAllWeekAttendance);
+    }
+    
+    const addExtraPointsBtn = document.getElementById('addExtraPointsBtn');
+    if (addExtraPointsBtn) {
+        addExtraPointsBtn.addEventListener('click', addExtraPoints);
+    }
+    
+    const deleteSelectedAttendance = document.getElementById('deleteSelectedAttendance');
+    if (deleteSelectedAttendance) {
+        deleteSelectedAttendance.addEventListener('click', deleteSelectedAttendance);
+    }
+    
+    const selectAllAttendance = document.getElementById('selectAllAttendance');
+    if (selectAllAttendance) {
+        selectAllAttendance.addEventListener('change', toggleSelectAllAttendance);
+    }
+    
+    // التحقق بالبصمة
+    const biometricBtn = document.getElementById('biometricBtn');
+    if (biometricBtn) {
+        biometricBtn.addEventListener('click', startBiometricVerification);
+    }
+    
+    const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
+    if (verifyPasswordBtn) {
+        verifyPasswordBtn.addEventListener('click', verifyPassword);
+    }
+    
+    // إدارة الأمان
+    const saveSecuritySettings = document.getElementById('saveSecuritySettings');
+    if (saveSecuritySettings) {
+        saveSecuritySettings.addEventListener('click', saveSecuritySettings);
+    }
+    
+    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+    if (resetPasswordBtn) {
+        resetPasswordBtn.addEventListener('click', resetPasswordFromAdmin);
+    }
+    
+    const changeAdminPasswordBtn = document.getElementById('changeAdminPasswordBtn');
+    if (changeAdminPasswordBtn) {
+        changeAdminPasswordBtn.addEventListener('click', changeAdminPassword);
+    }
+    
+    // إدارة المسابقات
+    const addContestBtn = document.getElementById('addContestBtn');
+    if (addContestBtn) {
+        addContestBtn.addEventListener('click', addContest);
+    }
+    
+    // إدارة أعياد الميلاد
+    const addBirthdayBtn = document.getElementById('addBirthdayBtn');
+    if (addBirthdayBtn) {
+        addBirthdayBtn.addEventListener('click', addBirthday);
+    }
+    
+    // إدارة المناسبات
+    const addEventBtn = document.getElementById('addEventBtn');
+    if (addEventBtn) {
+        addEventBtn.addEventListener('click', addEvent);
+    }
+    
+    // إدارة المهمات
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', addTask);
+    }
+    
+    // تصدير البيانات
+    const exportDataBtn = document.getElementById('exportDataBtn');
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', exportData);
+    }
+    
+    const backupDataBtn = document.getElementById('backupDataBtn');
+    if (backupDataBtn) {
+        backupDataBtn.addEventListener('click', backupData);
+    }
+    
+    const exportAttendanceBtn = document.getElementById('exportAttendanceBtn');
+    if (exportAttendanceBtn) {
+        exportAttendanceBtn.addEventListener('click', exportAttendanceReport);
+    }
+    
+    const exportMembersBtn = document.getElementById('exportMembersBtn');
+    if (exportMembersBtn) {
+        exportMembersBtn.addEventListener('click', exportMembersReport);
+    }
+    
+    const exportTalantonReportBtn = document.getElementById('exportTalantonReportBtn');
+    if (exportTalantonReportBtn) {
+        exportTalantonReportBtn.addEventListener('click', exportTalantonReport);
+    }
+    
+    const exportTalantonBtn = document.getElementById('exportTalantonBtn');
+    if (exportTalantonBtn) {
+        exportTalantonBtn.addEventListener('click', exportTalantonReport);
+    }
+    
+    // أحداث النقر على الأزرار العامة
+    document.addEventListener('click', function(e) {
+        // أحداث الأعضاء
+        if (e.target.classList.contains('editMember')) {
+            const id = e.target.dataset.id;
+            editMember(id);
         }
+        if (e.target.classList.contains('deleteMember')) {
+            const id = e.target.dataset.id;
+            deleteMember(id);
+        }
+        if (e.target.classList.contains('resetPoints')) {
+            const id = e.target.dataset.id;
+            const name = e.target.dataset.name;
+            resetMemberPoints(id, name);
+        }
+        
+        // أحداث الأسابيع
+        if (e.target.classList.contains('editWeek')) {
+            const id = e.target.dataset.id;
+            editWeek(id);
+        }
+        if (e.target.classList.contains('deleteWeek')) {
+            const id = e.target.dataset.id;
+            deleteWeek(id);
+        }
+        
+        // أحداث المسابقات
+        if (e.target.classList.contains('deleteContest')) {
+            const id = e.target.dataset.id;
+            deleteContest(id);
+        }
+        
+        // أحداث أعياد الميلاد
+        if (e.target.classList.contains('editBirthday')) {
+            const id = e.target.dataset.id;
+            editBirthday(id);
+        }
+        if (e.target.classList.contains('deleteBirthday')) {
+            const id = e.target.dataset.id;
+            deleteBirthday(id);
+        }
+        
+        // أحداث المناسبات
+        if (e.target.classList.contains('editEvent')) {
+            const id = e.target.dataset.id;
+            editEvent(id);
+        }
+        if (e.target.classList.contains('deleteEvent')) {
+            const id = e.target.dataset.id;
+            deleteEvent(id);
+        }
+        
+        // أحداث المهمات
+        if (e.target.classList.contains('editTask')) {
+            const id = e.target.dataset.id;
+            editTask(id);
+        }
+        if (e.target.classList.contains('deleteTask')) {
+            const id = e.target.dataset.id;
+            deleteTask(id);
+        }
+        
+        // أحداث المتجر
+        if (e.target.classList.contains('buy-btn')) {
+            const itemId = e.target.dataset.item;
+            const price = parseInt(e.target.dataset.price);
+            buyItem(itemId, price);
+        }
+    });
+    
+    // إظهار/إخفاء كلمات السر
+    setupPasswordVisibilityToggles();
+    
+    // عند اختيار عضو
+    const selectMember = document.getElementById('selectMember');
+    if (selectMember) {
+        selectMember.addEventListener('change', handleMemberSelection);
+    }
+    
+    // عند اختيار أسبوع
+    const weekSelect = document.getElementById('weekSelect');
+    if (weekSelect) {
+        weekSelect.addEventListener('change', handleWeekSelection);
+    }
+}
         
         // إعداد أزرار إظهار/إخفاء كلمات السر
         function setupPasswordVisibilityToggles() {
@@ -2977,16 +3072,16 @@
             }, 3000);
         }
         
-        // بدء التطبيق عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            // إنشاء عنصر تحميل
-            const loadingContainer = document.createElement('div');
-            loadingContainer.id = 'loadingContainer';
-            document.body.appendChild(loadingContainer);
-            
-            // تهيئة التطبيق
-            initializeApp();
-        });
-    </script>
-</body>
-</html>
+        // بدء التطبيق عند تحميل الصفحة بالكامل
+document.addEventListener('DOMContentLoaded', function() {
+    // إنشاء عنصر تحميل
+    const loadingContainer = document.createElement('div');
+    loadingContainer.id = 'loadingContainer';
+    document.body.appendChild(loadingContainer);
+    
+    // الانتظار حتى يتم تحميل جميع عناصر DOM
+    setTimeout(() => {
+        // تهيئة التطبيق
+        initializeApp();
+    }, 100);
+});

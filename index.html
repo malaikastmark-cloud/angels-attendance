@@ -1040,11 +1040,9 @@
                 <label>اختر اسمك: </label>
                 <select id="selectMember">
                     <option value="">-- اختر اسمك --</option>
-                    <!-- سيتم تعبئة الخيارات من Firebase -->
                 </select>
                 <label>اختر الأسبوع: </label>
                 <select id="weekSelect">
-                    <!-- سيتم تعبئة الخيارات من Firebase -->
                 </select>
             </div>
             
@@ -1091,7 +1089,6 @@
                     </tr>
                 </thead>
                 <tbody id="attendanceTableBody">
-                    <!-- سيتم تعبئة البيانات من Firebase -->
                 </tbody>
             </table>
             <div class="controls">
@@ -1203,7 +1200,6 @@
             </div>
             
             <div class="rewards-shop" id="rewardsShopContainer">
-                <!-- سيتم تعبئة المكافآت من Firebase -->
                 <p>جاري تحميل المكافآت...</p>
             </div>
         </div>
@@ -1255,7 +1251,6 @@
                 <div class="tab" data-tab="reports">التقارير</div>
             </div>
 
-            <!-- محتوى تبويبات الأدمن -->
             <div class="tab-content active" id="members">
                 <h2>إدارة الأعضاء</h2>
                 <div class="controls">
@@ -1265,7 +1260,7 @@
                         <option value="👦">👦 </option>
                         <option value="👧">👧 </option>
                         <option value="👨">👨 </option>
-                        <option value="👩">👩 </option>
+                        <option value👩">👩 </option>
                     </select>
                     <input type="password" id="newMemberPassword" placeholder="كلمة السر (اختياري)">
                     <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
@@ -1284,7 +1279,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -1307,7 +1301,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -1317,7 +1310,6 @@
                 <div class="controls">
                     <label>اختر أسبوع: </label>
                     <select id="deleteWeekSelect">
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
                 </div>
@@ -1326,18 +1318,17 @@
                     <h3>إضافة نقاط إضافية <i class="fas fa-star emoji-icon"></i></h3>
                     <select id="extraPointMember">
                         <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
                     <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
                     <button class="btn btn-warning" id="addExtraPointsBtn">إضافة نقاط</button>
-                </div>
+                                </div>
                 
                 <h3>سجلات الحضور</h3>
                 <div class="controls">
                     <button class="btn btn-danger" id="deleteSelectedAttendance">حذف الحضور المحدد</button>
                 </div>
-                
+                               
                 <table id="attendanceRecordsTable">
                     <thead>
                         <tr>
@@ -1351,7 +1342,6 @@
                         </tr>
                     </thead>
                     <tbody id="attendanceRecordsBody">
-                        <!-- سيتم تعبئة البيانات من Firebase -->
                     </tbody>
                 </table>
             </div>
@@ -1362,7 +1352,6 @@
                 <div class="controls">
                     <select id="talantonMember">
                         <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <input type="number" id="talantonAmount" placeholder="المبلغ" min="1" value="1">
                     <select id="talantonAction">
@@ -1391,7 +1380,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- سيتم تعبئة البيانات من Firebase -->
                         </tbody>
                     </table>
                 </div>
@@ -1410,7 +1398,6 @@
                 
                 <h3>قائمة المكافآت</h3>
                 <div class="rewards-shop" id="adminRewardsList">
-                    <!-- سيتم تعبئة المكافآت من Firebase -->
                     <p>جاري تحميل المكافآت...</p>
                 </div>
             </div>
@@ -1490,9 +1477,17 @@
                     break;
             }
             
-            localStorage.setItem('theme', theme);
+            // حفظ السمة في Firebase بدلاً من localStorage
+            const settingsRef = database.ref('systemSettings');
+            settingsRef.update({
+                theme: theme
+            }).then(() => {
+                showNotification('تم تغيير المظهر بنجاح');
+            }).catch((error) => {
+                console.error("Error saving theme:", error);
+            });
+            
             document.getElementById('themeOptions').classList.remove('active');
-            showNotification('تم تغيير المظهر بنجاح');
         }
 
         // وظائف إدارة Talanton
@@ -1515,7 +1510,7 @@
                 const member = snapshot.val();
                 if (member) {
                     const newTalanton = (member.talanton || 0) + amount;
-                    return memberRef.update({ talanton: newTalanton });
+                    return memberRef.update({ talanton: Math.max(0, newTalanton) });
                 }
             });
         }
@@ -1540,6 +1535,56 @@
                     }
                     updateMembersTable();
                     updateSelectMember();
+                    resolve();
+                });
+            });
+        }
+
+        function loadWeeksFromFirebase() {
+            const weeksRef = database.ref('weeks');
+            return new Promise((resolve) => {
+                weeksRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    weeks = [];
+                    if (data) {
+                        Object.keys(data).forEach((key) => {
+                            weeks.push({
+                                id: key,
+                                name: data[key].name,
+                                date: data[key].date || new Date().toISOString()
+                            });
+                        });
+                        
+                        // ترتيب الأسابيع حسب التاريخ
+                        weeks.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    }
+                    updateWeekSelects();
+                    updateWeeksTable();
+                    resolve();
+                });
+            });
+        }
+
+        function loadAttendanceFromFirebase() {
+            const attendanceRef = database.ref('attendance');
+            return new Promise((resolve) => {
+                attendanceRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    attendanceRecords = [];
+                    if (data) {
+                        Object.keys(data).forEach((key) => {
+                            attendanceRecords.push({
+                                id: key,
+                                memberId: data[key].memberId,
+                                weekId: data[key].weekId,
+                                date: data[key].date,
+                                points: data[key].points || 1,
+                                talanton: data[key].talanton || 1
+                            });
+                        });
+                    }
+                    updateAttendanceTable();
+                    updateAttendanceRecordsTable();
                     resolve();
                 });
             });
@@ -1593,17 +1638,35 @@
             });
         }
 
+        function loadSystemSettingsFromFirebase() {
+            const settingsRef = database.ref('systemSettings');
+            return new Promise((resolve) => {
+                settingsRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    
+                    if (data && data.adminPassword) {
+                        adminPassword = data.adminPassword;
+                    }
+                    
+                    if (data && data.securityLevel) {
+                        document.getElementById('securityLevel').value = data.securityLevel;
+                    }
+                    
+                    if (data && data.theme) {
+                        currentTheme = data.theme;
+                        changeTheme(data.theme);
+                    }
+                    
+                    resolve();
+                });
+            });
+        }
+
         // وظائف التهيئة وإعداد واجهة المستخدم
         function initializeApp() {
             setupEventListeners();
             loadAllData();
             setupTabListeners();
-            
-            // تحميل السمة المحفوظة
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                changeTheme(savedTheme);
-            }
             
             // التحقق من حالة الاتصال بـ Firebase
             const databaseRef = database.ref(".info/connected");
@@ -1640,9 +1703,68 @@
 
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
-            // ... (جميع مستمعي الأحداث السابقة)
+            // تسجيل دخول الأدمن
+            document.getElementById('adminLoginBtn').addEventListener('click', showAdminLogin);
+            document.getElementById('cancelAdminLogin').addEventListener('click', hideAdminLogin);
+            document.getElementById('confirmAdminLogin').addEventListener('click', confirmAdminLogin);
             
-            // إضافة مستمعي الأحداث لـ Talanton
+            // العودة إلى واجهة المستخدم
+            document.getElementById('backToUserView').addEventListener('click', backToUserView);
+            
+            // إدارة الأعضاء
+            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editMember')) {
+                    const id = e.target.dataset.id;
+                    editMember(id);
+                }
+                if (e.target.classList.contains('deleteMember')) {
+                    const id = e.target.dataset.id;
+                    deleteMember(id);
+                }
+                if (e.target.classList.contains('resetPoints')) {
+                    const id = e.target.dataset.id;
+                    const name = e.target.dataset.name;
+                    resetMemberPoints(id, name);
+                }
+                if (e.target.classList.contains('resetPassword')) {
+                    const id = e.target.dataset.id;
+                    resetPassword(id);
+                }
+            });
+            
+            // إدارة الأسابيع
+            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('editWeek')) {
+                    const id = e.target.dataset.id;
+                    editWeek(id);
+                }
+                if (e.target.classList.contains('deleteWeek')) {
+                    const id = e.target.dataset.id;
+                    deleteWeek(id);
+                }
+            });
+            
+            // إدارة الحضور
+            document.getElementById('markPresent').addEventListener('click', markAttendance);
+            document.getElementById('deleteAttendanceBtn').addEventListener('click', deleteAllWeekAttendance);
+            document.getElementById('addExtraPointsBtn').addEventListener('click', addExtraPoints);
+            document.getElementById('deleteSelectedAttendance').addEventListener('click', deleteSelectedAttendance);
+            document.getElementById('selectAllAttendance').addEventListener('change', toggleSelectAllAttendance);
+            document.getElementById('weekSelect').addEventListener('change', updateAttendanceTable);
+            document.getElementById('selectMember').addEventListener('change', handleMemberSelection);
+            
+            // التحقق بالبصمة
+            document.getElementById('biometricBtn').addEventListener('click', startBiometricVerification);
+            document.getElementById('verifyPasswordBtn').addEventListener('click', verifyPassword);
+            
+            // إدارة الأمان
+            document.getElementById('saveSecuritySettings').addEventListener('click', saveSecuritySettings);
+            document.getElementById('resetPasswordBtn').addEventListener('click', resetPasswordFromAdmin);
+            document.getElementById('changeAdminPasswordBtn').addEventListener('click', changeAdminPassword);
+            
+            // إدارة Talanton
             document.getElementById('manageTalantonBtn').addEventListener('click', manageTalanton);
             document.getElementById('addRewardBtn').addEventListener('click', addReward);
             document.addEventListener('click', function(e) {
@@ -1667,6 +1789,65 @@
             // البحث في المكافآت
             document.getElementById('rewardSearch').addEventListener('input', filterRewards);
             document.getElementById('talantonSearch').addEventListener('input', filterTransactions);
+            
+            // إظهار/إخفاء كلمات السر
+            setupPasswordVisibilityToggles();
+        }
+        
+        // إعداد أزرار إظهار/إخفاء كلمات السر
+        function setupPasswordVisibilityToggles() {
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+        }
+        
+        // إعداد مستمعي أحداث التبويبات
+        function setupTabListeners() {
+            const tabs = document.querySelectorAll('.tabs .tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // إزالة النشاط من جميع التبويبات
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // إضافة النشاط للتبويب المحدد
+                    this.classList.add('active');
+                    
+                    // إخفاء جميع محتويات التبويبات
+                    const tabContents = document.querySelectorAll('.tab-content');
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // إظهار محتوى التبويب المحدد
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // إذا كان التبويب هو التقارير، قم بتحديثها
+                    if (tabId === 'reports') {
+                        updateReports();
+                    }
+                    if (tabId === 'userReports') {
+                        updateUserReports();
+                    }
+                    if (tabId === 'userTalanton') {
+                        updateUserTalanton();
+                    }
+                });
+            });
         }
 
         // وظائف إدارة Talanton
@@ -1765,6 +1946,7 @@
             ]).then(() => {
                 showNotification(`تم شراء ${reward.name} بنجاح!`);
                 updateUserReports();
+                updateUserTalanton();
             }).catch((error) => {
                 console.error("Error buying reward:", error);
                 showNotification('فشل في شراء المكافأة: ' + error.message, false);

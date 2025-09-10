@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - Talanton - الإصدار الكامل والمصحح</title>
+    <title>نظام حضور خدام ملايكة - متصل بـ Firebase</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -920,11 +920,12 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌟 نظام حضور خدام ملايكة - Talanton - الإصدار الكامل والمصحح</h1>
+            <h1>🌟 نظام حضور خدام ملايكة - متصل بـ Firebase</h1>
             <p>جميع الوظائف تعمل الآن بشكل كامل مع Firebase</p>
         </header>
 
         <div class="notification" id="notification"></div>
+        <div class="firebase-status firebase-connected" id="firebaseStatus">Firebase: متصل</div>
 
         <div class="tabs">
             <div class="tab active" data-tab="userAttendance">تسجيل الحضور</div>
@@ -1056,17 +1057,6 @@
                 <p>Talanton متاحة للصرف</p>
             </div>
             
-            <!-- تحسينات المتجر -->
-            <div class="store-management">
-                <h3>إضافة عنصر جديد للمتجر</h3>
-                <div class="controls">
-                    <input type="text" id="newItemName" placeholder="اسم العنصر">
-                    <input type="number" id="newItemPrice" placeholder="السعر (Talanton)" min="1">
-                    <input type="text" id="newItemDescription" placeholder="وصف العنصر">
-                    <button class="btn btn-primary" id="addItemBtn">إضافة عنصر</button>
-                </div>
-            </div>
-            
             <div class="store-items-grid" id="storeItemsGrid">
                 <!-- سيتم ملؤها ديناميكيًا -->
             </div>
@@ -1120,7 +1110,7 @@
                 <div class="tab" data-tab="contests">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
                 <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></div>
                 <div class="tab" data-tab="events">المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></div>
-                <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
+                <div class="tab" data-tab="tasks">الم重要ات <i class="fas fa-tasks emoji-icon"></i></div>
                 <div class="tab" data-tab="talantonAdmin">إدارة Talanton</div>
                 <div class="tab" data-tab="reports">التقارير</div>
             </div>
@@ -1407,7 +1397,7 @@
                         </tr>
                     </thead>
                     <tbody id="eventsTableBody">
-                        <!-- سيتم ملؤها دیناميكيًا -->
+                        <!-- سيتم ملؤها ديناميكيًا -->
                     </tbody>
                 </table>
             </div>
@@ -2006,8 +1996,6 @@
                     <p>${item.description}</p>
                     <div class="item-price">${item.price} Talanton</div>
                     <button class="btn btn-primary buy-btn" data-item="${item.id}" data-price="${item.price}">شراء</button>
-                    <button class="btn btn-warning">تعديل</button>
-                    <button class="btn btn-danger">حذف</button>
                 `;
                 grid.appendChild(card);
             });
@@ -2593,49 +2581,6 @@
                 });
         }
         
-        // إضافة عنصر جديد للمتجر
-        function addStoreItem() {
-            const nameInput = document.getElementById('newItemName');
-            const priceInput = document.getElementById('newItemPrice');
-            const descriptionInput = document.getElementById('newItemDescription');
-
-            const name = nameInput.value;
-            const price = parseInt(priceInput.value);
-            const description = descriptionInput.value;
-            
-            if (!name || !price || !description) {
-                showNotification('يرجى ملء جميع الحقول', false);
-                return;
-            }
-            
-            // إنشاء معرف فريد للعنصر
-            const itemId = Date.now().toString();
-            
-            // إنشاء العنصر
-            const newItem = {
-                id: itemId,
-                name: name,
-                price: price,
-                description: description,
-                createdAt: new Date().toISOString()
-            };
-            
-            // حفظ العنصر في Firebase
-            database.ref('storeItems/' + itemId).set(newItem)
-                .then(() => {
-                    showNotification('تم إضافة العنصر بنجاح');
-                    
-                    // مسح الحقول
-                    nameInput.value = '';
-                    priceInput.value = '';
-                    descriptionInput.value = '';
-                })
-                .catch(error => {
-                    showNotification('حدث خطأ أثناء إضافة العنصر', false);
-                    console.error('Error adding store item:', error);
-                });
-        }
-        
         // شراء عنصر من المتجر
         function buyItem(itemId, itemPrice) {
             if (!currentUser) {
@@ -2717,79 +2662,6 @@
                 });
         }
         
-        // تصدير البيانات
-        function exportData() {
-            showNotification('تم تصدير البيانات بنجاح');
-        }
-        
-        // نسخ احتياطي
-        function backupData() {
-            showNotification('تم إنشاء نسخة احتياطية بنجاح');
-        }
-        
-        // تصدير تقرير الحضور
-        function exportAttendanceReport() {
-            showNotification('تم تصدير تقرير الحضور بنجاح');
-        }
-        
-        // تصدير بيانات الأعضاء
-        function exportMembersReport() {
-            showNotification('تم تصدير بيانات الأعضاء بنجاح');
-        }
-        
-        // تصدير تقرير التالانتون
-        function exportTalantonReport() {
-            showNotification('تم تصدير تقرير Talanton بنجاح');
-        }
-        
-        // تحديث التقارير
-        function updateReports() {
-            document.getElementById('reportAttendance').textContent = attendanceRecords.length;
-            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
-            document.getElementById('reportMembers').textContent = members.length;
-            document.getElementById('reportWeeks').textContent = weeks.length;
-        }
-        
-        // تحديث تقارير المستخدم
-        function updateUserReports() {
-            if (!currentUser) return;
-            
-            // إجمالي أيام الحضور
-            const userAttendance = attendanceRecords.filter(ar => ar.memberId === currentUser.id).length;
-            document.getElementById('userTotalAttendance').textContent = userAttendance;
-            
-            // إجمالي النقاط
-            document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
-            
-            // ترتيب المستخدم حسب النقاط
-            const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
-            document.getElementById('userRank').textContent = userRank;
-            
-            // معدل الحضور
-            const totalWeeks = weeks.length;
-            const attendanceRate = totalWeeks > 0 ? Math.round((userAttendance / totalWeeks) * 100) : 0;
-            document.getElementById('userPerformance').textContent = `${attendanceRate}%`;
-            
-            // إضافة ميدالية حسب الترتيب
-            const rankingMedal = document.getElementById('userRankingMedal');
-            rankingMedal.innerHTML = '';
-            
-            if (userRank === 1) {
-                rankingMedal.innerHTML = '<span class="ranking-medal">🥇</span>';
-            } else if (userRank === 2) {
-                rankingMedal.innerHTML = '<span class="ranking-medal">🥈</span>';
-            } else if (userRank === 3) {
-                rankingMedal.innerHTML = '<span class="ranking-medal">🥉</span>';
-            }
-        }
-        
-        // تحديث رصيد المتجر
-        function updateStoreBalance() {
-            if (!currentUser) return;
-            document.getElementById('storeBalance').textContent = currentUser.points || 0;
-        }
-        
         // دوال المحاكاة للوظائف غير المكتملة
         function editMember(id) {
             const member = members.find(m => m.id === id);
@@ -2813,6 +2685,11 @@
                 database.ref('members/' + id).remove()
                     .then(() => {
                         showNotification('تم حذف العضو');
+                    // حذف جميع سجلات الحضور المرتبطة بهذا العضو
+                        const memberAttendance = attendanceRecords.filter(ar => ar.memberId === id);
+                        memberAttendance.forEach(attendance => {
+                            database.ref('attendance/' + attendance.id).remove();
+                        });
                     })
                     .catch(error => {
                         showNotification('حدث خطأ أثناء حذف العضو', false);
@@ -2859,7 +2736,7 @@
                 database.ref('weeks/' + id).remove()
                     .then(() => {
                         showNotification('تم حذف الأسبوع');
-                    // حذف سجلات الحضور المرتبطة بهذا الأسبوع
+                        // حذف سجلات الحضور المرتبطة بهذا الأسبوع
                         const weekAttendance = attendanceRecords.filter(ar => ar.weekId === id);
                         weekAttendance.forEach(attendance => {
                             database.ref('attendance/' + attendance.id).remove();
@@ -2913,7 +2790,7 @@
             }
         }
         
-        function deleteBirthday(id) {
+                function deleteBirthday(id) {
             if (confirm('هل تريد حذف تاريخ الميلاد؟')) {
                 database.ref('birthdays/' + id).remove()
                     .then(() => {
@@ -2996,9 +2873,96 @@
             }
         }
         
+        // تصدير البيانات
+        function exportData() {
+            showNotification('تم تصدير البيانات بنجاح');
+        }
+        
+        // نسخ احتياطي
+        function backupData() {
+            showNotification('تم إنشاء نسخة احتياطية بنجاح');
+        }
+        
+        // تصدير تقرير الحضور
+        function exportAttendanceReport() {
+            showNotification('تم تصدير تقرير الحضور بنجاح');
+        }
+        
+        // تصدير بيانات الأعضاء
+        function exportMembersReport() {
+            showNotification('تم تصدير بيانات الأعضاء بنجاح');
+        }
+        
+        // تصدير تقرير التالانتون
+        function exportTalantonReport() {
+            showNotification('تم تصدير تقرير Talanton بنجاح');
+        }
+        
+        // تحديث التقارير
+        function updateReports() {
+            document.getElementById('reportAttendance').textContent = attendanceRecords.length;
+            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
+            document.getElementById('reportMembers').textContent = members.length;
+            document.getElementById('reportWeeks').textContent = weeks.length;
+        }
+        
+        // تحديث تقارير المستخدم
+        function updateUserReports() {
+            if (!currentUser) return;
+            
+            // إجمالي أيام الحضور
+            const userAttendance = attendanceRecords.filter(ar => ar.memberId === currentUser.id).length;
+            document.getElementById('userTotalAttendance').textContent = userAttendance;
+            
+            // إجمالي النقاط
+            document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
+            
+            // ترتيب المستخدم حسب النقاط
+            const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
+            document.getElementById('userRank').textContent = userRank;
+            
+            // معدل الحضور
+            const totalWeeks = weeks.length;
+            const attendanceRate = totalWeeks > 0 ? Math.round((userAttendance / totalWeeks) * 100) : 0;
+            document.getElementById('userPerformance').textContent = `${attendanceRate}%`;
+            
+            // إضافة ميدالية حسب الترتيب
+            const rankingMedal = document.getElementById('userRankingMedal');
+            rankingMedal.innerHTML = '';
+            
+            if (userRank === 1) {
+                rankingMedal.innerHTML = '<span class="ranking-medal">🥇</span>';
+            } else if (userRank === 2) {
+                rankingMedal.innerHTML = '<span class="ranking-medal">🥈</span>';
+            } else if (userRank === 3) {
+                rankingMedal.innerHTML = '<span class="ranking-medal">🥉</span>';
+            }
+        }
+        
+        // تحديث رصيد المتجر
+        function updateStoreBalance() {
+            if (!currentUser) return;
+            document.getElementById('storeBalance').textContent = currentUser.points || 0;
+        }
+        
         // عرض/إخفاء مؤشر التحميل
         function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
+            const loadingElement = document.createElement('div');
+            loadingElement.className = 'loading';
+            loadingElement.innerHTML = `
+                <div class="loading-spinner"></div>
+                <p>جاري تحميل البيانات...</p>
+            `;
+            
+            if (show) {
+                document.getElementById('loadingContainer').appendChild(loadingElement);
+            } else {
+                const loading = document.querySelector('.loading');
+                if (loading) {
+                    loading.remove();
+                }
+            }
         }
         
         // عرض الإشعارات
@@ -3014,7 +2978,15 @@
         }
         
         // بدء التطبيق عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        document.addEventListener('DOMContentLoaded', function() {
+            // إنشاء عنصر تحميل
+            const loadingContainer = document.createElement('div');
+            loadingContainer.id = 'loadingContainer';
+            document.body.appendChild(loadingContainer);
+            
+            // تهيئة التطبيق
+            initializeApp();
+        });
     </script>
 </body>
 </html>

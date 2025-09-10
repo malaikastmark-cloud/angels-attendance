@@ -375,7 +375,7 @@
             font-size: 1.1rem;
         }
         
-        .top-member-points {
+        .top-member-talanton {
             background: #3498db;
             color: white;
             padding: 6px 12px;
@@ -493,7 +493,7 @@
             margin-left: 5px;
         }
         
-        .extra-point-form {
+        .extra-talanton-form {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 10px;
@@ -612,7 +612,7 @@
                 bottom: 80px;
             }
             
-            .extra-point-form {
+            .extra-talanton-form {
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -797,7 +797,7 @@
     <div class="container">
         <header>
             <h1>🌟 نظام حضور خدام ملايكة</h1>
-            <p>الحضور يساوي نقطة</p>
+            <p>الحضور يساوي Talanton</p>
         </header>
 
         <div class="notification" id="notification"></div>
@@ -1019,15 +1019,15 @@
                     <button class="btn btn-danger" id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
                 </div>
                 
-                <div class="extra-point-form">
-                    <h3>إضافة نقاط إضافية <i class="fas fa-star emoji-icon"></i></h3>
+                <div class="extra-talanton-form">
+                    <h3>إضافة Talanton إضافية <i class="fas fa-star emoji-icon"></i></h3>
                     <select id="extraPointMember">
                         <option value="">-- اختر العضو --</option>
                         <!-- سيتم تعبئة الخيارات من Firebase -->
                     </select>
                     <input type="number" id="extraPointsValue" placeholder="عدد النقاط" min="1" value="1">
                     <input type="text" id="extraPointsReason" placeholder="سبب الإضافة">
-                    <button class="btn btn-warning" id="addExtraPointsBtn">إضافة نقاط</button>
+                    <button class="btn btn-warning" id="addExtraPointsBtn">إضافة Talanton</button>
                 </div>
                 
                 <h3>سجلات الحضور</h3>
@@ -1138,18 +1138,18 @@
                     </select>
                     <input type="text" id="contestName" placeholder="اسم المسابقة">
                     <select id="contestPoints">
-                        <option value="1">1 نقطة</option>
-                        <option value="2">2 نقاط</option>
-                        <option value="3">3 نقاط</option>
-                        <option value="4">4 نقاط</option>
-                        <option value="5">5 نقاط</option>
-                        <option value="6">6 نقاط</option>
-                        <option value="7">7 نقاط</option>
-                        <option value="8">8 نقاط</option>
-                        <option value="9">9 نقاط</option>
-                        <option value="10">10 نقاط</option>
+                        <option value="1">1 Talanton</option>
+                        <option value="2">2 Talanton</option>
+                        <option value="3">3 Talanton</option>
+                        <option value="4">4 Talanton</option>
+                        <option value="5">5 Talanton</option>
+                        <option value="6">6 Talanton</option>
+                        <option value="7">7 Talanton</option>
+                        <option value="8">8 Talanton</option>
+                        <option value="9">9 Talanton</option>
+                        <option value="10">10 Talanton</option>
                     </select>
-                    <button class="btn btn-primary" id="addContestBtn">إضافة نقاط المسابقة</button>
+                    <button class="btn btn-primary" id="addContestBtn">إضافة Talanton المسابقة</button>
                 </div>
                 <table id="contestsTable">
                     <thead>
@@ -1367,7 +1367,7 @@
                 members.push({
                   id: key,
                   name: data[key].name,
-                  points: data[key].points || 0,
+                  talanton: data[key].talanton || 0,
                   password: data[key].password || "1234" // كلمة سر افتراضية
                 });
               });
@@ -1422,7 +1422,7 @@
                   memberId: data[key].memberId,
                   weekId: data[key].weekId,
                   date: data[key].date,
-                  points: data[key].points || 1
+                  talanton: data[key].talanton || 1
                 });
               });
             }
@@ -1448,7 +1448,7 @@
                   id: key,
                   memberId: data[key].memberId,
                   contestName: data[key].contestName,
-                  points: data[key].points,
+                  talanton: data[key].talanton,
                   date: data[key].date
                 });
               });
@@ -1967,7 +1967,7 @@
             
             newMemberRef.set({
                 name: `${emoji} ${name}`,
-                points: 0,
+                talanton: 0,
                 password: password
             }).then(() => {
                 showNotification('تم إضافة العضو بنجاح');
@@ -2071,15 +2071,15 @@
             }
         }
         
-        // دالة حذف نقاط العضو
+        // دالة حذف Talanton العضو
         function resetMemberPoints(memberId, memberName) {
-            if (confirm(`هل تريد حذف جميع نقاط ${memberName}؟`)) {
+            if (confirm(`هل تريد حذف جميع Talanton ${memberName}؟`)) {
                 const memberRef = database.ref('members/' + memberId);
                 
                 memberRef.update({
-                    points: 0
+                    talanton: 0
                 }).then(() => {
-                    showNotification(`تم حذف نقاط ${memberName} بنجاح`);
+                    showNotification(`تم حذف Talanton ${memberName} بنجاح`);
                     
                     // حذف سجلات الحضور الخاصة بالعضو
                     const attendanceUpdates = {};
@@ -2107,7 +2107,7 @@
                     }
                     
                 }).catch((error) => {
-                    console.error("Error resetting points:", error);
+                    console.error("Error resetting talanton:", error);
                     showNotification('فشل في حذف النقاط: ' + error.message, false);
                 });
             }
@@ -2123,7 +2123,7 @@
                 tr.innerHTML = `
                     <td class="member-number">${index + 1}</td>
                     <td>${member.name}</td>
-                    <td>${member.points}</td>
+                    <td>${member.talanton}</td>
                     <td>••••••</td>
                     <td><button class='btn btn-primary editMember' data-id='${member.id}'>تعديل</button></td>
                     <td><button class='btn btn-reset resetPoints' data-id='${member.id}' data-name='${member.name}'>حذف النقاط</button></td>
@@ -2333,15 +2333,15 @@
                 return;
             }
             
-            // زيادة نقاط العضو
+            // زيادة Talanton العضو
             const memberRef = database.ref('members/' + memberId);
             memberRef.once('value').then((snapshot) => {
                 const member = snapshot.val();
                 if (member) {
-                    const newPoints = (member.points || 0) + 1;
+                    const newPoints = (member.talanton || 0) + 1;
                     
                     memberRef.update({
-                        points: newPoints
+                        talanton: newPoints
                     }).then(() => {
                         // إضافة سجل الحضور
                         const attendanceRef = database.ref('attendance');
@@ -2351,7 +2351,7 @@
                             memberId: memberId,
                             weekId: weekId,
                             date: new Date().toISOString(),
-                            points: 1
+                            talanton: 1
                         }).then(() => {
                             showNotification('تم تسجيل الحضور بنجاح!');
                             document.getElementById('markPresent').disabled = true;
@@ -2360,7 +2360,7 @@
                             showNotification('فشل في تسجيل الحضور: ' + error.message, false);
                         });
                     }).catch((error) => {
-                        console.error("Error updating points:", error);
+                        console.error("Error updating talanton:", error);
                         showNotification('فشل في تحديث النقاط: ' + error.message, false);
                     });
                 }
@@ -2403,7 +2403,7 @@
                     <td>${member.name}</td>
                     <td>${currentWeek ? currentWeek.name : ''}</td>
                     <td class="attendance-value">${isPresent ? '✅ حاضر' : '❌ غائب'}</td>
-                    <td class="points">${member.points || 0}</td>
+                    <td class="talanton">${member.talanton || 0}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -2426,20 +2426,20 @@
             const weekAttendance = attendanceRecords.filter(ar => ar.weekId === selectedWeekId);
             count = weekAttendance.length;
             
-            totalPoints = members.reduce((sum, member) => sum + (member.points || 0), 0);
+            totalPoints = members.reduce((sum, member) => sum + (member.talanton || 0), 0);
             
             document.getElementById('attendanceCount').textContent = count;
             document.getElementById('totalMembers').textContent = members.length;
             document.getElementById('totalPoints').textContent = totalPoints;
         }
         
-        // إضافة نقاط إضافية
+        // إضافة Talanton إضافية
         function addExtraPoints() {
             const memberId = document.getElementById('extraPointMember').value;
-            const points = parseInt(document.getElementById('extraPointsValue').value);
+            const talanton = parseInt(document.getElementById('extraPointsValue').value);
             const reason = document.getElementById('extraPointsReason').value;
             
-            if (!memberId || !points || !reason) {
+            if (!memberId || !talanton || !reason) {
                 showNotification('يرجى ملء جميع الحقول', false);
                 return;
             }
@@ -2448,17 +2448,17 @@
             memberRef.once('value').then((snapshot) => {
                 const member = snapshot.val();
                 if (member) {
-                    const newPoints = (member.points || 0) + points;
+                    const newPoints = (member.talanton || 0) + talanton;
                     
                     memberRef.update({
-                        points: newPoints
+                        talanton: newPoints
                     }).then(() => {
-                        showNotification(`تم إضافة ${points} نقطة إلى ${member.name} بسبب: ${reason}`);
+                        showNotification(`تم إضافة ${talanton} Talanton إلى ${member.name} بسبب: ${reason}`);
                         
                         document.getElementById('extraPointsValue').value = '1';
                         document.getElementById('extraPointsReason').value = '';
                     }).catch((error) => {
-                        console.error("Error adding points:", error);
+                        console.error("Error adding talanton:", error);
                         showNotification('فشل في إضافة النقاط: ' + error.message, false);
                     });
                 }
@@ -2483,8 +2483,8 @@
                     
                     const member = members.find(m => m.id === record.memberId);
                     if (member) {
-                        const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
-                        updates[`members/${record.memberId}/points`] = newPoints;
+                        const newPoints = Math.max(0, (member.talanton || 0) - (record.talanton || 1));
+                        updates[`members/${record.memberId}/talanton`] = newPoints;
                     }
                 });
                 
@@ -2528,8 +2528,8 @@
                         
                         const member = members.find(m => m.id === record.memberId);
                         if (member) {
-                            const newPoints = Math.max(0, (member.points || 0) - (record.points || 1));
-                            updates[`members/${record.memberId}/points`] = newPoints;
+                            const newPoints = Math.max(0, (member.talanton || 0) - (record.talanton || 1));
+                            updates[`members/${record.memberId}/talanton`] = newPoints;
                         }
                     }
                 });
@@ -2565,7 +2565,7 @@
                     <td class="member-number">${index + 1}</td>
                     <td>${member ? member.name : 'عضو محذوف'}</td>
                     <td>${week ? week.name : 'أسبوع محذوف'}</td>
-                    <td>${record.points || 1}</td>
+                    <td>${record.talanton || 1}</td>
                     <td>${new Date(record.date).toLocaleString('ar-EG')}</td>
                 `;
                 tbody.appendChild(tr);
@@ -2576,7 +2576,7 @@
         function addContest() {
             const memberId = document.getElementById('contestMember').value;
             const contestName = document.getElementById('contestName').value;
-            const points = parseInt(document.getElementById('contestPoints').value);
+            const talanton = parseInt(document.getElementById('contestPoints').value);
             
             if (!memberId || !contestName) {
                 showNotification('يرجى اختيار العضو وإدخال اسم المسابقة', false);
@@ -2589,15 +2589,15 @@
                 return;
             }
             
-            // زيادة نقاط العضو
+            // زيادة Talanton العضو
             const memberRef = database.ref('members/' + memberId);
             memberRef.once('value').then((snapshot) => {
                 const memberData = snapshot.val();
                 if (memberData) {
-                    const newPoints = (memberData.points || 0) + points;
+                    const newPoints = (memberData.talanton || 0) + talanton;
                     
                     memberRef.update({
-                        points: newPoints
+                        talanton: newPoints
                     }).then(() => {
                         // إضافة سجل المسابقة
                         const contestsRef = database.ref('contests');
@@ -2606,10 +2606,10 @@
                         newContestRef.set({
                             memberId: memberId,
                             contestName: contestName,
-                            points: points,
+                            talanton: talanton,
                             date: new Date().toISOString()
                         }).then(() => {
-                            showNotification(`تم إضافة ${points} نقطة لـ ${member.name} عن مسابقة ${contestName}`);
+                            showNotification(`تم إضافة ${talanton} Talanton لـ ${member.name} عن مسابقة ${contestName}`);
                             
                             document.getElementById('contestName').value = '';
                         }).catch((error) => {
@@ -2617,7 +2617,7 @@
                             showNotification('فشل في إضافة المسابقة: ' + error.message, false);
                         });
                     }).catch((error) => {
-                        console.error("Error updating points:", error);
+                        console.error("Error updating talanton:", error);
                         showNotification('فشل في تحديث النقاط: ' + error.message, false);
                     });
                 }
@@ -2642,10 +2642,10 @@
                         memberRef.once('value').then((snapshot) => {
                             const memberData = snapshot.val();
                             if (memberData) {
-                                const newPoints = Math.max(0, (memberData.points || 0) - contest.points);
+                                const newPoints = Math.max(0, (memberData.talanton || 0) - contest.talanton);
                                 
                                 memberRef.update({
-                                    points: newPoints
+                                    talanton: newPoints
                                 }).then(() => {
                                     contestRef.remove().then(() => {
                                         showNotification('تم حذف المسابقة وخصم النقاط من العضو');
@@ -2654,7 +2654,7 @@
                                         showNotification('فشل في حذف المسابقة: ' + error.message, false);
                                     });
                                 }).catch((error) => {
-                                    console.error("Error updating points:", error);
+                                    console.error("Error updating talanton:", error);
                                     showNotification('فشل في تحديث النقاط: ' + error.message, false);
                                 });
                             }
@@ -2692,7 +2692,7 @@
                     <td class="member-number">${index + 1}</td>
                     <td>${member ? member.name : 'عضو محذوف'}</td>
                     <td>${contest.contestName}</td>
-                    <td>${contest.points}</td>
+                    <td>${contest.talanton}</td>
                     <td>${new Date(contest.date).toLocaleDateString('ar-EG')}</td>
                     <td><button class='btn btn-danger deleteContest' data-id='${contest.id}'>حذف</button></td>
                 `;
@@ -3158,7 +3158,7 @@
         // تحديث التقارير
         function updateReports() {
             document.getElementById('reportAttendance').textContent = attendanceRecords.length;
-            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.points || 0), 0);
+            document.getElementById('reportPoints').textContent = members.reduce((sum, member) => sum + (member.talanton || 0), 0);
             document.getElementById('reportMembers').textContent = members.length;
             document.getElementById('reportWeeks').textContent = weeks.length;
             
@@ -3175,10 +3175,10 @@
             document.getElementById('userTotalAttendance').textContent = userAttendance;
             
             // إجمالي النقاط
-            document.getElementById('userTotalPoints').textContent = currentUser.points || 0;
+            document.getElementById('userTotalPoints').textContent = currentUser.talanton || 0;
             
            // ترتيب المستخدم حسب النقاط - التصحيح هنا
-const sortedByPoints = [...members].sort((a, b) => (b.points || 0) - (a.points || 0));
+const sortedByPoints = [...members].sort((a, b) => (b.talanton || 0) - (a.talanton || 0));
 const userRank = sortedByPoints.findIndex(m => m.id === currentUser.id) + 1;
 document.getElementById('userRank').textContent = userRank;
             
@@ -3199,11 +3199,11 @@ document.getElementById('userRank').textContent = userRank;
                 rankingMedal.innerHTML = '<span class="ranking-medal">🥉</span>';
             }
             
-            // تحديث مخطط نقاط المستخدم
+            // تحديث مخطط Talanton المستخدم
             updateUserPointsChart();
         }
         
-        // تحديث مخطط نقاط المستخدم
+        // تحديث مخطط Talanton المستخدم
         function updateUserPointsChart() {
             const ctx = document.getElementById('userPointsChart').getContext('2d');
             
@@ -3219,8 +3219,8 @@ document.getElementById('userRank').textContent = userRank;
             
             // تراكم النقاط
             let cumulativePoints = 0;
-            const cumulativePointsData = userPointsByWeek.map(points => {
-                cumulativePoints += points;
+            const cumulativePointsData = userPointsByWeek.map(talanton => {
+                cumulativePoints += talanton;
                 return cumulativePoints;
             });
             
@@ -3284,7 +3284,7 @@ document.getElementById('userRank').textContent = userRank;
             
             // تجهيز البيانات للمخطط
             const memberNames = members.map(m => m.name);
-            const memberPoints = members.map(m => m.points || 0);
+            const memberPoints = members.map(m => m.talanton || 0);
             
             // إذا كان هناك مخطط موجود، قم بتدميره أولاً
             if (window.pointsChartInstance) {
@@ -3376,10 +3376,10 @@ document.getElementById('userRank').textContent = userRank;
         // تحديث قائمة الـ 10 الأوائل
         function updateTopMembers() {
             const memberPoints = members.map(member => {
-                return { name: member.name, points: member.points || 0 };
+                return { name: member.name, talanton: member.talanton || 0 };
             });
             
-            memberPoints.sort((a, b) => b.points - a.points);
+            memberPoints.sort((a, b) => b.talanton - a.talanton);
             
             const top10 = memberPoints.slice(0, 10);
             
@@ -3402,7 +3402,7 @@ document.getElementById('userRank').textContent = userRank;
                 
                 item.innerHTML = `
                     <div class="top-member-name">${medal} ${member.name}</div>
-                    <div class="top-member-points">${member.points} نقطة</div>
+                    <div class="top-member-talanton">${member.talanton} Talanton</div>
                 `;
                 topMembersList.appendChild(item);
             });
@@ -3464,7 +3464,7 @@ document.getElementById('userRank').textContent = userRank;
             
             members.forEach((member, index) => {
                 const attendanceCount = attendanceRecords.filter(ar => ar.memberId === member.id).length;
-                csvContent += `${index + 1},${member.name},${member.points || 0},${attendanceCount}\r\n`;
+                csvContent += `${index + 1},${member.name},${member.talanton || 0},${attendanceCount}\r\n`;
             });
             
             // إنشاء رابط للتحميل
@@ -3492,7 +3492,7 @@ document.getElementById('userRank').textContent = userRank;
             csvContent += "الرقم,اسم العضو,النقاط,كلمة السر\r\n";
             
             members.forEach((member, index) => {
-                csvContent += `${index + 1},${member.name},${member.points || 0},${member.password}\r\n`;
+                csvContent += `${index + 1},${member.name},${member.talanton || 0},${member.password}\r\n`;
             });
             
             // إنشاء رابط للتحميل

@@ -1588,15 +1588,23 @@
         
         // تحميل البيانات الأولية من Firebase
         function loadInitialData() {
-            showLoading(true);
-            
-            // تحميل الأعضاء
-            database.ref('members').on('value', (snapshot) => {
-                members = snapshot.val() || [];
-                populateMembersDropdown();
-                populateMembersTable();
-                updateReports();
-            });
+    showLoading(true);
+    
+    // تحميل الأعضاء
+    database.ref('members').on('value', (snapshot) => {
+        const data = snapshot.val();
+        members = data ? Object.values(data) : [];
+        populateMembersDropdown();
+        populateMembersTable();
+        updateReports();
+        showLoading(false);
+    }, (error) => {
+        showNotification('حدث خطأ في تحميل بيانات الأعضاء', false);
+        showLoading(false);
+    });
+    
+    // نفس النمط لباقي البيانات...
+}
             
             // تحميل الأسابيع
             database.ref('weeks').on('value', (snapshot) => {

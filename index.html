@@ -1699,7 +1699,14 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+const databaseRef = database.ref(".info/connected");
+databaseRef.on("value", (snap) => {
+    if (snap.val() === true) {
+        console.log("✅ متصل بـ Firebase");
+    } else {
+        console.log("❌ غير متصل بـ Firebase");
+    }
+});
         // الحصول على مرجع لقاعدة البيانات
         const database = firebase.database();
 

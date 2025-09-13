@@ -2010,19 +2010,40 @@ databaseRef.on("value", (snap) => {
             loadSystemSettingsFromFirebase();
             updateReports();
             setupTabListeners();
-            
-            // التحقق من حالة الاتصال بـ Firebase
-            const databaseRef = database.ref(".info/connected");
-            databaseRef.on("value", (snap) => {
-                if (snap.val() === true) {
-                    console.log("Connected to Firebase");
-                    showNotification("متصل بقاعدة البيانات", true);
-                } else {
-                    console.log("Disconnected from Firebase");
-                    showNotification("غير متصل بقاعدة البيانات", false);
-                }
-            });
-        }
+            // دالة اختبار اتصال Firebase
+function testFirebaseConnection() {
+    console.log("🔍 جاري اختبار اتصال Firebase...");
+    
+    // محاولة قراءة بيانات بسيطة
+    const testRef = database.ref('testConnection');
+    testRef.set({
+        timestamp: new Date().toISOString(),
+        message: "اختبار اتصال"
+    }).then(() => {
+        console.log("✅ اتصال Firebase يعمل بشكل صحيح");
+        showNotification("اتصال Firebase يعمل", true);
+    }).catch((error) => {
+        console.error("❌ فشل اتصال Firebase:", error);
+        showNotification("فشل الاتصال بـ Firebase: " + error.message, false);
+        
+        // إظهار الأزرار بشكل جزئي للطوارئ
+        enableEmergencyMode();
+    });
+}
+           // تحقق من اتصال Firebase
+console.log("🔍 جاري التحقق من اتصال Firebase...");
+const databaseRef = database.ref(".info/connected");
+databaseRef.on("value", (snap) => {
+    if (snap.val() === true) {
+        console.log("✅ متصل بـ Firebase بنجاح");
+        showNotification("متصل بقاعدة البيانات", true);
+    } else {
+        console.log("❌ فشل الاتصال بـ Firebase");
+        showNotification("فشل الاتصال بقاعدة البيانات", false);
+        // جرب هذه الإعدادات البديلة
+        testFirebaseConnection();
+    }
+});
         
         // إعداد مستمعي الأحداث
         function setupEventListeners() {

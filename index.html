@@ -578,6 +578,7 @@
             display: none;
             text-align: center;
             margin: 40px 0;
+            padding: 30px;
         }
         
         .loading-spinner {
@@ -598,6 +599,7 @@
         .password-field {
             position: relative;
             width: 100%;
+            margin-bottom: 15px;
         }
         
         .toggle-password {
@@ -636,6 +638,103 @@
             background: rgba(247, 37, 133, 0.15);
             color: var(--warning);
         }
+        
+        .admin-panel {
+            display: none;
+            margin-top: 30px;
+            border-top: 2px solid var(--border);
+            padding-top: 30px;
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .biometric-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .biometric-section.active {
+            display: block;
+        }
+        
+        .member-confirmation {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(76, 201, 240, 0.1);
+            border-radius: 10px;
+            border-right: 4px solid var(--success);
+        }
+        
+        .fallback-verification {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(247, 37, 133, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid var(--warning);
+            display: none;
+        }
+        
+        .fallback-verification.active {
+            display: block;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            background: rgba(67, 97, 238, 0.05);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        
+        .admin-tabs .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 10px;
+            background: transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .admin-tabs .tab::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+        
+        .admin-tabs .tab:hover::before {
+            width: 100%;
+        }
+        
+        .admin-tabs .tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -670,6 +769,32 @@
                 <select id="weekSelect"></select>
             </div>
             
+            <div class="biometric-section" id="biometricSection">
+                <div class="member-confirmation">
+                    <img id="confirmMemberImg" class="member-img" src="https://ui-avatars.com/api/?name=عضو+تجريبي&background=4361ee&color=fff">
+                    <span id="confirmMemberName">عضو تجريبي</span>
+                </div>
+                
+                <p>لتأكيد هويتك، يرجى استخدام البصمة أو التعرف على الوجه</p>
+                
+                <button class="btn btn-primary" id="biometricBtn">
+                    <i class="fas fa-fingerprint"></i> التأكد بالبصمة/الوجه
+                </button>
+                
+                <div class="fallback-verification" id="fallbackVerification">
+                    <h4>طريقة بديلة للتحقق</h4>
+                    <div class="controls">
+                        <div class="password-field">
+                            <input type="password" id="memberPassword" placeholder="كلمة السر الخاصة بك">
+                            <span class="toggle-password" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                        <button class="btn btn-primary" id="verifyPasswordBtn">تأكيد</button>
+                    </div>
+                </div>
+            </div>
+            
             <div class="controls">
                 <button class="btn btn-primary" id="markPresent">
                     <i class="fas fa-check-circle"></i> تسجيل الحضور
@@ -695,6 +820,14 @@
                         <td>الأسبوع الأول</td>
                         <td><span class="badge badge-success">حاضر</span></td>
                         <td>15</td>
+                    </tr>
+                    <tr>
+                        <td class="member-number">2</td>
+                        <td><img src="https://ui-avatars.com/api/?name=عضو+جديد&background=3a0ca3&color=fff" class="member-img" alt="عضو جديد"></td>
+                        <td>عضو جديد</td>
+                        <td>الأسبوع الأول</td>
+                        <td><span class="badge badge-danger">غائب</span></td>
+                        <td>5</td>
                     </tr>
                 </tbody>
             </table>
@@ -724,11 +857,43 @@
                     <div class="summary-value" id="userRank">3</div>
                     <p>من أصل 20 عضو</p>
                 </div>
+                
+                <div class="summary-card">
+                    <h3>معدل الحضور</h3>
+                    <div class="summary-value" id="userPerformance">85%</div>
+                    <p>نسبة حضورك الإجمالية</p>
+                </div>
             </div>
             
             <div class="chart-container">
                 <canvas id="userTalantonChart"></canvas>
             </div>
+            
+            <h3>سجل Talanton</h3>
+            <table id="userTalantonTable">
+                <thead>
+                    <tr>
+                        <th class="member-number">#</th>
+                        <th>التاريخ</th>
+                        <th>السبب</th>
+                        <th>القيمة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="member-number">1</td>
+                        <td>2023-10-01</td>
+                        <td>حضور الأسبوع</td>
+                        <td>+1</td>
+                    </tr>
+                    <tr>
+                        <td class="member-number">2</td>
+                        <td>2023-10-05</td>
+                        <td>مشاركة في الفعالية</td>
+                        <td>+3</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="tab-content" id="userReports">
@@ -750,6 +915,12 @@
                     <h3>الترتيب بين الأعضاء</h3>
                     <div class="summary-value" id="userReportRank">3</div>
                     <p>من أصل 20 عضو</p>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>معدل الحضور</h3>
+                    <div class="summary-value" id="userReportPerformance">85%</div>
+                    <p>نسبة حضورك الإجمالية</p>
                 </div>
             </div>
             
@@ -805,13 +976,154 @@
                 </button>
                 <h2>تسجيل دخول الأدمن</h2>
                 <div class="password-field">
-                    <input type="password" id="adminPassword" placeholder="كلمة السر">
+                    <input type="password" id="adminPassword" placeholder="كلمة السر (admin123)">
                     <span class="toggle-password" id="toggleAdminPassword">
                         <i class="fas fa-eye"></i>
                     </span>
                 </div>
                 <div class="controls">
                     <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panel" id="adminPanel">
+            <h2>لوحة تحكم الأدمن</h2>
+            
+            <div class="admin-tabs">
+                <div class="tab active" data-tab="adminMembers">إدارة الأعضاء</div>
+                <div class="tab" data-tab="adminTalanton">إدارة Talanton</div>
+                <div class="tab" data-tab="adminWeeks">إدارة الأسابيع</div>
+                <div class="tab" data-tab="adminStore">إدارة المتجر</div>
+            </div>
+            
+            <div class="tab-content active" id="adminMembers">
+                <h3>إدارة الأعضاء</h3>
+                <div class="controls">
+                    <input type="text" id="newMemberName" placeholder="اسم العضو">
+                    <select id="newMemberEmoji">
+                        <option value="🧒">🧒</option>
+                        <option value="👦">👦</option>
+                        <option value="👧">👧</option>
+                        <option value="👨">👨</option>
+                        <option value="👩">👩</option>
+                    </select>
+                    <input type="password" id="newMemberPassword" placeholder="كلمة السر">
+                    <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="member-number">#</th>
+                            <th>اسم العضو</th>
+                            <th>Talanton</th>
+                            <th>كلمة السر</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="member-number">1</td>
+                            <td>🧒 عضو تجريبي</td>
+                            <td>85</td>
+                            <td>••••••</td>
+                            <td>
+                                <button class="btn btn-primary">تعديل</button>
+                                <button class="btn btn-danger">حذف</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="adminTalanton">
+                <h3>إدارة Talanton</h3>
+                <div class="controls">
+                    <select id="talantonMember">
+                        <option value="">-- اختر العضو --</option>
+                    </select>
+                    <input type="number" id="talantonValue" placeholder="القيمة" value="1">
+                    <input type="text" id="talantonReason" placeholder="سبب الإضافة/الخصم">
+                    <button class="btn btn-primary">إضافة</button>
+                    <button class="btn btn-danger">خصم</button>
+                </div>
+                
+                <h3>سجلات Talanton</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="member-number">#</th>
+                            <th>العضو</th>
+                            <th>القيمة</th>
+                            <th>السبب</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="member-number">1</td>
+                            <td>عضو تجريبي</td>
+                            <td>+1</td>
+                            <td>حضور الأسبوع</td>
+                            <td>2023-10-01</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="adminWeeks">
+                <h3>إدارة الأسابيع</h3>
+                <div class="controls">
+                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
+                    <input type="date" id="newWeekDate">
+                    <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="member-number">#</th>
+                            <th>اسم الأسبوع</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="member-number">1</td>
+                            <td>الأسبوع الأول</td>
+                            <td>2023-10-01</td>
+                            <td>
+                                <button class="btn btn-primary">تعديل</button>
+                                <button class="btn btn-danger">حذف</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="adminStore">
+                <h3>إدارة المتجر</h3>
+                <div class="controls">
+                    <input type="text" id="newProductName" placeholder="اسم المنتج">
+                    <input type="number" id="newProductPrice" placeholder="السعر (Talanton)">
+                    <textarea id="newProductDescription" placeholder="وصف المنتج" rows="3"></textarea>
+                    <button class="btn btn-primary" id="addProductBtn">إضافة منتج</button>
+                </div>
+                
+                <h3>المنتجات المتاحة</h3>
+                <div class="store-grid">
+                    <div class="store-item">
+                        <img src="https://via.placeholder.com/300x200/4361ee/ffffff?text=هدية+خاصة" class="store-item-img" alt="منتج">
+                        <div class="store-item-content">
+                            <h3 class="store-item-title">هدية خاصة</h3>
+                            <p>هذه الهدية الحصرية متاحة لخدام الملايكة المتميزين</p>
+                            <div class="store-item-price">50 Talanton</div>
+                            <button class="btn btn-primary">تعديل</button>
+                            <button class="btn btn-danger">حذف</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -860,7 +1172,17 @@
             searchMember: document.getElementById('searchMember'),
             selectMember: document.getElementById('selectMember'),
             weekSelect: document.getElementById('weekSelect'),
-            firebaseStatus: document.getElementById('firebaseStatus')
+            firebaseStatus: document.getElementById('firebaseStatus'),
+            adminPanel: document.getElementById('adminPanel'),
+            biometricSection: document.getElementById('biometricSection'),
+            biometricBtn: document.getElementById('biometricBtn'),
+            fallbackVerification: document.getElementById('fallbackVerification'),
+            verifyPasswordBtn: document.getElementById('verifyPasswordBtn'),
+            memberPassword: document.getElementById('memberPassword'),
+            confirmMemberImg: document.getElementById('confirmMemberImg'),
+            confirmMemberName: document.getElementById('confirmMemberName'),
+            togglePassword: document.getElementById('togglePassword'),
+            toggleAdminPassword: document.getElementById('toggleAdminPassword')
         };
         
         // تهيئة التطبيق
@@ -890,6 +1212,18 @@
             
             // إظهار/إخفاء كلمة السر
             setupPasswordVisibility();
+            
+            // التحقق بالبصمة
+            elements.biometricBtn.addEventListener('click', startBiometricVerification);
+            
+            // التحقق بكلمة السر
+            elements.verifyPasswordBtn.addEventListener('click', verifyPassword);
+            
+            // عند اختيار عضو
+            elements.selectMember.addEventListener('change', handleMemberSelection);
+            
+            // إدارة تبويبات الأدمن
+            setupAdminTabs();
         }
         
         // إعداد التبويبات
@@ -906,6 +1240,80 @@
                     document.getElementById(tabId).classList.add('active');
                 });
             });
+        }
+        
+        // إعداد تبويبات الأدمن
+        function setupAdminTabs() {
+            const adminTabs = document.querySelectorAll('.admin-tabs .tab');
+            const adminTabContents = document.querySelectorAll('#adminPanel .tab-content');
+            
+            adminTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // إزالة النشاط من جميع التبويبات
+                    adminTabs.forEach(t => t.classList.remove('active'));
+                    adminTabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // إضافة النشاط للتبويب المحدد
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+        
+        // عند اختيار عضو من القائمة
+        function handleMemberSelection() {
+            const memberId = elements.selectMember.value;
+            if (!memberId) {
+                elements.biometricSection.classList.remove('active');
+                return;
+            }
+            
+            const memberName = elements.selectMember.options[elements.selectMember.selectedIndex].text;
+            elements.confirmMemberName.textContent = memberName;
+            elements.confirmMemberImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(memberName)}&background=4361ee&color=fff`;
+            elements.biometricSection.classList.add('active');
+        }
+        
+        // التحقق بالبصمة/الوجه
+        async function startBiometricVerification() {
+            showNotification('جاري التحقق من البصمة/الوجه...');
+            
+            // محاكاة الانتظار للتحقق
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // في الواقع، هنا سيتم استخدام WebAuthn API للتحقق من البصمة
+            const isVerified = true; // محاكاة للنجاح
+            
+            if (isVerified) {
+                showNotification('تم التحقق من الهوية بنجاح!');
+                elements.markPresent.disabled = false;
+            } else {
+                showNotification('فشل التحقق من الهوية', false);
+                elements.fallbackVerification.classList.add('active');
+            }
+        }
+        
+        // التحقق بكلمة السر (الطريقة البديلة)
+        function verifyPassword() {
+            const password = elements.memberPassword.value;
+            if (!password) {
+                showNotification('يرجى إدخال كلمة السر', false);
+                return;
+            }
+            
+            // محاكاة للتحقق من كلمة السر (في الواقع سيتم التحقق من قاعدة البيانات)
+            if (password === "1234") {
+                showNotification('تم التحقق من الهوية بنجاح!');
+                elements.markPresent.disabled = false;
+                elements.fallbackVerification.classList.remove('active');
+            } else {
+                showNotification('كلمة السر خاطئة', false);
+                elements.memberPassword.classList.add('shake');
+                setTimeout(() => {
+                    elements.memberPassword.classList.remove('shake');
+                }, 500);
+            }
         }
         
         // تبديل الوضع الليلي
@@ -942,7 +1350,7 @@
             if (pwd === adminPassword) {
                 hideAdminLogin();
                 showNotification('تم تسجيل دخول الأدمن بنجاح');
-                showAdminPanel();
+                elements.adminPanel.style.display = 'block';
             } else {
                 showNotification('كلمة السر خاطئة!', false);
                 elements.adminPassword.classList.add('shake');
@@ -950,12 +1358,6 @@
                     elements.adminPassword.classList.remove('shake');
                 }, 500);
             }
-        }
-        
-        // عرض لوحة الأدمن
-        function showAdminPanel() {
-            // هنا سيتم تحميل واجهة الأدمن
-            showNotification('لوحة الأدمن جاهزة للاستخدام');
         }
         
         // تسجيل الحضور
@@ -1004,10 +1406,23 @@
         
         // إعداد إظهار/إخفاء كلمة السر
         function setupPasswordVisibility() {
-            const togglePassword = document.getElementById('toggleAdminPassword');
-            
-            togglePassword.addEventListener('click', function() {
+            elements.togglePassword.addEventListener('click', function() {
                 const input = this.previousElementSibling;
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+            
+            elements.toggleAdminPassword.addEventListener('click', function() {
+                const input = elements.adminPassword;
                 const icon = this.querySelector('i');
                 
                 if (input.type === 'password') {

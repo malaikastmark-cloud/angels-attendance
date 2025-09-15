@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حضور خدام الملايكة - Talanton</title>
     <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -369,7 +370,9 @@
             padding: 30px;
             border-radius: 20px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
             position: relative;
         }
@@ -398,7 +401,7 @@
             font-weight: bold;
         }
 
-        .form-group input {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid var(--border-color);
@@ -408,7 +411,7 @@
             font-size: 16px;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-color);
         }
@@ -476,6 +479,66 @@
             background: var(--card-color);
         }
 
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .top-members {
+            background: var(--card-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .top-member-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: var(--surface-color);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .top-member-item:hover {
+            transform: translateX(10px);
+        }
+
+        .rank-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e5e5e5); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #daa520); }
+        .rank-other { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+
+        .birthday-notification {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -530,9 +593,21 @@
             <!-- Birthday Notifications -->
             <div id="birthdayNotifications"></div>
 
+            <!-- Top 10 Members -->
+            <div class="card">
+                <h2>🏆 أفضل 10 أعضاء</h2>
+                <div id="topMembersList" class="top-members"></div>
+            </div>
+
             <!-- Member Selection -->
             <div class="card">
                 <h2>🔍 اختيار العضو للحضور</h2>
+                <div class="form-group">
+                    <label>اختر العضو:</label>
+                    <select id="memberSelect" onchange="selectMemberFromDropdown()" class="search-input">
+                        <option value="">-- اختر عضوا --</option>
+                    </select>
+                </div>
                 <div id="membersList" class="member-grid">
                     <div class="loading">جاري تحميل الأعضاء...</div>
                 </div>
@@ -560,6 +635,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reports -->
+            <div class="card">
+                <h2>📈 التقارير والرسوم البيانية</h2>
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <!-- Admin Panel -->
@@ -570,6 +653,10 @@
                     <button class="tab-btn active" onclick="showTab('members')">👥 إدارة الأعضاء</button>
                     <button class="tab-btn" onclick="showTab('talanton')">💎 إدارة Talanton</button>
                     <button class="tab-btn" onclick="showTab('store')">🏪 إدارة المتجر</button>
+                    <button class="tab-btn" onclick="showTab('events')">🎉 المناسبات</button>
+                    <button class="tab-btn" onclick="showTab('tasks')">📋 المهام</button>
+                    <button class="tab-btn" onclick="showTab('birthdays')">🎂 أعياد الميلاد</button>
+                    <button class="tab-btn" onclick="showTab('reports')">📊 التقارير</button>
                 </div>
 
                 <!-- Members Management -->
@@ -580,7 +667,9 @@
 
                 <!-- Talanton Management -->
                 <div id="talantonTab" class="tab-content">
-                    <button class="btn btn-success" onclick="showTalantonModal()">💰 إدارة النقاط</button>
+                    <button class="btn btn-success" onclick="showTalantonModal()">💰 إضافة نقاط</button>
+                    <button class="btn btn-warning" onclick="showEditTalantonModal()">✏️ تعديل النقاط</button>
+                    <button class="btn btn-danger" onclick="showDeleteTalantonModal()">🗑️ حذف النقاط</button>
                     <div id="talantonHistory"></div>
                 </div>
 
@@ -588,6 +677,34 @@
                 <div id="storeTab" class="tab-content">
                     <button class="btn btn-success" onclick="showAddProductModal()">🛍️ إضافة منتج</button>
                     <div id="storeProducts" class="member-grid"></div>
+                </div>
+
+                <!-- Events Management -->
+                <div id="eventsTab" class="tab-content">
+                    <button class="btn btn-success" onclick="showAddEventModal()">🎉 إضافة مناسبة</button>
+                    <div id="eventsList"></div>
+                </div>
+
+                <!-- Tasks Management -->
+                <div id="tasksTab" class="tab-content">
+                    <button class="btn btn-success" onclick="showAddTaskModal()">📋 إضافة مهمة</button>
+                    <div id="tasksList"></div>
+                </div>
+
+                <!-- Birthdays Management -->
+                <div id="birthdaysTab" class="tab-content">
+                    <button class="btn btn-success" onclick="showAddBirthdayModal()">🎂 إضافة عيد ميلاد</button>
+                    <div id="birthdaysList"></div>
+                </div>
+
+                <!-- Reports Management -->
+                <div id="reportsTab" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="adminAttendanceChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="talantonDistributionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -621,10 +738,40 @@
                 <input type="password" id="memberPassword">
             </div>
             <div class="form-group">
+                <label>تاريخ الميلاد:</label>
+                <input type="date" id="memberBirthday">
+            </div>
+            <div class="form-group">
                 <label>رصيد Talanton الأولي:</label>
                 <input type="number" id="initialTalanton" value="0">
             </div>
             <button class="btn btn-success" onclick="addMember()">إضافة العضو</button>
+        </div>
+    </div>
+
+    <!-- Edit Member Modal -->
+    <div id="editMemberModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editMemberModal')">&times;</span>
+            <h2>✏️ تعديل العضو</h2>
+            <input type="hidden" id="editMemberId">
+            <div class="form-group">
+                <label>اسم العضو:</label>
+                <input type="text" id="editMemberName">
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور:</label>
+                <input type="password" id="editMemberPassword">
+            </div>
+            <div class="form-group">
+                <label>تاريخ الميلاد:</label>
+                <input type="date" id="editMemberBirthday">
+            </div>
+            <div class="form-group">
+                <label>رصيد Talanton:</label>
+                <input type="number" id="editMemberTalanton">
+            </div>
+            <button class="btn btn-warning" onclick="updateMember()">تحديث العضو</button>
         </div>
     </div>
 
@@ -641,7 +788,33 @@
                 <label>السعر بـ Talanton:</label>
                 <input type="number" id="productPrice">
             </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="productDescription"></textarea>
+            </div>
             <button class="btn btn-success" onclick="addProduct()">إضافة المنتج</button>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editProductModal')">&times;</span>
+            <h2>✏️ تعديل المنتج</h2>
+            <input type="hidden" id="editProductId">
+            <div class="form-group">
+                <label>اسم المنتج:</label>
+                <input type="text" id="editProductName">
+            </div>
+            <div class="form-group">
+                <label>السعر بـ Talanton:</label>
+                <input type="number" id="editProductPrice">
+            </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="editProductDescription"></textarea>
+            </div>
+            <button class="btn btn-warning" onclick="updateProduct()">تحديث المنتج</button>
         </div>
     </div>
 
@@ -658,7 +831,190 @@
                 <label>عدد النقاط:</label>
                 <input type="number" id="talantonAmount">
             </div>
+            <div class="form-group">
+                <label>السبب:</label>
+                <input type="text" id="talantonReason" placeholder="سبب إضافة النقاط">
+            </div>
             <button class="btn btn-success" onclick="addTalanton()">إضافة النقاط</button>
+        </div>
+    </div>
+
+    <!-- Edit Talanton Modal -->
+    <div id="editTalantonModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editTalantonModal')">&times;</span>
+            <h2>✏️ تعديل النقاط</h2>
+            <input type="hidden" id="editTalantonId">
+            <div class="form-group">
+                <label>العضو:</label>
+                <input type="text" id="editTalantonMember" readonly>
+            </div>
+            <div class="form-group">
+                <label>عدد النقاط:</label>
+                <input type="number" id="editTalantonAmount">
+            </div>
+            <div class="form-group">
+                <label>السبب:</label>
+                <input type="text" id="editTalantonReason">
+            </div>
+            <div class="form-group">
+                <label>التاريخ:</label>
+                <input type="date" id="editTalantonDate">
+            </div>
+            <button class="btn btn-warning" onclick="updateTalanton()">تحديث النقاط</button>
+        </div>
+    </div>
+
+    <!-- Delete Talanton Modal -->
+    <div id="deleteTalantonModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('deleteTalantonModal')">&times;</span>
+            <h2>🗑️ حذف سجل النقاط</h2>
+            <p>هل أنت متأكد من أنك تريد حذف سجل النقاط هذا؟</p>
+            <input type="hidden" id="deleteTalantonId">
+            <div class="form-group">
+                <label>العضو:</label>
+                <input type="text" id="deleteTalantonMember" readonly>
+            </div>
+            <div class="form-group">
+                <label>عدد النقاط:</label>
+                <input type="text" id="deleteTalantonAmount" readonly>
+            </div>
+            <div class="form-group">
+                <label>السبب:</label>
+                <input type="text" id="deleteTalantonReason" readonly>
+            </div>
+            <button class="btn btn-danger" onclick="confirmDeleteTalanton()">نعم، احذف</button>
+            <button class="btn" onclick="closeModal('deleteTalantonModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="addEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addEventModal')">&times;</span>
+            <h2>🎉 إضافة مناسبة</h2>
+            <div class="form-group">
+                <label>اسم المناسبة:</label>
+                <input type="text" id="eventName">
+            </div>
+            <div class="form-group">
+                <label>تاريخ المناسبة:</label>
+                <input type="date" id="eventDate">
+            </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="eventDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>نقاط المكافأة:</label>
+                <input type="number" id="eventReward" value="0">
+            </div>
+            <button class="btn btn-success" onclick="addEvent()">إضافة المناسبة</button>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div id="editEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editEventModal')">&times;</span>
+            <h2>✏️ تعديل المناسبة</h2>
+            <input type="hidden" id="editEventId">
+            <div class="form-group">
+                <label>اسم المناسبة:</label>
+                <input type="text" id="editEventName">
+            </div>
+            <div class="form-group">
+                <label>تاريخ المناسبة:</label>
+                <input type="date" id="editEventDate">
+            </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="editEventDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>نقاط المكافأة:</label>
+                <input type="number" id="editEventReward">
+            </div>
+            <button class="btn btn-warning" onclick="updateEvent()">تحديث المناسبة</button>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addTaskModal')">&times;</span>
+            <h2>📋 إضافة مهمة</h2>
+            <div class="form-group">
+                <label>اسم المهمة:</label>
+                <input type="text" id="taskName">
+            </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="taskDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>نقاط المكافأة:</label>
+                <input type="number" id="taskReward" value="0">
+            </div>
+            <div class="form-group">
+                <label>نوع المهمة:</label>
+                <select id="taskType">
+                    <option value="يومية">يومية</option>
+                    <option value="أسبوعية">أسبوعية</option>
+                    <option value="شهرية">شهرية</option>
+                    <option value="مرة واحدة">مرة واحدة</option>
+                </select>
+            </div>
+            <button class="btn btn-success" onclick="addTask()">إضافة المهمة</button>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editTaskModal')">&times;</span>
+            <h2>✏️ تعديل المهمة</h2>
+            <input type="hidden" id="editTaskId">
+            <div class="form-group">
+                <label>اسم المهمة:</label>
+                <input type="text" id="editTaskName">
+            </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="editTaskDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>نقاط المكافأة:</label>
+                <input type="number" id="editTaskReward">
+            </div>
+            <div class="form-group">
+                <label>نوع المهمة:</label>
+                <select id="editTaskType">
+                    <option value="يومية">يومية</option>
+                    <option value="أسبوعية">أسبوعية</option>
+                    <option value="شهرية">شهرية</option>
+                    <option value="مرة واحدة">مرة واحدة</option>
+                </select>
+            </div>
+            <button class="btn btn-warning" onclick="updateTask()">تحديث المهمة</button>
+        </div>
+    </div>
+
+    <!-- Add Birthday Modal -->
+    <div id="addBirthdayModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addBirthdayModal')">&times;</span>
+            <h2>🎂 إضافة عيد ميلاد</h2>
+            <div class="form-group">
+                <label>اختر العضو:</label>
+                <select id="birthdayMember"></select>
+            </div>
+            <div class="form-group">
+                <label>تاريخ الميلاد:</label>
+                <input type="date" id="birthdayDate">
+            </div>
+            <button class="btn btn-success" onclick="addBirthday()">إضافة عيد الميلاد</button>
         </div>
     </div>
 
@@ -668,8 +1024,13 @@
         let products = JSON.parse(localStorage.getItem('products')) || [];
         let attendance = JSON.parse(localStorage.getItem('attendance')) || [];
         let talantonHistory = JSON.parse(localStorage.getItem('talantonHistory')) || [];
+        let events = JSON.parse(localStorage.getItem('events')) || [];
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         let isAdmin = false;
         let currentMember = null;
+        let attendanceChart = null;
+        let adminAttendanceChart = null;
+        let talantonDistributionChart = null;
 
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', function() {
@@ -677,6 +1038,9 @@
             loadMembers();
             setupSearch();
             updateStats();
+            loadTopMembers();
+            checkBirthdays();
+            loadReports();
             
             // إضافة بعض البيانات الافتراضية إذا لم توجد
             if (members.length === 0) {
@@ -687,12 +1051,21 @@
         // تحميل الأعضاء وعرضهم
         function loadMembers() {
             const membersList = document.getElementById('membersList');
+            const memberSelect = document.getElementById('memberSelect');
             
             if (members.length === 0) {
                 membersList.innerHTML = '<div class="loading">لا توجد أعضاء مسجلين</div>';
+                memberSelect.innerHTML = '<option value="">-- لا توجد أعضاء --</option>';
                 return;
             }
             
+            // تحديث القائمة المنسدلة
+            memberSelect.innerHTML = '<option value="">-- اختر عضوا --</option>';
+            members.forEach(member => {
+                memberSelect.innerHTML += `<option value="${member.id}">${member.id} - ${member.name}</option>`;
+            });
+            
+            // تحديث عرض الأعضاء
             membersList.innerHTML = members.map(member => {
                 const level = calculateLevel(member.talanton);
                 return `
@@ -704,6 +1077,14 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // اختيار عضو من القائمة المنسدلة
+        function selectMemberFromDropdown() {
+            const memberId = parseInt(document.getElementById('memberSelect').value);
+            if (memberId) {
+                selectMember(memberId);
+            }
         }
 
         // حساب مستوى العضو بناءً على النقاط
@@ -743,22 +1124,25 @@
         function selectMember(memberId) {
             currentMember = members.find(m => m.id === memberId);
             if (currentMember) {
-                alert(`تم اختيار العضو: ${currentMember.name}\nسيتم تسجيل الحضور الآن`);
-                markAttendance();
+                const today = new Date().toISOString().split('T')[0];
+                
+                // التحقق إذا كان العضو قد سجل حضوره اليوم
+                const alreadyAttended = attendance.some(a => a.memberId === currentMember.id && a.date === today);
+                
+                if (alreadyAttended) {
+                    alert('لقد سجلت حضورك اليوم مسبقاً!');
+                    return;
+                }
+                
+                if (confirm(`هل تريد تسجيل حضور ${currentMember.name}؟`)) {
+                    markAttendance();
+                }
             }
         }
 
         // تسجيل الحضور
         function markAttendance() {
             const today = new Date().toISOString().split('T')[0];
-            
-            // التحقق إذا كان العضو قد سجل حضوره اليوم
-            const alreadyAttended = attendance.some(a => a.memberId === currentMember.id && a.date === today);
-            
-            if (alreadyAttended) {
-                alert('لقد سجلت حضورك اليوم مسبقاً!');
-                return;
-            }
             
             // تسجيل الحضور
             attendance.push({
@@ -787,6 +1171,8 @@
             // حفظ البيانات وتحديث الواجهة
             saveData();
             updateStats();
+            loadTopMembers();
+            loadReports();
             
             alert(`تم تسجيل حضور ${currentMember.name} بنجاح!\nتم إضافة 10 نقاط إلى رصيده.`);
         }
@@ -805,6 +1191,8 @@
 
         // حساب نسبة الحضور الأسبوعي
         function calculateWeeklyAttendance() {
+            if (members.length === 0) return 0;
+            
             // هذا الأسبوع (من الاثنين إلى الأحد)
             const today = new Date();
             const dayOfWeek = today.getDay();
@@ -822,6 +1210,232 @@
             const uniqueMembers = new Set(weekAttendance.map(a => a.memberId));
             
             return Math.round((uniqueMembers.size / members.length) * 100) || 0;
+        }
+
+        // تحميل أفضل 10 أعضاء
+        function loadTopMembers() {
+            const topMembersList = document.getElementById('topMembersList');
+            
+            if (members.length === 0) {
+                topMembersList.innerHTML = '<div class="loading">لا توجد أعضاء مسجلين</div>';
+                return;
+            }
+            
+            const sortedMembers = [...members].sort((a, b) => b.talanton - a.talanton).slice(0, 10);
+            
+            topMembersList.innerHTML = sortedMembers.map((member, index) => {
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-other';
+                return `
+                    <div class="top-member-item">
+                        <div class="rank-badge ${rankClass}">${index + 1}</div>
+                        <div>
+                            <strong>${member.name}</strong>
+                            <div style="color: var(--warning-color); font-weight: bold;">${member.talanton} نقطة</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // التحقق من أعياد الميلاد
+        function checkBirthdays() {
+            const today = new Date();
+            const todayStr = `${today.getMonth() + 1}/${today.getDate()}`;
+            
+            const birthdayMembers = members.filter(member => {
+                if (!member.birthday) return false;
+                const birthday = new Date(member.birthday);
+                return `${birthday.getMonth() + 1}/${birthday.getDate()}` === todayStr;
+            });
+            
+            const container = document.getElementById('birthdayNotifications');
+            if (birthdayMembers.length > 0) {
+                container.innerHTML = birthdayMembers.map(member => `
+                    <div class="birthday-notification">
+                        🎂 عيد ميلاد سعيد ${member.name}! 🎉
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        // تحميل التقارير والرسوم البيانية
+        function loadReports() {
+            loadAttendanceChart();
+            
+            if (isAdmin) {
+                loadAdminReports();
+            }
+        }
+
+        // تحميل مخطط الحضور للواجهة الرئيسية
+        function loadAttendanceChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            // بيانات الحضور للأسبوع الحالي
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+            
+            const weekDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            const datesThisWeek = [];
+            const attendanceData = [];
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                datesThisWeek.push(weekDays[date.getDay()]);
+                
+                const dayAttendance = attendance.filter(a => a.date === dateStr).length;
+                attendanceData.push(dayAttendance);
+            }
+            
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+            
+            attendanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: datesThisWeek,
+                    datasets: [{
+                        label: 'عدد الحاضرين',
+                        data: attendanceData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                        borderColor: 'rgb(99, 102, 241)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'إحصائيات الحضور لهذا الأسبوع',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // تحميل التقارير للإدمن
+        function loadAdminReports() {
+            const ctx1 = document.getElementById('adminAttendanceChart').getContext('2d');
+            const ctx2 = document.getElementById('talantonDistributionChart').getContext('2d');
+            
+            // بيانات الحضور للشهر الحالي
+            const today = new Date();
+            const monthDays = [];
+            const monthAttendance = [];
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - 6 + i);
+                monthDays.push(`${date.getDate()}/${date.getMonth() + 1}`);
+                
+                const dateStr = date.toISOString().split('T')[0];
+                const dayAttendance = attendance.filter(a => a.date === dateStr).length;
+                monthAttendance.push(dayAttendance);
+            }
+            
+            if (adminAttendanceChart) {
+                adminAttendanceChart.destroy();
+            }
+            
+            adminAttendanceChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: monthDays,
+                    datasets: [{
+                        label: 'عدد الحاضرين',
+                        data: monthAttendance,
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgb(99, 102, 241)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'إحصائيات الحضور لآخر 7 أيام',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // توزيع النقاط
+            const sortedMembers = [...members].sort((a, b) => b.talanton - a.talanton).slice(0, 5);
+            const memberNames = sortedMembers.map(m => m.name);
+            const memberTalanton = sortedMembers.map(m => m.talanton);
+            
+            if (talantonDistributionChart) {
+                talantonDistributionChart.destroy();
+            }
+            
+            talantonDistributionChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: memberNames,
+                    datasets: [{
+                        data: memberTalanton,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'توزيع النقاط لأفضل 5 أعضاء',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
         }
 
         // إدارة لوحة الأدمن
@@ -846,6 +1460,10 @@
             loadMembersTable();
             loadTalantonHistory();
             loadStoreProducts();
+            loadEventsList();
+            loadTasksList();
+            loadBirthdaysList();
+            loadAdminReports();
         }
 
         function showTab(tabName) {
@@ -858,6 +1476,11 @@
             
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
+            
+            // تحميل البيانات الخاصة بكل تبويب عند النقر عليه
+            if (tabName === 'reports') {
+                loadAdminReports();
+            }
         }
 
         // إدارة الأعضاء في لوحة الأدمن
@@ -869,6 +1492,8 @@
                         <tr>
                             <th>الرقم</th>
                             <th>الاسم</th>
+                            <th>كلمة المرور</th>
+                            <th>تاريخ الميلاد</th>
                             <th>Talanton</th>
                             <th>المستوى</th>
                             <th>الإجراءات</th>
@@ -881,9 +1506,12 @@
                                 <tr>
                                     <td>${member.id}</td>
                                     <td>${member.name}</td>
+                                    <td>${member.password}</td>
+                                    <td>${member.birthday || 'غير محدد'}</td>
                                     <td>${member.talanton}</td>
                                     <td><span class="level-badge ${level.color}">${level.name}</span></td>
                                     <td>
+                                        <button class="btn btn-warning" onclick="editMemberModal(${member.id})">تعديل</button>
                                         <button class="btn btn-danger" onclick="deleteMember(${member.id})">حذف</button>
                                     </td>
                                 </tr>
@@ -901,6 +1529,7 @@
         function addMember() {
             const name = document.getElementById('memberName').value;
             const password = document.getElementById('memberPassword').value;
+            const birthday = document.getElementById('memberBirthday').value;
             const talanton = parseInt(document.getElementById('initialTalanton').value) || 0;
             
             if (!name || !password) {
@@ -913,27 +1542,77 @@
                 id: newId,
                 name: name,
                 password: password,
+                birthday: birthday,
                 talanton: talanton
             };
             
             members.push(newMember);
             saveData();
             loadMembersTable();
+            loadMembers();
             closeModal('addMemberModal');
             
             // إعادة تعيين الحقول
             document.getElementById('memberName').value = '';
             document.getElementById('memberPassword').value = '';
+            document.getElementById('memberBirthday').value = '';
             document.getElementById('initialTalanton').value = '0';
             
             alert('تم إضافة العضو بنجاح!');
         }
 
+        function editMemberModal(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (member) {
+                document.getElementById('editMemberId').value = member.id;
+                document.getElementById('editMemberName').value = member.name;
+                document.getElementById('editMemberPassword').value = member.password;
+                document.getElementById('editMemberBirthday').value = member.birthday || '';
+                document.getElementById('editMemberTalanton').value = member.talanton;
+                
+                showModal('editMemberModal');
+            }
+        }
+
+        function updateMember() {
+            const memberId = parseInt(document.getElementById('editMemberId').value);
+            const name = document.getElementById('editMemberName').value;
+            const password = document.getElementById('editMemberPassword').value;
+            const birthday = document.getElementById('editMemberBirthday').value;
+            const talanton = parseInt(document.getElementById('editMemberTalanton').value);
+            
+            const memberIndex = members.findIndex(m => m.id === memberId);
+            if (memberIndex !== -1) {
+                members[memberIndex] = {
+                    ...members[memberIndex],
+                    name: name,
+                    password: password,
+                    birthday: birthday,
+                    talanton: talanton
+                };
+                
+                saveData();
+                loadMembersTable();
+                loadMembers();
+                closeModal('editMemberModal');
+                
+                alert('تم تحديث العضو بنجاح!');
+            }
+        }
+
         function deleteMember(memberId) {
             if (confirm('هل أنت متأكد من حذف هذا العضو؟')) {
                 members = members.filter(m => m.id !== memberId);
+                // حذف جميع البيانات المرتبطة بالعضو
+                attendance = attendance.filter(a => a.memberId !== memberId);
+                talantonHistory = talantonHistory.filter(t => t.memberId !== memberId);
+                
                 saveData();
                 loadMembersTable();
+                loadMembers();
+                loadTopMembers();
+                updateStats();
+                
                 alert('تم حذف العضو بنجاح!');
             }
         }
@@ -941,13 +1620,14 @@
         // إدارة نقاط Talanton
         function showTalantonModal() {
             const select = document.getElementById('talantonMember');
-            select.innerHTML = members.map(m => `<option value="${m.id}">${m.name} (${m.talanton} نقطة)</option>`).join('');
+            select.innerHTML = members.map(m => `<option value="${m.id}">${m.id} - ${m.name} (${m.talanton} نقطة)</option>`).join('');
             showModal('talantonModal');
         }
 
         function addTalanton() {
             const memberId = parseInt(document.getElementById('talantonMember').value);
             const amount = parseInt(document.getElementById('talantonAmount').value);
+            const reason = document.getElementById('talantonReason').value;
             
             if (!amount || amount <= 0) {
                 alert('يرجى إدخال قيمة صحيحة');
@@ -965,17 +1645,35 @@
                     memberName: member.name,
                     amount: amount,
                     type: 'add',
-                    reason: 'إضافة يدوية',
+                    reason: reason || 'إضافة يدوية',
                     date: new Date().toISOString().split('T')[0],
                     timestamp: new Date().toISOString()
                 });
                 
                 saveData();
                 loadTalantonHistory();
+                loadMembersTable();
+                loadMembers();
+                loadTopMembers();
+                updateStats();
                 closeModal('talantonModal');
+                
+                // إعادة تعيين الحقول
+                document.getElementById('talantonAmount').value = '';
+                document.getElementById('talantonReason').value = '';
                 
                 alert(`تم إضافة ${amount} نقطة إلى ${member.name} بنجاح!`);
             }
+        }
+
+        function showEditTalantonModal() {
+            // في تطبيق حقيقي، سنقوم بعرض قائمة بالسجلات للاختيار منها
+            alert('سيتم فتح نافذة لتعديل سجل النقاط. في التطبيق الكامل، ستكون هناك قائمة بالسجلات للاختيار منها.');
+        }
+
+        function showDeleteTalantonModal() {
+            // في تطبيق حقيقي، سنقوم بعرض قائمة بالسجلات للاختيار منها
+            alert('سيتم فتح نافذة لحذف سجل النقاط. في التطبيق الكامل، ستكون هناك قائمة بالسجلات للاختيار منها.');
         }
 
         function loadTalantonHistory() {
@@ -988,6 +1686,7 @@
                             <th>العضو</th>
                             <th>النقاط</th>
                             <th>السبب</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -997,11 +1696,103 @@
                                 <td>${record.memberName}</td>
                                 <td>+${record.amount}</td>
                                 <td>${record.reason}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editTalantonRecord(${record.id})">تعديل</button>
+                                    <button class="btn btn-danger" onclick="deleteTalantonRecord(${record.id})">حذف</button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
+        }
+
+        function editTalantonRecord(recordId) {
+            const record = talantonHistory.find(t => t.id === recordId);
+            if (record) {
+                document.getElementById('editTalantonId').value = record.id;
+                document.getElementById('editTalantonMember').value = record.memberName;
+                document.getElementById('editTalantonAmount').value = record.amount;
+                document.getElementById('editTalantonReason').value = record.reason;
+                document.getElementById('editTalantonDate').value = record.date;
+                
+                showModal('editTalantonModal');
+            }
+        }
+
+        function updateTalanton() {
+            const recordId = parseInt(document.getElementById('editTalantonId').value);
+            const amount = parseInt(document.getElementById('editTalantonAmount').value);
+            const reason = document.getElementById('editTalantonReason').value;
+            const date = document.getElementById('editTalantonDate').value;
+            
+            const recordIndex = talantonHistory.findIndex(t => t.id === recordId);
+            if (recordIndex !== -1) {
+                const oldAmount = talantonHistory[recordIndex].amount;
+                const memberId = talantonHistory[recordIndex].memberId;
+                
+                // تحديث السجل
+                talantonHistory[recordIndex] = {
+                    ...talantonHistory[recordIndex],
+                    amount: amount,
+                    reason: reason,
+                    date: date
+                };
+                
+                // تحديث رصيد العضو
+                const member = members.find(m => m.id === memberId);
+                if (member) {
+                    member.talanton = member.talanton - oldAmount + amount;
+                }
+                
+                saveData();
+                loadTalantonHistory();
+                loadMembersTable();
+                loadMembers();
+                loadTopMembers();
+                updateStats();
+                closeModal('editTalantonModal');
+                
+                alert('تم تحديث سجل النقاط بنجاح!');
+            }
+        }
+
+        function deleteTalantonRecord(recordId) {
+            const record = talantonHistory.find(t => t.id === recordId);
+            if (record) {
+                document.getElementById('deleteTalantonId').value = record.id;
+                document.getElementById('deleteTalantonMember').value = record.memberName;
+                document.getElementById('deleteTalantonAmount').value = record.amount;
+                document.getElementById('deleteTalantonReason').value = record.reason;
+                
+                showModal('deleteTalantonModal');
+            }
+        }
+
+        function confirmDeleteTalanton() {
+            const recordId = parseInt(document.getElementById('deleteTalantonId').value);
+            const record = talantonHistory.find(t => t.id === recordId);
+            
+            if (record) {
+                // خصم النقاط من العضو
+                const member = members.find(m => m.id === record.memberId);
+                if (member) {
+                    member.talanton -= record.amount;
+                }
+                
+                // حذف السجل
+                talantonHistory = talantonHistory.filter(t => t.id !== recordId);
+                
+                saveData();
+                loadTalantonHistory();
+                loadMembersTable();
+                loadMembers();
+                loadTopMembers();
+                updateStats();
+                closeModal('deleteTalantonModal');
+                
+                alert('تم حذف سجل النقاط بنجاح!');
+            }
         }
 
         // إدارة المتجر
@@ -1017,7 +1808,9 @@
                 <div class="member-card">
                     <div class="member-name">${product.name}</div>
                     <div class="member-talanton">💰 ${product.price} نقطة</div>
-                    <button class="btn btn-warning" onclick="deleteProduct(${product.id})">حذف</button>
+                    <p>${product.description || 'لا يوجد وصف'}</p>
+                    <button class="btn btn-warning" onclick="editProductModal(${product.id})">تعديل</button>
+                    <button class="btn btn-danger" onclick="deleteProduct(${product.id})">حذف</button>
                 </div>
             `).join('');
         }
@@ -1029,6 +1822,7 @@
         function addProduct() {
             const name = document.getElementById('productName').value;
             const price = parseInt(document.getElementById('productPrice').value);
+            const description = document.getElementById('productDescription').value;
             
             if (!name || !price) {
                 alert('يرجى ملء جميع الحقول');
@@ -1039,7 +1833,8 @@
             const newProduct = {
                 id: newId,
                 name: name,
-                price: price
+                price: price,
+                description: description
             };
             
             products.push(newProduct);
@@ -1050,8 +1845,44 @@
             // إعادة تعيين الحقول
             document.getElementById('productName').value = '';
             document.getElementById('productPrice').value = '';
+            document.getElementById('productDescription').value = '';
             
             alert('تم إضافة المنتج بنجاح!');
+        }
+
+        function editProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('editProductName').value = product.name;
+                document.getElementById('editProductPrice').value = product.price;
+                document.getElementById('editProductDescription').value = product.description || '';
+                
+                showModal('editProductModal');
+            }
+        }
+
+        function updateProduct() {
+            const productId = parseInt(document.getElementById('editProductId').value);
+            const name = document.getElementById('editProductName').value;
+            const price = parseInt(document.getElementById('editProductPrice').value);
+            const description = document.getElementById('editProductDescription').value;
+            
+            const productIndex = products.findIndex(p => p.id === productId);
+            if (productIndex !== -1) {
+                products[productIndex] = {
+                    id: productId,
+                    name: name,
+                    price: price,
+                    description: description
+                };
+                
+                saveData();
+                loadStoreProducts();
+                closeModal('editProductModal');
+                
+                alert('تم تحديث المنتج بنجاح!');
+            }
         }
 
         function deleteProduct(productId) {
@@ -1063,24 +1894,392 @@
             }
         }
 
+        // إدارة المناسبات
+        function loadEventsList() {
+            const container = document.getElementById('eventsList');
+            
+            if (events.length === 0) {
+                container.innerHTML = '<div class="loading">لا توجد مناسبات</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>اسم المناسبة</th>
+                            <th>التاريخ</th>
+                            <th>نقاط المكافأة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${events.map(event => `
+                            <tr>
+                                <td>${event.name}</td>
+                                <td>${new Date(event.date).toLocaleDateString('ar')}</td>
+                                <td>${event.reward}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editEventModal(${event.id})">تعديل</button>
+                                    <button class="btn btn-danger" onclick="deleteEvent(${event.id})">حذف</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function showAddEventModal() {
+            showModal('addEventModal');
+        }
+
+        function addEvent() {
+            const name = document.getElementById('eventName').value;
+            const date = document.getElementById('eventDate').value;
+            const description = document.getElementById('eventDescription').value;
+            const reward = parseInt(document.getElementById('eventReward').value) || 0;
+            
+            if (!name || !date) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            const newId = events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+            const newEvent = {
+                id: newId,
+                name: name,
+                date: date,
+                description: description,
+                reward: reward
+            };
+            
+            events.push(newEvent);
+            saveData();
+            loadEventsList();
+            closeModal('addEventModal');
+            
+            // إعادة تعيين الحقول
+            document.getElementById('eventName').value = '';
+            document.getElementById('eventDate').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventReward').value = '0';
+            
+            alert('تم إضافة المناسبة بنجاح!');
+        }
+
+        function editEventModal(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                document.getElementById('editEventId').value = event.id;
+                document.getElementById('editEventName').value = event.name;
+                document.getElementById('editEventDate').value = event.date;
+                document.getElementById('editEventDescription').value = event.description || '';
+                document.getElementById('editEventReward').value = event.reward;
+                
+                showModal('editEventModal');
+            }
+        }
+
+        function updateEvent() {
+            const eventId = parseInt(document.getElementById('editEventId').value);
+            const name = document.getElementById('editEventName').value;
+            const date = document.getElementById('editEventDate').value;
+            const description = document.getElementById('editEventDescription').value;
+            const reward = parseInt(document.getElementById('editEventReward').value) || 0;
+            
+            const eventIndex = events.findIndex(e => e.id === eventId);
+            if (eventIndex !== -1) {
+                events[eventIndex] = {
+                    id: eventId,
+                    name: name,
+                    date: date,
+                    description: description,
+                    reward: reward
+                };
+                
+                saveData();
+                loadEventsList();
+                closeModal('editEventModal');
+                
+                alert('تم تحديث المناسبة بنجاح!');
+            }
+        }
+
+        function deleteEvent(eventId) {
+            if (confirm('هل أنت متأكد من حذف هذه المناسبة؟')) {
+                events = events.filter(e => e.id !== eventId);
+                saveData();
+                loadEventsList();
+                alert('تم حذف المناسبة بنجاح!');
+            }
+        }
+
+        // إدارة المهام
+        function loadTasksList() {
+            const container = document.getElementById('tasksList');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="loading">لا توجد مهام</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>اسم المهمة</th>
+                            <th>نوع المهمة</th>
+                            <th>نقاط المكافأة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tasks.map(task => `
+                            <tr>
+                                <td>${task.name}</td>
+                                <td>${task.type}</td>
+                                <td>${task.reward}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editTaskModal(${task.id})">تعديل</button>
+                                    <button class="btn btn-danger" onclick="deleteTask(${task.id})">حذف</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function showAddTaskModal() {
+            showModal('addTaskModal');
+        }
+
+        function addTask() {
+            const name = document.getElementById('taskName').value;
+            const description = document.getElementById('taskDescription').value;
+            const reward = parseInt(document.getElementById('taskReward').value) || 0;
+            const type = document.getElementById('taskType').value;
+            
+            if (!name) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+            const newTask = {
+                id: newId,
+                name: name,
+                description: description,
+                reward: reward,
+                type: type
+            };
+            
+            tasks.push(newTask);
+            saveData();
+            loadTasksList();
+            closeModal('addTaskModal');
+            
+            // إعادة تعيين الحقول
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskReward').value = '0';
+            document.getElementById('taskType').value = 'يومية';
+            
+            alert('تم إضافة المهمة بنجاح!');
+        }
+
+        function editTaskModal(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                document.getElementById('editTaskId').value = task.id;
+                document.getElementById('editTaskName').value = task.name;
+                document.getElementById('editTaskDescription').value = task.description || '';
+                document.getElementById('editTaskReward').value = task.reward;
+                document.getElementById('editTaskType').value = task.type;
+                
+                showModal('editTaskModal');
+            }
+        }
+
+        function updateTask() {
+            const taskId = parseInt(document.getElementById('editTaskId').value);
+            const name = document.getElementById('editTaskName').value;
+            const description = document.getElementById('editTaskDescription').value;
+            const reward = parseInt(document.getElementById('editTaskReward').value) || 0;
+            const type = document.getElementById('editTaskType').value;
+            
+            const taskIndex = tasks.findIndex(t => t.id === taskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex] = {
+                    id: taskId,
+                    name: name,
+                    description: description,
+                    reward: reward,
+                    type: type
+                };
+                
+                saveData();
+                loadTasksList();
+                closeModal('editTaskModal');
+                
+                alert('تم تحديث المهمة بنجاح!');
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveData();
+                loadTasksList();
+                alert('تم حذف المهمة بنجاح!');
+            }
+        }
+
+        // إدارة أعياد الميلاد
+        function loadBirthdaysList() {
+            const container = document.getElementById('birthdaysList');
+            
+            const membersWithBirthdays = members.filter(m => m.birthday);
+            
+            if (membersWithBirthdays.length === 0) {
+                container.innerHTML = '<div class="loading">لا توجد أعياد ميلاد مسجلة</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>اسم العضو</th>
+                            <th>تاريخ الميلاد</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${membersWithBirthdays.map(member => {
+                            const birthday = new Date(member.birthday);
+                            return `
+                                <tr>
+                                    <td>${member.name}</td>
+                                    <td>${birthday.toLocaleDateString('ar')}</td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="removeBirthday(${member.id})">إزالة</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function showAddBirthdayModal() {
+            const select = document.getElementById('birthdayMember');
+            // عرض فقط الأعضاء الذين ليس لديهم تاريخ ميلاد مسجل
+            const membersWithoutBirthdays = members.filter(m => !m.birthday);
+            
+            if (membersWithoutBirthdays.length === 0) {
+                alert('جميع الأعضاء لديهم تواريخ ميلاد مسجلة!');
+                return;
+            }
+            
+            select.innerHTML = membersWithoutBirthdays.map(m => `<option value="${m.id}">${m.id} - ${m.name}</option>`).join('');
+            showModal('addBirthdayModal');
+        }
+
+        function addBirthday() {
+            const memberId = parseInt(document.getElementById('birthdayMember').value);
+            const birthday = document.getElementById('birthdayDate').value;
+            
+            if (!birthday) {
+                alert('يرجى اختيار تاريخ الميلاد');
+                return;
+            }
+            
+            const memberIndex = members.findIndex(m => m.id === memberId);
+            if (memberIndex !== -1) {
+                members[memberIndex].birthday = birthday;
+                saveData();
+                loadBirthdaysList();
+                checkBirthdays();
+                closeModal('addBirthdayModal');
+                
+                alert('تم إضافة عيد الميلاد بنجاح!');
+            }
+        }
+
+        function removeBirthday(memberId) {
+            if (confirm('هل أنت متأكد من إزالة تاريخ الميلاد؟')) {
+                const memberIndex = members.findIndex(m => m.id === memberId);
+                if (memberIndex !== -1) {
+                    members[memberIndex].birthday = null;
+                    saveData();
+                    loadBirthdaysList();
+                    checkBirthdays();
+                    alert('تم إزالة تاريخ الميلاد بنجاح!');
+                }
+            }
+        }
+
         // البيانات الأولية
         function initializeDemoData() {
             members = [
-                { id: 1, name: 'أحمد محمد', password: '1234', talanton: 250 },
-                { id: 2, name: 'فاطمة علي', password: '1234', talanton: 320 },
-                { id: 3, name: 'محمد حسن', password: '1234', talanton: 180 },
-                { id: 4, name: 'عائشة أحمد', password: '1234', talanton: 275 },
-                { id: 5, name: 'عبدالله سالم', password: '1234', talanton: 195 }
+                { id: 1, name: 'أحمد محمد', password: '1234', birthday: '1995-03-15', talanton: 250 },
+                { id: 2, name: 'فاطمة علي', password: '1234', birthday: '1998-07-22', talanton: 320 },
+                { id: 3, name: 'محمد حسن', password: '1234', birthday: '1997-11-08', talanton: 180 },
+                { id: 4, name: 'عائشة أحمد', password: '1234', birthday: '1996-05-12', talanton: 275 },
+                { id: 5, name: 'عبدالله سالم', password: '1234', birthday: '1999-09-03', talanton: 195 },
+                { id: 6, name: 'مريم خالد', password: '1234', talanton: 340 },
+                { id: 7, name: 'يوسف عمر', password: '1234', talanton: 210 },
+                { id: 8, name: 'زينب محمود', password: '1234', talanton: 285 },
+                { id: 9, name: 'علي حسام', password: '1234', talanton: 165 },
+                { id: 10, name: 'نور الهدى', password: '1234', talanton: 305 }
             ];
             
             products = [
-                { id: 1, name: 'كتاب ديني', price: 50 },
-                { id: 2, name: 'مسبحة', price: 30 },
-                { id: 3, name: 'صليب صغير', price: 25 }
+                { id: 1, name: 'كتاب ديني', price: 50, description: 'كتاب في التربية الروحية' },
+                { id: 2, name: 'مسبحة', price: 30, description: 'مسبحة خشبية جميلة' },
+                { id: 3, name: 'صليب صغير', price: 25, description: 'صليب للتذكار' }
             ];
+            
+            events = [
+                { id: 1, name: 'احتفال رأس السنة', date: '2024-01-01', description: 'احتفال بداية العام الجديد', reward: 25 },
+                { id: 2, name: 'يوم الخدمة', date: '2024-02-15', description: 'يوم مخصص للخدمة المجتمعية', reward: 30 }
+            ];
+            
+            tasks = [
+                { id: 1, name: 'قراءة الإنجيل', description: 'اقرأ فصل من الإنجيل', reward: 15, type: 'يومية' },
+                { id: 2, name: 'الصلاة', description: 'صلاة الصباح أو المساء', reward: 10, type: 'يومية' },
+                { id: 3, name: 'خدمة المجتمع', description: 'المشاركة في خدمة المجتمع', reward: 50, type: 'أسبوعية' }
+            ];
+            
+            // إضافة بعض سجلات الحضور
+            const today = new Date();
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                // إضافة حضور عشوائي لبعض الأعضاء
+                members.forEach((member, index) => {
+                    if (Math.random() > 0.5) { // 50% فرصة للحضور
+                        attendance.push({
+                            id: Date.now() + index,
+                            memberId: member.id,
+                            memberName: member.name,
+                            date: dateStr,
+                            timestamp: date.toISOString()
+                        });
+                    }
+                });
+            }
             
             saveData();
             loadMembers();
+            loadTopMembers();
+            checkBirthdays();
+            loadReports();
         }
 
         // حفظ البيانات في localStorage
@@ -1089,6 +2288,8 @@
             localStorage.setItem('products', JSON.stringify(products));
             localStorage.setItem('attendance', JSON.stringify(attendance));
             localStorage.setItem('talantonHistory', JSON.stringify(talantonHistory));
+            localStorage.setItem('events', JSON.stringify(events));
+            localStorage.setItem('tasks', JSON.stringify(tasks));
         }
 
         // إدارة الوضع (فاتح/داكن)

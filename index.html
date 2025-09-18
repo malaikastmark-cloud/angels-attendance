@@ -11,29 +11,30 @@
     <style>
         :root {
             --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
+            --primary-dark: #3a0ca3;
+            --secondary: #4cc9f0;
+            --success: #2ecc71;
             --danger: #f72585;
             --warning: #fca311;
             --info: #7209b7;
             --light: #f8f9fa;
             --dark: #212529;
-            --background: #f8f9fa;
             --card-bg: #ffffff;
             --text: #333333;
             --border: #dee2e6;
             --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             min-height: 100vh;
             padding: 20px;
             color: var(--text);
@@ -42,109 +43,134 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.97);
             border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            padding: 30px;
             position: relative;
             overflow: hidden;
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 25px;
+            padding: 30px;
             text-align: center;
-            border-radius: 15px;
+            border-radius: 18px;
             position: relative;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-        
-        header::before, header::after {
-            content: "✨";
-            position: absolute;
-            top: 20px;
-            font-size: 2.2rem;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
         
         header::before {
-            left: 25px;
-        }
-        
-        header::after {
-            right: 25px;
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
-        .tab-content {
-            display: none;
-            padding: 25px;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* تصميم عصري للتبويبات */
+        /* تصميم التبويبات */
         .tabs {
             display: flex;
-            gap: 8px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             background: var(--light);
-            padding: 8px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px var(--shadow);
+            padding: 10px;
+            border-radius: 18px;
+            box-shadow: 0 8px 20px var(--shadow);
         }
         
         .tabs .tab {
-            padding: 14px 22px;
+            padding: 16px 24px;
             cursor: pointer;
-            border-radius: 12px;
+            border-radius: 14px;
             background: transparent;
             transition: all 0.3s ease;
             font-weight: 600;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
         }
         
-        .tabs .tab:hover {
-            background: rgba(67, 97, 238, 0.1);
+        .tabs .tab::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .tabs .tab:hover::before {
+            opacity: 0.1;
         }
         
         .tabs .tab.active {
             background: var(--primary);
             color: white;
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.35);
         }
         
-        /* تصميم عصري للأزرار */
+        .tabs .tab.active::before {
+            opacity: 1;
+        }
+        
+        /* تصميم الأزرار */
         .btn {
-            padding: 12px 20px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             font-weight: 600;
-            margin: 6px;
+            margin: 8px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 8px var(--shadow);
+            box-shadow: 0 6px 12px var(--shadow);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn:hover::before {
+            opacity: 1;
+        }
+        
+        .btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
         
         .btn-primary {
@@ -154,8 +180,7 @@
         
         .btn-primary:hover {
             background: #3651d3;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(67, 97, 238, 0.25);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
         }
         
         .btn-success {
@@ -164,9 +189,8 @@
         }
         
         .btn-success:hover {
-            background: #3ab3d9;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(76, 201, 240, 0.25);
+            background: #27ae60;
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
         }
         
         .btn-danger {
@@ -176,8 +200,7 @@
         
         .btn-danger:hover {
             background: #e31279;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(247, 37, 133, 0.25);
+            box-shadow: 0 10px 20px rgba(247, 37, 133, 0.3);
         }
         
         .btn-warning {
@@ -187,8 +210,7 @@
         
         .btn-warning:hover {
             background: #e5940f;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(252, 163, 17, 0.25);
+            box-shadow: 0 10px 20px rgba(252, 163, 17, 0.3);
         }
         
         .btn-info {
@@ -198,8 +220,7 @@
         
         .btn-info:hover {
             background: #650a9e;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(114, 9, 183, 0.25);
+            box-shadow: 0 10px 20px rgba(114, 9, 183, 0.3);
         }
         
         .btn-secondary {
@@ -209,96 +230,97 @@
         
         .btn-secondary:hover {
             background: #5a6268;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(108, 117, 125, 0.25);
-        }
-        
-        .btn-reset {
-            background: #ff6b6b;
-            color: white;
-        }
-        
-        .btn-reset:hover {
-            background: #ee5253;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.25);
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
         }
         
         .controls {
-            margin: 20px 0;
+            margin: 25px 0;
             display: flex;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
             align-items: center;
         }
         
-        select, input {
-            padding: 12px;
-            border-radius: 10px;
+        select, input, textarea {
+            padding: 14px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             font-size: 1rem;
-            min-width: 220px;
+            min-width: 240px;
             background: var(--card-bg);
-            box-shadow: 0 3px 6px var(--shadow);
+            box-shadow: 0 4px 10px var(--shadow);
             transition: all 0.3s ease;
         }
         
-        select:focus, input:focus {
+        select:focus, input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
         }
         
         /* تصميم البطاقات */
         .summary-card {
             background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
+            border-radius: 18px;
+            padding: 30px;
             text-align: center;
-            box-shadow: 0 8px 20px var(--shadow);
-            margin: 15px;
+            box-shadow: 0 10px 25px var(--shadow);
+            margin: 20px;
             flex: 1;
-            min-width: 220px;
+            min-width: 240px;
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         }
         
         .summary-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
         
         .summary-card h3 {
             color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
         }
         
         .summary-value {
-            font-size: 2.8rem;
+            font-size: 3.2rem;
             font-weight: bold;
             color: var(--success);
-            margin: 15px 0;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         
         .summary-subtitle {
             color: #6c757d;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         
         /* تصميم الجداول */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 25px;
             background: var(--card-bg);
-            border-radius: 15px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 8px 20px var(--shadow);
+            box-shadow: 0 10px 25px var(--shadow);
         }
         
         th, td {
-            padding: 15px;
+            padding: 18px;
             text-align: center;
             border-bottom: 1px solid var(--border);
         }
@@ -307,7 +329,8 @@
             background: var(--primary);
             color: white;
             font-weight: 600;
-            padding: 16px;
+            padding: 20px;
+            font-size: 1.1rem;
         }
         
         tr:nth-child(even) {
@@ -323,88 +346,89 @@
         /* تصميم المتجر */
         .store-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin: 25px 0;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
         }
         
         .product-card {
             background: var(--card-bg);
-            border-radius: 15px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 8px 20px var(--shadow);
+            box-shadow: 0 10px 25px var(--shadow);
             transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
         }
         
         .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
         
         .product-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 3.5rem;
+            font-size: 4rem;
         }
         
         .product-details {
-            padding: 20px;
+            padding: 25px;
         }
         
         .product-title {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             color: var(--dark);
         }
         
         .product-description {
             color: #6c757d;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-            line-height: 1.5;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.6;
         }
         
         .product-price {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         
         .price-tag {
             background: var(--warning);
             color: white;
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
         
         .buy-btn {
             background: var(--success);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 24px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
             width: 100%;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
         
         .buy-btn:hover {
-            background: #3ab3d9;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(76, 201, 240, 0.25);
+            background: #27ae60;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(46, 204, 113, 0.3);
         }
         
         .buy-btn:disabled {
@@ -417,17 +441,17 @@
         /* تصميم الحالة */
         .firebase-status {
             position: fixed;
-            bottom: 15px;
-            left: 15px;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             background: var(--card-bg);
-            box-shadow: 0 4px 12px var(--shadow);
+            box-shadow: 0 6px 15px var(--shadow);
             z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         .firebase-connected {
@@ -440,17 +464,17 @@
         
         .notification {
             position: fixed;
-            top: 25px;
-            right: 25px;
+            top: 30px;
+            right: 30px;
             background: var(--success);
             color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            padding: 18px 28px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: none;
             animation: notify 0.5s;
-            max-width: 350px;
+            max-width: 380px;
         }
         
         @keyframes notify {
@@ -474,11 +498,11 @@
         
         .modal-content {
             background: var(--card-bg);
-            padding: 30px;
+            padding: 35px;
             border-radius: 20px;
-            width: 450px;
+            width: 480px;
             max-width: 90%;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             animation: modalFadeIn 0.4s;
         }
         
@@ -490,7 +514,7 @@
         /* تصميم متجاوب */
         @media (max-width: 768px) {
             .container {
-                padding: 15px;
+                padding: 20px;
             }
             
             .controls {
@@ -511,7 +535,7 @@
             }
             
             header h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             
             .firebase-status {
@@ -523,6 +547,11 @@
             
             .store-container {
                 grid-template-columns: 1fr;
+            }
+            
+            .summary-card {
+                min-width: 100%;
+                margin: 10px 0;
             }
         }
     </style>
@@ -566,32 +595,6 @@
                 <select id="weekSelect">
                     <!-- سيتم تعبئة الخيارات من Firebase -->
                 </select>
-            </div>
-            
-            <div class="biometric-section" id="biometricSection">
-                <div class="member-confirmation">
-                    <img id="confirmMemberImg" class="member-img" src="">
-                    <span id="confirmMemberName"></span>
-                </div>
-                
-                <p>لتأكيد هويتك، يرجى استخدام البصمة أو التعرف على الوجه</p>
-                
-                <button class="btn btn-primary" id="biometricBtn">
-                    <i class="fas fa-fingerprint"></i> التأكد بالبصمة/الوجه
-                </button>
-                
-                <div class="fallback-verification" id="fallbackVerification">
-                    <h4>طريقة بديلة للتحقق</h4>
-                    <div class="controls">
-                        <div class="password-field">
-                            <input type="password" id="memberPassword" placeholder="كلمة السر الخاصة بك">
-                            <span class="toggle-password" id="togglePassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <button class="btn btn-primary" id="verifyPasswordBtn">تأكيد</button>
-                    </div>
-                </div>
             </div>
             
             <div class="controls">
@@ -655,23 +658,6 @@
                     <canvas id="userTalantonChart"></canvas>
                 </div>
             </div>
-            
-            <div class="report-section">
-                <h3>📋 سجل Talanton</h3>
-                <table id="userTalantonTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>التاريخ</th>
-                            <th>السبب</th>
-                            <th>القيمة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
         </div>
 
         <div class="tab-content" id="userReports">
@@ -699,13 +685,6 @@
                     <div class="summary-icon"><i class="fas fa-chart-line"></i></div>
                     <div class="summary-value" id="userReportPerformance">0%</div>
                     <div class="summary-subtitle">معدل الحضور</div>
-                </div>
-            </div>
-            
-            <div class="report-section">
-                <h3>📊 تطور Talanton خلال الأسابيع</h3>
-                <div class="chart-container">
-                    <canvas id="userReportTalantonChart"></canvas>
                 </div>
             </div>
         </div>
@@ -768,6 +747,7 @@
                 <div class="tab" data-tab="attendance"><i class="fas fa-check-circle"></i> إدارة الحضور</div>
                 <div class="tab" data-tab="store"><i class="fas fa-store"></i> إدارة المتجر</div>
                 <div class="tab" data-tab="security"><i class="fas fa-shield-alt"></i> الأمان والتحقق</div>
+                <div class="tab" data-tab="tasks"><i class="fas fa-tasks"></i> المهام</div>
                 <div class="tab" data-tab="reports"><i class="fas fa-chart-pie"></i> التقارير</div>
             </div>
 
@@ -834,8 +814,80 @@
                 </div>
             </div>
 
-            <!-- باقي تبويبات الأدمن -->
-            <!-- ... -->
+            <!-- تبويب المهام -->
+            <div class="tab-content" id="tasks">
+                <h2>إدارة المهام</h2>
+                
+                <div class="modern-card">
+                    <h3>إضافة مهمة جديدة</h3>
+                    <div class="controls">
+                        <input type="text" id="taskTitle" placeholder="عنوان المهمة">
+                        <textarea id="taskDescription" placeholder="وصف المهمة" rows="3" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin: 5px 0;"></textarea>
+                        <select id="taskAssignee">
+                            <option value="">-- اختر المسؤول --</option>
+                        </select>
+                        <input type="date" id="taskDeadline">
+                        <select id="taskPriority">
+                            <option value="منخفض">منخفض</option>
+                            <option value="متوسط">متوسط</option>
+                            <option value="عالي">عالي</option>
+                        </select>
+                        <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
+                    </div>
+                </div>
+                
+                <div class="modern-card">
+                    <h3>قائمة المهام</h3>
+                    <div id="tasksList">
+                        <!-- سيتم تعبئة المهام هنا -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- تبويب التقارير -->
+            <div class="tab-content" id="reports">
+                <h2>التقارير والإحصائيات</h2>
+                
+                <div class="stats-grid">
+                    <div class="summary-card">
+                        <div class="summary-icon"><i class="fas fa-users"></i></div>
+                        <div class="summary-value" id="reportMembers">0</div>
+                        <div class="summary-subtitle">إجمالي الأعضاء</div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon"><i class="fas fa-calendar-week"></i></div>
+                        <div class="summary-value" id="reportWeeks">0</div>
+                        <div class="summary-subtitle">عدد الأسابيع</div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="summary-value" id="reportAttendance">0</div>
+                        <div class="summary-subtitle">إجمالي الحضور</div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-icon"><i class="fas fa-coins"></i></div>
+                        <div class="summary-value" id="reportTalanton">0</div>
+                        <div class="summary-subtitle">إجمالي Talanton</div>
+                    </div>
+                </div>
+                
+                <div class="modern-card">
+                    <h3>📊 توزيع Talanton بين الأعضاء</h3>
+                    <div class="chart-container">
+                        <canvas id="talantonChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="modern-card">
+                    <h3>📅 الحضور خلال الأسابيع</h3>
+                    <div class="chart-container">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
             
         </div>
     </div>
@@ -863,6 +915,7 @@
         let attendanceRecords = [];
         let talantonRecords = [];
         let storeProducts = [];
+        let tasks = [];
         let currentUser = null;
         let adminPassword = 'admin123';
         
@@ -884,6 +937,7 @@
             }
             updateMembersTable();
             updateSelectMember();
+            updateTaskAssigneeSelect();
           });
         }
 
@@ -908,6 +962,30 @@
             }
             updateStoreProducts();
             updateAdminProductsList();
+          });
+        }
+
+        // دالة لتحميل المهام من Firebase
+        function loadTasksFromFirebase() {
+          const tasksRef = database.ref('tasks');
+          tasksRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            tasks = [];
+            if (data) {
+              Object.keys(data).forEach((key) => {
+                tasks.push({
+                  id: key,
+                  title: data[key].title,
+                  description: data[key].description,
+                  assignee: data[key].assignee,
+                  deadline: data[key].deadline,
+                  priority: data[key].priority,
+                  status: data[key].status || 'قيد التنفيذ',
+                  createdAt: data[key].createdAt || new Date().toISOString()
+                });
+              });
+            }
+            updateTasksList();
           });
         }
 
@@ -946,6 +1024,111 @@
             });
         }
 
+        // دالة لعرض المهام
+        function updateTasksList() {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = '<p>لا توجد مهام حالياً</p>';
+                return;
+            }
+            
+            tasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.style.padding = '20px';
+                taskItem.style.marginBottom = '15px';
+                taskItem.style.background = '#f9f9f9';
+                taskItem.style.borderRadius = '12px';
+                taskItem.style.borderLeft = `4px solid ${getPriorityColor(task.priority)}`;
+                
+                taskItem.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h4 style="margin-bottom: 10px; color: #333;">${task.title}</h4>
+                            <p style="color: #666; margin-bottom: 10px;">${task.description}</p>
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem;">
+                                    <i class="fas fa-user"></i> ${task.assignee || 'غير محدد'}
+                                </span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem;">
+                                    <i class="fas fa-calendar"></i> ${task.deadline || 'غير محدد'}
+                                </span>
+                                <span style="background: ${getPriorityColor(task.priority)}; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem;">
+                                    <i class="fas fa-flag"></i> ${task.priority}
+                                </span>
+                                <span style="background: #e9ecef; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem;">
+                                    <i class="fas fa-tasks"></i> ${task.status}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary edit-task" data-id="${task.id}">تعديل</button>
+                            <button class="btn btn-danger delete-task" data-id="${task.id}">حذف</button>
+                        </div>
+                    </div>
+                `;
+                
+                tasksList.appendChild(taskItem);
+            });
+        }
+
+        // دالة للحصول على لون الأولوية
+        function getPriorityColor(priority) {
+            switch(priority) {
+                case 'عالي': return '#f72585';
+                case 'متوسط': return '#fca311';
+                case 'منخفض': return '#4cc9f0';
+                default: return '#6c757d';
+            }
+        }
+
+        // دالة لتحديث قائمة المسؤولين عن المهام
+        function updateTaskAssigneeSelect() {
+            const taskAssignee = document.getElementById('taskAssignee');
+            taskAssignee.innerHTML = '<option value="">-- اختر المسؤول --</option>';
+            
+            members.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.name;
+                option.textContent = member.name;
+                taskAssignee.appendChild(option);
+            });
+        }
+
+        // دالة لإضافة عضو جديد
+        function addMember() {
+            const nameInput = document.getElementById('newMemberName');
+            const emojiSelect = document.getElementById('newMemberEmoji');
+            const passwordInput = document.getElementById('newMemberPassword');
+
+            const name = nameInput.value;
+            const emoji = emojiSelect.value;
+            const password = passwordInput.value || Math.random().toString(36).substring(2, 8);
+            
+            if (!name) {
+                showNotification('يرجى إدخال اسم العضو', false);
+                return;
+            }
+            
+            const membersRef = database.ref('members');
+            const newMemberRef = membersRef.push();
+            
+            newMemberRef.set({
+                name: `${emoji} ${name}`,
+                talanton: 0,
+                password: password
+            }).then(() => {
+                showNotification('تم إضافة العضو بنجاح');
+                nameInput.value = '';
+                passwordInput.value = '';
+            }).catch((error) => {
+                console.error("Error adding member:", error);
+                showNotification('فشل في إضافة العضو: ' + error.message, false);
+            });
+        }
+
         // دالة لإضافة منتج جديد
         function addProduct() {
             const name = document.getElementById('productName').value;
@@ -980,6 +1163,45 @@
             }).catch((error) => {
                 console.error("Error adding product:", error);
                 showNotification('فشل في إضافة المنتج: ' + error.message, false);
+            });
+        }
+
+        // دالة لإضافة مهمة جديدة
+        function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const priority = document.getElementById('taskPriority').value;
+            
+            if (!title || !description) {
+                showNotification('يرجى ملء عنوان ووصف المهمة', false);
+                return;
+            }
+            
+            const tasksRef = database.ref('tasks');
+            const newTaskRef = tasksRef.push();
+            
+            newTaskRef.set({
+                title: title,
+                description: description,
+                assignee: assignee,
+                deadline: deadline,
+                priority: priority,
+                status: 'قيد التنفيذ',
+                createdAt: new Date().toISOString()
+            }).then(() => {
+                showNotification('تم إضافة المهمة بنجاح');
+                
+                // مسح الحقول
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDescription').value = '';
+                document.getElementById('taskAssignee').value = '';
+                document.getElementById('taskDeadline').value = '';
+                document.getElementById('taskPriority').value = 'منخفض';
+            }).catch((error) => {
+                console.error("Error adding task:", error);
+                showNotification('فشل في إضافة المهمة: ' + error.message, false);
             });
         }
 
@@ -1050,6 +1272,7 @@
             setupEventListeners();
             loadMembersFromFirebase();
             loadStoreProductsFromFirebase();
+            loadTasksFromFirebase();
             
             // التحقق من حالة الاتصال بـ Firebase
             const databaseRef = database.ref(".info/connected");
@@ -1071,8 +1294,16 @@
 
         // إعداد مستمعي الأحداث
         function setupEventListeners() {
+            // إدارة الأعضاء
+            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+            
             // إدارة المتجر
             document.getElementById('addProductBtn').addEventListener('click', addProduct);
+            
+            // إدارة المهام
+            document.getElementById('addTaskBtn').addEventListener('click', addTask);
+            
+            // الشراء من المتجر
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('buy-btn')) {
                     const productId = e.target.dataset.id;

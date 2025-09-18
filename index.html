@@ -2223,70 +2223,171 @@
         }
 
         // إعداد مستمعي الأحداث
-        function setupEventListeners() {
-            // إدارة الأعضاء
-            document.getElementById('addMemberBtn').addEventListener('click', addMember);
+       function setupEventListeners() {
+    // إدارة الأعضاء
+    document.getElementById('addMemberBtn').addEventListener('click', addMember);
+    
+    // إدارة الأسابيع
+    document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+    
+    // إدارة الحضور
+    document.getElementById('markPresent').addEventListener('click', markAttendance);
+    
+    // إدارة المتجر
+    document.getElementById('addProductBtn').addEventListener('click', addProduct);
+    
+    // إدارة المهام
+    document.getElementById('addTaskBtn').addEventListener('click', addTask);
+    
+    // إدارة المناسبات
+    document.getElementById('addEventBtn').addEventListener('click', addEvent);
+    
+    // إدارة المسابقات
+    document.getElementById('addCompetitionBtn').addEventListener('click', addCompetition);
+    
+    // الشراء من المتجر
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('buy-btn')) {
+            const productId = e.target.dataset.id;
+            buyProduct(productId);
+        }
+    });
+    
+    // إضافة أحداث التبويبات في لوحة الأدمن
+    document.querySelectorAll('#adminTabs .tabs .tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('#adminTabs .tabs .tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
             
-            // إدارة الأسابيع
-            document.getElementById('addWeekBtn').addEventListener('click', addWeek);
+            document.querySelectorAll('#adminTabs .tab-content').forEach(content => content.classList.remove('active'));
             
-            // إدارة الحضور
-            document.getElementById('markPresent').addEventListener('click', markAttendance);
-            
-            // إدارة المتجر
-            document.getElementById('addProductBtn').addEventListener('click', addProduct);
-            
-            // إدارة المهام
-            document.getElementById('addTaskBtn').addEventListener('click', addTask);
-            
-            // إدارة المناسبات
-            document.getElementById('addEventBtn').addEventListener('click', addEvent);
-            
-            // إدارة المسابقات
-            document.getElementById('addCompetitionBtn').addEventListener('click', addCompetition);
-            
-            // الشراء من المتجر
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('buy-btn')) {
-                    const productId = e.target.dataset.id;
-                    buyProduct(productId);
-                }
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // أحداث الأزرار الإضافية
+    document.getElementById('exportDataBtn').addEventListener('click', function() {
+        exportData();
+    });
+
+    document.getElementById('backupDataBtn').addEventListener('click', function() {
+        backupData();
+    });
+
+    // إضافة Talanton يدوياً
+    document.getElementById('addTalantonBtn').addEventListener('click', function() {
+        addTalantonManually();
+    });
+
+    // تسجيل الحضور يدوياً
+    document.getElementById('markAttendanceBtn').addEventListener('click', function() {
+        markAttendanceManually();
+    });
+
+    // حذف الحضور
+    document.getElementById('removeAttendanceBtn').addEventListener('click', function() {
+        removeAttendanceManually();
+    });
+
+    // تغيير كلمة سر الأدمن
+    document.getElementById('changeAdminPasswordBtn').addEventListener('click', function() {
+        changeAdminPassword();
+    });
+
+    // حذف سجلات عند النقر
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-member') || e.target.parentElement.classList.contains('delete-member')) {
+            const memberId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (memberId && confirm('هل أنت متأكد من حذف هذا العضو؟')) {
+                deleteMember(memberId);
+            }
+        }
+        
+        if (e.target.classList.contains('delete-attendance') || e.target.parentElement.classList.contains('delete-attendance')) {
+            const attendanceId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (attendanceId && confirm('هل أنت متأكد من حذف سجل الحضور هذا؟')) {
+                deleteAttendance(attendanceId);
+            }
+        }
+        
+        if (e.target.classList.contains('delete-talanton-record') || e.target.parentElement.classList.contains('delete-talanton-record')) {
+            const recordId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (recordId && confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+                deleteTalantonRecord(recordId);
+            }
+        }
+        
+        if (e.target.classList.contains('delete-product') || e.target.parentElement.classList.contains('delete-product')) {
+            const productId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (productId && confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                deleteProduct(productId);
+            }
+        }
+        
+        if (e.target.classList.contains('delete-task') || e.target.parentElement.classList.contains('delete-task')) {
+            const taskId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (taskId && confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+                deleteTask(taskId);
+            }
+        }
+        
+        if (e.target.classList.contains('delete-event') || e.target.parentElement.classList.contains('delete-event')) {
+            const eventId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (eventId && confirm('هل أنت متأكد من حذف هذه المناسبة؟')) {
+                deleteEvent(eventId);
+            }
+        }
+        
+        if (e.target.classList.contains('delete-competition') || e.target.parentElement.classList.contains('delete-competition')) {
+            const competitionId = e.target.dataset.id || e.target.parentElement.dataset.id;
+            if (competitionId && confirm('هل أنت متأكد من حذف هذه المسابقة؟')) {
+                deleteCompetition(competitionId);
+            }
+        }
+    });
+    
+    // تسجيل دخول الأدمن
+    document.getElementById('adminLoginBtn').addEventListener('click', function() {
+        document.getElementById('adminLoginModal').style.display = 'flex';
+    });
+    
+    document.getElementById('cancelAdminLogin').addEventListener('click', function() {
+        document.getElementById('adminLoginModal').style.display = 'none';
+    });
+    
+    document.getElementById('confirmAdminLogin').addEventListener('click', function() {
+        const pwd = document.getElementById('adminPassword').value;
+        if (pwd === adminPassword) {
+            document.getElementById('adminLoginModal').style.display = 'none';
+            document.getElementById('adminTabs').style.display = 'block';
+            document.querySelectorAll('.tab-content:not(#adminTabs)').forEach(tab => {
+                tab.style.display = 'none';
             });
-            
-            // تبويبات التنقل
-            document.querySelectorAll('.tabs .tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                    const tabId = this.getAttribute('data-tab');
-                    document.getElementById(tabId).classList.add('active');
-                });
-            });
-            
-            // تسجيل دخول الأدمن
-            document.getElementById('adminLoginBtn').addEventListener('click', function() {
-                document.getElementById('adminLoginModal').style.display = 'flex';
-            });
-            
-            document.getElementById('cancelAdminLogin').addEventListener('click', function() {
-                document.getElementById('adminLoginModal').style.display = 'none';
-            });
-            
-            document.getElementById('confirmAdminLogin').addEventListener('click', function() {
-                const pwd = document.getElementById('adminPassword').value;
-                if (pwd === adminPassword) {
-                    document.getElementById('adminLoginModal').style.display = 'none';
-                    document.getElementById('adminTabs').style.display = 'block';
-                    document.querySelectorAll('.tab-content:not(#adminTabs)').forEach(tab => {
-                        tab.style.display = 'none';
-                    });
-                    showNotification('تم تسجيل دخول الأدمن بنجاح');
-                } else {
-                    showNotification('كلمة السر خاطئة!', false);
-                }
-            });
+            showNotification('تم تسجيل دخول الأدمن بنجاح');
+        } else {
+            showNotification('كلمة السر خاطئة!', false);
+        }
+    });
+    
+    document.getElementById('backToUserView').addEventListener('click', function() {
+        document.getElementById('adminTabs').style.display = 'none';
+        document.getElementById('userAttendance').style.display = 'block';
+        document.querySelector('[data-tab="userAttendance"]').classList.add('active');
+    });
+
+    // إظهار/إخفاء كلمة السر
+    document.getElementById('toggleAdminPassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('adminPassword');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            passwordInput.type = 'password';
+            this.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    });
+}
             
             document.getElementById('backToUserView').addEventListener('click', function() {
                 document.getElementById('adminTabs').style.display = 'none';

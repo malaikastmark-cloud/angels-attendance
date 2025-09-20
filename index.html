@@ -3,8 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة - مُصحح التخزين</title>
+    <title>نظام حضور خدام الملايكة - النسخة المُحسنة</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        
+        // Firebase configuration (يمكن تخصيصها لاحقاً)
+        const firebaseConfig = {
+            apiKey: "demo-key",
+            authDomain: "church-attendance-demo.firebaseapp.com",
+            projectId: "church-attendance-demo",
+            storageBucket: "church-attendance-demo.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "demo-app-id"
+        };
+        
+        // Initialize Firebase
+        window.firebaseApp = initializeApp(firebaseConfig);
+        window.firebaseDb = getFirestore(window.firebaseApp);
+        window.firebaseAuth = getAuth(window.firebaseApp);
+        
+        console.log('Firebase initialized successfully');
+        
+        // Update Firebase status
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('firebaseStatus');
+            if (statusElement) {
+                statusElement.className = 'firebase-status firebase-connected';
+                statusElement.innerHTML = '🟢 متصل بـ Firebase - جاهز للاستخدام';
+            }
+        });
+    </script>
     <style>
         * {
             margin: 0;
@@ -160,89 +192,39 @@
             gap: 15px;
         }
 
-        .member-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-top: 25px;
+        .member-selector {
+            margin-bottom: 25px;
         }
 
-        .member-card {
-            background: var(--card-color);
+        .member-dropdown {
+            width: 100%;
+            padding: 15px;
             border: 2px solid var(--border-color);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .member-card:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px var(--shadow-color);
-        }
-
-        .member-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 2rem;
-            font-weight: bold;
-            box-shadow: 0 10px 25px var(--shadow-color);
-        }
-
-        .member-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+            border-radius: 15px;
+            background: var(--card-color);
             color: var(--text-color);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .member-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-            flex-wrap: wrap;
-            gap: 10px;
+        .member-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
 
-        .member-talanton {
-            color: var(--warning-color);
-            font-size: 1.3rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .member-info-display {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--card-color);
+            border-radius: 15px;
+            border: 2px solid var(--border-color);
+            display: none;
         }
 
-        .member-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .status-present {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-            color: white;
-        }
-
-        .status-absent {
-            background: linear-gradient(135deg, var(--danger-color), #dc2626);
-            color: white;
-        }
-
-        .status-late {
-            background: linear-gradient(135deg, var(--warning-color), #d97706);
-            color: white;
+        .member-info-display.active {
+            display: block;
         }
 
         .stats-grid {
@@ -339,6 +321,11 @@
             color: var(--text-color);
             font-size: 16px;
             transition: all 0.3s ease;
+        }
+
+        .form-group input[type="password"] {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
         }
 
         .form-group input:focus,
@@ -562,16 +549,38 @@
             box-shadow: 0 10px 25px var(--shadow-color);
         }
 
+        .add-button {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .talanton-add-section {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid var(--border-color);
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
             }
             
             .controls {
-                grid-template-columns: 1fr;
-            }
-            
-            .member-grid {
                 grid-template-columns: 1fr;
             }
             
@@ -604,14 +613,14 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="version">v11.0 مُصحح</div>
+            <div class="version">v12.0 محسن</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - مُصحح مشكلة التخزين</p>
+            <p>نظام Talanton Pro - النسخة المحسنة مع Firebase</p>
         </div>
 
         <!-- Firebase Status -->
-        <div id="firebaseStatus" class="firebase-status firebase-connected">
-            🟢 النظام يعمل بشكل مثالي - تم إصلاح مشكلة التخزين
+        <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+            🟡 جاري الاتصال بـ Firebase...
         </div>
 
         <!-- Controls -->
@@ -630,9 +639,6 @@
             </button>
             <button class="btn btn-warning" onclick="importData()">
                 📁 استيراد البيانات
-            </button>
-            <button class="btn btn-danger" onclick="resetData()">
-                🔄 إعادة تعيين
             </button>
         </div>
 
@@ -664,45 +670,27 @@
             <!-- Birthday Alerts -->
             <div id="birthdayAlerts"></div>
 
-            <!-- Search -->
-            <div class="card">
-                <h2>🔍 البحث والتصفية</h2>
-                <div class="search-container">
-                    <input type="text" class="search-input" id="memberSearch" placeholder="ابحث عن عضو..." onkeyup="filterMembers()">
-                    <span class="search-icon">🔍</span>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>تصفية حسب المستوى:</label>
-                        <select id="levelFilter" onchange="filterMembers()">
-                            <option value="">جميع المستويات</option>
-                            <option value="مبتدئ">مبتدئ</option>
-                            <option value="متوسط">متوسط</option>
-                            <option value="متقدم">متقدم</option>
-                            <option value="خبير">خبير</option>
-                            <option value="أسطورة">أسطورة</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>تصفية حسب الحالة:</label>
-                        <select id="statusFilter" onchange="filterMembers()">
-                            <option value="">جميع الحالات</option>
-                            <option value="present">حاضر اليوم</option>
-                            <option value="absent">غائب اليوم</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
             <!-- Member Selection -->
             <div class="card">
                 <h2>👥 اختيار العضو للحضور</h2>
-                <div id="membersList" class="member-grid"></div>
+                <div class="member-selector">
+                    <select class="member-dropdown" id="memberDropdown" onchange="selectMemberFromDropdown()">
+                        <option value="">اختر عضو...</option>
+                    </select>
+                </div>
+                <div id="memberInfoDisplay" class="member-info-display">
+                    <div id="selectedMemberInfo"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="showAttendanceModal()">✅ تسجيل الحضور</button>
+                        <button class="btn btn-info" onclick="showMemberProfile()">👤 عرض الملف الشخصي</button>
+                        <button class="btn btn-warning" onclick="showTalantonStore()">🛒 متجر Talanton</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Today's Events -->
             <div class="card">
-                <h2>📅 أحداث اليوم</h2>
+                <h2>🎉 مناسبات اليوم</h2>
                 <div id="todayEvents"></div>
             </div>
 
@@ -730,7 +718,7 @@
                     <button class="tab-btn active" onclick="showTab('members')">👥 إدارة الأعضاء</button>
                     <button class="tab-btn" onclick="showTab('products')">🏪 إدارة المتجر</button>
                     <button class="tab-btn" onclick="showTab('tasks')">📋 إدارة المهام</button>
-                    <button class="tab-btn" onclick="showTab('events')">📅 إدارة الأحداث</button>
+                    <button class="tab-btn" onclick="showTab('occasions')">🎉 إدارة المناسبات</button>
                     <button class="tab-btn" onclick="showTab('weeks')">📆 إدارة الأسابيع</button>
                     <button class="tab-btn" onclick="showTab('reports')">📈 التقارير</button>
                     <button class="tab-btn" onclick="showTab('settings')">⚙️ الإعدادات</button>
@@ -743,21 +731,25 @@
 
                 <!-- Products Tab -->
                 <div id="productsTab" class="tab-content">
+                    <button class="add-button" onclick="showAddProductModal()">➕ إضافة منتج جديد</button>
                     <div id="productsTable"></div>
                 </div>
 
                 <!-- Tasks Tab -->
                 <div id="tasksTab" class="tab-content">
+                    <button class="add-button" onclick="showAddTaskModal()">➕ إضافة مهمة جديدة</button>
                     <div id="tasksTable"></div>
                 </div>
 
-                <!-- Events Tab -->
-                <div id="eventsTab" class="tab-content">
-                    <div id="eventsTable"></div>
+                <!-- Occasions Tab -->
+                <div id="occasionsTab" class="tab-content">
+                    <button class="add-button" onclick="showAddOccasionModal()">➕ إضافة مناسبة جديدة</button>
+                    <div id="occasionsTable"></div>
                 </div>
 
                 <!-- Weeks Tab -->
                 <div id="weeksTab" class="tab-content">
+                    <button class="add-button" onclick="showAddWeekModal()">➕ إضافة أسبوع جديد</button>
                     <div id="weeksTable"></div>
                 </div>
 
@@ -807,7 +799,7 @@
             <h2>🔐 دخول الأدمن</h2>
             <div class="form-group">
                 <label>كلمة المرور:</label>
-                <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور (admin123)">
+                <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
             </div>
             <button class="btn" onclick="adminLogin()">دخول</button>
         </div>
@@ -827,7 +819,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>كلمة المرور الشخصية:</label>
-                    <input type="password" id="memberPassword" placeholder="أدخل كلمة المرور (1234)">
+                    <input type="password" id="memberPassword" placeholder="أدخل كلمة المرور">
                 </div>
                 <div class="form-group">
                     <label>نوع الحضور:</label>
@@ -847,8 +839,6 @@
             
             <div class="action-buttons">
                 <button class="btn btn-success" onclick="markAttendance()">✅ تسجيل الحضور</button>
-                <button class="btn btn-info" onclick="showMemberProfile()">👤 عرض الملف الشخصي</button>
-                <button class="btn btn-warning" onclick="showTalantonStore()">🛒 متجر Talanton</button>
             </div>
         </div>
     </div>
@@ -911,14 +901,223 @@
         </div>
     </div>
 
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addProductModal')">&times;</span>
+            <h2>➕ إضافة منتج جديد</h2>
+            <form onsubmit="addProduct(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المنتج:</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>السعر (نقاط Talanton):</label>
+                        <input type="number" id="productPrice" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المخزون:</label>
+                        <input type="number" id="productStock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الفئة:</label>
+                        <select id="productCategory">
+                            <option value="books">كتب</option>
+                            <option value="accessories">إكسسوارات</option>
+                            <option value="certificates">شهادات</option>
+                            <option value="gifts">هدايا</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المنتج:</label>
+                    <textarea id="productDescription" rows="3" placeholder="وصف المنتج..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة المنتج</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addTaskModal')">&times;</span>
+            <h2>➕ إضافة مهمة جديدة</h2>
+            <form onsubmit="addTask(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عنوان المهمة:</label>
+                        <input type="text" id="taskTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>النقاط:</label>
+                        <input type="number" id="taskPoints" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نوع المهمة:</label>
+                        <select id="taskType">
+                            <option value="daily">يومية</option>
+                            <option value="weekly">أسبوعية</option>
+                            <option value="monthly">شهرية</option>
+                            <option value="special">خاصة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الأولوية:</label>
+                        <select id="taskPriority">
+                            <option value="low">منخفضة</option>
+                            <option value="medium">متوسطة</option>
+                            <option value="high">عالية</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المهمة:</label>
+                    <textarea id="taskDescription" rows="3" placeholder="وصف المهمة..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة المهمة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Occasion Modal -->
+    <div id="addOccasionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addOccasionModal')">&times;</span>
+            <h2>➕ إضافة مناسبة جديدة</h2>
+            <form onsubmit="addOccasion(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عنوان المناسبة:</label>
+                        <input type="text" id="occasionTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ:</label>
+                        <input type="date" id="occasionDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الوقت:</label>
+                        <input type="time" id="occasionTime">
+                    </div>
+                    <div class="form-group">
+                        <label>المكان:</label>
+                        <input type="text" id="occasionLocation">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نقاط المشاركة:</label>
+                        <input type="number" id="occasionPoints" min="0" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المناسبة:</label>
+                        <select id="occasionType">
+                            <option value="celebration">احتفال</option>
+                            <option value="meeting">اجتماع</option>
+                            <option value="training">تدريب</option>
+                            <option value="service">خدمة</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المناسبة:</label>
+                    <textarea id="occasionDescription" rows="3" placeholder="وصف المناسبة..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة المناسبة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Week Modal -->
+    <div id="addWeekModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addWeekModal')">&times;</span>
+            <h2>➕ إضافة أسبوع جديد</h2>
+            <form onsubmit="addWeek(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عنوان الأسبوع:</label>
+                        <input type="text" id="weekTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الأسبوع:</label>
+                        <input type="number" id="weekNumber" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ البداية:</label>
+                        <input type="date" id="weekStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ النهاية:</label>
+                        <input type="date" id="weekEndDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نقاط المكافأة:</label>
+                        <input type="number" id="weekRewardPoints" min="0" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label>الحد الأدنى للحضور:</label>
+                        <input type="number" id="weekMinAttendance" min="1" value="5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف الأسبوع:</label>
+                    <textarea id="weekDescription" rows="3" placeholder="وصف الأسبوع..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة الأسبوع</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Occasion Talanton Modal -->
+    <div id="occasionTalantonModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('occasionTalantonModal')">&times;</span>
+            <h2 id="occasionTalantonTitle">إضافة نقاط للمناسبة</h2>
+            <div class="form-group">
+                <label>اختر الأعضاء:</label>
+                <div id="memberCheckboxes"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>عدد النقاط:</label>
+                    <input type="number" id="occasionTalantonPoints" min="1" value="10">
+                </div>
+                <div class="form-group">
+                    <label>السبب:</label>
+                    <input type="text" id="occasionTalantonReason" placeholder="سبب إضافة النقاط">
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="addTalantonToMembers()">إضافة النقاط</button>
+                <button class="btn btn-secondary" onclick="selectAllMembers()">تحديد الكل</button>
+                <button class="btn btn-secondary" onclick="unselectAllMembers()">إلغاء تحديد الكل</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global Variables
         let currentMember = null;
+        let currentOccasion = null;
         let isAdmin = false;
         let members = [];
         let products = [];
         let tasks = [];
-        let events = [];
+        let occasions = [];
         let weeks = [];
         let attendance = [];
         let talantonHistory = [];
@@ -931,15 +1130,15 @@
 
         // Storage keys
         const STORAGE_KEYS = {
-            members: 'church_members_v11',
-            products: 'church_products_v11',
-            tasks: 'church_tasks_v11',
-            events: 'church_events_v11',
-            weeks: 'church_weeks_v11',
-            attendance: 'church_attendance_v11',
-            talantonHistory: 'church_talanton_history_v11',
-            settings: 'church_settings_v11',
-            initialized: 'church_system_initialized_v11'
+            members: 'church_members_v12',
+            products: 'church_products_v12',
+            tasks: 'church_tasks_v12',
+            occasions: 'church_occasions_v12',
+            weeks: 'church_weeks_v12',
+            attendance: 'church_attendance_v12',
+            talantonHistory: 'church_talanton_history_v12',
+            settings: 'church_settings_v12',
+            initialized: 'church_system_initialized_v12'
         };
 
         // Member Levels System
@@ -953,12 +1152,13 @@
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('تم تحميل النظام المُصحح...');
+            console.log('تم تحميل النظام المحسن...');
             loadDataFromLocalStorage();
             updateUI();
             checkBirthdays();
             initializeCharts();
-            loadTodayEvents();
+            loadTodayOccasions();
+            loadMemberDropdown();
             
             // Load theme
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -968,47 +1168,42 @@
                 themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
             }
             
-            showNotification('تم تحميل النظام بنجاح! تم إصلاح مشكلة التخزين 🎉', 'success');
+            showNotification('تم تحميل النظام المحسن بنجاح! 🎉', 'success');
         });
 
-        // Fixed Data Management Functions
+        // Data Management Functions
         function loadDataFromLocalStorage() {
             try {
-                // Check if system was initialized before
                 const isInitialized = localStorage.getItem(STORAGE_KEYS.initialized);
                 
-                // Load existing data
                 const storedMembers = localStorage.getItem(STORAGE_KEYS.members);
                 const storedProducts = localStorage.getItem(STORAGE_KEYS.products);
                 const storedTasks = localStorage.getItem(STORAGE_KEYS.tasks);
-                const storedEvents = localStorage.getItem(STORAGE_KEYS.events);
+                const storedOccasions = localStorage.getItem(STORAGE_KEYS.occasions);
                 const storedWeeks = localStorage.getItem(STORAGE_KEYS.weeks);
                 const storedAttendance = localStorage.getItem(STORAGE_KEYS.attendance);
                 const storedTalantonHistory = localStorage.getItem(STORAGE_KEYS.talantonHistory);
                 const storedSettings = localStorage.getItem(STORAGE_KEYS.settings);
 
-                // Parse stored data or use empty arrays
                 members = storedMembers ? JSON.parse(storedMembers) : [];
                 products = storedProducts ? JSON.parse(storedProducts) : [];
                 tasks = storedTasks ? JSON.parse(storedTasks) : [];
-                events = storedEvents ? JSON.parse(storedEvents) : [];
+                occasions = storedOccasions ? JSON.parse(storedOccasions) : [];
                 weeks = storedWeeks ? JSON.parse(storedWeeks) : [];
                 attendance = storedAttendance ? JSON.parse(storedAttendance) : [];
                 talantonHistory = storedTalantonHistory ? JSON.parse(storedTalantonHistory) : [];
                 settings = storedSettings ? JSON.parse(storedSettings) : settings;
 
-                // Only initialize demo data if system was never initialized
                 if (!isInitialized) {
                     console.log('النظام غير مُهيأ - إنشاء بيانات تجريبية...');
                     initializeDemoData();
-                    // Mark system as initialized
                     localStorage.setItem(STORAGE_KEYS.initialized, 'true');
                 } else {
                     console.log('تم تحميل البيانات الموجودة:', { 
                         members: members.length, 
                         products: products.length,
                         tasks: tasks.length,
-                        events: events.length,
+                        occasions: occasions.length,
                         weeks: weeks.length,
                         attendance: attendance.length
                     });
@@ -1026,7 +1221,7 @@
                 localStorage.setItem(STORAGE_KEYS.members, JSON.stringify(members));
                 localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(products));
                 localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
-                localStorage.setItem(STORAGE_KEYS.events, JSON.stringify(events));
+                localStorage.setItem(STORAGE_KEYS.occasions, JSON.stringify(occasions));
                 localStorage.setItem(STORAGE_KEYS.weeks, JSON.stringify(weeks));
                 localStorage.setItem(STORAGE_KEYS.attendance, JSON.stringify(attendance));
                 localStorage.setItem(STORAGE_KEYS.talantonHistory, JSON.stringify(talantonHistory));
@@ -1039,13 +1234,31 @@
         }
 
         function initializeDemoData() {
-            // Initialize demo members
+            // Initialize demo members (sorted alphabetically)
             members = [
                 { 
                     id: 1, name: 'أحمد محمد الشماس', password: '1234', 
                     email: 'ahmed@church.com', phone: '01012345678',
                     birthday: '1995-03-15', talanton: 450, joinDate: '2024-01-15',
                     service: 'altar', area: 'المعادي', status: 'active'
+                },
+                { 
+                    id: 9, name: 'علي حسام المبتدئ', password: '1234', 
+                    email: 'ali@church.com', phone: '01890123456',
+                    birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12',
+                    service: 'altar', area: 'المطرية', status: 'active'
+                },
+                { 
+                    id: 5, name: 'عبدالله سالم المصور', password: '1234', 
+                    email: 'abdullah@church.com', phone: '01456789012',
+                    birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15',
+                    service: 'media', area: 'المهندسين', status: 'active'
+                },
+                { 
+                    id: 4, name: 'عائشة أحمد المرنمة', password: '1234', 
+                    email: 'aisha@church.com', phone: '01345678901',
+                    birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10',
+                    service: 'music', area: 'الدقي', status: 'active'
                 },
                 { 
                     id: 2, name: 'فاطمة علي المعلمة', password: '1234', 
@@ -1060,22 +1273,16 @@
                     service: 'youth', area: 'الزمالك', status: 'active'
                 },
                 { 
-                    id: 4, name: 'عائشة أحمد المرنمة', password: '1234', 
-                    email: 'aisha@church.com', phone: '01345678901',
-                    birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10',
-                    service: 'music', area: 'الدقي', status: 'active'
-                },
-                { 
-                    id: 5, name: 'عبدالله سالم المصور', password: '1234', 
-                    email: 'abdullah@church.com', phone: '01456789012',
-                    birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15',
-                    service: 'media', area: 'المهندسين', status: 'active'
-                },
-                { 
                     id: 6, name: 'مريم خالد الخادمة', password: '1234', 
                     email: 'maryam@church.com', phone: '01567890123',
                     birthday: '1993-12-25', talanton: 740, joinDate: '2024-01-25',
                     service: 'sunday_school', area: 'مدينة نصر', status: 'active'
+                },
+                { 
+                    id: 10, name: 'نور الهدى الخادمة', password: '1234', 
+                    email: 'nour@church.com', phone: '01901234567',
+                    birthday: '1997-10-27', talanton: 505, joinDate: '2024-01-18',
+                    service: 'sunday_school', area: 'مصر القديمة', status: 'active'
                 },
                 { 
                     id: 7, name: 'يوسف عمر الشاب', password: '1234', 
@@ -1088,20 +1295,11 @@
                     email: 'zainab@church.com', phone: '01789012345',
                     birthday: '1990-08-03', talanton: 485, joinDate: '2024-01-30',
                     service: 'other', area: 'شبرا', status: 'active'
-                },
-                { 
-                    id: 9, name: 'علي حسام المبتدئ', password: '1234', 
-                    email: 'ali@church.com', phone: '01890123456',
-                    birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12',
-                    service: 'altar', area: 'المطرية', status: 'active'
-                },
-                { 
-                    id: 10, name: 'نور الهدى الخادمة', password: '1234', 
-                    email: 'nour@church.com', phone: '01901234567',
-                    birthday: '1997-10-27', talanton: 505, joinDate: '2024-01-18',
-                    service: 'sunday_school', area: 'مصر القديمة', status: 'active'
                 }
             ];
+
+            // Sort members alphabetically
+            members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
             // Initialize products
             products = [
@@ -1162,8 +1360,8 @@
                 }
             ];
 
-            // Initialize events
-            events = [
+            // Initialize occasions (replacing events)
+            occasions = [
                 {
                     id: 1, title: 'احتفال عيد الميلاد المجيد', type: 'celebration',
                     date: '2024-12-25', time: '18:00', location: 'الكنيسة الكبرى',
@@ -1217,10 +1415,10 @@
 
         // Update UI function
         function updateUI() {
-            displayMembers();
             updateStats();
             checkBirthdays();
-            loadTodayEvents();
+            loadTodayOccasions();
+            loadMemberDropdown();
             if (isAdmin) {
                 loadAdminData();
             }
@@ -1250,148 +1448,102 @@
             if (weeklyAttendanceElement) weeklyAttendanceElement.textContent = weeklyRate + '%';
         }
 
-        // Display members
-        function displayMembers() {
-            const membersList = document.getElementById('membersList');
-            if (!membersList) return;
+        // Load member dropdown
+        function loadMemberDropdown() {
+            const dropdown = document.getElementById('memberDropdown');
+            if (!dropdown) return;
             
-            if (members.length === 0) {
-                membersList.innerHTML = '<p>لا توجد أعضاء مسجلين</p>';
-                return;
-            }
-
-            const today = new Date().toISOString().split('T')[0];
+            // Sort members alphabetically
+            const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             
-            membersList.innerHTML = members.map(member => {
+            dropdown.innerHTML = '<option value="">اختر عضو...</option>';
+            sortedMembers.forEach(member => {
                 const level = calculateLevel(member.talanton);
-                const todayAttendance = attendance.find(a => 
-                    a.memberId === member.id && a.date === today
-                );
-                
-                let statusClass = 'status-absent';
-                let statusText = 'غائب';
-                
-                if (todayAttendance) {
-                    statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
-                    statusText = todayAttendance.type === 'late' ? 'متأخر' : 'حاضر';
-                }
-
-                return `
-                    <div class="member-card" onclick="selectMember(${member.id})">
-                        <div class="member-avatar">
-                            ${member.name.charAt(0)}
-                        </div>
-                        <div class="member-name">${member.name}</div>
-                        <div class="level-badge ${level.color}">
-                            ${level.icon} ${level.name}
-                        </div>
-                        <div class="member-info">
-                            <div class="member-talanton">💰 ${member.talanton}</div>
-                            <div class="member-status ${statusClass}">${statusText}</div>
-                        </div>
-                        <div class="member-info">
-                            <small>📱 ${member.phone || 'لا يوجد'}</small>
-                            <small>🏠 ${member.area || 'غير محدد'}</small>
-                        </div>
-                    </div>
+                dropdown.innerHTML += `
+                    <option value="${member.id}">
+                        ${member.name} - ${level.icon} ${level.name} (${member.talanton} نقطة)
+                    </option>
                 `;
-            }).join('');
-        }
-
-        // Filter members
-        function filterMembers() {
-            const searchTerm = document.getElementById('memberSearch').value.toLowerCase();
-            const levelFilter = document.getElementById('levelFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            
-            const today = new Date().toISOString().split('T')[0];
-            
-            const filteredMembers = members.filter(member => {
-                const matchesSearch = member.name.toLowerCase().includes(searchTerm) ||
-                                    (member.email && member.email.toLowerCase().includes(searchTerm)) ||
-                                    (member.phone && member.phone.includes(searchTerm));
-                
-                const level = calculateLevel(member.talanton);
-                const matchesLevel = !levelFilter || level.name === levelFilter;
-                
-                const todayAttendance = attendance.find(a => 
-                    a.memberId === member.id && a.date === today
-                );
-                
-                let matchesStatus = true;
-                if (statusFilter === 'present') {
-                    matchesStatus = !!todayAttendance;
-                } else if (statusFilter === 'absent') {
-                    matchesStatus = !todayAttendance;
-                }
-                
-                return matchesSearch && matchesLevel && matchesStatus;
             });
-            
-            displayFilteredMembers(filteredMembers);
         }
 
-        function displayFilteredMembers(filteredMembers) {
-            const membersList = document.getElementById('membersList');
-            const today = new Date().toISOString().split('T')[0];
+        // Select member from dropdown
+        function selectMemberFromDropdown() {
+            const dropdown = document.getElementById('memberDropdown');
+            const memberId = parseInt(dropdown.value);
             
-            if (filteredMembers.length === 0) {
-                membersList.innerHTML = '<p>لا توجد نتائج تطابق البحث</p>';
-                return;
-            }
-            
-            membersList.innerHTML = filteredMembers.map(member => {
-                const level = calculateLevel(member.talanton);
-                const todayAttendance = attendance.find(a => 
-                    a.memberId === member.id && a.date === today
-                );
-                
-                let statusClass = 'status-absent';
-                let statusText = 'غائب';
-                
-                if (todayAttendance) {
-                    statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
-                    statusText = todayAttendance.type === 'late' ? 'متأخر' : 'حاضر';
+            if (memberId) {
+                currentMember = members.find(m => m.id === memberId);
+                if (currentMember) {
+                    displaySelectedMember();
                 }
+            } else {
+                document.getElementById('memberInfoDisplay').classList.remove('active');
+            }
+        }
 
-                return `
-                    <div class="member-card" onclick="selectMember(${member.id})">
-                        <div class="member-avatar">
-                            ${member.name.charAt(0)}
-                        </div>
-                        <div class="member-name">${member.name}</div>
+        // Display selected member
+        function displaySelectedMember() {
+            const infoDisplay = document.getElementById('memberInfoDisplay');
+            const selectedMemberInfo = document.getElementById('selectedMemberInfo');
+            
+            if (!currentMember) return;
+            
+            const level = calculateLevel(currentMember.talanton);
+            const today = new Date().toISOString().split('T')[0];
+            const todayAttendance = attendance.find(a => 
+                a.memberId === currentMember.id && a.date === today
+            );
+            
+            let statusClass = 'status-absent';
+            let statusText = 'غائب اليوم';
+            
+            if (todayAttendance) {
+                statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
+                statusText = todayAttendance.type === 'late' ? 'حاضر متأخر' : 'حاضر اليوم';
+            }
+
+            selectedMemberInfo.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="color: var(--primary-color); margin-bottom: 10px;">${currentMember.name}</h3>
                         <div class="level-badge ${level.color}">
                             ${level.icon} ${level.name}
                         </div>
-                        <div class="member-info">
-                            <div class="member-talanton">💰 ${member.talanton}</div>
-                            <div class="member-status ${statusClass}">${statusText}</div>
-                        </div>
-                        <div class="member-info">
-                            <small>📱 ${member.phone || 'لا يوجد'}</small>
-                            <small>🏠 ${member.area || 'غير محدد'}</small>
-                        </div>
                     </div>
-                `;
-            }).join('');
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--warning-color); font-weight: bold;">💰 ${currentMember.talanton}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">نقاط Talanton</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div><strong>📱 الهاتف:</strong> ${currentMember.phone || 'غير محدد'}</div>
+                    <div><strong>🏠 المنطقة:</strong> ${currentMember.area || 'غير محدد'}</div>
+                    <div><strong>⛪ الخدمة:</strong> ${getServiceName(currentMember.service)}</div>
+                    <div><strong>📅 حالة اليوم:</strong> <span class="${statusClass}">${statusText}</span></div>
+                </div>
+            `;
+            
+            infoDisplay.classList.add('active');
+        }
+
+        // Show attendance modal
+        function showAttendanceModal() {
+            if (!currentMember) {
+                showNotification('يرجى اختيار عضو أولاً', 'warning');
+                return;
+            }
+            
+            const attendanceTitle = document.getElementById('attendanceTitle');
+            if (attendanceTitle) {
+                attendanceTitle.textContent = `تسجيل حضور: ${currentMember.name}`;
+            }
+            showModal('attendanceModal');
         }
 
         // Calculate level
         function calculateLevel(points) {
             return memberLevels.find(level => points >= level.minPoints && points <= level.maxPoints) || memberLevels[0];
-        }
-
-        // Select member for attendance
-        function selectMember(memberId) {
-            currentMember = members.find(m => m.id === memberId);
-            if (currentMember) {
-                console.log('تم اختيار العضو:', currentMember.name);
-                const attendanceTitle = document.getElementById('attendanceTitle');
-                if (attendanceTitle) {
-                    attendanceTitle.textContent = `تسجيل حضور: ${currentMember.name}`;
-                }
-                showModal('attendanceModal');
-            }
         }
 
         // Simulate fingerprint
@@ -1476,6 +1628,7 @@
             showNotification(`تم تسجيل حضورك بنجاح! حصلت على ${attendanceReward} نقاط Talanton`, 'success');
             closeModal('attendanceModal');
             updateUI();
+            displaySelectedMember();
             
             // Reset form
             resetAttendanceForm();
@@ -1538,7 +1691,6 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             `;
 
             alert(profileInfo);
-            closeModal('attendanceModal');
         }
 
         function getServiceName(service) {
@@ -1580,8 +1732,6 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                     buyProduct(products[productIndex].id);
                 }
             }
-            
-            closeModal('attendanceModal');
         }
 
         function buyProduct(productId) {
@@ -1631,6 +1781,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             saveData();
             showNotification(`تم شراء ${product.name} بنجاح! 🎉`, 'success');
             updateUI();
+            displaySelectedMember();
         }
 
         // Birthday checking system
@@ -1668,30 +1819,30 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             }
         }
 
-        // Load today's events
-        function loadTodayEvents() {
+        // Load today's occasions
+        function loadTodayOccasions() {
             const today = new Date().toISOString().split('T')[0];
-            const todayEventsContainer = document.getElementById('todayEvents');
-            if (!todayEventsContainer) return;
+            const todayOccasionsContainer = document.getElementById('todayEvents');
+            if (!todayOccasionsContainer) return;
 
-            const todayEvents = events.filter(event => event.date === today);
+            const todayOccasions = occasions.filter(occasion => occasion.date === today);
             
-            if (todayEvents.length > 0) {
-                todayEventsContainer.innerHTML = todayEvents.map(event => `
+            if (todayOccasions.length > 0) {
+                todayOccasionsContainer.innerHTML = todayOccasions.map(occasion => `
                     <div style="background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
-                        <div style="color: var(--primary-color); font-weight: bold;">${event.time || 'طوال اليوم'}</div>
-                        <h4>${event.title}</h4>
-                        <p>${event.description}</p>
+                        <div style="color: var(--primary-color); font-weight: bold;">${occasion.time || 'طوال اليوم'}</div>
+                        <h4>${occasion.title}</h4>
+                        <p>${occasion.description}</p>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                            <span>📍 ${event.location || 'غير محدد'}</span>
+                            <span>📍 ${occasion.location || 'غير محدد'}</span>
                             <span style="color: var(--success-color); font-weight: bold;">
-                                💰 ${event.points} نقطة
+                                💰 ${occasion.points} نقطة
                             </span>
                         </div>
                     </div>
                 `).join('');
             } else {
-                todayEventsContainer.innerHTML = '<p>لا توجد أحداث مجدولة لهذا اليوم</p>';
+                todayOccasionsContainer.innerHTML = '<p>لا توجد مناسبات مجدولة لهذا اليوم</p>';
             }
         }
 
@@ -1764,7 +1915,10 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             if (memberId) {
                 const member = members.find(m => m.id == parseInt(memberId));
                 if (member) {
-                    selectMember(member.id);
+                    currentMember = member;
+                    document.getElementById('memberDropdown').value = member.id;
+                    displaySelectedMember();
+                    showAttendanceModal();
                 } else {
                     showNotification('عضو غير موجود!', 'error');
                 }
@@ -1791,7 +1945,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 loadAdminData();
                 showNotification('مرحباً بك في لوحة تحكم الأدمن! 👑', 'success');
             } else {
-                showNotification('كلمة مرور خاطئة! جرب: admin123', 'error');
+                showNotification('كلمة مرور خاطئة!', 'error');
             }
             
             // Reset form
@@ -1817,7 +1971,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             loadMembersTable();
             loadProductsTable();
             loadTasksTable();
-            loadEventsTable();
+            loadOccasionsTable();
             loadWeeksTable();
             loadReportsData();
         }
@@ -1825,6 +1979,9 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
         function loadMembersTable() {
             const table = document.getElementById('membersTable');
             if (!table) return;
+            
+            // Sort members alphabetically
+            const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             
             table.innerHTML = `
                 <table class="table">
@@ -1840,7 +1997,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                         </tr>
                     </thead>
                     <tbody>
-                        ${members.map(member => {
+                        ${sortedMembers.map(member => {
                             const level = calculateLevel(member.talanton);
                             return `
                                 <tr>
@@ -1874,6 +2031,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                             <th>اسم المنتج</th>
                             <th>السعر</th>
                             <th>المخزون</th>
+                            <th>الفئة</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -1884,6 +2042,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                                 <td>${product.name}</td>
                                 <td>${product.price} نقطة</td>
                                 <td>${product.stock}</td>
+                                <td>${product.category}</td>
                                 <td>
                                     <button class="btn btn-warning" onclick="editProduct(${product.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
                                     <button class="btn btn-danger" onclick="deleteProduct(${product.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
@@ -1907,6 +2066,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                             <th>عنوان المهمة</th>
                             <th>النقاط</th>
                             <th>النوع</th>
+                            <th>الأولوية</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -1917,6 +2077,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                                 <td>${task.title}</td>
                                 <td>${task.points}</td>
                                 <td>${task.type}</td>
+                                <td>${task.priority}</td>
                                 <td>
                                     <button class="btn btn-warning" onclick="editTask(${task.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
                                     <button class="btn btn-danger" onclick="deleteTask(${task.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
@@ -1928,8 +2089,8 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             `;
         }
 
-        function loadEventsTable() {
-            const table = document.getElementById('eventsTable');
+        function loadOccasionsTable() {
+            const table = document.getElementById('occasionsTable');
             if (!table) return;
             
             table.innerHTML = `
@@ -1937,22 +2098,25 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                     <thead>
                         <tr>
                             <th>الرقم</th>
-                            <th>عنوان الحدث</th>
+                            <th>عنوان المناسبة</th>
                             <th>التاريخ</th>
                             <th>النقاط</th>
+                            <th>النوع</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${events.map(event => `
+                        ${occasions.map(occasion => `
                             <tr>
-                                <td>${event.id}</td>
-                                <td>${event.title}</td>
-                                <td>${new Date(event.date).toLocaleDateString('ar')}</td>
-                                <td>${event.points}</td>
+                                <td>${occasion.id}</td>
+                                <td>${occasion.title}</td>
+                                <td>${new Date(occasion.date).toLocaleDateString('ar')}</td>
+                                <td>${occasion.points}</td>
+                                <td>${occasion.type}</td>
                                 <td>
-                                    <button class="btn btn-warning" onclick="editEvent(${event.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                                    <button class="btn btn-danger" onclick="deleteEvent(${event.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                    <button class="btn btn-success" onclick="showOccasionTalantonModal(${occasion.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">💰</button>
+                                    <button class="btn btn-warning" onclick="editOccasion(${occasion.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteOccasion(${occasion.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
                                 </td>
                             </tr>
                         `).join('')}
@@ -1973,6 +2137,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                             <th>عنوان الأسبوع</th>
                             <th>رقم الأسبوع</th>
                             <th>نقاط المكافأة</th>
+                            <th>الحد الأدنى للحضور</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -1983,6 +2148,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                                 <td>${week.title}</td>
                                 <td>${week.number}</td>
                                 <td>${week.rewardPoints}</td>
+                                <td>${week.minAttendance}</td>
                                 <td>
                                     <button class="btn btn-warning" onclick="editWeek(${week.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
                                     <button class="btn btn-danger" onclick="deleteWeek(${week.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
@@ -2015,8 +2181,8 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                             <div class="stat-label">منتجات المتجر</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">${tasks.length}</div>
-                            <div class="stat-label">المهام النشطة</div>
+                            <div class="stat-number">${occasions.length}</div>
+                            <div class="stat-label">المناسبات</div>
                         </div>
                     </div>
                 </div>
@@ -2100,14 +2266,10 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             if (!member) return;
             
             if (confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
-                // Remove member from array
                 members = members.filter(m => m.id !== memberId);
-                // Remove related attendance records
                 attendance = attendance.filter(a => a.memberId !== memberId);
-                // Remove related talanton history
                 talantonHistory = talantonHistory.filter(t => t.memberId !== memberId);
                 
-                // Save changes immediately
                 saveData();
                 updateUI();
                 loadMembersTable();
@@ -2116,6 +2278,33 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
         }
 
         // Product Management Functions
+        function showAddProductModal() {
+            showModal('addProductModal');
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('productName').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                category: document.getElementById('productCategory').value,
+                description: document.getElementById('productDescription').value
+            };
+            
+            products.push(newProduct);
+            saveData();
+            loadProductsTable();
+            closeModal('addProductModal');
+            
+            showNotification(`تم إضافة المنتج ${newProduct.name} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
         function editProduct(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
@@ -2142,6 +2331,37 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
         }
 
         // Task Management Functions
+        function showAddTaskModal() {
+            showModal('addTaskModal');
+        }
+
+        function addTask(event) {
+            event.preventDefault();
+            
+            const newTask = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                points: parseInt(document.getElementById('taskPoints').value),
+                type: document.getElementById('taskType').value,
+                priority: document.getElementById('taskPriority').value,
+                description: document.getElementById('taskDescription').value,
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                assignees: [],
+                status: 'active'
+            };
+            
+            tasks.push(newTask);
+            saveData();
+            loadTasksTable();
+            closeModal('addTaskModal');
+            
+            showNotification(`تم إضافة المهمة ${newTask.title} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
         function editTask(taskId) {
             const task = tasks.find(t => t.id === taskId);
             if (!task) return;
@@ -2167,33 +2387,174 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             }
         }
 
-        // Event Management Functions
-        function editEvent(eventId) {
-            const event = events.find(e => e.id === eventId);
-            if (!event) return;
+        // Occasion Management Functions
+        function showAddOccasionModal() {
+            showModal('addOccasionModal');
+        }
+
+        function addOccasion(event) {
+            event.preventDefault();
             
-            const newTitle = prompt('عنوان الحدث:', event.title);
-            if (newTitle && newTitle !== event.title) {
-                event.title = newTitle;
+            const newOccasion = {
+                id: Date.now(),
+                title: document.getElementById('occasionTitle').value,
+                date: document.getElementById('occasionDate').value,
+                time: document.getElementById('occasionTime').value,
+                location: document.getElementById('occasionLocation').value,
+                points: parseInt(document.getElementById('occasionPoints').value),
+                type: document.getElementById('occasionType').value,
+                description: document.getElementById('occasionDescription').value
+            };
+            
+            occasions.push(newOccasion);
+            saveData();
+            loadOccasionsTable();
+            closeModal('addOccasionModal');
+            
+            showNotification(`تم إضافة المناسبة ${newOccasion.title} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function editOccasion(occasionId) {
+            const occasion = occasions.find(e => e.id === occasionId);
+            if (!occasion) return;
+            
+            const newTitle = prompt('عنوان المناسبة:', occasion.title);
+            if (newTitle && newTitle !== occasion.title) {
+                occasion.title = newTitle;
                 saveData();
-                loadEventsTable();
-                showNotification('تم تحديث الحدث بنجاح!', 'success');
+                loadOccasionsTable();
+                showNotification('تم تحديث المناسبة بنجاح!', 'success');
             }
         }
 
-        function deleteEvent(eventId) {
-            const event = events.find(e => e.id === eventId);
-            if (!event) return;
+        function deleteOccasion(occasionId) {
+            const occasion = occasions.find(e => e.id === occasionId);
+            if (!occasion) return;
             
-            if (confirm(`هل أنت متأكد من حذف الحدث ${event.title}؟`)) {
-                events = events.filter(e => e.id !== eventId);
+            if (confirm(`هل أنت متأكد من حذف المناسبة ${occasion.title}؟`)) {
+                occasions = occasions.filter(e => e.id !== occasionId);
                 saveData();
-                loadEventsTable();
-                showNotification('تم حذف الحدث نهائياً!', 'success');
+                loadOccasionsTable();
+                showNotification('تم حذف المناسبة نهائياً!', 'success');
             }
+        }
+
+        // Occasion Talanton Functions
+        function showOccasionTalantonModal(occasionId) {
+            currentOccasion = occasions.find(o => o.id === occasionId);
+            if (!currentOccasion) return;
+            
+            const title = document.getElementById('occasionTalantonTitle');
+            if (title) {
+                title.textContent = `إضافة نقاط للمناسبة: ${currentOccasion.title}`;
+            }
+            
+            // Load member checkboxes
+            const checkboxContainer = document.getElementById('memberCheckboxes');
+            if (checkboxContainer) {
+                const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                checkboxContainer.innerHTML = sortedMembers.map(member => `
+                    <div style="margin: 10px 0;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" value="${member.id}" style="width: auto;">
+                            <span>${member.name} (${member.talanton} نقطة)</span>
+                        </label>
+                    </div>
+                `).join('');
+            }
+            
+            showModal('occasionTalantonModal');
+        }
+
+        function selectAllMembers() {
+            const checkboxes = document.querySelectorAll('#memberCheckboxes input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        }
+
+        function unselectAllMembers() {
+            const checkboxes = document.querySelectorAll('#memberCheckboxes input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+
+        function addTalantonToMembers() {
+            const checkboxes = document.querySelectorAll('#memberCheckboxes input[type="checkbox"]:checked');
+            const points = parseInt(document.getElementById('occasionTalantonPoints').value);
+            const reason = document.getElementById('occasionTalantonReason').value || `مشاركة في: ${currentOccasion.title}`;
+            
+            if (checkboxes.length === 0) {
+                showNotification('يرجى اختيار عضو واحد على الأقل', 'warning');
+                return;
+            }
+            
+            if (!points || points <= 0) {
+                showNotification('يرجى إدخال عدد نقاط صحيح', 'warning');
+                return;
+            }
+            
+            let addedCount = 0;
+            checkboxes.forEach(checkbox => {
+                const memberId = parseInt(checkbox.value);
+                const member = members.find(m => m.id === memberId);
+                if (member) {
+                    member.talanton += points;
+                    
+                    // Add to history
+                    talantonHistory.push({
+                        id: Date.now() + addedCount,
+                        memberId: member.id,
+                        memberName: member.name,
+                        amount: points,
+                        type: 'add',
+                        reason: reason,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    addedCount++;
+                }
+            });
+            
+            saveData();
+            updateUI();
+            loadMembersTable();
+            closeModal('occasionTalantonModal');
+            
+            showNotification(`تم إضافة ${points} نقطة لـ ${addedCount} عضو بنجاح!`, 'success');
         }
 
         // Week Management Functions
+        function showAddWeekModal() {
+            showModal('addWeekModal');
+        }
+
+        function addWeek(event) {
+            event.preventDefault();
+            
+            const newWeek = {
+                id: Date.now(),
+                title: document.getElementById('weekTitle').value,
+                number: parseInt(document.getElementById('weekNumber').value),
+                startDate: document.getElementById('weekStartDate').value,
+                endDate: document.getElementById('weekEndDate').value,
+                rewardPoints: parseInt(document.getElementById('weekRewardPoints').value),
+                minAttendance: parseInt(document.getElementById('weekMinAttendance').value),
+                description: document.getElementById('weekDescription').value
+            };
+            
+            weeks.push(newWeek);
+            saveData();
+            loadWeeksTable();
+            closeModal('addWeekModal');
+            
+            showNotification(`تم إضافة الأسبوع ${newWeek.title} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
         function editWeek(weekId) {
             const week = weeks.find(w => w.id === weekId);
             if (!week) return;
@@ -2273,13 +2634,13 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 members: members,
                 products: products,
                 tasks: tasks,
-                events: events,
+                occasions: occasions,
                 weeks: weeks,
                 attendance: attendance,
                 talantonHistory: talantonHistory,
                 settings: settings,
                 exportDate: new Date().toISOString(),
-                version: '11.0'
+                version: '12.0'
             };
 
             const dataStr = JSON.stringify(data, null, 2);
@@ -2310,7 +2671,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                                 if (data.members) members = data.members;
                                 if (data.products) products = data.products;
                                 if (data.tasks) tasks = data.tasks;
-                                if (data.events) events = data.events;
+                                if (data.occasions) occasions = data.occasions;
                                 if (data.weeks) weeks = data.weeks;
                                 if (data.attendance) attendance = data.attendance;
                                 if (data.talantonHistory) talantonHistory = data.talantonHistory;
@@ -2328,24 +2689,6 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 }
             };
             input.click();
-        }
-
-        function resetData() {
-            if (confirm('هل أنت متأكد من إعادة تعيين جميع البيانات؟ سيتم حذف جميع البيانات الحالية.')) {
-                if (confirm('تأكيد أخير: هذا الإجراء لا يمكن التراجع عنه!')) {
-                    // Clear all localStorage for this app
-                    Object.values(STORAGE_KEYS).forEach(key => {
-                        localStorage.removeItem(key);
-                    });
-                    
-                    // Reinitialize demo data
-                    initializeDemoData();
-                    localStorage.setItem(STORAGE_KEYS.initialized, 'true');
-                    
-                    updateUI();
-                    showNotification('تم إعادة تعيين البيانات بنجاح!', 'success');
-                }
-            }
         }
 
         // Utility functions

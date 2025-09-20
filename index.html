@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة - النسخة النهائية</title>
+    <title>نظام حضور خدام الملايكة - النسخة النهائية المُصلحة</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Firebase SDK -->
     <script type="module">
@@ -669,9 +669,9 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="version">v13.0 نهائي</div>
+            <div class="version">v14.0 مُصلح</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - النسخة النهائية المحسنة</p>
+            <p>نظام Talanton Pro - النسخة النهائية المُصلحة</p>
         </div>
 
         <!-- Firebase Status -->
@@ -725,7 +725,7 @@
                 <h2>⚡ الحضور السريع</h2>
                 <div class="quick-attendance-input">
                     <p style="margin-bottom: 15px;">أدخل الرقم التسلسلي للعضو:</p>
-                    <input type="number" id="quickAttendanceInput" class="quick-input" placeholder="رقم العضو" min="1" max="99">
+                    <input type="number" id="quickAttendanceInput" class="quick-input" placeholder="رقم العضو" min="1" max="10">
                     <button class="btn btn-success" onclick="quickAttendanceByNumber()" style="margin-left: 10px;">
                         ✅ حضور سريع
                     </button>
@@ -1199,29 +1199,29 @@
 
         // Storage keys
         const STORAGE_KEYS = {
-            members: 'church_members_v13',
-            products: 'church_products_v13',
-            tasks: 'church_tasks_v13',
-            occasions: 'church_occasions_v13',
-            weeks: 'church_weeks_v13',
-            attendance: 'church_attendance_v13',
-            talantonHistory: 'church_talanton_history_v13',
-            settings: 'church_settings_v13',
-            initialized: 'church_system_initialized_v13'
+            members: 'church_members_v14',
+            products: 'church_products_v14',
+            tasks: 'church_tasks_v14',
+            occasions: 'church_occasions_v14',
+            weeks: 'church_weeks_v14',
+            attendance: 'church_attendance_v14',
+            talantonHistory: 'church_talanton_history_v14',
+            settings: 'church_settings_v14',
+            initialized: 'church_system_initialized_v14'
         };
 
-        // Member Levels System
+        // Member Levels System (Fixed - removed Infinity)
         const memberLevels = [
             { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
             { id: 2, name: 'متوسط', minPoints: 101, maxPoints: 300, color: 'level-intermediate', icon: '🌿' },
             { id: 3, name: 'متقدم', minPoints: 301, maxPoints: 600, color: 'level-advanced', icon: '🌳' },
             { id: 4, name: 'خبير', minPoints: 601, maxPoints: 1000, color: 'level-expert', icon: '⭐' },
-            { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: Infinity, color: 'level-legend', icon: '👑' }
+            { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: 99999, color: 'level-legend', icon: '👑' }
         ];
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('تم تحميل النظام النهائي المحسن...');
+            console.log('تم تحميل النظام النهائي المُصلح...');
             loadDataFromLocalStorage();
             updateUI();
             checkBirthdays();
@@ -1238,7 +1238,7 @@
                 themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
             }
             
-            showNotification('تم تحميل النظام النهائي المحسن بنجاح! 🎉', 'success');
+            showNotification('تم تحميل النظام النهائي المُصلح بنجاح! 🎉', 'success');
         });
 
         // Data Management Functions
@@ -1655,9 +1655,14 @@
             showModal('attendanceModal');
         }
 
-        // Calculate level
+        // Calculate level (Fixed function)
         function calculateLevel(points) {
-            return memberLevels.find(level => points >= level.minPoints && points <= level.maxPoints) || memberLevels[0];
+            for (let i = memberLevels.length - 1; i >= 0; i--) {
+                if (points >= memberLevels[i].minPoints) {
+                    return memberLevels[i];
+                }
+            }
+            return memberLevels[0]; // Default to first level if no match
         }
 
         // Simulate fingerprint
@@ -2672,7 +2677,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 talantonHistory: talantonHistory,
                 settings: settings,
                 exportDate: new Date().toISOString(),
-                version: '13.0'
+                version: '14.0'
             };
 
             const dataStr = JSON.stringify(data, null, 2);

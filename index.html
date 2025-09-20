@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة - النسخة النهائية المُصلحة</title>
+    <title>نظام حضور خدام الملايكة - أرقام تسلسلية بلا نهاية</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Firebase SDK -->
     <script type="module">
@@ -669,9 +669,9 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="version">v14.0 مُصلح</div>
+            <div class="version">v15.0 أرقام بلا نهاية</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - النسخة النهائية المُصلحة</p>
+            <p>نظام Talanton Pro - أرقام تسلسلية بلا نهاية مع ترتيب أبجدي</p>
         </div>
 
         <!-- Firebase Status -->
@@ -725,7 +725,7 @@
                 <h2>⚡ الحضور السريع</h2>
                 <div class="quick-attendance-input">
                     <p style="margin-bottom: 15px;">أدخل الرقم التسلسلي للعضو:</p>
-                    <input type="number" id="quickAttendanceInput" class="quick-input" placeholder="رقم العضو" min="1" max="10">
+                    <input type="number" id="quickAttendanceInput" class="quick-input" placeholder="رقم العضو" min="1">
                     <button class="btn btn-success" onclick="quickAttendanceByNumber()" style="margin-left: 10px;">
                         ✅ حضور سريع
                     </button>
@@ -1199,29 +1199,29 @@
 
         // Storage keys
         const STORAGE_KEYS = {
-            members: 'church_members_v14',
-            products: 'church_products_v14',
-            tasks: 'church_tasks_v14',
-            occasions: 'church_occasions_v14',
-            weeks: 'church_weeks_v14',
-            attendance: 'church_attendance_v14',
-            talantonHistory: 'church_talanton_history_v14',
-            settings: 'church_settings_v14',
-            initialized: 'church_system_initialized_v14'
+            members: 'church_members_v15',
+            products: 'church_products_v15',
+            tasks: 'church_tasks_v15',
+            occasions: 'church_occasions_v15',
+            weeks: 'church_weeks_v15',
+            attendance: 'church_attendance_v15',
+            talantonHistory: 'church_talanton_history_v15',
+            settings: 'church_settings_v15',
+            initialized: 'church_system_initialized_v15'
         };
 
-        // Member Levels System (Fixed - removed Infinity)
+        // Member Levels System
         const memberLevels = [
             { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
             { id: 2, name: 'متوسط', minPoints: 101, maxPoints: 300, color: 'level-intermediate', icon: '🌿' },
             { id: 3, name: 'متقدم', minPoints: 301, maxPoints: 600, color: 'level-advanced', icon: '🌳' },
             { id: 4, name: 'خبير', minPoints: 601, maxPoints: 1000, color: 'level-expert', icon: '⭐' },
-            { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: 99999, color: 'level-legend', icon: '👑' }
+            { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: 999999, color: 'level-legend', icon: '👑' }
         ];
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('تم تحميل النظام النهائي المُصلح...');
+            console.log('تم تحميل النظام مع الأرقام التسلسلية بلا نهاية...');
             loadDataFromLocalStorage();
             updateUI();
             checkBirthdays();
@@ -1238,7 +1238,7 @@
                 themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
             }
             
-            showNotification('تم تحميل النظام النهائي المُصلح بنجاح! 🎉', 'success');
+            showNotification('تم تحميل النظام مع الأرقام التسلسلية بلا نهاية! 🎉', 'success');
         });
 
         // Data Management Functions
@@ -1303,73 +1303,80 @@
             }
         }
 
+        // FIXED: Initialize demo data with proper sequential numbering
         function initializeDemoData() {
-            // Initialize demo members (sorted alphabetically with sequential numbers)
-            members = [
+            // Initialize demo members WITHOUT pre-assigned sequential numbers
+            const demoMembers = [
                 { 
-                    id: 1, sequentialNumber: 1, name: 'أحمد محمد الشماس', password: '1234', 
+                    id: 1, name: 'أحمد محمد الشماس', password: '1234', 
                     email: 'ahmed@church.com', phone: '01012345678',
                     birthday: '1995-03-15', talanton: 450, joinDate: '2024-01-15',
                     service: 'altar', area: 'المعادي', status: 'active'
                 },
                 { 
-                    id: 9, sequentialNumber: 2, name: 'علي حسام المبتدئ', password: '1234', 
+                    id: 9, name: 'علي حسام المبتدئ', password: '1234', 
                     email: 'ali@church.com', phone: '01890123456',
                     birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12',
                     service: 'altar', area: 'المطرية', status: 'active'
                 },
                 { 
-                    id: 5, sequentialNumber: 3, name: 'عبدالله سالم المصور', password: '1234', 
+                    id: 5, name: 'عبدالله سالم المصور', password: '1234', 
                     email: 'abdullah@church.com', phone: '01456789012',
                     birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15',
                     service: 'media', area: 'المهندسين', status: 'active'
                 },
                 { 
-                    id: 4, sequentialNumber: 4, name: 'عائشة أحمد المرنمة', password: '1234', 
+                    id: 4, name: 'عائشة أحمد المرنمة', password: '1234', 
                     email: 'aisha@church.com', phone: '01345678901',
                     birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10',
                     service: 'music', area: 'الدقي', status: 'active'
                 },
                 { 
-                    id: 2, sequentialNumber: 5, name: 'فاطمة علي المعلمة', password: '1234', 
+                    id: 2, name: 'فاطمة علي المعلمة', password: '1234', 
                     email: 'fatima@church.com', phone: '01123456789',
                     birthday: '1992-07-22', talanton: 620, joinDate: '2024-01-20',
                     service: 'sunday_school', area: 'مصر الجديدة', status: 'active'
                 },
                 { 
-                    id: 3, sequentialNumber: 6, name: 'محمد حسن الخادم', password: '1234', 
+                    id: 3, name: 'محمد حسن الخادم', password: '1234', 
                     email: 'mohamed@church.com', phone: '01234567890',
                     birthday: '1998-11-08', talanton: 380, joinDate: '2024-02-01',
                     service: 'youth', area: 'الزمالك', status: 'active'
                 },
                 { 
-                    id: 6, sequentialNumber: 7, name: 'مريم خالد الخادمة', password: '1234', 
+                    id: 6, name: 'مريم خالد الخادمة', password: '1234', 
                     email: 'maryam@church.com', phone: '01567890123',
                     birthday: '1993-12-25', talanton: 740, joinDate: '2024-01-25',
                     service: 'sunday_school', area: 'مدينة نصر', status: 'active'
                 },
                 { 
-                    id: 10, sequentialNumber: 8, name: 'نور الهدى الخادمة', password: '1234', 
+                    id: 10, name: 'نور الهدى الخادمة', password: '1234', 
                     email: 'nour@church.com', phone: '01901234567',
                     birthday: '1997-10-27', talanton: 505, joinDate: '2024-01-18',
                     service: 'sunday_school', area: 'مصر القديمة', status: 'active'
                 },
                 { 
-                    id: 7, sequentialNumber: 9, name: 'يوسف عمر الشاب', password: '1234', 
+                    id: 7, name: 'يوسف عمر الشاب', password: '1234', 
                     email: 'youssef@church.com', phone: '01678901234',
                     birthday: '1999-04-18', talanton: 310, joinDate: '2024-02-05',
                     service: 'youth', area: 'العباسية', status: 'active'
                 },
                 { 
-                    id: 8, sequentialNumber: 10, name: 'زينب محمود الأم', password: '1234', 
+                    id: 8, name: 'زينب محمود الأم', password: '1234', 
                     email: 'zainab@church.com', phone: '01789012345',
                     birthday: '1990-08-03', talanton: 485, joinDate: '2024-01-30',
                     service: 'other', area: 'شبرا', status: 'active'
                 }
             ];
 
-            // Sort members alphabetically
-            members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            // FIXED: Sort alphabetically FIRST, then assign sequential numbers
+            demoMembers.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            
+            // Assign sequential numbers based on alphabetical order
+            members = demoMembers.map((member, index) => ({
+                ...member,
+                sequentialNumber: index + 1
+            }));
 
             // Initialize products
             products = [
@@ -1465,7 +1472,7 @@
                 }
             ];
 
-            console.log('تم إنشاء البيانات التجريبية بنجاح');
+            console.log('تم إنشاء البيانات التجريبية مع الترتيب الأبجدي والأرقام التسلسلية');
             saveData();
         }
 
@@ -1519,12 +1526,12 @@
             if (weeklyAttendanceElement) weeklyAttendanceElement.textContent = weeklyRate + '%';
         }
 
-        // Load member dropdown with sequential numbers
+        // FIXED: Load member dropdown - maintains alphabetical order with sequential numbers
         function loadMemberDropdown() {
             const dropdown = document.getElementById('memberDropdown');
             if (!dropdown) return;
             
-            // Sort members alphabetically
+            // Members are already sorted alphabetically with sequential numbers
             const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             
             dropdown.innerHTML = '<option value="">اختر عضو...</option>';
@@ -1558,7 +1565,7 @@
             `).join('');
         }
 
-        // Quick attendance by sequential number
+        // FIXED: Quick attendance by sequential number - no limit
         function quickAttendanceByNumber() {
             const sequentialNumber = parseInt(document.getElementById('quickAttendanceInput').value);
             
@@ -1655,14 +1662,9 @@
             showModal('attendanceModal');
         }
 
-        // Calculate level (Fixed function)
+        // Calculate level
         function calculateLevel(points) {
-            for (let i = memberLevels.length - 1; i >= 0; i--) {
-                if (points >= memberLevels[i].minPoints) {
-                    return memberLevels[i];
-                }
-            }
-            return memberLevels[0]; // Default to first level if no match
+            return memberLevels.find(level => points >= level.minPoints && points <= level.maxPoints) || memberLevels[0];
         }
 
         // Simulate fingerprint
@@ -1941,8 +1943,10 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
         function generateQRCodes() {
             showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
             
-            let qrInfo = 'QR كودات الأعضاء:\n\n';
-            members.forEach(member => {
+            let qrInfo = 'QR كودات الأعضاء (مرتبة أبجدياً):\n\n';
+            // Sort members alphabetically for QR display
+            const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            sortedMembers.forEach(member => {
                 qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
             });
             
@@ -2001,6 +2005,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             loadReportsData();
         }
 
+        // FIXED: Load members table with alphabetical order and sequential numbers
         function loadMembersTable() {
             const table = document.getElementById('membersTable');
             if (!table) return;
@@ -2243,15 +2248,12 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             showModal('addMemberModal');
         }
 
+        // FIXED: Add member with proper sequential numbering
         function addMember(event) {
             event.preventDefault();
             
-            // Get next sequential number
-            const maxSequentialNumber = Math.max(...members.map(m => m.sequentialNumber || 0));
-            
             const newMember = {
                 id: Date.now(),
-                sequentialNumber: maxSequentialNumber + 1,
                 name: document.getElementById('memberName').value,
                 password: document.getElementById('memberPass').value,
                 email: document.getElementById('memberEmail').value,
@@ -2265,12 +2267,19 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             };
             
             members.push(newMember);
+            
+            // FIXED: Re-sort alphabetically and reassign sequential numbers
+            members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            members.forEach((member, index) => {
+                member.sequentialNumber = index + 1;
+            });
+            
             saveData();
             updateUI();
             loadMembersTable();
             closeModal('addMemberModal');
             
-            showNotification(`تم إضافة العضو ${newMember.name} برقم ${newMember.sequentialNumber} بنجاح!`, 'success');
+            showNotification(`تم إضافة العضو ${newMember.name} بنجاح! الرقم التسلسلي: ${newMember.sequentialNumber}`, 'success');
             
             // Reset form
             event.target.reset();
@@ -2283,10 +2292,17 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             const newName = prompt('اسم العضو:', member.name);
             if (newName && newName !== member.name) {
                 member.name = newName;
+                
+                // FIXED: Re-sort and reassign sequential numbers after name change
+                members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                members.forEach((member, index) => {
+                    member.sequentialNumber = index + 1;
+                });
+                
                 saveData();
                 updateUI();
                 loadMembersTable();
-                showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
+                showNotification('تم تحديث بيانات العضو وإعادة ترتيب الأرقام التسلسلية!', 'success');
             }
         }
 
@@ -2299,10 +2315,16 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 attendance = attendance.filter(a => a.memberId !== memberId);
                 talantonHistory = talantonHistory.filter(t => t.memberId !== memberId);
                 
+                // FIXED: Re-assign sequential numbers after deletion
+                members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                members.forEach((member, index) => {
+                    member.sequentialNumber = index + 1;
+                });
+                
                 saveData();
                 updateUI();
                 loadMembersTable();
-                showNotification('تم حذف العضو نهائياً!', 'success');
+                showNotification('تم حذف العضو وإعادة ترتيب الأرقام التسلسلية!', 'success');
             }
         }
 
@@ -2474,7 +2496,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
             }
         }
 
-        // Occasion Talanton Functions
+        // FIXED: Occasion Talanton Functions - shows sequential numbers in alphabetical order
         function showOccasionTalantonModal(occasionId) {
             currentOccasion = occasions.find(o => o.id === occasionId);
             if (!currentOccasion) return;
@@ -2484,7 +2506,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 title.textContent = `إضافة نقاط للمناسبة: ${currentOccasion.title}`;
             }
             
-            // Load member checkboxes
+            // Load member checkboxes - sorted alphabetically with sequential numbers
             const checkboxContainer = document.getElementById('memberCheckboxes');
             if (checkboxContainer) {
                 const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
@@ -2677,7 +2699,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                 talantonHistory: talantonHistory,
                 settings: settings,
                 exportDate: new Date().toISOString(),
-                version: '14.0'
+                version: '15.0'
             };
 
             const dataStr = JSON.stringify(data, null, 2);
@@ -2710,7 +2732,14 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                             const data = JSON.parse(e.target.result);
                             
                             if (confirm('هل أنت متأكد من استيراد البيانات؟ سيتم استبدال البيانات الحالية.')) {
-                                if (data.members) members = data.members;
+                                if (data.members) {
+                                    members = data.members;
+                                    // Re-sort and reassign sequential numbers
+                                    members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                                    members.forEach((member, index) => {
+                                        member.sequentialNumber = index + 1;
+                                    });
+                                }
                                 if (data.products) products = data.products;
                                 if (data.tasks) tasks = data.tasks;
                                 if (data.occasions) occasions = data.occasions;
@@ -2721,7 +2750,7 @@ ${memberTalantonHistory.slice(-5).reverse().map(t =>
                                 
                                 saveData();
                                 updateUI();
-                                showNotification('تم استيراد البيانات بنجاح!', 'success');
+                                showNotification('تم استيراد البيانات وإعادة ترتيب الأرقام التسلسلية بنجاح!', 'success');
                             }
                         } catch (error) {
                             showNotification('خطأ في قراءة الملف!', 'error');

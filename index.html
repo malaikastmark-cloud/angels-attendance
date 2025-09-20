@@ -3,16 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة</title>
+    <title>نظام حضور خدام الملايكة - النظام الكامل</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Firebase SDK v9 -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js';
+        import { 
+            getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, 
+            doc, query, orderBy, onSnapshot, setDoc, serverTimestamp, where, limit
+        } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHso7dhJC7P_akMQQ0oN_8ZMTQqsRoVbY",
+            authDomain: "angel-meeting-attendance.firebaseapp.com",
+            projectId: "angel-meeting-attendance",
+            storageBucket: "angel-meeting-attendance.firebasestorage.app",
+            messagingSenderId: "100624957418",
+            appId: "1:100624957418:web:291d087797cec9ec79fc93",
+            measurementId: "G-2TTXV6CD8F"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+        
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        window.firebaseAnalytics = analytics;
+        window.firebaseUtils = { 
+            addDoc, getDocs, updateDoc, deleteDoc, doc, collection, query, 
+            orderBy, onSnapshot, setDoc, serverTimestamp, where, limit 
+        };
+        
+        console.log('🔥 Firebase initialized successfully');
+        
+        window.testFirebaseConnection = async function() {
+            try {
+                const testDoc = await addDoc(collection(db, 'connection_test'), {
+                    message: 'Firebase connection successful',
+                    timestamp: serverTimestamp(),
+                    browser: navigator.userAgent,
+                    url: window.location.href
+                });
+                console.log('✅ Firebase connection test successful:', testDoc.id);
+                return true;
+            } catch (error) {
+                console.error('❌ Firebase connection test failed:', error);
+                return false;
+            }
+        };
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('firebaseStatus');
+            if (statusElement) {
+                statusElement.className = 'firebase-status firebase-connected';
+                statusElement.innerHTML = '🟢 متصل بـ Firebase - النظام الكامل جاهز';
+            }
+            
+            testFirebaseConnection().then(success => {
+                if (success) {
+                    console.log('🚀 Firebase ready - initializing system');
+                    window.initializeCompleteSystem();
+                } else {
+                    console.error('🚨 Firebase connection failed');
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary-color: #6366f1; --secondary-color: #8b5cf6; --success-color: #10b981;
+            --warning-color: #f59e0b; --danger-color: #ef4444; --info-color: #3b82f6;
+            --dark-bg: #0f172a; --dark-surface: #1e293b; --dark-card: #334155;
+            --light-bg: #f8fafc; --light-surface: #ffffff; --light-card: #f1f5f9;
+            --text-light: #ffffff; --text-dark: #0f172a;
+            --border-light: #e2e8f0; --border-dark: #475569;
+            --shadow-light: rgba(0, 0, 0, 0.1); --shadow-dark: rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--light-bg); --surface-color: var(--light-surface);
+            --card-color: var(--light-card); --text-color: var(--text-dark);
+            --border-color: var(--border-light); --shadow-color: var(--shadow-light);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--dark-bg); --surface-color: var(--dark-surface);
+            --card-color: var(--dark-card); --text-color: var(--text-light);
+            --border-color: var(--border-dark); --shadow-color: var(--shadow-dark);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), var(--card-color));
+            color: var(--text-color); transition: all 0.3s ease; min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; padding: 40px; border-radius: 25px; margin-bottom: 30px;
+            box-shadow: 0 25px 50px var(--shadow-color); text-align: center; position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .header h1 { font-size: 3rem; margin-bottom: 15px; text-shadow: 0 4px 8px rgba(0,0,0,0.3); position: relative; z-index: 1; }
+        .header p { opacity: 0.9; font-size: 1.3rem; position: relative; z-index: 1; }
+
+        .version {
+            position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2);
+            padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; z-index: 2;
+        }
+
+        .controls {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
+            margin-bottom: 30px; background: var(--surface-color); padding: 25px; border-radius: 20px;
+            box-shadow: 0 15px 35px var(--shadow-color);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; border: none; padding: 15px 25px; border-radius: 15px; cursor: pointer;
+            font-size: 16px; font-weight: bold; transition: all 0.3s ease;
+            box-shadow: 0 8px 20px var(--shadow-color); display: flex; align-items: center;
+            justify-content: center; gap: 10px; position: relative; overflow: hidden;
+        }
+
+        .btn::before {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+            background: rgba(255,255,255,0.2); border-radius: 50%; transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before { width: 300px; height: 300px; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px var(--shadow-color); }
+        .btn-success { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .btn-danger { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+        .btn-info { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
+        .btn-secondary { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+        .card {
+            background: var(--surface-color); border-radius: 25px; padding: 35px; margin-bottom: 30px;
+            box-shadow: 0 20px 40px var(--shadow-color); border: 1px solid var(--border-color);
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+
+        .card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before { left: 100%; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 30px 60px var(--shadow-color); }
+
+        .card h2 {
+            color: var(--primary-color); margin-bottom: 25px; font-size: 2rem; font-weight: bold;
+            display: flex; align-items: center; gap: 15px; position: relative; z-index: 1;
+        }
+
+        .member-selector { margin-bottom: 25px; }
+
+        .member-dropdown {
+            width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 15px;
+            background: var(--card-color); color: var(--text-color); font-size: 16px; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .member-dropdown:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .member-info-display {
+            margin-top: 20px; padding: 20px; background: var(--card-color); border-radius: 15px;
+            border: 2px solid var(--border-color); display: none; animation: fadeIn 0.3s ease;
+        }
+
+        .member-info-display.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px; margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; padding: 30px; border-radius: 20px; text-align: center;
+            box-shadow: 0 15px 35px var(--shadow-color); transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .stat-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px var(--shadow-color); }
+        .stat-number { font-size: 3rem; font-weight: bold; margin-bottom: 10px; position: relative; z-index: 1; }
+        .stat-label { opacity: 0.9; font-size: 1.2rem; position: relative; z-index: 1; }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 10000; backdrop-filter: blur(10px);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--surface-color); margin: 5% auto; padding: 40px; border-radius: 25px;
+            width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: var(--text-color); float: left; font-size: 28px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s ease; position: absolute; top: 15px; left: 15px;
+        }
+
+        .close:hover { color: var(--danger-color); transform: scale(1.2) rotate(90deg); }
+
+        .form-group { margin-bottom: 25px; }
+
+        .form-group label {
+            display: block; margin-bottom: 10px; font-weight: bold;
+            color: var(--text-color); font-size: 1.1rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 10px;
+            background: var(--card-color); color: var(--text-color); font-size: 16px; transition: all 0.3s ease;
+        }
+
+        .form-group input[type="password"] { font-family: 'Courier New', monospace; letter-spacing: 2px; }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); transform: scale(1.02);
+        }
+
+        .admin-panel, .member-panel { display: none; }
+
+        .tab-buttons { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
+
+        .tab-btn {
+            background: var(--card-color); border: 2px solid var(--border-color); color: var(--text-color);
+            padding: 15px 25px; border-radius: 15px; cursor: pointer; transition: all 0.3s ease; font-weight: bold;
+            position: relative; overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px;
+            background: var(--primary-color); transition: width 0.3s ease;
+        }
+
+        .tab-btn:hover::before { width: 100%; }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; border-color: var(--primary-color); box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .tab-btn.active::before { width: 100%; background: rgba(255,255,255,0.3); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        .table {
+            width: 100%; border-collapse: collapse; margin-top: 25px; background: var(--surface-color);
+            border-radius: 15px; overflow: hidden; box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .table th, .table td { padding: 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
+
+        .table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white; font-weight: bold; position: relative;
+        }
+
+        .table tr { transition: all 0.3s ease; }
+        .table tr:hover { background: var(--card-color); transform: scale(1.01); }
+
+        .level-badge {
+            padding: 8px 16px; border-radius: 25px; font-size: 0.9rem; font-weight: bold;
+            color: white; display: inline-flex; align-items: center; gap: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        .level-beginner { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .level-intermediate { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
+        .level-advanced { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+        .level-expert { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .level-legend { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+
+        .fingerprint-scanner {
+            text-align: center; padding: 40px; background: var(--card-color);
+            border-radius: 20px; margin: 20px 0; position: relative; overflow: hidden;
+        }
+
+        .fingerprint-scanner::before {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
+            border: 2px solid var(--primary-color); border-radius: 50%; opacity: 0;
+            transform: translate(-50%, -50%); animation: scanPulse 2s infinite;
+        }
+
+        @keyframes scanPulse {
+            0% { width: 100px; height: 100px; opacity: 1; }
+            100% { width: 200px; height: 200px; opacity: 0; }
+        }
+
+        .fingerprint-icon {
+            font-size: 4rem; color: var(--primary-color); margin-bottom: 20px; cursor: pointer;
+            transition: all 0.3s ease; display: inline-block; position: relative; z-index: 1;
+        }
+
+        .fingerprint-icon:hover { transform: scale(1.1); color: var(--success-color); }
+
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 20px; border-radius: 15px;
+            color: white; font-weight: bold; z-index: 10001; min-width: 300px;
+            box-shadow: 0 10px 25px var(--shadow-color); animation: notificationSlide 0.3s ease;
+        }
+
+        @keyframes notificationSlide {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .firebase-status {
+            padding: 15px; border-radius: 10px; margin: 15px 0;
+            text-align: center; font-weight: bold; animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .firebase-connected { background: linear-gradient(135deg, var(--success-color), #059669); color: white; }
+        .firebase-disconnected { background: linear-gradient(135deg, var(--warning-color), #d97706); color: white; }
+
+        .birthday-alert {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white; padding: 15px; border-radius: 15px; margin: 15px 0; text-align: center;
+            animation: birthdayBounce 1s ease infinite alternate;
+        }
+
+        @keyframes birthdayBounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+
+        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+
+        .action-buttons {
+            display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin: 20px 0;
+        }
+
+        .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+
+        .product-card {
+            background: var(--card-color); border: 2px solid var(--border-color);
+            border-radius: 15px; padding: 20px; transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+
+        .product-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+            transition: transform 0.5s ease; transform: rotate(45deg) translateX(-100%);
+        }
+
+        .product-card:hover::before { transform: rotate(45deg) translateX(100%); }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px var(--shadow-color); }
+        .product-price { color: var(--warning-color); font-weight: bold; font-size: 1.2rem; }
+        .product-stock { color: var(--success-color); font-size: 0.9rem; }
+
+        .quick-attendance-input {
+            background: var(--card-color); border: 2px solid var(--border-color);
+            border-radius: 15px; padding: 20px; margin: 20px 0; text-align: center;
+        }
+
+        .quick-input {
+            padding: 15px; border: 2px solid var(--border-color); border-radius: 10px;
+            background: var(--surface-color); color: var(--text-color); font-size: 18px;
+            text-align: center; width: 150px; margin: 0 10px; transition: all 0.3s ease;
+        }
+
+        .quick-input:focus { transform: scale(1.05); box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+
+        .chart-container {
+            position: relative; height: 400px; margin: 30px 0; background: var(--card-color);
+            border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .add-button {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer;
+            font-size: 14px; font-weight: bold; margin-bottom: 20px; transition: all 0.3s ease;
+        }
+
+        .add-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--shadow-color); }
+
+        .status-present { color: var(--success-color); font-weight: bold; }
+        .status-late { color: var(--warning-color); font-weight: bold; }
+        .status-absent { color: var(--danger-color); font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .controls { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .modal-content { width: 95%; margin: 5% auto; padding: 25px; }
+            .tab-buttons { flex-direction: column; }
+            .store-grid { grid-template-columns: 1fr; }
+            .action-buttons { flex-direction: column; }
+        }
+    </style>
 </head>
 <body data-theme="light">
     <div class="container">
         <div class="header">
-            <div class="version">v32.0 Modular</div>
+            <div class="version">v33.0 Single File</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - مقسم إلى ملفات منفصلة</p>
+            <p>نظام Talanton Pro - الملف الكامل مع Firebase</p>
         </div>
 
         <div id="firebaseStatus" class="firebase-status firebase-disconnected">
@@ -348,938 +800,1548 @@
         </div>
     </div>
 
-    <!-- Load JavaScript Files -->
-    <script type="module" src="firebase-config.js"></script>
-    <script src="app.js"></script>
-    <script src="admin.js"></script>
-    <script src="member.js"></script>
-</body>
-</html>
-// Firebase Configuration and Initialization
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js';
-import { 
-    getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, 
-    doc, query, orderBy, onSnapshot, setDoc, serverTimestamp, where, limit
-} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    <script>
+        // Global Variables
+        let currentMember = null, currentProduct = null, isAdmin = false, isMemberLoggedIn = false;
+        let members = [], products = [], tasks = [], occasions = [], weeks = [], attendance = [], talantonHistory = [];
+        let settings = { dailyAttendancePoints: 10, taskCompletionPoints: 5, birthdayAlertDays: 7, maxAbsenceDays: 3 };
+        let firebaseListeners = [];
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBHso7dhJC7P_akMQQ0oN_8ZMTQqsRoVbY",
-    authDomain: "angel-meeting-attendance.firebaseapp.com",
-    projectId: "angel-meeting-attendance",
-    storageBucket: "angel-meeting-attendance.firebasestorage.app",
-    messagingSenderId: "100624957418",
-    appId: "1:100624957418:web:291d087797cec9ec79fc93",
-    measurementId: "G-2TTXV6CD8F"
-};
+        const memberLevels = [
+            { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
+            { id: 2, name: 'متوسط', minPoints: 101, maxPoints: 300, color: 'level-intermediate', icon: '🌿' },
+            { id: 3, name: 'متقدم', minPoints: 301, maxPoints: 600, color: 'level-advanced', icon: '🌳' },
+            { id: 4, name: 'خبير', minPoints: 601, maxPoints: 1000, color: 'level-expert', icon: '⭐' },
+            { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: 999999, color: 'level-legend', icon: '👑' }
+        ];
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
+        // Initialize Complete System
+        window.initializeCompleteSystem = function() {
+            console.log('🚀 تهيئة النظام الكامل...');
+            
+            setTimeout(() => {
+                initializeFirebaseListeners();
+                loadDataFromFirebase();
+                initializeUI();
+                showNotification('🔥 النظام الكامل متصل بـ Firebase مع المزامنة التلقائية!', 'success');
+            }, 1000);
+        };
 
-// Make Firebase available globally
-window.firebaseApp = app;
-window.firebaseDb = db;
-window.firebaseAnalytics = analytics;
-window.firebaseUtils = { 
-    addDoc, getDocs, updateDoc, deleteDoc, doc, collection, query, 
-    orderBy, onSnapshot, setDoc, serverTimestamp, where, limit 
-};
-
-console.log('🔥 Firebase initialized successfully');
-
-// Test Firebase connection
-window.testFirebaseConnection = async function() {
-    try {
-        const testDoc = await addDoc(collection(db, 'connection_test'), {
-            message: 'Firebase connection successful',
-            timestamp: serverTimestamp(),
-            browser: navigator.userAgent,
-            url: window.location.href
-        });
-        console.log('✅ Firebase connection test successful:', testDoc.id);
-        return true;
-    } catch (error) {
-        console.error('❌ Firebase connection test failed:', error);
-        return false;
-    }
-};
-
-// Initialize Firebase listeners when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    const statusElement = document.getElementById('firebaseStatus');
-    if (statusElement) {
-        statusElement.className = 'firebase-status firebase-connected';
-        statusElement.innerHTML = '🟢 متصل بـ Firebase - المزامنة التلقائية مفعلة';
-    }
-    
-    // Test connection and initialize
-    testFirebaseConnection().then(success => {
-        if (success) {
-            console.log('🚀 Firebase ready - initializing system');
-            if (window.initializeCompleteSystem) {
-                window.initializeCompleteSystem();
-            }
-        } else {
-            console.error('🚨 Firebase connection failed - check configuration');
+        // Initialize UI
+        function initializeUI() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
         }
-    });
-});
 
-export { app, db, analytics };
-// Main Application Logic
-let currentMember = null, currentProduct = null, isAdmin = false, isMemberLoggedIn = false;
-let members = [], products = [], tasks = [], occasions = [], weeks = [], attendance = [], talantonHistory = [];
-let settings = { dailyAttendancePoints: 10, taskCompletionPoints: 5, birthdayAlertDays: 7, maxAbsenceDays: 3 };
-let firebaseListeners = [];
+        // Firebase Real-time Listeners
+        function initializeFirebaseListeners() {
+            if (!window.firebaseDb || !window.firebaseUtils) {
+                console.error('❌ Firebase not ready');
+                setTimeout(initializeFirebaseListeners, 2000);
+                return;
+            }
 
-const memberLevels = [
-    { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
-    { id: 2, name: 'متوسط', minPoints: 101, maxPoints: 300, color: 'level-intermediate', icon: '🌿' },
-    { id: 3, name: 'متقدم', minPoints: 301, maxPoints: 600, color: 'level-advanced', icon: '🌳' },
-    { id: 4, name: 'خبير', minPoints: 601, maxPoints: 1000, color: 'level-expert', icon: '⭐' },
-    { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: 999999, color: 'level-legend', icon: '👑' }
-];
+            try {
+                console.log('🔧 تفعيل Firebase Real-time Listeners...');
 
-// Initialize Complete System
-window.initializeCompleteSystem = function() {
-    console.log('🚀 تهيئة النظام الكامل...');
-    
-    setTimeout(() => {
-        initializeFirebaseListeners();
-        loadDataFromFirebase();
-        initializeUI();
-        showNotification('🔥 النظام الكامل متصل بـ Firebase مع المزامنة التلقائية!', 'success');
-    }, 1000);
-};
+                // Members listener
+                const membersQuery = window.firebaseUtils.query(
+                    window.firebaseUtils.collection(window.firebaseDb, 'members'),
+                    window.firebaseUtils.orderBy('name')
+                );
+                
+                const unsubscribeMembers = window.firebaseUtils.onSnapshot(membersQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي للأعضاء من Firebase');
+                    
+                    const newMembers = [];
+                    snapshot.forEach((doc) => {
+                        newMembers.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    const oldCount = members.length;
+                    members = newMembers;
+                    sortMembersAlphabetically();
+                    updateUIComplete();
+                    
+                    if (oldCount > 0) {
+                        showNotification(`تم تحديث بيانات الأعضاء تلقائياً - العدد: ${newMembers.length}`, 'success');
+                    }
+                });
 
-// Initialize UI
-function initializeUI() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
-    const themeIcon = document.getElementById('themeIcon');
-    if (themeIcon) themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
-}
+                // Products listener
+                const productsQuery = window.firebaseUtils.query(
+                    window.firebaseUtils.collection(window.firebaseDb, 'products')
+                );
+                
+                const unsubscribeProducts = window.firebaseUtils.onSnapshot(productsQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي للمنتجات من Firebase');
+                    const newProducts = [];
+                    snapshot.forEach((doc) => {
+                        newProducts.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    products = newProducts;
+                    loadStoreDisplay();
+                    if (isAdmin) loadProductsTable();
+                });
 
-// Firebase Real-time Listeners
-function initializeFirebaseListeners() {
-    if (!window.firebaseDb || !window.firebaseUtils) {
-        console.error('❌ Firebase not ready');
-        setTimeout(initializeFirebaseListeners, 2000);
-        return;
-    }
+                // Attendance listener
+                const attendanceQuery = window.firebaseUtils.query(
+                    window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
+                    window.firebaseUtils.orderBy('timestamp', 'desc')
+                );
+                
+                const unsubscribeAttendance = window.firebaseUtils.onSnapshot(attendanceQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي للحضور من Firebase');
+                    const newAttendance = [];
+                    snapshot.forEach((doc) => {
+                        newAttendance.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    attendance = newAttendance;
+                    updateStats();
+                    updateCharts();
+                });
 
-    try {
-        console.log('🔧 تفعيل Firebase Real-time Listeners...');
+                // Talanton History listener
+                const historyQuery = window.firebaseUtils.query(
+                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                    window.firebaseUtils.orderBy('timestamp', 'desc')
+                );
+                
+                const unsubscribeHistory = window.firebaseUtils.onSnapshot(historyQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي لتاريخ النقاط من Firebase');
+                    const newHistory = [];
+                    snapshot.forEach((doc) => {
+                        newHistory.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    talantonHistory = newHistory;
+                    if (isMemberLoggedIn && currentMember) {
+                        loadMemberDashboard();
+                    }
+                });
 
-        // Members listener
-        const membersQuery = window.firebaseUtils.query(
-            window.firebaseUtils.collection(window.firebaseDb, 'members'),
-            window.firebaseUtils.orderBy('name')
-        );
-        
-        const unsubscribeMembers = window.firebaseUtils.onSnapshot(membersQuery, (snapshot) => {
-            console.log('📥 تحديث تلقائي للأعضاء من Firebase');
-            
-            const newMembers = [];
+                firebaseListeners = [unsubscribeMembers, unsubscribeProducts, unsubscribeAttendance, unsubscribeHistory];
+                console.log('✅ تم تفعيل المزامنة التلقائية بنجاح');
+
+            } catch (error) {
+                console.error('❌ خطأ في تفعيل المزامنة التلقائية:', error);
+                showNotification('خطأ في المزامنة التلقائية', 'error');
+                setTimeout(initializeFirebaseListeners, 5000);
+            }
+        }
+
+        // Load initial data from Firebase
+        async function loadDataFromFirebase() {
+            try {
+                showNotification('جاري تحميل البيانات من Firebase...', 'info');
+                
+                await Promise.all([
+                    loadMembersFromFirebase(),
+                    loadProductsFromFirebase(),
+                    loadTasksFromFirebase(),
+                    loadOccasionsFromFirebase(),
+                    loadAttendanceFromFirebase(),
+                    loadTalantonHistoryFromFirebase()
+                ]);
+
+                if (members.length === 0) {
+                    await initializeDemoDataInFirebase();
+                }
+
+                updateUIComplete();
+                checkBirthdays();
+                initializeCharts();
+                loadTodayOccasions();
+
+                console.log('✅ تم تحميل جميع البيانات من Firebase');
+                showNotification('تم تحميل البيانات بنجاح!', 'success');
+
+            } catch (error) {
+                console.error('❌ خطأ في تحميل البيانات:', error);
+                showNotification('خطأ في تحميل البيانات', 'warning');
+                await initializeDemoDataInFirebase();
+            }
+        }
+
+        // Load specific collections
+        async function loadMembersFromFirebase() {
+            const snapshot = await window.firebaseUtils.getDocs(
+                window.firebaseUtils.collection(window.firebaseDb, 'members')
+            );
+            members = [];
             snapshot.forEach((doc) => {
-                newMembers.push({ id: doc.id, ...doc.data() });
+                members.push({ id: doc.id, ...doc.data() });
             });
-            
-            const oldCount = members.length;
-            members = newMembers;
             sortMembersAlphabetically();
-            updateUIComplete();
-            
-            if (oldCount > 0) {
-                showNotification(`تم تحديث بيانات الأعضاء تلقائياً - العدد: ${newMembers.length}`, 'success');
+        }
+
+        async function loadProductsFromFirebase() {
+            const snapshot = await window.firebaseUtils.getDocs(
+                window.firebaseUtils.collection(window.firebaseDb, 'products')
+            );
+            products = [];
+            snapshot.forEach((doc) => {
+                products.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        async function loadTasksFromFirebase() {
+            const snapshot = await window.firebaseUtils.getDocs(
+                window.firebaseUtils.collection(window.firebaseDb, 'tasks')
+            );
+            tasks = [];
+            snapshot.forEach((doc) => {
+                tasks.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        async function loadOccasionsFromFirebase() {
+            const snapshot = await window.firebaseUtils.getDocs(
+                window.firebaseUtils.collection(window.firebaseDb, 'occasions')
+            );
+            occasions = [];
+            snapshot.forEach((doc) => {
+                occasions.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        async function loadAttendanceFromFirebase() {
+            const snapshot = await window.firebaseUtils.getDocs(
+                window.firebaseUtils.collection(window.firebaseDb, 'attendance')
+            );
+            attendance = [];
+            snapshot.forEach((doc) => {
+                attendance.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        async function loadTalantonHistoryFromFirebase() {
+            const snapshot = await window.firebaseUtils.getDocs(
+                window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory')
+            );
+            talantonHistory = [];
+            snapshot.forEach((doc) => {
+                talantonHistory.push({ id: doc.id, ...doc.data() });
+            });
+        }
+
+        function sortMembersAlphabetically() {
+            members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            members.forEach((member, index) => {
+                member.sequentialNumber = index + 1;
+            });
+        }
+
+        // Initialize demo data
+        async function initializeDemoDataInFirebase() {
+            try {
+                showNotification('جاري إنشاء البيانات التجريبية...', 'info');
+
+                const demoMembers = [
+                    { name: 'أحمد محمد الشماس', password: '1234', email: 'ahmed@church.com', phone: '01012345678',
+                      birthday: '1995-03-15', talanton: 450, joinDate: '2024-01-15', service: 'altar', area: 'المعادي', status: 'active' },
+                    { name: 'علي حسام المبتدئ', password: '1234', email: 'ali@church.com', phone: '01890123456',
+                      birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12', service: 'altar', area: 'المطرية', status: 'active' },
+                    { name: 'عبدالله سالم المصور', password: '1234', email: 'abdullah@church.com', phone: '01456789012',
+                      birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15', service: 'media', area: 'المهندسين', status: 'active' },
+                    { name: 'عائشة أحمد المرنمة', password: '1234', email: 'aisha@church.com', phone: '01345678901',
+                      birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10', service: 'music', area: 'الدقي', status: 'active' },
+                    { name: 'فاطمة علي المعلمة', password: '1234', email: 'fatima@church.com', phone: '01123456789',
+                      birthday: '1992-07-22', talanton: 620, joinDate: '2024-01-20', service: 'sunday_school', area: 'مصر الجديدة', status: 'active' }
+                ];
+
+                for (const memberData of demoMembers) {
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'members'),
+                        {
+                            ...memberData,
+                            createdAt: window.firebaseUtils.serverTimestamp(),
+                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
+                }
+
+                const demoProducts = [
+                    { name: 'كتاب الأجبية المقدسة', price: 80, description: 'كتاب الأجبية الكامل', category: 'books', stock: 15 },
+                    { name: 'مسبحة خشبية', price: 45, description: 'مسبحة من الخشب الطبيعي', category: 'accessories', stock: 25 },
+                    { name: 'صليب ذهبي', price: 120, description: 'صليب مطلي بالذهب', category: 'accessories', stock: 8 },
+                    { name: 'شهادة تقدير', price: 200, description: 'شهادة تقدير للخدمة', category: 'certificates', stock: 50 },
+                    { name: 'تيشيرت الخدمة', price: 60, description: 'تيشيرت بشعار الكنيسة', category: 'clothing', stock: 30 }
+                ];
+
+                for (const productData of demoProducts) {
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'products'),
+                        productData
+                    );
+                }
+
+                const demoTasks = [
+                    { title: 'حضور القداس الإلهي', points: 15, type: 'weekly', priority: 'high', 
+                      description: 'المشاركة في القداس الإلهي كل أسبوع', status: 'active', assignedService: 'all' },
+                    { title: 'تحضير درس مدرسة الأحد', points: 10, type: 'weekly', priority: 'medium',
+                      description: 'تحضير وتقديم درس في مدرسة الأحد', status: 'active', assignedService: 'sunday_school' },
+                    { title: 'خدمة المذبح', points: 12, type: 'weekly', priority: 'high',
+                      description: 'المساعدة في خدمة المذبح', status: 'active', assignedService: 'altar' }
+                ];
+
+                for (const taskData of demoTasks) {
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'tasks'),
+                        taskData
+                    );
+                }
+
+                const demoOccasions = [
+                    { title: 'احتفال عيد الميلاد المجيد', type: 'celebration', date: '2024-12-25', time: '18:00', 
+                      location: 'الكنيسة الكبرى', points: 25, description: 'احتفال كبير بمناسبة عيد الميلاد المجيد' },
+                    { title: 'اجتماع الخدام الشهري', type: 'meeting', date: '2024-03-15', time: '19:00', 
+                      location: 'قاعة الاجتماعات', points: 10, description: 'الاجتماع الشهري لجميع الخدام' }
+                ];
+
+                for (const occasionData of demoOccasions) {
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'occasions'),
+                        occasionData
+                    );
+                }
+
+                console.log('✅ تم إنشاء البيانات التجريبية');
+                showNotification('تم إنشاء البيانات التجريبية بنجاح!', 'success');
+
+            } catch (error) {
+                console.error('❌ خطأ في إنشاء البيانات التجريبية:', error);
+                showNotification('خطأ في إنشاء البيانات التجريبية', 'error');
             }
-        });
+        }
 
-        // Products listener
-        const productsQuery = window.firebaseUtils.query(
-            window.firebaseUtils.collection(window.firebaseDb, 'products')
-        );
-        
-        const unsubscribeProducts = window.firebaseUtils.onSnapshot(productsQuery, (snapshot) => {
-            console.log('📥 تحديث تلقائي للمنتجات من Firebase');
-            const newProducts = [];
-            snapshot.forEach((doc) => {
-                newProducts.push({ id: doc.id, ...doc.data() });
-            });
-            
-            products = newProducts;
-            loadStoreDisplay();
-            if (isAdmin && window.loadProductsTable) window.loadProductsTable();
-        });
-
-        // Attendance listener
-        const attendanceQuery = window.firebaseUtils.query(
-            window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
-            window.firebaseUtils.orderBy('timestamp', 'desc')
-        );
-        
-        const unsubscribeAttendance = window.firebaseUtils.onSnapshot(attendanceQuery, (snapshot) => {
-            console.log('📥 تحديث تلقائي للحضور من Firebase');
-            const newAttendance = [];
-            snapshot.forEach((doc) => {
-                newAttendance.push({ id: doc.id, ...doc.data() });
-            });
-            
-            attendance = newAttendance;
+        // UI Update Functions
+        function updateUIComplete() {
             updateStats();
-            updateCharts();
-        });
-
-        firebaseListeners = [unsubscribeMembers, unsubscribeProducts, unsubscribeAttendance];
-        console.log('✅ تم تفعيل المزامنة التلقائية بنجاح');
-
-    } catch (error) {
-        console.error('❌ خطأ في تفعيل المزامنة التلقائية:', error);
-        showNotification('خطأ في المزامنة التلقائية', 'error');
-        setTimeout(initializeFirebaseListeners, 5000);
-    }
-}
-
-// Load initial data from Firebase
-async function loadDataFromFirebase() {
-    try {
-        showNotification('جاري تحميل البيانات من Firebase...', 'info');
-        
-        await Promise.all([
-            loadMembersFromFirebase(),
-            loadProductsFromFirebase(),
-            loadTasksFromFirebase(),
-            loadOccasionsFromFirebase(),
-            loadAttendanceFromFirebase(),
-            loadTalantonHistoryFromFirebase()
-        ]);
-
-        if (members.length === 0) {
-            await initializeDemoDataInFirebase();
-        }
-
-        updateUIComplete();
-        checkBirthdays();
-        initializeCharts();
-        loadTodayOccasions();
-
-        console.log('✅ تم تحميل جميع البيانات من Firebase');
-        showNotification('تم تحميل البيانات بنجاح!', 'success');
-
-    } catch (error) {
-        console.error('❌ خطأ في تحميل البيانات:', error);
-        showNotification('خطأ في تحميل البيانات', 'warning');
-        await initializeDemoDataInFirebase();
-    }
-}
-
-// Load specific collections
-async function loadMembersFromFirebase() {
-    const snapshot = await window.firebaseUtils.getDocs(
-        window.firebaseUtils.collection(window.firebaseDb, 'members')
-    );
-    members = [];
-    snapshot.forEach((doc) => {
-        members.push({ id: doc.id, ...doc.data() });
-    });
-    sortMembersAlphabetically();
-}
-
-async function loadProductsFromFirebase() {
-    const snapshot = await window.firebaseUtils.getDocs(
-        window.firebaseUtils.collection(window.firebaseDb, 'products')
-    );
-    products = [];
-    snapshot.forEach((doc) => {
-        products.push({ id: doc.id, ...doc.data() });
-    });
-}
-
-async function loadTasksFromFirebase() {
-    const snapshot = await window.firebaseUtils.getDocs(
-        window.firebaseUtils.collection(window.firebaseDb, 'tasks')
-    );
-    tasks = [];
-    snapshot.forEach((doc) => {
-        tasks.push({ id: doc.id, ...doc.data() });
-    });
-}
-
-async function loadOccasionsFromFirebase() {
-    const snapshot = await window.firebaseUtils.getDocs(
-        window.firebaseUtils.collection(window.firebaseDb, 'occasions')
-    );
-    occasions = [];
-    snapshot.forEach((doc) => {
-        occasions.push({ id: doc.id, ...doc.data() });
-    });
-}
-
-async function loadAttendanceFromFirebase() {
-    const snapshot = await window.firebaseUtils.getDocs(
-        window.firebaseUtils.collection(window.firebaseDb, 'attendance')
-    );
-    attendance = [];
-    snapshot.forEach((doc) => {
-        attendance.push({ id: doc.id, ...doc.data() });
-    });
-}
-
-async function loadTalantonHistoryFromFirebase() {
-    const snapshot = await window.firebaseUtils.getDocs(
-        window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory')
-    );
-    talantonHistory = [];
-    snapshot.forEach((doc) => {
-        talantonHistory.push({ id: doc.id, ...doc.data() });
-    });
-}
-
-function sortMembersAlphabetically() {
-    members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-    members.forEach((member, index) => {
-        member.sequentialNumber = index + 1;
-    });
-}
-
-// Initialize demo data
-async function initializeDemoDataInFirebase() {
-    try {
-        showNotification('جاري إنشاء البيانات التجريبية...', 'info');
-
-        const demoMembers = [
-            { name: 'أحمد محمد الشماس', password: '1234', email: 'ahmed@church.com', phone: '01012345678',
-              birthday: '1995-03-15', talanton: 450, joinDate: '2024-01-15', service: 'altar', area: 'المعادي', status: 'active' },
-            { name: 'علي حسام المبتدئ', password: '1234', email: 'ali@church.com', phone: '01890123456',
-              birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12', service: 'altar', area: 'المطرية', status: 'active' },
-            { name: 'عبدالله سالم المصور', password: '1234', email: 'abdullah@church.com', phone: '01456789012',
-              birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15', service: 'media', area: 'المهندسين', status: 'active' },
-            { name: 'عائشة أحمد المرنمة', password: '1234', email: 'aisha@church.com', phone: '01345678901',
-              birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10', service: 'music', area: 'الدقي', status: 'active' },
-            { name: 'فاطمة علي المعلمة', password: '1234', email: 'fatima@church.com', phone: '01123456789',
-              birthday: '1992-07-22', talanton: 620, joinDate: '2024-01-20', service: 'sunday_school', area: 'مصر الجديدة', status: 'active' }
-        ];
-
-        for (const memberData of demoMembers) {
-            await window.firebaseUtils.addDoc(
-                window.firebaseUtils.collection(window.firebaseDb, 'members'),
-                {
-                    ...memberData,
-                    createdAt: window.firebaseUtils.serverTimestamp(),
-                    lastUpdated: window.firebaseUtils.serverTimestamp()
+            checkBirthdays();
+            loadTodayOccasions();
+            loadMemberDropdown();
+            loadMemberLoginDropdown();
+            loadStoreDisplay();
+            loadLeaderboard();
+            
+            if (currentMember) {
+                const updatedMember = members.find(m => m.id === currentMember.id);
+                if (updatedMember) {
+                    currentMember = updatedMember;
+                    displaySelectedMember();
                 }
-            );
+            }
+            
+            if (isAdmin) {
+                loadAdminData();
+            }
+            
+            if (isMemberLoggedIn && currentMember) {
+                loadMemberDashboard();
+            }
         }
 
-        const demoProducts = [
-            { name: 'كتاب الأجبية المقدسة', price: 80, description: 'كتاب الأجبية الكامل', category: 'books', stock: 15 },
-            { name: 'مسبحة خشبية', price: 45, description: 'مسبحة من الخشب الطبيعي', category: 'accessories', stock: 25 },
-            { name: 'صليب ذهبي', price: 120, description: 'صليب مطلي بالذهب', category: 'accessories', stock: 8 },
-            { name: 'شهادة تقدير', price: 200, description: 'شهادة تقدير للخدمة', category: 'certificates', stock: 50 },
-            { name: 'تيشيرت الخدمة', price: 60, description: 'تيشيرت بشعار الكنيسة', category: 'clothing', stock: 30 }
-        ];
+        function updateStats() {
+            const totalMembersElement = document.getElementById('totalMembers');
+            const presentTodayElement = document.getElementById('presentToday');
+            const totalTalantonElement = document.getElementById('totalTalanton');
+            const weeklyAttendanceElement = document.getElementById('weeklyAttendance');
 
-        for (const productData of demoProducts) {
-            await window.firebaseUtils.addDoc(
-                window.firebaseUtils.collection(window.firebaseDb, 'products'),
-                productData
-            );
+            if (totalMembersElement) totalMembersElement.textContent = members.length;
+
+            const today = new Date().toISOString().split('T')[0];
+            const presentToday = attendance.filter(a => a.date === today).length;
+            if (presentTodayElement) presentTodayElement.textContent = presentToday;
+
+            const totalTalanton = members.reduce((sum, member) => sum + (member.talanton || 0), 0);
+            if (totalTalantonElement) totalTalantonElement.textContent = totalTalanton;
+
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - 7);
+            const weekAttendance = attendance.filter(a => new Date(a.date) >= weekStart);
+            const weeklyRate = members.length > 0 ? Math.round((weekAttendance.length / (members.length * 7)) * 100) : 0;
+            if (weeklyAttendanceElement) weeklyAttendanceElement.textContent = weeklyRate + '%';
         }
 
-        console.log('✅ تم إنشاء البيانات التجريبية');
-        showNotification('تم إنشاء البيانات التجريبية بنجاح!', 'success');
-
-    } catch (error) {
-        console.error('❌ خطأ في إنشاء البيانات التجريبية:', error);
-        showNotification('خطأ في إنشاء البيانات التجريبية', 'error');
-    }
-}
-
-// UI Update Functions
-function updateUIComplete() {
-    updateStats();
-    checkBirthdays();
-    loadTodayOccasions();
-    loadMemberDropdown();
-    loadMemberLoginDropdown();
-    loadStoreDisplay();
-    loadLeaderboard();
-    
-    if (currentMember) {
-        const updatedMember = members.find(m => m.id === currentMember.id);
-        if (updatedMember) {
-            currentMember = updatedMember;
-            displaySelectedMember();
-        }
-    }
-    
-    if (isAdmin && window.loadAdminData) {
-        window.loadAdminData();
-    }
-    
-    if (isMemberLoggedIn && currentMember && window.loadMemberDashboard) {
-        window.loadMemberDashboard();
-    }
-}
-
-function updateStats() {
-    const totalMembersElement = document.getElementById('totalMembers');
-    const presentTodayElement = document.getElementById('presentToday');
-    const totalTalantonElement = document.getElementById('totalTalanton');
-    const weeklyAttendanceElement = document.getElementById('weeklyAttendance');
-
-    if (totalMembersElement) totalMembersElement.textContent = members.length;
-
-    const today = new Date().toISOString().split('T')[0];
-    const presentToday = attendance.filter(a => a.date === today).length;
-    if (presentTodayElement) presentTodayElement.textContent = presentToday;
-
-    const totalTalanton = members.reduce((sum, member) => sum + (member.talanton || 0), 0);
-    if (totalTalantonElement) totalTalantonElement.textContent = totalTalanton;
-
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - 7);
-    const weekAttendance = attendance.filter(a => new Date(a.date) >= weekStart);
-    const weeklyRate = members.length > 0 ? Math.round((weekAttendance.length / (members.length * 7)) * 100) : 0;
-    if (weeklyAttendanceElement) weeklyAttendanceElement.textContent = weeklyRate + '%';
-}
-
-function loadMemberDropdown() {
-    const dropdown = document.getElementById('memberDropdown');
-    if (!dropdown) return;
-    
-    dropdown.innerHTML = '<option value="">اختر عضو...</option>';
-    members.forEach(member => {
-        const level = calculateLevel(member.talanton || 0);
-        dropdown.innerHTML += `
-            <option value="${member.id}">
-                ${member.sequentialNumber}. ${member.name} - ${level.icon} ${level.name} (${member.talanton || 0} نقطة)
-            </option>
-        `;
-    });
-}
-
-function loadMemberLoginDropdown() {
-    const dropdown = document.getElementById('memberLoginDropdown');
-    if (!dropdown) return;
-    
-    dropdown.innerHTML = '<option value="">اختر عضو...</option>';
-    members.forEach(member => {
-        dropdown.innerHTML += `
-            <option value="${member.id}">${member.name}</option>
-        `;
-    });
-}
-
-function loadStoreDisplay() {
-    const storeDisplay = document.getElementById('storeDisplay');
-    if (!storeDisplay) return;
-    
-    storeDisplay.innerHTML = products.map(product => `
-        <div class="product-card">
-            <h4 style="color: var(--primary-color); margin-bottom: 10px;">${product.name}</h4>
-            <p style="margin-bottom: 15px; opacity: 0.8;">${product.description}</p>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <span class="product-price">💰 ${product.price} نقطة</span>
-                <span class="product-stock">📦 ${product.stock} متوفر</span>
-            </div>
-            <div style="text-align: center;">
-                ${isMemberLoggedIn ? 
-                    `<button class="btn btn-success" onclick="showPurchaseModal('${product.id}')" style="width: 100%;">🛒 شراء</button>` :
-                    `<div style="padding: 10px; background: var(--surface-color); border-radius: 10px; font-size: 0.9rem; opacity: 0.7;">للشراء: قم بتسجيل الدخول كعضو</div>`
-                }
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadLeaderboard() {
-    const leaderboard = document.getElementById('leaderboard');
-    if (!leaderboard) return;
-    
-    const sortedMembers = [...members].sort((a, b) => (b.talanton || 0) - (a.talanton || 0)).slice(0, 10);
-    
-    leaderboard.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            ${sortedMembers.map((member, index) => {
+        function loadMemberDropdown() {
+            const dropdown = document.getElementById('memberDropdown');
+            if (!dropdown) return;
+            
+            dropdown.innerHTML = '<option value="">اختر عضو...</option>';
+            members.forEach(member => {
                 const level = calculateLevel(member.talanton || 0);
-                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                return `
-                    <div style="background: var(--card-color); border: 2px solid var(--border-color); border-radius: 15px; padding: 20px; text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 10px;">${medal}</div>
-                        <h4 style="color: var(--primary-color); margin-bottom: 10px;">${member.name}</h4>
-                        <div class="level-badge ${level.color}" style="margin-bottom: 10px;">
+                dropdown.innerHTML += `
+                    <option value="${member.id}">
+                        ${member.sequentialNumber}. ${member.name} - ${level.icon} ${level.name} (${member.talanton || 0} نقطة)
+                    </option>
+                `;
+            });
+        }
+
+        function loadMemberLoginDropdown() {
+            const dropdown = document.getElementById('memberLoginDropdown');
+            if (!dropdown) return;
+            
+            dropdown.innerHTML = '<option value="">اختر عضو...</option>';
+            members.forEach(member => {
+                dropdown.innerHTML += `
+                    <option value="${member.id}">${member.name}</option>
+                `;
+            });
+        }
+
+        function loadStoreDisplay() {
+            const storeDisplay = document.getElementById('storeDisplay');
+            if (!storeDisplay) return;
+            
+            storeDisplay.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <h4 style="color: var(--primary-color); margin-bottom: 10px;">${product.name}</h4>
+                    <p style="margin-bottom: 15px; opacity: 0.8;">${product.description}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span class="product-price">💰 ${product.price} نقطة</span>
+                        <span class="product-stock">📦 ${product.stock} متوفر</span>
+                    </div>
+                    <div style="text-align: center;">
+                        ${isMemberLoggedIn ? 
+                            `<button class="btn btn-success" onclick="showPurchaseModal('${product.id}')" style="width: 100%;">🛒 شراء</button>` :
+                            `<div style="padding: 10px; background: var(--surface-color); border-radius: 10px; font-size: 0.9rem; opacity: 0.7;">للشراء: قم بتسجيل الدخول كعضو</div>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadLeaderboard() {
+            const leaderboard = document.getElementById('leaderboard');
+            if (!leaderboard) return;
+            
+            const sortedMembers = [...members].sort((a, b) => (b.talanton || 0) - (a.talanton || 0)).slice(0, 10);
+            
+            leaderboard.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    ${sortedMembers.map((member, index) => {
+                        const level = calculateLevel(member.talanton || 0);
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                        return `
+                            <div style="background: var(--card-color); border: 2px solid var(--border-color); border-radius: 15px; padding: 20px; text-align: center;">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">${medal}</div>
+                                <h4 style="color: var(--primary-color); margin-bottom: 10px;">${member.name}</h4>
+                                <div class="level-badge ${level.color}" style="margin-bottom: 10px;">
+                                    ${level.icon} ${level.name}
+                                </div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">
+                                    💰 ${member.talanton || 0} نقطة
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Member Selection Functions
+        function quickAttendanceByNumber() {
+            const sequentialNumber = parseInt(document.getElementById('quickAttendanceInput').value);
+            
+            if (!sequentialNumber || sequentialNumber < 1) {
+                showNotification('يرجى إدخال رقم صحيح!', 'warning');
+                return;
+            }
+            
+            const member = members.find(m => m.sequentialNumber === sequentialNumber);
+            if (member) {
+                currentMember = member;
+                document.getElementById('memberDropdown').value = member.id;
+                displaySelectedMember();
+                showAttendanceModal();
+                document.getElementById('quickAttendanceInput').value = '';
+            } else {
+                showNotification(`لا يوجد عضو برقم ${sequentialNumber}!`, 'error');
+            }
+        }
+
+        function selectMemberFromDropdown() {
+            const dropdown = document.getElementById('memberDropdown');
+            const memberId = dropdown.value;
+            
+            if (memberId) {
+                currentMember = members.find(m => m.id === memberId);
+                if (currentMember) {
+                    displaySelectedMember();
+                }
+            } else {
+                document.getElementById('memberInfoDisplay').classList.remove('active');
+            }
+        }
+
+        function displaySelectedMember() {
+            const infoDisplay = document.getElementById('memberInfoDisplay');
+            const selectedMemberInfo = document.getElementById('selectedMemberInfo');
+            
+            if (!currentMember) return;
+            
+            const level = calculateLevel(currentMember.talanton || 0);
+            const today = new Date().toISOString().split('T')[0];
+            const todayAttendance = attendance.find(a => 
+                a.memberId === currentMember.id && a.date === today
+            );
+            
+            let statusClass = 'status-absent';
+            let statusText = 'غائب اليوم';
+            
+            if (todayAttendance) {
+                statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
+                statusText = todayAttendance.type === 'late' ? 'حاضر متأخر' : 'حاضر اليوم';
+            }
+
+            selectedMemberInfo.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="color: var(--primary-color); margin-bottom: 10px;">
+                            ${currentMember.sequentialNumber}. ${currentMember.name}
+                        </h3>
+                        <div class="level-badge ${level.color}">
                             ${level.icon} ${level.name}
                         </div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color);">
-                            💰 ${member.talanton || 0} نقطة
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--warning-color); font-weight: bold;">💰 ${currentMember.talanton || 0}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">نقاط Talanton</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div><strong>📱 الهاتف:</strong> ${currentMember.phone || 'غير محدد'}</div>
+                    <div><strong>🏠 المنطقة:</strong> ${currentMember.area || 'غير محدد'}</div>
+                    <div><strong>⛪ الخدمة:</strong> ${getServiceName(currentMember.service)}</div>
+                    <div><strong>📅 حالة اليوم:</strong> <span class="${statusClass}">${statusText}</span></div>
+                </div>
+            `;
+            
+            infoDisplay.classList.add('active');
+        }
+
+        // Attendance Functions
+        function showAttendanceModal() {
+            if (!currentMember) {
+                showNotification('يرجى اختيار عضو أولاً', 'warning');
+                return;
+            }
+            
+            const attendanceTitle = document.getElementById('attendanceTitle');
+            if (attendanceTitle) {
+                attendanceTitle.textContent = `تسجيل حضور: ${currentMember.name}`;
+            }
+            showModal('attendanceModal');
+        }
+
+        function simulateFingerprint() {
+            const icon = document.querySelector('.fingerprint-icon');
+            if (icon) {
+                icon.style.color = 'var(--success-color)';
+                
+                setTimeout(() => {
+                    showNotification('تم التحقق من البصمة بنجاح!', 'success');
+                    markAttendance();
+                }, 1000);
+            }
+        }
+
+        async function markAttendance() {
+            if (!currentMember) {
+                showNotification('خطأ: لم يتم اختيار عضو', 'error');
+                return;
+            }
+
+            const password = document.getElementById('memberPassword').value;
+            const attendanceType = document.getElementById('attendanceType').value;
+            const notes = document.getElementById('attendanceNotes').value;
+            
+            if (password && password !== currentMember.password) {
+                showNotification('كلمة المرور غير صحيحة!', 'error');
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const existingAttendance = attendance.find(a => 
+                a.memberId === currentMember.id && a.date === today
+            );
+
+            if (existingAttendance) {
+                showNotification('تم تسجيل حضورك اليوم مسبقاً!', 'warning');
+                return;
+            }
+
+            try {
+                let attendanceReward = settings.dailyAttendancePoints;
+                if (attendanceType === 'early') attendanceReward += 5;
+                else if (attendanceType === 'late') attendanceReward -= 3;
+                else if (attendanceType === 'makeup') attendanceReward = Math.floor(attendanceReward * 0.7);
+
+                const attendanceData = {
+                    memberId: currentMember.id,
+                    memberName: currentMember.name,
+                    date: today,
+                    type: attendanceType,
+                    notes: notes,
+                    timestamp: window.firebaseUtils.serverTimestamp()
+                };
+
+                await window.firebaseUtils.addDoc(
+                    window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
+                    attendanceData
+                );
+
+                const newTalanton = (currentMember.talanton || 0) + attendanceReward;
+                await window.firebaseUtils.updateDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
+                    { 
+                        talanton: newTalanton,
+                        lastUpdated: window.firebaseUtils.serverTimestamp()
+                    }
+                );
+
+                const historyData = {
+                    memberId: currentMember.id,
+                    memberName: currentMember.name,
+                    amount: attendanceReward,
+                    type: 'add',
+                    reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
+                            attendanceType === 'early' ? 'مبكر' :
+                            attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
+                    date: today,
+                    timestamp: window.firebaseUtils.serverTimestamp()
+                };
+
+                await window.firebaseUtils.addDoc(
+                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                    historyData
+                );
+
+                showNotification(`تم تسجيل حضورك بنجاح! حصلت على ${attendanceReward} نقاط Talanton`, 'success');
+                closeModal('attendanceModal');
+                resetAttendanceForm();
+
+            } catch (error) {
+                console.error('❌ خطأ في تسجيل الحضور:', error);
+                showNotification('خطأ في تسجيل الحضور', 'error');
+            }
+        }
+
+        function resetAttendanceForm() {
+            const memberPasswordInput = document.getElementById('memberPassword');
+            const attendanceTypeSelect = document.getElementById('attendanceType');
+            const attendanceNotesTextarea = document.getElementById('attendanceNotes');
+            
+            if (memberPasswordInput) memberPasswordInput.value = '';
+            if (attendanceTypeSelect) attendanceTypeSelect.value = 'regular';
+            if (attendanceNotesTextarea) attendanceNotesTextarea.value = '';
+            
+            const fingerprintIcon = document.querySelector('.fingerprint-icon');
+            if (fingerprintIcon) {
+                fingerprintIcon.style.color = 'var(--primary-color)';
+            }
+        }
+
+        // Purchase Functions
+        function showPurchaseModal(productId) {
+            if (!isMemberLoggedIn || !currentMember) {
+                showNotification('يرجى تسجيل الدخول أولاً', 'warning');
+                return;
+            }
+            
+            currentProduct = products.find(p => p.id === productId);
+            if (!currentProduct) return;
+            
+            if (currentProduct.stock <= 0) {
+                showNotification('المنتج غير متوفر حالياً', 'warning');
+                return;
+            }
+            
+            if (currentMember.talanton < currentProduct.price) {
+                showNotification('رصيدك من النقاط غير كافي لشراء هذا المنتج', 'warning');
+                return;
+            }
+            
+            const purchaseTitle = document.getElementById('purchaseTitle');
+            const purchaseDetails = document.getElementById('purchaseDetails');
+            
+            if (purchaseTitle) {
+                purchaseTitle.textContent = `شراء: ${currentProduct.name}`;
+            }
+            
+            if (purchaseDetails) {
+                purchaseDetails.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h3 style="color: var(--primary-color);">${currentProduct.name}</h3>
+                        <p style="margin: 15px 0;">${currentProduct.description}</p>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color); margin: 15px 0;">
+                            💰 ${currentProduct.price} نقطة
+                        </div>
+                        <div style="margin-bottom: 15px;">📦 متوفر: ${currentProduct.stock} قطعة</div>
+                        <div style="background: var(--card-color); padding: 15px; border-radius: 10px;">
+                            <div>رصيدك الحالي: ${currentMember.talanton} نقطة</div>
+                            <div>الرصيد بعد الشراء: ${currentMember.talanton - currentProduct.price} نقطة</div>
                         </div>
                     </div>
                 `;
-            }).join('')}
-        </div>
-    `;
-}
-
-// Member Selection Functions
-function quickAttendanceByNumber() {
-    const sequentialNumber = parseInt(document.getElementById('quickAttendanceInput').value);
-    
-    if (!sequentialNumber || sequentialNumber < 1) {
-        showNotification('يرجى إدخال رقم صحيح!', 'warning');
-        return;
-    }
-    
-    const member = members.find(m => m.sequentialNumber === sequentialNumber);
-    if (member) {
-        currentMember = member;
-        document.getElementById('memberDropdown').value = member.id;
-        displaySelectedMember();
-        showAttendanceModal();
-        document.getElementById('quickAttendanceInput').value = '';
-    } else {
-        showNotification(`لا يوجد عضو برقم ${sequentialNumber}!`, 'error');
-    }
-}
-
-function selectMemberFromDropdown() {
-    const dropdown = document.getElementById('memberDropdown');
-    const memberId = dropdown.value;
-    
-    if (memberId) {
-        currentMember = members.find(m => m.id === memberId);
-        if (currentMember) {
-            displaySelectedMember();
-        }
-    } else {
-        document.getElementById('memberInfoDisplay').classList.remove('active');
-    }
-}
-
-function displaySelectedMember() {
-    const infoDisplay = document.getElementById('memberInfoDisplay');
-    const selectedMemberInfo = document.getElementById('selectedMemberInfo');
-    
-    if (!currentMember) return;
-    
-    const level = calculateLevel(currentMember.talanton || 0);
-    const today = new Date().toISOString().split('T')[0];
-    const todayAttendance = attendance.find(a => 
-        a.memberId === currentMember.id && a.date === today
-    );
-    
-    let statusClass = 'status-absent';
-    let statusText = 'غائب اليوم';
-    
-    if (todayAttendance) {
-        statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
-        statusText = todayAttendance.type === 'late' ? 'حاضر متأخر' : 'حاضر اليوم';
-    }
-
-    selectedMemberInfo.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div>
-                <h3 style="color: var(--primary-color); margin-bottom: 10px;">
-                    ${currentMember.sequentialNumber}. ${currentMember.name}
-                </h3>
-                <div class="level-badge ${level.color}">
-                    ${level.icon} ${level.name}
-                </div>
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 2rem; color: var(--warning-color); font-weight: bold;">💰 ${currentMember.talanton || 0}</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">نقاط Talanton</div>
-            </div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-            <div><strong>📱 الهاتف:</strong> ${currentMember.phone || 'غير محدد'}</div>
-            <div><strong>🏠 المنطقة:</strong> ${currentMember.area || 'غير محدد'}</div>
-            <div><strong>⛪ الخدمة:</strong> ${getServiceName(currentMember.service)}</div>
-            <div><strong>📅 حالة اليوم:</strong> <span class="${statusClass}">${statusText}</span></div>
-        </div>
-    `;
-    
-    infoDisplay.classList.add('active');
-}
-
-// Attendance Functions
-function showAttendanceModal() {
-    if (!currentMember) {
-        showNotification('يرجى اختيار عضو أولاً', 'warning');
-        return;
-    }
-    
-    const attendanceTitle = document.getElementById('attendanceTitle');
-    if (attendanceTitle) {
-        attendanceTitle.textContent = `تسجيل حضور: ${currentMember.name}`;
-    }
-    showModal('attendanceModal');
-}
-
-function simulateFingerprint() {
-    const icon = document.querySelector('.fingerprint-icon');
-    if (icon) {
-        icon.style.color = 'var(--success-color)';
-        
-        setTimeout(() => {
-            showNotification('تم التحقق من البصمة بنجاح!', 'success');
-            markAttendance();
-        }, 1000);
-    }
-}
-
-async function markAttendance() {
-    if (!currentMember) {
-        showNotification('خطأ: لم يتم اختيار عضو', 'error');
-        return;
-    }
-
-    const password = document.getElementById('memberPassword').value;
-    const attendanceType = document.getElementById('attendanceType').value;
-    const notes = document.getElementById('attendanceNotes').value;
-    
-    if (password && password !== currentMember.password) {
-        showNotification('كلمة المرور غير صحيحة!', 'error');
-        return;
-    }
-
-    const today = new Date().toISOString().split('T')[0];
-    const existingAttendance = attendance.find(a => 
-        a.memberId === currentMember.id && a.date === today
-    );
-
-    if (existingAttendance) {
-        showNotification('تم تسجيل حضورك اليوم مسبقاً!', 'warning');
-        return;
-    }
-
-    try {
-        let attendanceReward = settings.dailyAttendancePoints;
-        if (attendanceType === 'early') attendanceReward += 5;
-        else if (attendanceType === 'late') attendanceReward -= 3;
-        else if (attendanceType === 'makeup') attendanceReward = Math.floor(attendanceReward * 0.7);
-
-        const attendanceData = {
-            memberId: currentMember.id,
-            memberName: currentMember.name,
-            date: today,
-            type: attendanceType,
-            notes: notes,
-            timestamp: window.firebaseUtils.serverTimestamp()
-        };
-
-        await window.firebaseUtils.addDoc(
-            window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
-            attendanceData
-        );
-
-        const newTalanton = (currentMember.talanton || 0) + attendanceReward;
-        await window.firebaseUtils.updateDoc(
-            window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
-            { 
-                talanton: newTalanton,
-                lastUpdated: window.firebaseUtils.serverTimestamp()
             }
-        );
-
-        const historyData = {
-            memberId: currentMember.id,
-            memberName: currentMember.name,
-            amount: attendanceReward,
-            type: 'add',
-            reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
-                    attendanceType === 'early' ? 'مبكر' :
-                    attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
-            date: today,
-            timestamp: window.firebaseUtils.serverTimestamp()
-        };
-
-        await window.firebaseUtils.addDoc(
-            window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
-            historyData
-        );
-
-        showNotification(`تم تسجيل حضورك بنجاح! حصلت على ${attendanceReward} نقاط Talanton`, 'success');
-        closeModal('attendanceModal');
-        resetAttendanceForm();
-
-    } catch (error) {
-        console.error('❌ خطأ في تسجيل الحضور:', error);
-        showNotification('خطأ في تسجيل الحضور', 'error');
-    }
-}
-
-function resetAttendanceForm() {
-    const memberPasswordInput = document.getElementById('memberPassword');
-    const attendanceTypeSelect = document.getElementById('attendanceType');
-    const attendanceNotesTextarea = document.getElementById('attendanceNotes');
-    
-    if (memberPasswordInput) memberPasswordInput.value = '';
-    if (attendanceTypeSelect) attendanceTypeSelect.value = 'regular';
-    if (attendanceNotesTextarea) attendanceNotesTextarea.value = '';
-    
-    const fingerprintIcon = document.querySelector('.fingerprint-icon');
-    if (fingerprintIcon) {
-        fingerprintIcon.style.color = 'var(--primary-color)';
-    }
-}
-
-// Purchase Functions
-function showPurchaseModal(productId) {
-    if (!isMemberLoggedIn || !currentMember) {
-        showNotification('يرجى تسجيل الدخول أولاً', 'warning');
-        return;
-    }
-    
-    currentProduct = products.find(p => p.id === productId);
-    if (!currentProduct) return;
-    
-    if (currentProduct.stock <= 0) {
-        showNotification('المنتج غير متوفر حالياً', 'warning');
-        return;
-    }
-    
-    if (currentMember.talanton < currentProduct.price) {
-        showNotification('رصيدك من النقاط غير كافي لشراء هذا المنتج', 'warning');
-        return;
-    }
-    
-    const purchaseTitle = document.getElementById('purchaseTitle');
-    const purchaseDetails = document.getElementById('purchaseDetails');
-    
-    if (purchaseTitle) {
-        purchaseTitle.textContent = `شراء: ${currentProduct.name}`;
-    }
-    
-    if (purchaseDetails) {
-        purchaseDetails.innerHTML = `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h3 style="color: var(--primary-color);">${currentProduct.name}</h3>
-                <p style="margin: 15px 0;">${currentProduct.description}</p>
-                <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning-color); margin: 15px 0;">
-                    💰 ${currentProduct.price} نقطة
-                </div>
-                <div style="margin-bottom: 15px;">📦 متوفر: ${currentProduct.stock} قطعة</div>
-                <div style="background: var(--card-color); padding: 15px; border-radius: 10px;">
-                    <div>رصيدك الحالي: ${currentMember.talanton} نقطة</div>
-                    <div>الرصيد بعد الشراء: ${currentMember.talanton - currentProduct.price} نقطة</div>
-                </div>
-            </div>
-        `;
-    }
-    
-    showModal('purchaseModal');
-}
-
-async function confirmPurchase() {
-    if (!currentProduct || !currentMember) return;
-    
-    try {
-        const newTalanton = currentMember.talanton - currentProduct.price;
-        await window.firebaseUtils.updateDoc(
-            window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
-            { 
-                talanton: newTalanton,
-                lastUpdated: window.firebaseUtils.serverTimestamp()
-            }
-        );
-        
-        const newStock = currentProduct.stock - 1;
-        await window.firebaseUtils.updateDoc(
-            window.firebaseUtils.doc(window.firebaseDb, 'products', currentProduct.id),
-            { stock: newStock }
-        );
-        
-        const historyData = {
-            memberId: currentMember.id,
-            memberName: currentMember.name,
-            amount: currentProduct.price,
-            type: 'subtract',
-            reason: `شراء: ${currentProduct.name}`,
-            date: new Date().toISOString().split('T')[0],
-            timestamp: window.firebaseUtils.serverTimestamp()
-        };
-        
-        await window.firebaseUtils.addDoc(
-            window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
-            historyData
-        );
-        
-        showNotification(`تم شراء ${currentProduct.name} بنجاح!`, 'success');
-        closeModal('purchaseModal');
-        
-    } catch (error) {
-        console.error('❌ خطأ في الشراء:', error);
-        showNotification('خطأ في عملية الشراء', 'error');
-    }
-}
-
-// Utility Functions
-function calculateLevel(points) {
-    return memberLevels.find(level => points >= level.minPoints && points <= level.maxPoints) || memberLevels[0];
-}
-
-function getServiceName(service) {
-    const services = {
-        altar: 'خدمة المذبح', sunday_school: 'مدرسة الأحد', youth: 'خدمة الشباب',
-        music: 'الألحان والموسيقى', media: 'الإعلام', social: 'الخدمة الاجتماعية', other: 'أخرى'
-    };
-    return services[service] || 'غير محدد';
-}
-
-function checkBirthdays() {
-    const today = new Date();
-    const alertContainer = document.getElementById('birthdayAlerts');
-    if (!alertContainer) return;
-
-    const upcomingBirthdays = members.filter(member => {
-        if (!member.birthday) return false;
-        
-        const birthday = new Date(member.birthday);
-        const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
-        
-        const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
-        return daysDiff >= 0 && daysDiff <= settings.birthdayAlertDays;
-    });
-
-    if (upcomingBirthdays.length > 0) {
-        alertContainer.innerHTML = upcomingBirthdays.map(member => {
-            const birthday = new Date(member.birthday);
-            const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
-            const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
             
-            return `
-                <div class="birthday-alert">
-                    🎂 ${daysDiff === 0 ? 'اليوم عيد ميلاد' : `خلال ${daysDiff} أيام عيد ميلاد`} 
-                    <strong>${member.name}</strong>
-                    ${daysDiff === 0 ? '🎉' : ''}
+            showModal('purchaseModal');
+        }
+
+        async function confirmPurchase() {
+            if (!currentProduct || !currentMember) return;
+            
+            try {
+                const newTalanton = currentMember.talanton - currentProduct.price;
+                await window.firebaseUtils.updateDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
+                    { 
+                        talanton: newTalanton,
+                        lastUpdated: window.firebaseUtils.serverTimestamp()
+                    }
+                );
+                
+                const newStock = currentProduct.stock - 1;
+                await window.firebaseUtils.updateDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'products', currentProduct.id),
+                    { stock: newStock }
+                );
+                
+                const historyData = {
+                    memberId: currentMember.id,
+                    memberName: currentMember.name,
+                    amount: currentProduct.price,
+                    type: 'subtract',
+                    reason: `شراء: ${currentProduct.name}`,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: window.firebaseUtils.serverTimestamp()
+                };
+                
+                await window.firebaseUtils.addDoc(
+                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                    historyData
+                );
+                
+                showNotification(`تم شراء ${currentProduct.name} بنجاح!`, 'success');
+                closeModal('purchaseModal');
+                
+            } catch (error) {
+                console.error('❌ خطأ في الشراء:', error);
+                showNotification('خطأ في عملية الشراء', 'error');
+            }
+        }
+
+        // Admin Functions
+        function showAdminLogin() {
+            showModal('adminLoginModal');
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === 'admin123' || password === 'admin' || password === 'superadmin2024') {
+                isAdmin = true;
+                const mainContent = document.getElementById('mainContent');
+                const memberPanel = document.getElementById('memberPanel');
+                const adminPanel = document.getElementById('adminPanel');
+                
+                if (mainContent) mainContent.style.display = 'none';
+                if (memberPanel) memberPanel.style.display = 'none';
+                if (adminPanel) adminPanel.style.display = 'block';
+                
+                closeModal('adminLoginModal');
+                loadAdminData();
+                showNotification('مرحباً بك في لوحة تحكم الأدمن! 👑', 'success');
+            } else {
+                showNotification('كلمة مرور خاطئة!', 'error');
+            }
+            
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function logoutAdmin() {
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                isAdmin = false;
+                currentMember = null;
+                const mainContent = document.getElementById('mainContent');
+                const adminPanel = document.getElementById('adminPanel');
+                
+                if (mainContent) mainContent.style.display = 'block';
+                if (adminPanel) adminPanel.style.display = 'none';
+                
+                showNotification('تم تسجيل الخروج بنجاح', 'success');
+                updateUIComplete();
+            }
+        }
+
+        function loadAdminData() {
+            loadMembersTable();
+            loadProductsTable();
+            loadTasksTable();
+            loadOccasionsTable();
+            loadAttendanceTable();
+            loadReportsData();
+        }
+
+        function loadMembersTable() {
+            const table = document.getElementById('membersTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم التسلسلي</th>
+                            <th>الاسم</th>
+                            <th>البريد</th>
+                            <th>الهاتف</th>
+                            <th>Talanton</th>
+                            <th>المستوى</th>
+                            <th>الخدمة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${members.map(member => {
+                            const level = calculateLevel(member.talanton || 0);
+                            return `
+                                <tr>
+                                    <td>${member.sequentialNumber}</td>
+                                    <td>${member.name}</td>
+                                    <td>${member.email || 'غير محدد'}</td>
+                                    <td>${member.phone || 'غير محدد'}</td>
+                                    <td>${member.talanton || 0}</td>
+                                    <td><span class="level-badge ${level.color}">${level.icon} ${level.name}</span></td>
+                                    <td>${getServiceName(member.service)}</td>
+                                    <td>
+                                        <button class="btn btn-warning" onclick="editMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                        <button class="btn btn-info" onclick="addTalantonToMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">💰</button>
+                                        <button class="btn btn-danger" onclick="deleteMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadProductsTable() {
+            const table = document.getElementById('productsTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>اسم المنتج</th>
+                            <th>السعر</th>
+                            <th>المخزون</th>
+                            <th>الفئة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map((product, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${product.name}</td>
+                                <td>${product.price} نقطة</td>
+                                <td>${product.stock}</td>
+                                <td>${product.category}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editProduct('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteProduct('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadTasksTable() {
+            const table = document.getElementById('tasksTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>عنوان المهمة</th>
+                            <th>النقاط</th>
+                            <th>النوع</th>
+                            <th>الأولوية</th>
+                            <th>الخدمة المخصصة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tasks.map((task, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${task.title}</td>
+                                <td>${task.points}</td>
+                                <td>${task.type}</td>
+                                <td>${task.priority}</td>
+                                <td>${task.assignedService === 'all' ? 'جميع الخدمات' : getServiceName(task.assignedService)}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editTask('${task.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadOccasionsTable() {
+            const table = document.getElementById('occasionsTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>عنوان المناسبة</th>
+                            <th>التاريخ</th>
+                            <th>النقاط</th>
+                            <th>النوع</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${occasions.map((occasion, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${occasion.title}</td>
+                                <td>${new Date(occasion.date).toLocaleDateString('ar')}</td>
+                                <td>${occasion.points}</td>
+                                <td>${occasion.type}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editOccasion('${occasion.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteOccasion('${occasion.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadAttendanceTable() {
+            const table = document.getElementById('attendanceTable');
+            if (!table) return;
+            
+            const recentAttendance = attendance.slice(0, 50);
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>اسم العضو</th>
+                            <th>نوع الحضور</th>
+                            <th>الملاحظات</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recentAttendance.map(record => `
+                            <tr>
+                                <td>${new Date(record.date).toLocaleDateString('ar')}</td>
+                                <td>${record.memberName}</td>
+                                <td>${record.type}</td>
+                                <td>${record.notes || 'لا توجد'}</td>
+                                <td>
+                                    <button class="btn btn-danger" onclick="deleteAttendanceRecord('${record.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadReportsData() {
+            const reportContent = document.getElementById('reportContent');
+            if (!reportContent) return;
+            
+            reportContent.innerHTML = `
+                <div style="background: var(--card-color); padding: 25px; border-radius: 15px;">
+                    <h3>📊 تقرير شامل</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${members.length}</div>
+                            <div class="stat-label">إجمالي الأعضاء</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${attendance.length}</div>
+                            <div class="stat-label">سجلات الحضور</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${products.length}</div>
+                            <div class="stat-label">منتجات المتجر</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${occasions.length}</div>
+                            <div class="stat-label">المناسبات</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${tasks.length}</div>
+                            <div class="stat-label">المهام</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${members.reduce((sum, m) => sum + (m.talanton || 0), 0)}</div>
+                            <div class="stat-label">إجمالي النقاط</div>
+                        </div>
+                    </div>
                 </div>
             `;
-        }).join('');
-    } else {
-        alertContainer.innerHTML = '';
-    }
-}
+        }
 
-function loadTodayOccasions() {
-    const today = new Date().toISOString().split('T')[0];
-    const todayOccasionsContainer = document.getElementById('todayEvents');
-    if (!todayOccasionsContainer) return;
+        // Tab Management
+        function showTab(tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const selectedTab = document.getElementById(tabName + 'Tab');
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            event.target.classList.add('active');
+        }
 
-    const todayOccasions = occasions.filter(occasion => occasion.date === today);
-    
-    if (todayOccasions.length > 0) {
-        todayOccasionsContainer.innerHTML = todayOccasions.map(occasion => `
-            <div style="background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
-                <div style="color: var(--primary-color); font-weight: bold;">${occasion.time || 'طوال اليوم'}</div>
-                <h4>${occasion.title}</h4>
-                <p>${occasion.description}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                    <span>📍 ${occasion.location || 'غير محدد'}</span>
-                    <span style="color: var(--success-color); font-weight: bold;">💰 ${occasion.points} نقطة</span>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        todayOccasionsContainer.innerHTML = '<p>لا توجد مناسبات مجدولة لهذا اليوم</p>';
-    }
-}
+        // Member Management Functions
+        function showAddMemberModal() {
+            showModal('addMemberModal');
+        }
 
-function initializeCharts() {
-    const ctx = document.getElementById('attendanceChart');
-    if (!ctx) return;
-    updateCharts();
-}
+        async function addMember(event) {
+            event.preventDefault();
+            
+            try {
+                const newMemberData = {
+                    name: document.getElementById('memberName').value,
+                    password: document.getElementById('memberPass').value,
+                    email: document.getElementById('memberEmail').value,
+                    phone: document.getElementById('memberPhone').value,
+                    birthday: document.getElementById('memberBirthday').value,
+                    talanton: parseInt(document.getElementById('initialTalanton').value) || 0,
+                    service: document.getElementById('memberService').value,
+                    area: document.getElementById('memberArea').value,
+                    joinDate: new Date().toISOString().split('T')[0],
+                    status: 'active'
+                };
 
-function updateCharts() {
-    const ctx = document.getElementById('attendanceChart');
-    if (!ctx) return;
+                await window.firebaseUtils.addDoc(
+                    window.firebaseUtils.collection(window.firebaseDb, 'members'),
+                    {
+                        ...newMemberData,
+                        createdAt: window.firebaseUtils.serverTimestamp(),
+                        lastUpdated: window.firebaseUtils.serverTimestamp()
+                    }
+                );
 
-    const existingChart = Chart.getChart(ctx);
-    if (existingChart) {
-        existingChart.destroy();
-    }
+                closeModal('addMemberModal');
+                showNotification(`تم إضافة العضو ${newMemberData.name} بنجاح!`, 'success');
+                event.target.reset();
 
-    const last7Days = [];
-    const attendanceCounts = [];
-    
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        const dayName = date.toLocaleDateString('ar', { weekday: 'short' });
-        
-        last7Days.push(dayName);
-        attendanceCounts.push(attendance.filter(a => a.date === dateStr).length);
-    }
+            } catch (error) {
+                console.error('خطأ في إضافة العضو:', error);
+                showNotification('خطأ في إضافة العضو', 'error');
+            }
+        }
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: last7Days,
-            datasets: [{
-                label: 'عدد الحاضرين',
-                data: attendanceCounts,
-                borderColor: 'rgb(99, 102, 241)',
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'إحصائيات الحضور - آخر 7 أيام'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
+        async function editMember(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            const newName = prompt('اسم العضو:', member.name);
+            if (newName && newName !== member.name) {
+                try {
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
+                        { 
+                            name: newName,
+                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
+                    showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
+                } catch (error) {
+                    console.error('خطأ في تحديث العضو:', error);
+                    showNotification('خطأ في تحديث العضو', 'error');
                 }
             }
         }
-    });
-}
 
-// Theme Management
-function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    const themeIcon = document.getElementById('themeIcon');
-    
-    body.setAttribute('data-theme', newTheme);
-    if (themeIcon) themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
-    localStorage.setItem('theme', newTheme);
-    
-    showNotification(`تم تفعيل الوضع ${newTheme === 'light' ? 'النهاري' : 'الليلي'}`, 'success');
-}
+        async function addTalantonToMember(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            const points = prompt(`إضافة نقاط لـ ${member.name}:`, '10');
+            const reason = prompt('السبب:', 'إضافة نقاط إضافية');
+            
+            if (points && !isNaN(points) && parseInt(points) > 0) {
+                try {
+                    const newTalanton = (member.talanton || 0) + parseInt(points);
+                    
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
+                        { 
+                            talanton: newTalanton,
+                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
 
-// Other Functions
-function generateQRCodes() {
-    showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
-    
-    let qrInfo = 'QR كودات الأعضاء:\n\n';
-    members.forEach(member => {
-        qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
-    });
-    
-    alert(qrInfo + '\nيمكن استخدام الرقم التسلسلي للحضور السريع');
-    showNotification('تم إنشاء QR كودات بنجاح!', 'success');
-}
+                    const historyData = {
+                        memberId: member.id,
+                        memberName: member.name,
+                        amount: parseInt(points),
+                        type: 'add',
+                        reason: reason,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: window.firebaseUtils.serverTimestamp()
+                    };
 
-function showMemberProfile() {
-    if (!currentMember) return;
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                        historyData
+                    );
 
-    const memberAttendance = attendance.filter(a => a.memberId === currentMember.id);
-    const level = calculateLevel(currentMember.talanton || 0);
+                    showNotification(`تم إضافة ${points} نقطة لـ ${member.name}`, 'success');
+                } catch (error) {
+                    console.error('خطأ في إضافة النقاط:', error);
+                    showNotification('خطأ في إضافة النقاط', 'error');
+                }
+            }
+        }
 
-    const profileInfo = `
+        async function deleteMember(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            if (confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
+                try {
+                    await window.firebaseUtils.deleteDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id)
+                    );
+                    showNotification(`تم حذف العضو ${member.name}`, 'success');
+                } catch (error) {
+                    console.error('خطأ في حذف العضو:', error);
+                    showNotification('خطأ في حذف العضو', 'error');
+                }
+            }
+        }
+
+        // Product Management Functions
+        function showAddProductModal() {
+            showModal('addProductModal');
+        }
+
+        async function addProduct(event) {
+            event.preventDefault();
+            
+            try {
+                const newProductData = {
+                    name: document.getElementById('productName').value,
+                    price: parseInt(document.getElementById('productPrice').value),
+                    stock: parseInt(document.getElementById('productStock').value),
+                    category: document.getElementById('productCategory').value,
+                    description: document.getElementById('productDescription').value
+                };
+
+                await window.firebaseUtils.addDoc(
+                    window.firebaseUtils.collection(window.firebaseDb, 'products'),
+                    {
+                        ...newProductData,
+                        createdAt: window.firebaseUtils.serverTimestamp()
+                    }
+                );
+
+                closeModal('addProductModal');
+                showNotification(`تم إضافة المنتج ${newProductData.name} بنجاح!`, 'success');
+                event.target.reset();
+
+            } catch (error) {
+                console.error('خطأ في إضافة المنتج:', error);
+                showNotification('خطأ في إضافة المنتج', 'error');
+            }
+        }
+
+        async function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const newName = prompt('اسم المنتج:', product.name);
+            if (newName && newName !== product.name) {
+                try {
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'products', product.id),
+                        { name: newName }
+                    );
+                    showNotification('تم تحديث بيانات المنتج بنجاح!', 'success');
+                } catch (error) {
+                    console.error('خطأ في تحديث المنتج:', error);
+                    showNotification('خطأ في تحديث المنتج', 'error');
+                }
+            }
+        }
+
+        async function deleteProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (confirm(`هل أنت متأكد من حذف المنتج ${product.name}؟`)) {
+                try {
+                    await window.firebaseUtils.deleteDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'products', product.id)
+                    );
+                    showNotification(`تم حذف المنتج ${product.name}`, 'success');
+                } catch (error) {
+                    console.error('خطأ في حذف المنتج:', error);
+                    showNotification('خطأ في حذف المنتج', 'error');
+                }
+            }
+        }
+
+        // Member Login Functions
+        function showMemberLoginModal() {
+            showModal('memberLoginModal');
+        }
+
+        function memberLogin() {
+            const memberId = document.getElementById('memberLoginDropdown').value;
+            const password = document.getElementById('memberLoginPassword').value;
+            
+            if (!memberId) {
+                showNotification('يرجى اختيار عضو', 'warning');
+                return;
+            }
+            
+            const member = members.find(m => m.id === memberId);
+            if (!member) {
+                showNotification('العضو غير موجود', 'error');
+                return;
+            }
+            
+            if (password !== member.password) {
+                showNotification('كلمة المرور غير صحيحة!', 'error');
+                return;
+            }
+            
+            isMemberLoggedIn = true;
+            currentMember = member;
+            
+            const mainContent = document.getElementById('mainContent');
+            const memberPanel = document.getElementById('memberPanel');
+            
+            if (mainContent) mainContent.style.display = 'none';
+            if (memberPanel) memberPanel.style.display = 'block';
+            
+            closeModal('memberLoginModal');
+            loadMemberDashboard();
+            showNotification(`مرحباً ${member.name}! 👤`, 'success');
+            
+            document.getElementById('memberLoginPassword').value = '';
+        }
+
+        function logoutMember() {
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                isMemberLoggedIn = false;
+                currentMember = null;
+                
+                const mainContent = document.getElementById('mainContent');
+                const memberPanel = document.getElementById('memberPanel');
+                
+                if (mainContent) mainContent.style.display = 'block';
+                if (memberPanel) memberPanel.style.display = 'none';
+                
+                updateUIComplete();
+                showNotification('تم تسجيل الخروج بنجاح', 'success');
+            }
+        }
+
+        function loadMemberDashboard() {
+            if (!currentMember) return;
+            
+            const dashboard = document.getElementById('memberDashboard');
+            if (!dashboard) return;
+            
+            const level = calculateLevel(currentMember.talanton || 0);
+            const memberAttendance = attendance.filter(a => a.memberId === currentMember.id);
+            const memberHistory = talantonHistory.filter(h => h.memberId === currentMember.id).slice(0, 5);
+            const memberTasks = tasks.filter(task => 
+                task.assignedService === 'all' || task.assignedService === currentMember.service
+            );
+            
+            dashboard.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="background: var(--card-color); border-radius: 15px; padding: 20px; text-align: center;">
+                        <h3 style="color: var(--primary-color); margin-bottom: 15px;">معلوماتي</h3>
+                        <div class="level-badge ${level.color}" style="margin-bottom: 15px;">
+                            ${level.icon} ${level.name}
+                        </div>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--warning-color); margin-bottom: 10px;">
+                            💰 ${currentMember.talanton || 0}
+                        </div>
+                        <div>نقاط Talanton</div>
+                    </div>
+                    
+                    <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
+                        <h3 style="color: var(--primary-color); margin-bottom: 15px;">إحصائياتي</h3>
+                        <div style="margin-bottom: 10px;">📊 أيام الحضور: ${memberAttendance.length}</div>
+                        <div style="margin-bottom: 10px;">⛪ الخدمة: ${getServiceName(currentMember.service)}</div>
+                        <div style="margin-bottom: 10px;">🏠 المنطقة: ${currentMember.area || 'غير محدد'}</div>
+                        <div>📅 عضو منذ: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}</div>
+                    </div>
+                    
+                    <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
+                        <h3 style="color: var(--primary-color); margin-bottom: 15px;">مهامي (${memberTasks.length})</h3>
+                        ${memberTasks.slice(0, 3).map(task => `
+                            <div style="margin-bottom: 10px; padding: 10px; background: var(--surface-color); border-radius: 10px;">
+                                <div style="font-weight: bold;">${task.title}</div>
+                                <div style="font-size: 0.9rem; opacity: 0.8;">💰 ${task.points} نقطة</div>
+                            </div>
+                        `).join('')}
+                        ${memberTasks.length > 3 ? `<div style="text-align: center; margin-top: 10px; opacity: 0.7;">وأكثر...</div>` : ''}
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; background: var(--card-color); border-radius: 15px; padding: 20px;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 15px;">آخر المعاملات</h3>
+                    ${memberHistory.length > 0 ? 
+                        memberHistory.map(h => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 10px; background: var(--surface-color); border-radius: 10px;">
+                                <div>
+                                    <div style="font-weight: bold;">${h.reason}</div>
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">${new Date(h.date).toLocaleDateString('ar')}</div>
+                                </div>
+                                <div style="font-weight: bold; color: ${h.type === 'add' ? 'var(--success-color)' : 'var(--danger-color)'};">
+                                    ${h.type === 'add' ? '+' : '-'}${h.amount} نقطة
+                                </div>
+                            </div>
+                        `).join('') :
+                        '<p style="text-align: center; opacity: 0.7;">لا توجد معاملات</p>'
+                    }
+                </div>
+            `;
+        }
+
+        function showMyProfile() {
+            if (currentMember) {
+                showMemberProfile();
+            }
+        }
+
+        function showMyTasks() {
+            if (currentMember) {
+                showMemberTasks();
+            }
+        }
+
+        function showMyHistory() {
+            if (!currentMember) return;
+            
+            const memberHistory = talantonHistory.filter(h => h.memberId === currentMember.id);
+            let historyInfo = `تاريخ نقاط ${currentMember.name}:\n\n`;
+            
+            if (memberHistory.length > 0) {
+                memberHistory.forEach((h, index) => {
+                    historyInfo += `${index + 1}. ${h.reason}\n`;
+                    historyInfo += `   ${h.type === 'add' ? '+' : '-'}${h.amount} نقطة\n`;
+                    historyInfo += `   التاريخ: ${new Date(h.date).toLocaleDateString('ar')}\n\n`;
+                });
+            } else {
+                historyInfo += 'لا توجد معاملات سابقة.';
+            }
+            
+            alert(historyInfo);
+        }
+
+        // Utility Functions
+        function calculateLevel(points) {
+            return memberLevels.find(level => points >= level.minPoints && points <= level.maxPoints) || memberLevels[0];
+        }
+
+        function getServiceName(service) {
+            const services = {
+                altar: 'خدمة المذبح', sunday_school: 'مدرسة الأحد', youth: 'خدمة الشباب',
+                music: 'الألحان والموسيقى', media: 'الإعلام', social: 'الخدمة الاجتماعية', other: 'أخرى'
+            };
+            return services[service] || 'غير محدد';
+        }
+
+        function checkBirthdays() {
+            const today = new Date();
+            const alertContainer = document.getElementById('birthdayAlerts');
+            if (!alertContainer) return;
+
+            const upcomingBirthdays = members.filter(member => {
+                if (!member.birthday) return false;
+                
+                const birthday = new Date(member.birthday);
+                const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+                
+                const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
+                return daysDiff >= 0 && daysDiff <= settings.birthdayAlertDays;
+            });
+
+            if (upcomingBirthdays.length > 0) {
+                alertContainer.innerHTML = upcomingBirthdays.map(member => {
+                    const birthday = new Date(member.birthday);
+                    const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+                    const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
+                    
+                    return `
+                        <div class="birthday-alert">
+                            🎂 ${daysDiff === 0 ? 'اليوم عيد ميلاد' : `خلال ${daysDiff} أيام عيد ميلاد`} 
+                            <strong>${member.name}</strong>
+                            ${daysDiff === 0 ? '🎉' : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                alertContainer.innerHTML = '';
+            }
+        }
+
+        function loadTodayOccasions() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayOccasionsContainer = document.getElementById('todayEvents');
+            if (!todayOccasionsContainer) return;
+
+            const todayOccasions = occasions.filter(occasion => occasion.date === today);
+            
+            if (todayOccasions.length > 0) {
+                todayOccasionsContainer.innerHTML = todayOccasions.map(occasion => `
+                    <div style="background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                        <div style="color: var(--primary-color); font-weight: bold;">${occasion.time || 'طوال اليوم'}</div>
+                        <h4>${occasion.title}</h4>
+                        <p>${occasion.description}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                            <span>📍 ${occasion.location || 'غير محدد'}</span>
+                            <span style="color: var(--success-color); font-weight: bold;">💰 ${occasion.points} نقطة</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                todayOccasionsContainer.innerHTML = '<p>لا توجد مناسبات مجدولة لهذا اليوم</p>';
+            }
+        }
+
+        function initializeCharts() {
+            const ctx = document.getElementById('attendanceChart');
+            if (!ctx) return;
+            updateCharts();
+        }
+
+        function updateCharts() {
+            const ctx = document.getElementById('attendanceChart');
+            if (!ctx) return;
+
+            const existingChart = Chart.getChart(ctx);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            const last7Days = [];
+            const attendanceCounts = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = date.toLocaleDateString('ar', { weekday: 'short' });
+                
+                last7Days.push(dayName);
+                attendanceCounts.push(attendance.filter(a => a.date === dateStr).length);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'عدد الحاضرين',
+                        data: attendanceCounts,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'إحصائيات الحضور - آخر 7 أيام'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Theme Management
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            const themeIcon = document.getElementById('themeIcon');
+            
+            body.setAttribute('data-theme', newTheme);
+            if (themeIcon) themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            localStorage.setItem('theme', newTheme);
+            
+            showNotification(`تم تفعيل الوضع ${newTheme === 'light' ? 'النهاري' : 'الليلي'}`, 'success');
+        }
+
+        // Other Functions
+        function generateQRCodes() {
+            showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
+            
+            let qrInfo = 'QR كودات الأعضاء:\n\n';
+            members.forEach(member => {
+                qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
+            });
+            
+            alert(qrInfo + '\nيمكن استخدام الرقم التسلسلي للحضور السريع');
+            showNotification('تم إنشاء QR كودات بنجاح!', 'success');
+        }
+
+        function showMemberProfile() {
+            if (!currentMember) return;
+
+            const memberAttendance = attendance.filter(a => a.memberId === currentMember.id);
+            const level = calculateLevel(currentMember.talanton || 0);
+
+            const profileInfo = `
 ملف ${currentMember.name} الشخصي:
 
 📊 الإحصائيات:
@@ -1296,1167 +2358,145 @@ function showMemberProfile() {
 ⛪ معلومات الخدمة:
 • الخدمة: ${getServiceName(currentMember.service)}
 • تاريخ الانضمام: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}
-    `;
+            `;
 
-    alert(profileInfo);
-}
-
-function showMemberTasks() {
-    if (!currentMember) return;
-
-    const memberTasks = tasks.filter(task => 
-        task.assignedService === 'all' || task.assignedService === currentMember.service
-    );
-
-    let tasksInfo = `مهام ${currentMember.name}:\n\n`;
-    
-    if (memberTasks.length > 0) {
-        memberTasks.forEach((task, index) => {
-            tasksInfo += `${index + 1}. ${task.title}\n`;
-            tasksInfo += `   النقاط: ${task.points} | النوع: ${task.type}\n`;
-            tasksInfo += `   الوصف: ${task.description}\n\n`;
-        });
-    } else {
-        tasksInfo += 'لا توجد مهام مخصصة لهذا العضو حالياً.';
-    }
-
-    alert(tasksInfo);
-}
-
-// Modal Management
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'block';
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Notification System
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = message;
-    
-    const colors = {
-        success: 'var(--success-color)',
-        error: 'var(--danger-color)',
-        warning: 'var(--warning-color)',
-        info: 'var(--info-color)'
-    };
-    
-    notification.style.background = colors[type] || colors.info;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 5000);
-}
-
-// Close modals when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-    }
-}
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    firebaseListeners.forEach(unsubscribe => {
-        if (typeof unsubscribe === 'function') {
-            unsubscribe();
+            alert(profileInfo);
         }
-    });
-});
-// Admin Panel Functions
 
-function showAdminLogin() {
-    showModal('adminLoginModal');
-}
+        function showMemberTasks() {
+            if (!currentMember) return;
 
-function adminLogin() {
-    const password = document.getElementById('adminPassword').value;
-    
-    if (password === 'admin123' || password === 'admin' || password === 'superadmin2024') {
-        isAdmin = true;
-        const mainContent = document.getElementById('mainContent');
-        const memberPanel = document.getElementById('memberPanel');
-        const adminPanel = document.getElementById('adminPanel');
-        
-        if (mainContent) mainContent.style.display = 'none';
-        if (memberPanel) memberPanel.style.display = 'none';
-        if (adminPanel) adminPanel.style.display = 'block';
-        
-        closeModal('adminLoginModal');
-        loadAdminData();
-        showNotification('مرحباً بك في لوحة تحكم الأدمن! 👑', 'success');
-    } else {
-        showNotification('كلمة مرور خاطئة!', 'error');
-    }
-    
-    document.getElementById('adminPassword').value = '';
-}
-
-function logoutAdmin() {
-    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-        isAdmin = false;
-        currentMember = null;
-        const mainContent = document.getElementById('mainContent');
-        const adminPanel = document.getElementById('adminPanel');
-        
-        if (mainContent) mainContent.style.display = 'block';
-        if (adminPanel) adminPanel.style.display = 'none';
-        
-        showNotification('تم تسجيل الخروج بنجاح', 'success');
-        updateUIComplete();
-    }
-}
-
-window.loadAdminData = function() {
-    loadMembersTable();
-    loadProductsTable();
-    loadTasksTable();
-    loadOccasionsTable();
-    loadAttendanceTable();
-    loadReportsData();
-}
-
-function loadMembersTable() {
-    const table = document.getElementById('membersTable');
-    if (!table) return;
-    
-    table.innerHTML = `
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>الرقم التسلسلي</th>
-                    <th>الاسم</th>
-                    <th>البريد</th>
-                    <th>الهاتف</th>
-                    <th>Talanton</th>
-                    <th>المستوى</th>
-                    <th>الخدمة</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${members.map(member => {
-                    const level = calculateLevel(member.talanton || 0);
-                    return `
-                        <tr>
-                            <td>${member.sequentialNumber}</td>
-                            <td>${member.name}</td>
-                            <td>${member.email || 'غير محدد'}</td>
-                            <td>${member.phone || 'غير محدد'}</td>
-                            <td>${member.talanton || 0}</td>
-                            <td><span class="level-badge ${level.color}">${level.icon} ${level.name}</span></td>
-                            <td>${getServiceName(member.service)}</td>
-                            <td>
-                                <button class="btn btn-warning" onclick="editMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                                <button class="btn btn-info" onclick="addTalantonToMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">💰</button>
-                                <button class="btn btn-danger" onclick="deleteMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('')}
-            </tbody>
-        </table>
-    `;
-}
-
-window.loadProductsTable = function() {
-    const table = document.getElementById('productsTable');
-    if (!table) return;
-    
-    table.innerHTML = `
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>الرقم</th>
-                    <th>اسم المنتج</th>
-                    <th>السعر</th>
-                    <th>المخزون</th>
-                    <th>الفئة</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${products.map((product, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${product.name}</td>
-                        <td>${product.price} نقطة</td>
-                        <td>${product.stock}</td>
-                        <td>${product.category}</td>
-                        <td>
-                            <button class="btn btn-warning" onclick="editProduct('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                            <button class="btn btn-danger" onclick="deleteProduct('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-}
-
-function loadTasksTable() {
-    const table = document.getElementById('tasksTable');
-    if (!table) return;
-    
-    table.innerHTML = `
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>الرقم</th>
-                    <th>عنوان المهمة</th>
-                    <th>النقاط</th>
-                    <th>النوع</th>
-                    <th>الأولوية</th>
-                    <th>الخدمة المخصصة</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${tasks.map((task, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${task.title}</td>
-                        <td>${task.points}</td>
-                        <td>${task.type}</td>
-                        <td>${task.priority}</td>
-                        <td>${task.assignedService === 'all' ? 'جميع الخدمات' : getServiceName(task.assignedService)}</td>
-                        <td>
-                            <button class="btn btn-warning" onclick="editTask('${task.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                            <button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-}
-
-function loadOccasionsTable() {
-    const table = document.getElementById('occasionsTable');
-    if (!table) return;
-    
-    table.innerHTML = `
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>الرقم</th>
-                    <th>عنوان المناسبة</th>
-                    <th>التاريخ</th>
-                    <th>النقاط</th>
-                    <th>النوع</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${occasions.map((occasion, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${occasion.title}</td>
-                        <td>${new Date(occasion.date).toLocaleDateString('ar')}</td>
-                        <td>${occasion.points}</td>
-                        <td>${occasion.type}</td>
-                        <td>
-                            <button class="btn btn-warning" onclick="editOccasion('${occasion.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                            <button class="btn btn-danger" onclick="deleteOccasion('${occasion.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-}
-
-function loadAttendanceTable() {
-    const table = document.getElementById('attendanceTable');
-    if (!table) return;
-    
-    const recentAttendance = attendance.slice(0, 50);
-    
-    table.innerHTML = `
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>التاريخ</th>
-                    <th>اسم العضو</th>
-                    <th>نوع الحضور</th>
-                    <th>الملاحظات</th>
-                    <th>الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${recentAttendance.map(record => `
-                    <tr>
-                        <td>${new Date(record.date).toLocaleDateString('ar')}</td>
-                        <td>${record.memberName}</td>
-                        <td>${record.type}</td>
-                        <td>${record.notes || 'لا توجد'}</td>
-                        <td>
-                            <button class="btn btn-danger" onclick="deleteAttendanceRecord('${record.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
-                        </td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
-    `;
-}
-
-function loadReportsData() {
-    const reportContent = document.getElementById('reportContent');
-    if (!reportContent) return;
-    
-    reportContent.innerHTML = `
-        <div style="background: var(--card-color); padding: 25px; border-radius: 15px;">
-            <h3>📊 تقرير شامل</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">${members.length}</div>
-                    <div class="stat-label">إجمالي الأعضاء</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${attendance.length}</div>
-                    <div class="stat-label">سجلات الحضور</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${products.length}</div>
-                    <div class="stat-label">منتجات المتجر</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${occasions.length}</div>
-                    <div class="stat-label">المناسبات</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${tasks.length}</div>
-                    <div class="stat-label">المهام</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${members.reduce((sum, m) => sum + (m.talanton || 0), 0)}</div>
-                    <div class="stat-label">إجمالي النقاط</div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Tab Management
-function showTab(tabName) {
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    tabButtons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    const selectedTab = document.getElementById(tabName + 'Tab');
-    if (selectedTab) {
-        selectedTab.classList.add('active');
-    }
-    
-    event.target.classList.add('active');
-}
-
-// Member Management Functions
-function showAddMemberModal() {
-    showModal('addMemberModal');
-}
-
-async function addMember(event) {
-    event.preventDefault();
-    
-    try {
-        const newMemberData = {
-            name: document.getElementById('memberName').value,
-            password: document.getElementById('memberPass').value,
-            email: document.getElementById('memberEmail').value,
-            phone: document.getElementById('memberPhone').value,
-            birthday: document.getElementById('memberBirthday').value,
-            talanton: parseInt(document.getElementById('initialTalanton').value) || 0,
-            service: document.getElementById('memberService').value,
-            area: document.getElementById('memberArea').value,
-            joinDate: new Date().toISOString().split('T')[0],
-            status: 'active'
-        };
-
-        await window.firebaseUtils.addDoc(
-            window.firebaseUtils.collection(window.firebaseDb, 'members'),
-            {
-                ...newMemberData,
-                createdAt: window.firebaseUtils.serverTimestamp(),
-                lastUpdated: window.firebaseUtils.serverTimestamp()
-            }
-        );
-
-        closeModal('addMemberModal');
-        showNotification(`تم إضافة العضو ${newMemberData.name} بنجاح!`, 'success');
-        event.target.reset();
-
-    } catch (error) {
-        console.error('خطأ في إضافة العضو:', error);
-        showNotification('خطأ في إضافة العضو', 'error');
-    }
-}
-
-async function editMember(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-    
-    const newName = prompt('اسم العضو:', member.name);
-    if (newName && newName !== member.name) {
-        try {
-            await window.firebaseUtils.updateDoc(
-                window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
-                { 
-                    name: newName,
-                    lastUpdated: window.firebaseUtils.serverTimestamp()
-                }
+            const memberTasks = tasks.filter(task => 
+                task.assignedService === 'all' || task.assignedService === currentMember.service
             );
-            showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
-        } catch (error) {
-            console.error('خطأ في تحديث العضو:', error);
-            showNotification('خطأ في تحديث العضو', 'error');
-        }
-    }
-}
 
-async function addTalantonToMember(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-    
-    const points = prompt(`إضافة نقاط لـ ${member.name}:`, '10');
-    const reason = prompt('السبب:', 'إضافة نقاط إضافية');
-    
-    if (points && !isNaN(points) && parseInt(points) > 0) {
-        try {
-            const newTalanton = (member.talanton || 0) + parseInt(points);
+            let tasksInfo = `مهام ${currentMember.name}:\n\n`;
             
-            await window.firebaseUtils.updateDoc(
-                window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
-                { 
-                    talanton: newTalanton,
-                    lastUpdated: window.firebaseUtils.serverTimestamp()
-                }
-            );
+            if (memberTasks.length > 0) {
+                memberTasks.forEach((task, index) => {
+                    tasksInfo += `${index + 1}. ${task.title}\n`;
+                    tasksInfo += `   النقاط: ${task.points} | النوع: ${task.type}\n`;
+                    tasksInfo += `   الوصف: ${task.description}\n\n`;
+                });
+            } else {
+                tasksInfo += 'لا توجد مهام مخصصة لهذا العضو حالياً.';
+            }
 
-            const historyData = {
-                memberId: member.id,
-                memberName: member.name,
-                amount: parseInt(points),
-                type: 'add',
-                reason: reason,
-                date: new Date().toISOString().split('T')[0],
-                timestamp: window.firebaseUtils.serverTimestamp()
+            alert(tasksInfo);
+        }
+
+        // Placeholder functions for admin features
+        function showAddTaskModal() {
+            alert('ميزة إضافة المهام قيد التطوير');
+        }
+
+        function showAddOccasionModal() {
+            alert('ميزة إضافة المناسبات قيد التطوير');
+        }
+
+        function editTask(taskId) {
+            alert('ميزة تعديل المهام قيد التطوير');
+        }
+
+        function deleteTask(taskId) {
+            alert('ميزة حذف المهام قيد التطوير');
+        }
+
+        function editOccasion(occasionId) {
+            alert('ميزة تعديل المناسبات قيد التطوير');
+        }
+
+        function deleteOccasion(occasionId) {
+            alert('ميزة حذف المناسبات قيد التطوير');
+        }
+
+        function deleteAttendanceRecord(recordId) {
+            if (confirm('هل أنت متأكد من حذف سجل الحضور؟')) {
+                alert('ميزة حذف سجل الحضور قيد التطوير');
+            }
+        }
+
+        function showMembersReport() {
+            alert('تقرير الأعضاء:\n\nإجمالي الأعضاء: ' + members.length + '\nإجمالي النقاط: ' + members.reduce((sum, m) => sum + (m.talanton || 0), 0));
+        }
+
+        function showAttendanceReport() {
+            alert('تقرير الحضور:\n\nإجمالي سجلات الحضور: ' + attendance.length + '\nالحاضرون اليوم: ' + attendance.filter(a => a.date === new Date().toISOString().split('T')[0]).length);
+        }
+
+        function exportData() {
+            const data = {
+                members: members,
+                products: products,
+                tasks: tasks,
+                occasions: occasions,
+                attendance: attendance,
+                talantonHistory: talantonHistory,
+                settings: settings
             };
-
-            await window.firebaseUtils.addDoc(
-                window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
-                historyData
-            );
-
-            showNotification(`تم إضافة ${points} نقطة لـ ${member.name}`, 'success');
-        } catch (error) {
-            console.error('خطأ في إضافة النقاط:', error);
-            showNotification('خطأ في إضافة النقاط', 'error');
-        }
-    }
-}
-
-async function deleteMember(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-    
-    if (confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
-        try {
-            await window.firebaseUtils.deleteDoc(
-                window.firebaseUtils.doc(window.firebaseDb, 'members', member.id)
-            );
-            showNotification(`تم حذف العضو ${member.name}`, 'success');
-        } catch (error) {
-            console.error('خطأ في حذف العضو:', error);
-            showNotification('خطأ في حذف العضو', 'error');
-        }
-    }
-}
-
-// Product Management Functions
-function showAddProductModal() {
-    showModal('addProductModal');
-}
-
-async function addProduct(event) {
-    event.preventDefault();
-    
-    try {
-        const newProductData = {
-            name: document.getElementById('productName').value,
-            price: parseInt(document.getElementById('productPrice').value),
-            stock: parseInt(document.getElementById('productStock').value),
-            category: document.getElementById('productCategory').value,
-            description: document.getElementById('productDescription').value
-        };
-
-        await window.firebaseUtils.addDoc(
-            window.firebaseUtils.collection(window.firebaseDb, 'products'),
-            {
-                ...newProductData,
-                createdAt: window.firebaseUtils.serverTimestamp()
-            }
-        );
-
-        closeModal('addProductModal');
-        showNotification(`تم إضافة المنتج ${newProductData.name} بنجاح!`, 'success');
-        event.target.reset();
-
-    } catch (error) {
-        console.error('خطأ في إضافة المنتج:', error);
-        showNotification('خطأ في إضافة المنتج', 'error');
-    }
-}
-
-async function editProduct(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    
-    const newName = prompt('اسم المنتج:', product.name);
-    if (newName && newName !== product.name) {
-        try {
-            await window.firebaseUtils.updateDoc(
-                window.firebaseUtils.doc(window.firebaseDb, 'products', product.id),
-                { name: newName }
-            );
-            showNotification('تم تحديث بيانات المنتج بنجاح!', 'success');
-        } catch (error) {
-            console.error('خطأ في تحديث المنتج:', error);
-            showNotification('خطأ في تحديث المنتج', 'error');
-        }
-    }
-}
-
-async function deleteProduct(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    
-    if (confirm(`هل أنت متأكد من حذف المنتج ${product.name}؟`)) {
-        try {
-            await window.firebaseUtils.deleteDoc(
-                window.firebaseUtils.doc(window.firebaseDb, 'products', product.id)
-            );
-            showNotification(`تم حذف المنتج ${product.name}`, 'success');
-        } catch (error) {
-            console.error('خطأ في حذف المنتج:', error);
-            showNotification('خطأ في حذف المنتج', 'error');
-        }
-    }
-}
-
-// Placeholder functions for other admin features
-function showAddTaskModal() {
-    alert('ميزة إضافة المهام قيد التطوير');
-}
-
-function showAddOccasionModal() {
-    alert('ميزة إضافة المناسبات قيد التطوير');
-}
-
-function editTask(taskId) {
-    alert('ميزة تعديل المهام قيد التطوير');
-}
-
-function deleteTask(taskId) {
-    alert('ميزة حذف المهام قيد التطوير');
-}
-
-function editOccasion(occasionId) {
-    alert('ميزة تعديل المناسبات قيد التطوير');
-}
-
-function deleteOccasion(occasionId) {
-    alert('ميزة حذف المناسبات قيد التطوير');
-}
-
-function deleteAttendanceRecord(recordId) {
-    if (confirm('هل أنت متأكد من حذف سجل الحضور؟')) {
-        alert('ميزة حذف سجل الحضور قيد التطوير');
-    }
-}
-
-function showMembersReport() {
-    alert('تقرير الأعضاء:\n\nإجمالي الأعضاء: ' + members.length + '\nإجمالي النقاط: ' + members.reduce((sum, m) => sum + (m.talanton || 0), 0));
-}
-
-function showAttendanceReport() {
-    alert('تقرير الحضور:\n\nإجمالي سجلات الحضور: ' + attendance.length + '\nالحاضرون اليوم: ' + attendance.filter(a => a.date === new Date().toISOString().split('T')[0]).length);
-}
-
-function exportData() {
-    const data = {
-        members: members,
-        products: products,
-        tasks: tasks,
-        occasions: occasions,
-        attendance: attendance,
-        talantonHistory: talantonHistory,
-        settings: settings
-    };
-    
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'church_system_backup.json';
-    link.click();
-    
-    showNotification('تم تصدير البيانات بنجاح!', 'success');
-}
-// Member Panel Functions
-
-function showMemberLoginModal() {
-    showModal('memberLoginModal');
-}
-
-function memberLogin() {
-    const memberId = document.getElementById('memberLoginDropdown').value;
-    const password = document.getElementById('memberLoginPassword').value;
-    
-    if (!memberId) {
-        showNotification('يرجى اختيار عضو', 'warning');
-        return;
-    }
-    
-    const member = members.find(m => m.id === memberId);
-    if (!member) {
-        showNotification('العضو غير موجود', 'error');
-        return;
-    }
-    
-    if (password !== member.password) {
-        showNotification('كلمة المرور غير صحيحة!', 'error');
-        return;
-    }
-    
-    isMemberLoggedIn = true;
-    currentMember = member;
-    
-    const mainContent = document.getElementById('mainContent');
-    const memberPanel = document.getElementById('memberPanel');
-    
-    if (mainContent) mainContent.style.display = 'none';
-    if (memberPanel) memberPanel.style.display = 'block';
-    
-    closeModal('memberLoginModal');
-    loadMemberDashboard();
-    showNotification(`مرحباً ${member.name}! 👤`, 'success');
-    
-    document.getElementById('memberLoginPassword').value = '';
-}
-
-function logoutMember() {
-    if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-        isMemberLoggedIn = false;
-        currentMember = null;
-        
-        const mainContent = document.getElementById('mainContent');
-        const memberPanel = document.getElementById('memberPanel');
-        
-        if (mainContent) mainContent.style.display = 'block';
-        if (memberPanel) memberPanel.style.display = 'none';
-        
-        updateUIComplete();
-        showNotification('تم تسجيل الخروج بنجاح', 'success');
-    }
-}
-
-window.loadMemberDashboard = function() {
-    if (!currentMember) return;
-    
-    const dashboard = document.getElementById('memberDashboard');
-    if (!dashboard) return;
-    
-    const level = calculateLevel(currentMember.talanton || 0);
-    const memberAttendance = attendance.filter(a => a.memberId === currentMember.id);
-    const memberHistory = talantonHistory.filter(h => h.memberId === currentMember.id).slice(0, 5);
-    const memberTasks = tasks.filter(task => 
-        task.assignedService === 'all' || task.assignedService === currentMember.service
-    );
-    
-    dashboard.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <div style="background: var(--card-color); border-radius: 15px; padding: 20px; text-align: center;">
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">معلوماتي</h3>
-                <div class="level-badge ${level.color}" style="margin-bottom: 15px;">
-                    ${level.icon} ${level.name}
-                </div>
-                <div style="font-size: 2rem; font-weight: bold; color: var(--warning-color); margin-bottom: 10px;">
-                    💰 ${currentMember.talanton || 0}
-                </div>
-                <div>نقاط Talanton</div>
-            </div>
             
-            <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">إحصائياتي</h3>
-                <div style="margin-bottom: 10px;">📊 أيام الحضور: ${memberAttendance.length}</div>
-                <div style="margin-bottom: 10px;">⛪ الخدمة: ${getServiceName(currentMember.service)}</div>
-                <div style="margin-bottom: 10px;">🏠 المنطقة: ${currentMember.area || 'غير محدد'}</div>
-                <div>📅 عضو منذ: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}</div>
-            </div>
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'church_system_backup.json';
+            link.click();
             
-            <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">مهامي (${memberTasks.length})</h3>
-                ${memberTasks.slice(0, 3).map(task => `
-                    <div style="margin-bottom: 10px; padding: 10px; background: var(--surface-color); border-radius: 10px;">
-                        <div style="font-weight: bold;">${task.title}</div>
-                        <div style="font-size: 0.9rem; opacity: 0.8;">💰 ${task.points} نقطة</div>
-                    </div>
-                `).join('')}
-                ${memberTasks.length > 3 ? `<div style="text-align: center; margin-top: 10px; opacity: 0.7;">وأكثر...</div>` : ''}
-            </div>
-        </div>
-        
-        <div style="margin-top: 20px; background: var(--card-color); border-radius: 15px; padding: 20px;">
-            <h3 style="color: var(--primary-color); margin-bottom: 15px;">آخر المعاملات</h3>
-            ${memberHistory.length > 0 ? 
-                memberHistory.map(h => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 10px; background: var(--surface-color); border-radius: 10px;">
-                        <div>
-                            <div style="font-weight: bold;">${h.reason}</div>
-                            <div style="font-size: 0.9rem; opacity: 0.8;">${new Date(h.date).toLocaleDateString('ar')}</div>
-                        </div>
-                        <div style="font-weight: bold; color: ${h.type === 'add' ? 'var(--success-color)' : 'var(--danger-color)'};">
-                            ${h.type === 'add' ? '+' : '-'}${h.amount} نقطة
-                        </div>
-                    </div>
-                `).join('') :
-                '<p style="text-align: center; opacity: 0.7;">لا توجد معاملات</p>'
+            showNotification('تم تصدير البيانات بنجاح!', 'success');
+        }
+
+        // Modal Management
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
             }
-        </div>
-    `;
-}
+        }
 
-function showMyProfile() {
-    if (currentMember) {
-        showMemberProfile();
-    }
-}
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
 
-function showMyTasks() {
-    if (currentMember) {
-        showMemberTasks();
-    }
-}
+        // Notification System
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            
+            const colors = {
+                success: 'var(--success-color)',
+                error: 'var(--danger-color)',
+                warning: 'var(--warning-color)',
+                info: 'var(--info-color)'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
 
-function showMyHistory() {
-    if (!currentMember) return;
-    
-    const memberHistory = talantonHistory.filter(h => h.memberId === currentMember.id);
-    let historyInfo = `تاريخ نقاط ${currentMember.name}:\n\n`;
-    
-    if (memberHistory.length > 0) {
-        memberHistory.forEach((h, index) => {
-            historyInfo += `${index + 1}. ${h.reason}\n`;
-            historyInfo += `   ${h.type === 'add' ? '+' : '-'}${h.amount} نقطة\n`;
-            historyInfo += `   التاريخ: ${new Date(h.date).toLocaleDateString('ar')}\n\n`;
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            firebaseListeners.forEach(unsubscribe => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe();
+                }
+            });
         });
-    } else {
-        historyInfo += 'لا توجد معاملات سابقة.';
-    }
-    
-    alert(historyInfo);
-}
-/* Complete CSS Styles for Church Attendance System */
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-    --primary-color: #6366f1; --secondary-color: #8b5cf6; --success-color: #10b981;
-    --warning-color: #f59e0b; --danger-color: #ef4444; --info-color: #3b82f6;
-    --dark-bg: #0f172a; --dark-surface: #1e293b; --dark-card: #334155;
-    --light-bg: #f8fafc; --light-surface: #ffffff; --light-card: #f1f5f9;
-    --text-light: #ffffff; --text-dark: #0f172a;
-    --border-light: #e2e8f0; --border-dark: #475569;
-    --shadow-light: rgba(0, 0, 0, 0.1); --shadow-dark: rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="light"] {
-    --bg-color: var(--light-bg); --surface-color: var(--light-surface);
-    --card-color: var(--light-card); --text-color: var(--text-dark);
-    --border-color: var(--border-light); --shadow-color: var(--shadow-light);
-}
-
-[data-theme="dark"] {
-    --bg-color: var(--dark-bg); --surface-color: var(--dark-surface);
-    --card-color: var(--dark-card); --text-color: var(--text-light);
-    --border-color: var(--border-dark); --shadow-color: var(--shadow-dark);
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--bg-color), var(--card-color));
-    color: var(--text-color); transition: all 0.3s ease; min-height: 100vh;
-}
-
-.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-
-.header {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white; padding: 40px; border-radius: 25px; margin-bottom: 30px;
-    box-shadow: 0 25px 50px var(--shadow-color); text-align: center; position: relative;
-    overflow: hidden;
-}
-
-.header::before {
-    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-    animation: shine 3s infinite;
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-.header h1 { font-size: 3rem; margin-bottom: 15px; text-shadow: 0 4px 8px rgba(0,0,0,0.3); position: relative; z-index: 1; }
-.header p { opacity: 0.9; font-size: 1.3rem; position: relative; z-index: 1; }
-
-.version {
-    position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2);
-    padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; z-index: 2;
-}
-
-.controls {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;
-    margin-bottom: 30px; background: var(--surface-color); padding: 25px; border-radius: 20px;
-    box-shadow: 0 15px 35px var(--shadow-color);
-}
-
-.btn {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white; border: none; padding: 15px 25px; border-radius: 15px; cursor: pointer;
-    font-size: 16px; font-weight: bold; transition: all 0.3s ease;
-    box-shadow: 0 8px 20px var(--shadow-color); display: flex; align-items: center;
-    justify-content: center; gap: 10px; position: relative; overflow: hidden;
-}
-
-.btn::before {
-    content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-    background: rgba(255,255,255,0.2); border-radius: 50%; transition: all 0.3s ease;
-    transform: translate(-50%, -50%);
-}
-
-.btn:hover::before { width: 300px; height: 300px; }
-.btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px var(--shadow-color); }
-.btn-success { background: linear-gradient(135deg, var(--success-color), #059669); }
-.btn-warning { background: linear-gradient(135deg, var(--warning-color), #d97706); }
-.btn-danger { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
-.btn-info { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
-.btn-secondary { background: linear-gradient(135deg, #6b7280, #4b5563); }
-
-.card {
-    background: var(--surface-color); border-radius: 25px; padding: 35px; margin-bottom: 30px;
-    box-shadow: 0 20px 40px var(--shadow-color); border: 1px solid var(--border-color);
-    transition: all 0.3s ease; position: relative; overflow: hidden;
-}
-
-.card::before {
-    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-    transition: left 0.5s ease;
-}
-
-.card:hover::before { left: 100%; }
-.card:hover { transform: translateY(-5px); box-shadow: 0 30px 60px var(--shadow-color); }
-
-.card h2 {
-    color: var(--primary-color); margin-bottom: 25px; font-size: 2rem; font-weight: bold;
-    display: flex; align-items: center; gap: 15px; position: relative; z-index: 1;
-}
-
-.member-selector { margin-bottom: 25px; }
-
-.member-dropdown {
-    width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 15px;
-    background: var(--card-color); color: var(--text-color); font-size: 16px; cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.member-dropdown:focus {
-    outline: none; border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-}
-
-.member-info-display {
-    margin-top: 20px; padding: 20px; background: var(--card-color); border-radius: 15px;
-    border: 2px solid var(--border-color); display: none; animation: fadeIn 0.3s ease;
-}
-
-.member-info-display.active { display: block; }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.stats-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px; margin: 25px 0;
-}
-
-.stat-card {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white; padding: 30px; border-radius: 20px; text-align: center;
-    box-shadow: 0 15px 35px var(--shadow-color); transition: all 0.3s ease;
-    position: relative; overflow: hidden;
-}
-
-.stat-card::before {
-    content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
-}
-
-.stat-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px var(--shadow-color); }
-.stat-number { font-size: 3rem; font-weight: bold; margin-bottom: 10px; position: relative; z-index: 1; }
-.stat-label { opacity: 0.9; font-size: 1.2rem; position: relative; z-index: 1; }
-
-.modal {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); z-index: 10000; backdrop-filter: blur(10px);
-    animation: modalFadeIn 0.3s ease;
-}
-
-@keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.modal-content {
-    background: var(--surface-color); margin: 5% auto; padding: 40px; border-radius: 25px;
-    width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.3); animation: modalSlideIn 0.3s ease;
-    position: relative;
-}
-
-@keyframes modalSlideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.close {
-    color: var(--text-color); float: left; font-size: 28px; font-weight: bold;
-    cursor: pointer; transition: all 0.3s ease; position: absolute; top: 15px; left: 15px;
-}
-
-.close:hover { color: var(--danger-color); transform: scale(1.2) rotate(90deg); }
-
-.form-group { margin-bottom: 25px; }
-
-.form-group label {
-    display: block; margin-bottom: 10px; font-weight: bold;
-    color: var(--text-color); font-size: 1.1rem;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 10px;
-    background: var(--card-color); color: var(--text-color); font-size: 16px; transition: all 0.3s ease;
-}
-
-.form-group input[type="password"] { font-family: 'Courier New', monospace; letter-spacing: 2px; }
-
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none; border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); transform: scale(1.02);
-}
-
-.admin-panel, .member-panel { display: none; }
-
-.tab-buttons { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
-
-.tab-btn {
-    background: var(--card-color); border: 2px solid var(--border-color); color: var(--text-color);
-    padding: 15px 25px; border-radius: 15px; cursor: pointer; transition: all 0.3s ease; font-weight: bold;
-    position: relative; overflow: hidden;
-}
-
-.tab-btn::before {
-    content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 3px;
-    background: var(--primary-color); transition: width 0.3s ease;
-}
-
-.tab-btn:hover::before { width: 100%; }
-
-.tab-btn.active {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white; border-color: var(--primary-color); box-shadow: 0 8px 20px var(--shadow-color);
-}
-
-.tab-btn.active::before { width: 100%; background: rgba(255,255,255,0.3); }
-
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-
-.table {
-    width: 100%; border-collapse: collapse; margin-top: 25px; background: var(--surface-color);
-    border-radius: 15px; overflow: hidden; box-shadow: 0 10px 25px var(--shadow-color);
-}
-
-.table th, .table td { padding: 15px; text-align: right; border-bottom: 1px solid var(--border-color); }
-
-.table th {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white; font-weight: bold; position: relative;
-}
-
-.table tr { transition: all 0.3s ease; }
-.table tr:hover { background: var(--card-color); transform: scale(1.01); }
-
-.level-badge {
-    padding: 8px 16px; border-radius: 25px; font-size: 0.9rem; font-weight: bold;
-    color: white; display: inline-flex; align-items: center; gap: 5px;
-    animation: pulse 2s infinite;
-}
-
-.level-beginner { background: linear-gradient(135deg, var(--success-color), #059669); }
-.level-intermediate { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
-.level-advanced { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
-.level-expert { background: linear-gradient(135deg, var(--warning-color), #d97706); }
-.level-legend { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
-
-.fingerprint-scanner {
-    text-align: center; padding: 40px; background: var(--card-color);
-    border-radius: 20px; margin: 20px 0; position: relative; overflow: hidden;
-}
-
-.fingerprint-scanner::before {
-    content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
-    border: 2px solid var(--primary-color); border-radius: 50%; opacity: 0;
-    transform: translate(-50%, -50%); animation: scanPulse 2s infinite;
-}
-
-@keyframes scanPulse {
-    0% { width: 100px; height: 100px; opacity: 1; }
-    100% { width: 200px; height: 200px; opacity: 0; }
-}
-
-.fingerprint-icon {
-    font-size: 4rem; color: var(--primary-color); margin-bottom: 20px; cursor: pointer;
-    transition: all 0.3s ease; display: inline-block; position: relative; z-index: 1;
-}
-
-.fingerprint-icon:hover { transform: scale(1.1); color: var(--success-color); }
-
-.notification {
-    position: fixed; top: 20px; right: 20px; padding: 20px; border-radius: 15px;
-    color: white; font-weight: bold; z-index: 10001; min-width: 300px;
-    box-shadow: 0 10px 25px var(--shadow-color); animation: notificationSlide 0.3s ease;
-}
-
-@keyframes notificationSlide {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-.firebase-status {
-    padding: 15px; border-radius: 10px; margin: 15px 0;
-    text-align: center; font-weight: bold; animation: statusPulse 2s infinite;
-}
-
-@keyframes statusPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
-}
-
-.firebase-connected { background: linear-gradient(135deg, var(--success-color), #059669); color: white; }
-.firebase-disconnected { background: linear-gradient(135deg, var(--warning-color), #d97706); color: white; }
-
-.birthday-alert {
-    background: linear-gradient(135deg, var(--warning-color), #d97706);
-    color: white; padding: 15px; border-radius: 15px; margin: 15px 0; text-align: center;
-    animation: birthdayBounce 1s ease infinite alternate;
-}
-
-@keyframes birthdayBounce {
-    from { transform: translateY(0); }
-    to { transform: translateY(-5px); }
-}
-
-.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-
-.action-buttons {
-    display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin: 20px 0;
-}
-
-.store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
-
-.product-card {
-    background: var(--card-color); border: 2px solid var(--border-color);
-    border-radius: 15px; padding: 20px; transition: all 0.3s ease; position: relative; overflow: hidden;
-}
-
-.product-card::before {
-    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent);
-    transition: transform 0.5s ease; transform: rotate(45deg) translateX(-100%);
-}
-
-.product-card:hover::before { transform: rotate(45deg) translateX(100%); }
-.product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px var(--shadow-color); }
-.product-price { color: var(--warning-color); font-weight: bold; font-size: 1.2rem; }
-.product-stock { color: var(--success-color); font-size: 0.9rem; }
-
-.quick-attendance-input {
-    background: var(--card-color); border: 2px solid var(--border-color);
-    border-radius: 15px; padding: 20px; margin: 20px 0; text-align: center;
-}
-
-.quick-input {
-    padding: 15px; border: 2px solid var(--border-color); border-radius: 10px;
-    background: var(--surface-color); color: var(--text-color); font-size: 18px;
-    text-align: center; width: 150px; margin: 0 10px; transition: all 0.3s ease;
-}
-
-.quick-input:focus { transform: scale(1.05); box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-
-.chart-container {
-    position: relative; height: 400px; margin: 30px 0; background: var(--card-color);
-    border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px var(--shadow-color);
-}
-
-.add-button {
-    background: linear-gradient(135deg, var(--success-color), #059669);
-    color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer;
-    font-size: 14px; font-weight: bold; margin-bottom: 20px; transition: all 0.3s ease;
-}
-
-.add-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--shadow-color); }
-
-.status-present { color: var(--success-color); font-weight: bold; }
-.status-late { color: var(--warning-color); font-weight: bold; }
-.status-absent { color: var(--danger-color); font-weight: bold; }
-
-@media (max-width: 768px) {
-    .header h1 { font-size: 2rem; }
-    .controls { grid-template-columns: 1fr; }
-    .stats-grid { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-    .modal-content { width: 95%; margin: 5% auto; padding: 25px; }
-    .tab-buttons { flex-direction: column; }
-    .store-grid { grid-template-columns: 1fr; }
-    .action-buttons { flex-direction: column; }
-}
+    </script>
+</body>
+</html>

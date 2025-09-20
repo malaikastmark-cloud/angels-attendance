@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة - النظام الكامل</title>
+    <title>نظام حضور خدام الملايكة - النسخة المحدثة</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Firebase SDK v9 -->
@@ -12,7 +12,8 @@
         import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js';
         import { 
             getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, 
-            doc, query, orderBy, onSnapshot, setDoc, serverTimestamp, where, limit
+            doc, query, orderBy, onSnapshot, setDoc, serverTimestamp, where, limit,
+            connectFirestoreEmulator, enableNetwork, disableNetwork
         } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         
         const firebaseConfig = {
@@ -34,43 +35,162 @@
         window.firebaseAnalytics = analytics;
         window.firebaseUtils = { 
             addDoc, getDocs, updateDoc, deleteDoc, doc, collection, query, 
-            orderBy, onSnapshot, setDoc, serverTimestamp, where, limit 
+            orderBy, onSnapshot, setDoc, serverTimestamp, where, limit,
+            enableNetwork, disableNetwork
         };
         
         console.log('🔥 Firebase initialized successfully');
         
+        // Test Firebase connection with better error handling
         window.testFirebaseConnection = async function() {
             try {
+                console.log('🧪 Testing Firebase connection...');
+                
+                // First try to read data
+                const testQuery = query(
+                    collection(db, 'members'),
+                    limit(1)
+                );
+                const snapshot = await getDocs(testQuery);
+                console.log('✅ Firebase read test successful');
+                
+                // Try to write data
                 const testDoc = await addDoc(collection(db, 'connection_test'), {
                     message: 'Firebase connection successful',
                     timestamp: serverTimestamp(),
                     browser: navigator.userAgent,
-                    url: window.location.href
+                    url: window.location.href,
+                    testTime: new Date().toISOString()
                 });
-                console.log('✅ Firebase connection test successful:', testDoc.id);
+                console.log('✅ Firebase write test successful:', testDoc.id);
+                
+                // Clean up test document
+                await deleteDoc(doc(db, 'connection_test', testDoc.id));
+                console.log('✅ Firebase delete test successful');
+                
                 return true;
             } catch (error) {
                 console.error('❌ Firebase connection test failed:', error);
+                console.error('Error details:', {
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                // Show detailed error to user
+                window.showFirebaseError(error);
                 return false;
             }
+        };
+        
+        // Show Firebase error with solutions
+        window.showFirebaseError = function(error) {
+            let errorMessage = '❌ خطأ في الاتصال بـ Firebase:\n\n';
+            let solution = '';
+            
+            switch(error.code) {
+                case 'permission-denied':
+                    errorMessage += 'خطأ في الأذونات - قاعدة البيانات تحتاج إعداد قواعد الأمان';
+                    solution = `
+لحل هذه المشكلة:
+1. اذهب إلى Firebase Console
+2. اختر مشروع "angel-meeting-attendance"
+3. اذهب إلى Firestore Database
+4. اختر Rules
+5. استبدل القواعد بهذا الكود:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+
+6. اضغط Publish
+                    `;
+                    break;
+                case 'unavailable':
+                    errorMessage += 'الخدمة غير متاحة حالياً';
+                    solution = 'تحقق من اتصال الإنترنت وحاول مرة أخرى';
+                    break;
+                default:
+                    errorMessage += error.message;
+                    solution = 'تحقق من إعدادات Firebase والاتصال بالإنترنت';
+            }
+            
+            const statusElement = document.getElementById('firebaseStatus');
+            if (statusElement) {
+                statusElement.className = 'firebase-status firebase-disconnected';
+                statusElement.innerHTML = `
+                    <div style="margin-bottom: 10px;">🔴 خطأ في Firebase</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;">${error.code || 'Unknown error'}</div>
+                    <button onclick="showFirebaseSolution()" style="margin-top: 10px; padding: 5px 10px; background: #fff; color: #f59e0b; border: none; border-radius: 5px; cursor: pointer;">
+                        عرض الحل
+                    </button>
+                `;
+            }
+            
+            window.firebaseErrorSolution = solution;
+        };
+        
+        window.showFirebaseSolution = function() {
+            alert(window.firebaseErrorSolution || 'لا يوجد حل متاح');
         };
         
         document.addEventListener('DOMContentLoaded', function() {
             const statusElement = document.getElementById('firebaseStatus');
             if (statusElement) {
-                statusElement.className = 'firebase-status firebase-connected';
-                statusElement.innerHTML = '🟢 متصل بـ Firebase - النظام الكامل جاهز';
+                statusElement.className = 'firebase-status firebase-connecting';
+                statusElement.ierHTML = '🟡 جاري الاتصال بـ Firebase...';
             }
             
-            testFirebaseConnection().then(success => {
-                if (success) {
-                    console.log('🚀 Firebase ready - initializing system');
-                    window.initializeCompleteSystem();
-                } else {
-                    console.error('🚨 Firebase connection failed');
-                }
-            });
+            // Initialize system with delay
+            setTimeout(() => {
+                testFirebaseConnection().then(success => {
+                    if (success) {
+                        console.log('🚀 Firebase ready - initializing system');
+                        if (statusElement) {
+                            statusElement.className = 'firebase-status firebase-connected';
+                            statusElement.innerHTML = '🟢 متصل بـ Firebase النظام جاهز للاستخدام';
+                        }
+                        window.initializeCompleteSystem();
+                    } else {
+                        console.error('🚨 Firebase connection failed');
+                        // System will still work with localStorage fallback
+                        window.initializeOfflineSystem();
+                    }
+                });
+            }, 2000);
         });
+        
+        // Initialize offline system as fallback
+        window.initializeOfflineSystem = function() {
+            console.log('🔄 Initializing offline system...');
+            
+            const statusElement = document.getElementById('firebaseStatus');
+            if (statusElement) {
+                statusElement.className = 'firebase-status firebase-offline';
+                statusElement.innerHTML = `
+                    <div>🟠 وضع عدم الاتصال - البيانات محفوظة محلياً</div>
+                    <button onclick="retryFirebaseConnection()" style="margin-top: 5px; padding: 5px 10px; background: #fff; color: #f59e0b; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">
+                        إعادة المحاولة
+                    </button>
+                `;
+            }
+            
+            // Load from localStorage
+            window.loadFromLocalStorage();
+            window.initializeUI();
+            window.updateUIComplete();
+            
+            window.showNotification('النظام يعمل في وضع عدم الاتصال - البيانات محفوظة محلياً', 'warning');
+        };
+        
+        window.retryFirebaseConnection = function() {
+            location.reload();
+        };
     </script>
     
     <style>
@@ -80,7 +200,7 @@
             --primary-color: #6366f1; --secondary-color: #8b5cf6; --success-color: #10b981;
             --warning-color: #f59e0b; --danger-color: #ef4444; --info-color: #3b82f6;
             --dark-bg: #0f172a; --dark-surface: #1e293b; --dark-card: #334155;
-            --light-bg: #f8fafc; --light-surface: #ffffff; --light-card: #f1f5f9;
+            ght-bg: #f8fafc; --light-surface: #ffffff; --light-card: #f1f5f9;
             --text-light: #ffffff; --text-dark: #0f172a;
             --border-light: #e2e8f0; --border-dark: #475569;
             --shadow-light: rgba(0, 0, 0, 0.1); --shadow-dark: rgba(0, 0, 0, 0.3);
@@ -380,7 +500,9 @@
         }
 
         .firebase-connected { background: linear-gradient(135deg, var(--success-color), #059669); color: white; }
-        .firebase-disconnected { background: linear-gradient(135deg, var(--warning-color), #d97706); color: white; }
+        .firebase-disconnected { background: linear-gradient(135deg, var(--danger-color), #dc2626); color: white; }
+        .firebase-connecting { background: linear-gradient(135deg, var(--warning-color), #d97706); color: white; }
+        .firebase-offline { background: linear-gradient(135deg, var(--info-color), #1d4ed8); color: white; }
 
         .birthday-alert {
             background: linear-gradient(135deg, var(--warning-color), #d97706);
@@ -462,12 +584,12 @@
 <body data-theme="light">
     <div class="container">
         <div class="header">
-            <div class="version">v33.0 Single File</div>
+            <div class="version">v34.0 Fixed</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - الملف الكامل مع Firebase</p>
+            <p>نظام Talanton Pro - النسخة المحدثة مع قاعدة البيانات</p>
         </div>
 
-        <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+        <div id="firebaseStatus" class="firebase-status firebase-connecting">
             🟡 جاري الاتصال بـ Firebase...
         </div>
 
@@ -476,13 +598,14 @@
                 <span id="themeIcon">🌙</span> تبديل الوضع
             </button>
             <button class="btn" onclick="showAdminLogin()">👑 دخول الأدمن</button>
-            <button class="btn btn-info" onclick="generateQRCodes()">📱 إنشاء QR كودات</button>
+            <button class="btn btn-info" onclickenerateQRCodes()">📱 إنشاء QR كودات</button>
             <button class="btn btn-warning" onclick="showMemberLoginModal()">👤 دخول عضو</button>
+            <button class="btn btn-success" onclick="initializeDemoData()">🔄 تهيئة البيانات التجريبية</button>
         </div>
 
         <div id="mainContent">
             <div class="card">
-                <h2>📊 إحصائيات سريعة</h2>
+              <h2>📊 إحصائيات سريعة</h2>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="totalMembers">0</div>
@@ -517,7 +640,7 @@
             </div>
 
             <div class="card">
-                <h2>👥 اختيار العضو للحضور</h2>
+             <h2>👥 اختيار العضو للحضور</h2>
                 <div class="member-selector">
                     <select class="member-dropdown" id="memberDropdown" onchange="selectMemberFromDropdown()">
                         <option value="">اختر عضو...</option>
@@ -539,7 +662,7 @@
             </div>
 
             <div class="card">
-                <h2>🎉 مناسبات اليوم</h2>
+              <h2>🎉 مناسبات اليوم</h2>
                 <div id="todayEvents"></div>
             </div>
 
@@ -551,7 +674,7 @@
             </div>
 
             <div class="card">
-                <h2>🏆 لوحة الشرف</h2>
+             <h2>🏆 لوحة الشرف</h2>
                 <div id="leaderboard"></div>
             </div>
         </div>
@@ -583,7 +706,7 @@
                 </div>
                 
                 <div class="tab-buttons">
-                    <button class="tab-btn active" onclick="showTab('members')">👥 إدارة الأعضاء</button>
+                    <button class="tab-btn active" onclick="showTab('membارة الأعضاء</button>
                     <button class="tab-btn" onclick="showTab('products')">🏪 إدارة المتجر</button>
                     <button class="tab-btn" onclick="showTab('tasks')">📋 إدارة المهام</button>
                     <button class="tab-btn" onclick="showTab('occasions')">🎉 إدارة المناسبات</button>
@@ -659,7 +782,7 @@
             
             <div class="fingerprint-scanner">
                 <div class="fingerprint-icon" onclick="simulateFingerprint()">👆</div>
-                <p>اضغط على البصمة أو أدخل كلمة المرور</p>
+             <p>اضغط على البصمة أو أدخل كلمة المرور</p>
             </div>
             
             <div class="form-row">
@@ -720,7 +843,7 @@
                         <input type="date" id="memberBirthday">
                     </div>
                     <div class="form-group">
-                        <label>رصيد Talanton الأولي:</label>
+                      label>رصيد Talanton الأولي:</label>
                         <input type="number" id="initialTalanton" value="100" min="0">
                     </div>
                 </div>
@@ -806,6 +929,7 @@
         let members = [], products = [], tasks = [], occasions = [], weeks = [], attendance = [], talantonHistory = [];
         let settings = { dailyAttendancePoints: 10, taskCompletionPoints: 5, birthdayAlertDays: 7, maxAbsenceDays: 3 };
         let firebaseListeners = [];
+        let isFirebaseConnected = false;
 
         const memberLevels = [
             { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
@@ -818,6 +942,7 @@
         // Initialize Complete System
         window.initializeCompleteSystem = function() {
             console.log('🚀 تهيئة النظام الكامل...');
+            isFirebaseConnected = true;
             
             setTimeout(() => {
                 initializeFirebaseListeners();
@@ -832,14 +957,116 @@
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             const themeIcon = document.getElementById('themeIcon');
-            if (themeIcon) themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+            if (themeIcon) themeIcon.textContent = savedTheme t' ? '🌙' : '☀️';
         }
+
+        // Load from localStorage (fallback)
+        window.loadFromLocalStorage = function() {
+            try {
+                const savedMembers = localStorage.getItem('church_members');
+                const savedProducts = localStorage.getItem('church_products');
+                const savedTasks = localStorage.getItem('church_tasks');
+                const savedOccasions = localStorage.getItem('church_occasions');
+                const savedAttendance = localStorage.getItem('church_attendance');
+                const savedHistory = localStorage.getItem('church_history');
+
+                if (savedMembers) members = JSON.parse(savedMembers);
+                if (savedProducts) products = JSON.parse(savedProducts);
+                if (savedTasks) tasks = JSON.parse(savedTasks);
+                if (savedOccasions) occasions = JSON.parse(savedOccasions);
+                if (savedAttendance) attendance = JSON.parse(savedAttendance);
+                if (savedHistory) talantonHistory = JSON.parse(savedHistory);
+
+                // Initialize demo data if empty
+                if (members.length === 0) {
+                    initializeDemoDataOffline();
+                }
+
+                sortMembersAlphabetically();
+                console.log('✅ تم تحميل البيانات من التخزين المحلي');
+            } catch (error) {
+                console.error('❌ خطأ في تحميل البيانات المحلية:', error);
+                initializeDemoDataOffline();
+            }
+        };
+
+        // Save to localStorage
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('church_members', JSON.stringify(members));
+                localStorage.setItem('church_products', JSON.stringify(products));
+                localStorage.setItem('church_tasks', JSON.stringify(tasks));
+                localStorage.setItem('church_occasions', JSON.stringify(occasions));
+                localStorage.setItem('church_attendance', JSON.stringify(attendance));
+                localStorage.setItem('church_history', JSON.stringify(talantonHistory));
+                console.log('💾 تم حفظ البيانات محلياً');
+            } catch (error) {
+                console.error('❌ خطأ في حفظ البيانات محلياً:', error);
+            }
+        }
+
+        // Initialize demo data for offline mode
+        function initializeDemoDataOffline() {
+            members = [
+                { id: 'demo1', name: 'أحمد محمد الشماس', password: '1234', email: 'ahmed@church.com', phone: '01012345678',
+                  birthday: '1995-03-15', talanton: 450, joinDate: '2024-01-15', service: 'altar', area: 'المعادي', status: 'active' },
+                { id: 'demo2', name: 'علي حسام المبتدئ', password: '1234', email: 'ali@church.com', phone: '01890123456',
+                  birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12', service: 'altar', area: 'المطرية', status: 'active' },
+                { id: 'demo3', name: 'عبدالله سالم المصور', password: '1234', email: 'abdullah@church.com', phone: '01456789012',
+                  birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15', service: 'media', area: 'المهندسين', status: 'active' },
+                { id: 'demo4', name: 'عائشة أحمد المرنمة', password: '1234', email: 'aisha@church.com', phone: '01345678901',
+                  birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10', service: 'music', area: 'الدقي', status: 'active' },
+                { id: 'demo5', name: 'فاطمة علي المعلمة', password: '1234', email: 'fatima@church.com', phone: '01123456789',
+                  birthday: '1992-07-22', talanton: 620, joinDate: '2024-01-20', service: 'sunday_school', area: 'مصر الجديدة', status: 'active' }
+            ];
+
+            products = [
+                { id: 'prod1', name: 'كتاب الأجبية المقدسة', price: 80, description: 'كتاب الأجبية الكامل', category: 'books', stock: 15 },
+                { id: 'prod2', name: 'مسبحة خشبية', price: 45, description: 'مسبحة من الخشب الطبيعي', category: 'accessories', stock: 25 },
+                { id: 'prod3', name: 'صليب ذهبي', price: 120, description: 'صليب مطلي بالذهب', category: 'accessories', stock: 8 },
+                { id: 'prod4', name: 'شهادة تقدير', price: 200, description: 'شهادة تقدير للخدمة', category: 'certificates', stock: 50 },
+                { id: 'prod5', name: 'تيشيرت الخدمة', price: 60, description: 'تيشيرت بشعار الكنيسة', category: 'clothing', stock: 30 }
+            ];
+
+            tasks = [
+                { id: 'task1', title: 'حضور القداس الإلهي', points: 15, type: 'weekly', priority: 'high', 
+                  description: 'المشاركة في القداس الإلهي كل أسبوع', status: 'active', assignedService: 'all' },
+                { id: 'task2', title: 'تحضير درس مدرسة الأحد', points: 10, type: 'weekly', priority: 'medium',
+                  description: 'تحضير وتقديم درس في مدرسة الأحد', status: 'active', assignedService: 'sunday_school' },
+                { id: 'task3', title: 'خدمة المذبح', points: 12, type: 'weekly', priority: 'high',
+                  description: 'المساعدة في خدمة المذبح', status: 'active', assignedService: 'altar' }
+            ];
+
+            occasions = [
+                { id: 'occ1', title: 'احتفال عيد الميلاد المجيد', type: 'celebration', date: '2024-12-25', time: '18:00', 
+                  location: 'الكنيسة الكبرى', points: 25, description: 'احتفال كبير بمناسبة عيد الميلاد المجيد' },
+                { id: 'occ2', title: 'اجتماع الخدام الشهري', type: 'meeting', date: '2024-03-15', time: '19:00', 
+                  location: 'قاعة الاجتماعات', points: 10, description: 'الاجتماع الشهري لجميع الخدام' }
+            ];
+
+            sortMembersAlphabetically();
+            saveToLocalStorage();
+            console.log('✅ تم إنشاء البيانات التجريبية في وضع عدم الاتصال');
+        }
+
+        // Initialize demo data button
+        window.initializeDemoData = function() {
+            if (confirm('هل تريد إعادة تهيئة البيانات التجريبية؟ سيتم حذف جميع البيانات الحالية.')) {
+                if (isFirebaseConnected) {
+                    initializeDemoDataInFirebase();
+                } else {
+                    initializeDemoDataOffline();
+                    updateUIComplete();
+                    showNotification('تم إعادة تهيئة البيانات التجريبية!', 'success');
+                }
+            }
+        };
 
         // Firebase Real-time Listeners
         function initializeFirebaseListeners() {
             if (!window.firebaseDb || !window.firebaseUtils) {
                 console.error('❌ Firebase not ready');
-                setTimeout(initializeFirebaseListeners, 2000);
+                setTimeout(initializeFirebasesteners, 2000);
                 return;
             }
 
@@ -930,7 +1157,7 @@
             } catch (error) {
                 console.error('❌ خطأ في تفعيل المزامنة التلقائية:', error);
                 showNotification('خطأ في المزامنة التلقائية', 'error');
-                setTimeout(initializeFirebaseListeners, 5000);
+                setTimeout(initializeFirebassteners, 5000);
             }
         }
 
@@ -963,6 +1190,7 @@
             } catch (error) {
                 console.error('❌ خطأ في تحميل البيانات:', error);
                 showNotification('خطأ في تحميل البيانات', 'warning');
+                // Fallback to demo data
                 await initializeDemoDataInFirebase();
             }
         }
@@ -1036,7 +1264,7 @@
             });
         }
 
-        // Initialize demo data
+        // Initialize demo data in Firebase
         async function initializeDemoDataInFirebase() {
             try {
                 showNotification('جاري إنشاء البيانات التجريبية...', 'info');
@@ -1115,7 +1343,7 @@
 
             } catch (error) {
                 console.error('❌ خطأ في إنشاء البيانات التجريبية:', error);
-                showNotification('خطأ في إنشاء البيانات التجريبية', 'error');
+                showNotification('خطأ في إنشاء البيانات التجريبية: ' + error.message, 'error');
             }
         }
 
@@ -1297,7 +1525,7 @@
             
             if (todayAttendance) {
                 statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
-                statusText = todayAttendance.type === 'late' ? 'حاضر متأخر' : 'حاضر اليوم';
+                statusText = todayAttendance.type ate' ? 'حاضر متأخر' : 'حاضر اليوم';
             }
 
             selectedMemberInfo.innerHTML = `
@@ -1389,39 +1617,70 @@
                     date: today,
                     type: attendanceType,
                     notes: notes,
-                    timestamp: window.firebaseUtils.serverTimestamp()
+                    timestamp: new Date().toISOString()
                 };
 
-                await window.firebaseUtils.addDoc(
-                    window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
-                    attendanceData
-                );
+                if (isFirebaseConnected) {
+                    attendanceData.timestamp = window.firebaseUtils.serverTimestamp();
+                    
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
+                        attendanceData
+                    );
 
-                const newTalanton = (currentMember.talanton || 0) + attendanceReward;
-                await window.firebaseUtils.updateDoc(
-                    window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
-                    { 
-                        talanton: newTalanton,
-                        lastUpdated: window.firebaseUtils.serverTimestamp()
+                    const newTalanton = (currentMember.talanton || 0) + attendanceReward;
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
+                        { 
+                            talanton: newTalanton,
+                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
+
+                    const historyData = {
+                        memberId: currentMember.id,
+                        memberName: currentMember.name,
+                        amount: attendanceReward,
+                        type: 'add',
+                        reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
+                                attendanceType === 'early' ? 'مبكر' :
+                                attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
+                        date: today,
+                        timestamp: window.firebaseUtils.serverTimestamp()
+                    };
+
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                        historyData
+                    );
+                } else {
+                    // Offline mode
+                    attendanceData.id = 'att_' + Date.now();
+                    attendance.unshift(attendanceData);
+                    
+                    currentMember.talanton = (currentMember.talanton || 0) + attendanceReward;
+                    const memberIndex = members.findIndex(m => m.id === currentMember.id);
+                    if (memberIndex !== -1) {
+                        members[memberIndex] = currentMember;
                     }
-                );
-
-                const historyData = {
-                    memberId: currentMember.id,
-                    memberName: currentMember.name,
-                    amount: attendanceReward,
-                    type: 'add',
-                    reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
-                            attendanceType === 'early' ? 'مبكر' :
-                            attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
-                    date: today,
-                    timestamp: window.firebaseUtils.serverTimestamp()
-                };
-
-                await window.firebaseUtils.addDoc(
-                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
-                    historyData
-                );
+                    
+                    const historyData = {
+                        id: 'hist_' + Date.now(),
+                        memberId: currentMember.id,
+                        memberName: currentMember.name,
+                        amount: attendanceReward,
+                        type: 'add',
+                        reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
+                                attendanceType === 'early' ? 'مبكر' :
+                                attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
+                        date: today,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    talantonHistory.unshift(historyData);
+                    saveToLocalStorage();
+                    updateUIComplete();
+                }
 
                 showNotification(`تم تسجيل حضورك بنجاح! حصلت على ${attendanceReward} نقاط Talanton`, 'success');
                 closeModal('attendanceModal');
@@ -1429,7 +1688,7 @@
 
             } catch (error) {
                 console.error('❌ خطأ في تسجيل الحضور:', error);
-                showNotification('خطأ في تسجيل الحضور', 'error');
+                showNotification('خطأ في تسجيل الحضور: ' + error.message, 'error');
             }
         }
 
@@ -1472,7 +1731,7 @@
             const purchaseDetails = document.getElementById('purchaseDetails');
             
             if (purchaseTitle) {
-                purchaseTitle.textContent = `شراء: ${currentProduct.name}`;
+                purchaseTitle.textCt = `شراء: ${currentProduct.name}`;
             }
             
             if (purchaseDetails) {
@@ -1499,42 +1758,72 @@
             if (!currentProduct || !currentMember) return;
             
             try {
-                const newTalanton = currentMember.talanton - currentProduct.price;
-                await window.firebaseUtils.updateDoc(
-                    window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
-                    { 
-                        talanton: newTalanton,
-                        lastUpdated: window.firebaseUtils.serverTimestamp()
+                if (isFirebaseConnected) {
+                    const newTalanton = currentMember.talanton - currentProduct.price;
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', currentMember.id),
+                        { 
+                            talanton: newTalanton,
+                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
+                    
+                    const newStock = currentProduct.stock - 1;
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'products', currentProduct.id),
+                        { stock: newStock }
+                    );
+                    
+                    const historyData = {
+                        memberId: currentMember.id,
+                        memberName: currentMember.name,
+                        amount: currentProduct.price,
+                        type: 'subtract',
+                        reason: `شراء: ${currentProduct.name}`,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: window.firebaseUtils.serverTimestamp()
+                    };
+                    
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                        historyData
+                    );
+                } else {
+                    // Offline mode
+                    currentMember.talanton -= currentProduct.price;
+                    const memberIndex = members.findIndex(m => m.id === currentMember.id);
+                    if (memberIndex !== -1) {
+                        members[memberIndex] = currentMember;
                     }
-                );
-                
-                const newStock = currentProduct.stock - 1;
-                await window.firebaseUtils.updateDoc(
-                    window.firebaseUtils.doc(window.firebaseDb, 'products', currentProduct.id),
-                    { stock: newStock }
-                );
-                
-                const historyData = {
-                    memberId: currentMember.id,
-                    memberName: currentMember.name,
-                    amount: currentProduct.price,
-                    type: 'subtract',
-                    reason: `شراء: ${currentProduct.name}`,
-                    date: new Date().toISOString().split('T')[0],
-                    timestamp: window.firebaseUtils.serverTimestamp()
-                };
-                
-                await window.firebaseUtils.addDoc(
-                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
-                    historyData
-                );
+                    
+                    currentProduct.stock -= 1;
+                    const productIndex = products.findIndex(p => p.id === currentProduct.id);
+                    if (productIndex !== -1) {
+                        products[productIndex] = currentProduct;
+                    }
+                    
+                    const historyData = {
+                        id: 'hist_' + Date.now(),
+                        memberId: currentMember.id,
+                        memberName: currentMember.name,
+                        amount: currentProduct.price,
+                        type: 'subtract',
+                        reason: `شراء: ${currentProduct.name}`,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    talantonHistory.unshift(historyData);
+                    saveToLocalStorage();
+                    updateUIComplete();
+                }
                 
                 showNotification(`تم شراء ${currentProduct.name} بنجاح!`, 'success');
                 closeModal('purchaseModal');
                 
             } catch (error) {
                 console.error('❌ خطأ في الشراء:', error);
-                showNotification('خطأ في عملية الشراء', 'error');
+                showNotification('خطأ في عملية الشراء: ' + error.message, 'error');
             }
         }
 
@@ -1644,7 +1933,7 @@
                             <th>الرقم</th>
                             <th>اسم المنتج</th>
                             <th>السعر</th>
-                            <th>المخزون</th>
+                     <th>المخزون</th>
                             <th>الفئة</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -1853,14 +2142,23 @@
                     status: 'active'
                 };
 
-                await window.firebaseUtils.addDoc(
-                    window.firebaseUtils.collection(window.firebaseDb, 'members'),
-                    {
-                        ...newMemberData,
-                        createdAt: window.firebaseUtils.serverTimestamp(),
-                        lastUpdated: window.firebaseUtils.serverTimestamp()
-                    }
-                );
+                if (isFirebaseConnected) {
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'members'),
+                        {
+                            ...newMemberData,
+                            createdAt: window.firebaseUtils.serverTimestamp(),
+                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
+                } else {
+                    // Offline mode
+                    newMemberData.id = 'member_' + Date.now();
+                    members.push(newMemberData);
+                    sortMembersAlphabetically();
+                    saveToLocalStorage();
+                    updateUIComplete();
+                }
 
                 closeModal('addMemberModal');
                 showNotification(`تم إضافة العضو ${newMemberData.name} بنجاح!`, 'success');
@@ -1868,7 +2166,7 @@
 
             } catch (error) {
                 console.error('خطأ في إضافة العضو:', error);
-                showNotification('خطأ في إضافة العضو', 'error');
+                showNotification('خطأ في إضافة العضو: ' + error.message, 'error');
             }
         }
 
@@ -1879,17 +2177,29 @@
             const newName = prompt('اسم العضو:', member.name);
             if (newName && newName !== member.name) {
                 try {
-                    await window.firebaseUtils.updateDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
-                        { 
-                            name: newName,
-                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                    if (isFirebaseConnected) {
+                        await window.firebaseUtils.updateDoc(
+                            window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
+                            { 
+                                name: newName,
+                                lastUpdated: window.firebaseUtils.serverTimestamp()
+                            }
+                        );
+                    } else {
+                        // Offline mode
+                        member.name = newName;
+                        const memberIndex = members.findIndex(m => m.id === memberId);
+                        if (memberIndex !== -1) {
+                            members[memberIndex] = member;
                         }
-                    );
+                        sortMembersAlphabetically();
+                        saveToLocalStorage();
+                        updateUIComplete();
+                    }
                     showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
                 } catch (error) {
                     console.error('خطأ في تحديث العضو:', error);
-                    showNotification('خطأ في تحديث العضو', 'error');
+                    showNotification('خطأ في تحديث العضو: ' + error.message, 'error');
                 }
             }
         }
@@ -1898,40 +2208,64 @@
             const member = members.find(m => m.id === memberId);
             if (!member) return;
             
-            const points = prompt(`إضافة نقاط لـ ${member.name}:`, '10');
+            const point prompt(`إضافة نقاط لـ ${member.name}:`, '10');
             const reason = prompt('السبب:', 'إضافة نقاط إضافية');
             
             if (points && !isNaN(points) && parseInt(points) > 0) {
                 try {
                     const newTalanton = (member.talanton || 0) + parseInt(points);
                     
-                    await window.firebaseUtils.updateDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
-                        { 
-                            talanton: newTalanton,
-                            lastUpdated: window.firebaseUtils.serverTimestamp()
+                    if (isFirebaseConnected) {
+                        await window.firebaseUtils.updateDoc(
+                            window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
+                            { 
+                                talanton: newTalanton,
+                                lastUpdated: window.firebaseUtils.serverTimestamp()
+                            }
+                        );
+
+                        const historyData = {
+                            memberId: member.id,
+                            memberName: member.name,
+                            amount: parseInt(points),
+                            type: 'add',
+                            reason: reason,
+                            date: new Date().toISOString().split('T')[0],
+                            timestamp: window.firebaseUtils.serverTimestamp()
+                        };
+
+                        await window.firebaseUtils.addDoc(
+                            window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                            historyData
+                        );
+                    } else {
+                        // Offline mode
+                        member.talanton = newTalanton;
+                        const memberIndex = members.findIndex(m => m.id === memberId);
+                        if (memberIndex !== -1) {
+                            members[memberIndex] = member;
                         }
-                    );
-
-                    const historyData = {
-                        memberId: member.id,
-                        memberName: member.name,
-                        amount: parseInt(points),
-                        type: 'add',
-                        reason: reason,
-                        date: new Date().toISOString().split('T')[0],
-                        timestamp: window.firebaseUtils.serverTimestamp()
-                    };
-
-                    await window.firebaseUtils.addDoc(
-                        window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
-                        historyData
-                    );
+                        
+                        const historyData = {
+                            id: 'hist_' + Date.now(),
+                            memberId: member.id,
+                            memberName: member.name,
+                            amount: parseInt(points),
+                            type: 'add',
+                            reason: reason,
+                            date: new Date().toISOString().split('T')[0],
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        talantonHistory.unshift(historyData);
+                        saveToLocalStorage();
+                        updateUIComplete();
+                    }
 
                     showNotification(`تم إضافة ${points} نقطة لـ ${member.name}`, 'success');
                 } catch (error) {
                     console.error('خطأ في إضافة النقاط:', error);
-                    showNotification('خطأ في إضافة النقاط', 'error');
+                    showNotification('خطأ في إضافة النقاط: ' + error.message, 'error');
                 }
             }
         }
@@ -1942,13 +2276,24 @@
             
             if (confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
                 try {
-                    await window.firebaseUtils.deleteDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id)
-                    );
+                    if (isFirebaseConnected) {
+                        await window.firebaseUtils.deleteDoc(
+                            window.firebaseUtils.doc(window.firebaseDb, 'members', member.id)
+                        );
+                    } else {
+                        // Offline mode
+                        const memberIndex = members.findIndex(m => m.id === memberId);
+                        if (memberIndex !== -1) {
+                            members.splice(memberIndex, 1);
+                        }
+                        sortMembersAlphabetically();
+                        saveToLocalStorage();
+                        updateUIComplete();
+                    }
                     showNotification(`تم حذف العضو ${member.name}`, 'success');
                 } catch (error) {
                     console.error('خطأ في حذف العضو:', error);
-                    showNotification('خطأ في حذف العضو', 'error');
+                    showNotification('خطأ في حذف العضو: ' + error.message, 'error');
                 }
             }
         }
@@ -1970,13 +2315,21 @@
                     description: document.getElementById('productDescription').value
                 };
 
-                await window.firebaseUtils.addDoc(
-                    window.firebaseUtils.collection(window.firebaseDb, 'products'),
-                    {
-                        ...newProductData,
-                        createdAt: window.firebaseUtils.serverTimestamp()
-                    }
-                );
+                if (isFirebaseConnected) {
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'products'),
+                        {
+                            ...newProductData,
+                            createdAt: window.firebaseUtils.serverTimestamp()
+                        }
+                    );
+                } else {
+                    // Offline mode
+                    newProductData.id = 'product_' + Date.now();
+                    products.push(newProductData);
+                    saveToLocalStorage();
+                    updateUIComplete();
+                }
 
                 closeModal('addProductModal');
                 showNotification(`تم إضافة المنتج ${newProductData.name} بنجاح!`, 'success');
@@ -1984,7 +2337,7 @@
 
             } catch (error) {
                 console.error('خطأ في إضافة المنتج:', error);
-                showNotification('خطأ في إضافة المنتج', 'error');
+                showNotification('خطأ في إضافة المنتج: ' + error.message, 'error');
             }
         }
 
@@ -1995,14 +2348,25 @@
             const newName = prompt('اسم المنتج:', product.name);
             if (newName && newName !== product.name) {
                 try {
-                    await window.firebaseUtils.updateDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'products', product.id),
-                        { name: newName }
-                    );
+                    if (isFirebaseConnected) {
+                        await window.firebaseUtils.updateDoc(
+                            window.firebaseUtils.doc(window.firebaseDb, 'products', product.id),
+                            { name: newName }
+                        );
+                    } else {
+                        // Offline mode
+                        product.name = newName;
+                        const productIndex = products.findIndex(p => p.id === productId);
+                        if (productIndex !== -1) {
+                            products[productIndex] = product;
+                        }
+                        saveToLocalStorage();
+                        updateUIComplete();
+                    }
                     showNotification('تم تحديث بيانات المنتج بنجاح!', 'success');
                 } catch (error) {
                     console.error('خطأ في تحديث المنتج:', error);
-                    showNotification('خطأ في تحديث المنتج', 'error');
+                    showNotification('خطأ في تحديث المنتج: ' + error.message, 'error');
                 }
             }
         }
@@ -2013,13 +2377,23 @@
             
             if (confirm(`هل أنت متأكد من حذف المنتج ${product.name}؟`)) {
                 try {
-                    await window.firebaseUtils.deleteDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'products', product.id)
-                    );
+                    if (isFirebaseConnected) {
+                        await window.firebaseUtils.deleteDoc(
+                            window.firebaseUtils.doc(window.firebaseDb, 'products', product.id)
+                        );
+                    } else {
+                        // Offline mode
+                        const productIndex = products.findIndex(p => p.id === productId);
+                        if (productIndex !== -1) {
+                            products.splice(productIndex, 1);
+                        }
+                        saveToLocalStorage();
+                        updateUIComplete();
+                    }
                     showNotification(`تم حذف المنتج ${product.name}`, 'success');
                 } catch (error) {
                     console.error('خطأ في حذف المنتج:', error);
-                    showNotification('خطأ في حذف المنتج', 'error');
+                    showNotification('خطأ في حذف المنتج: ' + error.message, 'error');
                 }
             }
         }
@@ -2104,399 +2478,12 @@
                         <div style="font-size: 2rem; font-weight: bold; color: var(--warning-color); margin-bottom: 10px;">
                             💰 ${currentMember.talanton || 0}
                         </div>
-                        <div>نقاط Talanton</div>
+                    <div>نقاط Talanton</div>
                     </div>
                     
                     <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
                         <h3 style="color: var(--primary-color); margin-bottom: 15px;">إحصائياتي</h3>
                         <div style="margin-bottom: 10px;">📊 أيام الحضور: ${memberAttendance.length}</div>
-                        <div style="margin-bottom: 10px;">⛪ الخدمة: ${getServiceName(currentMember.service)}</div>
+                        <div style="margin-botto: 10px;">⛪ الخدمة: ${getServiceName(currentMember.service)}</div>
                         <div style="margin-bottom: 10px;">🏠 المنطقة: ${currentMember.area || 'غير محدد'}</div>
-                        <div>📅 عضو منذ: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}</div>
-                    </div>
-                    
-                    <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
-                        <h3 style="color: var(--primary-color); margin-bottom: 15px;">مهامي (${memberTasks.length})</h3>
-                        ${memberTasks.slice(0, 3).map(task => `
-                            <div style="margin-bottom: 10px; padding: 10px; background: var(--surface-color); border-radius: 10px;">
-                                <div style="font-weight: bold;">${task.title}</div>
-                                <div style="font-size: 0.9rem; opacity: 0.8;">💰 ${task.points} نقطة</div>
-                            </div>
-                        `).join('')}
-                        ${memberTasks.length > 3 ? `<div style="text-align: center; margin-top: 10px; opacity: 0.7;">وأكثر...</div>` : ''}
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; background: var(--card-color); border-radius: 15px; padding: 20px;">
-                    <h3 style="color: var(--primary-color); margin-bottom: 15px;">آخر المعاملات</h3>
-                    ${memberHistory.length > 0 ? 
-                        memberHistory.map(h => `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin-bottom: 10px; background: var(--surface-color); border-radius: 10px;">
-                                <div>
-                                    <div style="font-weight: bold;">${h.reason}</div>
-                                    <div style="font-size: 0.9rem; opacity: 0.8;">${new Date(h.date).toLocaleDateString('ar')}</div>
-                                </div>
-                                <div style="font-weight: bold; color: ${h.type === 'add' ? 'var(--success-color)' : 'var(--danger-color)'};">
-                                    ${h.type === 'add' ? '+' : '-'}${h.amount} نقطة
-                                </div>
-                            </div>
-                        `).join('') :
-                        '<p style="text-align: center; opacity: 0.7;">لا توجد معاملات</p>'
-                    }
-                </div>
-            `;
-        }
-
-        function showMyProfile() {
-            if (currentMember) {
-                showMemberProfile();
-            }
-        }
-
-        function showMyTasks() {
-            if (currentMember) {
-                showMemberTasks();
-            }
-        }
-
-        function showMyHistory() {
-            if (!currentMember) return;
-            
-            const memberHistory = talantonHistory.filter(h => h.memberId === currentMember.id);
-            let historyInfo = `تاريخ نقاط ${currentMember.name}:\n\n`;
-            
-            if (memberHistory.length > 0) {
-                memberHistory.forEach((h, index) => {
-                    historyInfo += `${index + 1}. ${h.reason}\n`;
-                    historyInfo += `   ${h.type === 'add' ? '+' : '-'}${h.amount} نقطة\n`;
-                    historyInfo += `   التاريخ: ${new Date(h.date).toLocaleDateString('ar')}\n\n`;
-                });
-            } else {
-                historyInfo += 'لا توجد معاملات سابقة.';
-            }
-            
-            alert(historyInfo);
-        }
-
-        // Utility Functions
-        function calculateLevel(points) {
-            return memberLevels.find(level => points >= level.minPoints && points <= level.maxPoints) || memberLevels[0];
-        }
-
-        function getServiceName(service) {
-            const services = {
-                altar: 'خدمة المذبح', sunday_school: 'مدرسة الأحد', youth: 'خدمة الشباب',
-                music: 'الألحان والموسيقى', media: 'الإعلام', social: 'الخدمة الاجتماعية', other: 'أخرى'
-            };
-            return services[service] || 'غير محدد';
-        }
-
-        function checkBirthdays() {
-            const today = new Date();
-            const alertContainer = document.getElementById('birthdayAlerts');
-            if (!alertContainer) return;
-
-            const upcomingBirthdays = members.filter(member => {
-                if (!member.birthday) return false;
-                
-                const birthday = new Date(member.birthday);
-                const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
-                
-                const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
-                return daysDiff >= 0 && daysDiff <= settings.birthdayAlertDays;
-            });
-
-            if (upcomingBirthdays.length > 0) {
-                alertContainer.innerHTML = upcomingBirthdays.map(member => {
-                    const birthday = new Date(member.birthday);
-                    const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
-                    const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
-                    
-                    return `
-                        <div class="birthday-alert">
-                            🎂 ${daysDiff === 0 ? 'اليوم عيد ميلاد' : `خلال ${daysDiff} أيام عيد ميلاد`} 
-                            <strong>${member.name}</strong>
-                            ${daysDiff === 0 ? '🎉' : ''}
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                alertContainer.innerHTML = '';
-            }
-        }
-
-        function loadTodayOccasions() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayOccasionsContainer = document.getElementById('todayEvents');
-            if (!todayOccasionsContainer) return;
-
-            const todayOccasions = occasions.filter(occasion => occasion.date === today);
-            
-            if (todayOccasions.length > 0) {
-                todayOccasionsContainer.innerHTML = todayOccasions.map(occasion => `
-                    <div style="background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
-                        <div style="color: var(--primary-color); font-weight: bold;">${occasion.time || 'طوال اليوم'}</div>
-                        <h4>${occasion.title}</h4>
-                        <p>${occasion.description}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                            <span>📍 ${occasion.location || 'غير محدد'}</span>
-                            <span style="color: var(--success-color); font-weight: bold;">💰 ${occasion.points} نقطة</span>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                todayOccasionsContainer.innerHTML = '<p>لا توجد مناسبات مجدولة لهذا اليوم</p>';
-            }
-        }
-
-        function initializeCharts() {
-            const ctx = document.getElementById('attendanceChart');
-            if (!ctx) return;
-            updateCharts();
-        }
-
-        function updateCharts() {
-            const ctx = document.getElementById('attendanceChart');
-            if (!ctx) return;
-
-            const existingChart = Chart.getChart(ctx);
-            if (existingChart) {
-                existingChart.destroy();
-            }
-
-            const last7Days = [];
-            const attendanceCounts = [];
-            
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                const dateStr = date.toISOString().split('T')[0];
-                const dayName = date.toLocaleDateString('ar', { weekday: 'short' });
-                
-                last7Days.push(dayName);
-                attendanceCounts.push(attendance.filter(a => a.date === dateStr).length);
-            }
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: last7Days,
-                    datasets: [{
-                        label: 'عدد الحاضرين',
-                        data: attendanceCounts,
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'إحصائيات الحضور - آخر 7 أيام'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-
-        // Theme Management
-        function toggleTheme() {
-            const body = document.body;
-            const currentTheme = body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            const themeIcon = document.getElementById('themeIcon');
-            
-            body.setAttribute('data-theme', newTheme);
-            if (themeIcon) themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
-            localStorage.setItem('theme', newTheme);
-            
-            showNotification(`تم تفعيل الوضع ${newTheme === 'light' ? 'النهاري' : 'الليلي'}`, 'success');
-        }
-
-        // Other Functions
-        function generateQRCodes() {
-            showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
-            
-            let qrInfo = 'QR كودات الأعضاء:\n\n';
-            members.forEach(member => {
-                qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
-            });
-            
-            alert(qrInfo + '\nيمكن استخدام الرقم التسلسلي للحضور السريع');
-            showNotification('تم إنشاء QR كودات بنجاح!', 'success');
-        }
-
-        function showMemberProfile() {
-            if (!currentMember) return;
-
-            const memberAttendance = attendance.filter(a => a.memberId === currentMember.id);
-            const level = calculateLevel(currentMember.talanton || 0);
-
-            const profileInfo = `
-ملف ${currentMember.name} الشخصي:
-
-📊 الإحصائيات:
-• الرقم التسلسلي: ${currentMember.sequentialNumber}
-• رصيد Talanton: ${currentMember.talanton || 0}
-• المستوى: ${level.name} ${level.icon}
-• أيام الحضور الكلي: ${memberAttendance.length}
-
-📧 معلومات الاتصال:
-• البريد: ${currentMember.email || 'غير محدد'}
-• الهاتف: ${currentMember.phone || 'غير محدد'}
-• المنطقة: ${currentMember.area || 'غير محددة'}
-
-⛪ معلومات الخدمة:
-• الخدمة: ${getServiceName(currentMember.service)}
-• تاريخ الانضمام: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}
-            `;
-
-            alert(profileInfo);
-        }
-
-        function showMemberTasks() {
-            if (!currentMember) return;
-
-            const memberTasks = tasks.filter(task => 
-                task.assignedService === 'all' || task.assignedService === currentMember.service
-            );
-
-            let tasksInfo = `مهام ${currentMember.name}:\n\n`;
-            
-            if (memberTasks.length > 0) {
-                memberTasks.forEach((task, index) => {
-                    tasksInfo += `${index + 1}. ${task.title}\n`;
-                    tasksInfo += `   النقاط: ${task.points} | النوع: ${task.type}\n`;
-                    tasksInfo += `   الوصف: ${task.description}\n\n`;
-                });
-            } else {
-                tasksInfo += 'لا توجد مهام مخصصة لهذا العضو حالياً.';
-            }
-
-            alert(tasksInfo);
-        }
-
-        // Placeholder functions for admin features
-        function showAddTaskModal() {
-            alert('ميزة إضافة المهام قيد التطوير');
-        }
-
-        function showAddOccasionModal() {
-            alert('ميزة إضافة المناسبات قيد التطوير');
-        }
-
-        function editTask(taskId) {
-            alert('ميزة تعديل المهام قيد التطوير');
-        }
-
-        function deleteTask(taskId) {
-            alert('ميزة حذف المهام قيد التطوير');
-        }
-
-        function editOccasion(occasionId) {
-            alert('ميزة تعديل المناسبات قيد التطوير');
-        }
-
-        function deleteOccasion(occasionId) {
-            alert('ميزة حذف المناسبات قيد التطوير');
-        }
-
-        function deleteAttendanceRecord(recordId) {
-            if (confirm('هل أنت متأكد من حذف سجل الحضور؟')) {
-                alert('ميزة حذف سجل الحضور قيد التطوير');
-            }
-        }
-
-        function showMembersReport() {
-            alert('تقرير الأعضاء:\n\nإجمالي الأعضاء: ' + members.length + '\nإجمالي النقاط: ' + members.reduce((sum, m) => sum + (m.talanton || 0), 0));
-        }
-
-        function showAttendanceReport() {
-            alert('تقرير الحضور:\n\nإجمالي سجلات الحضور: ' + attendance.length + '\nالحاضرون اليوم: ' + attendance.filter(a => a.date === new Date().toISOString().split('T')[0]).length);
-        }
-
-        function exportData() {
-            const data = {
-                members: members,
-                products: products,
-                tasks: tasks,
-                occasions: occasions,
-                attendance: attendance,
-                talantonHistory: talantonHistory,
-                settings: settings
-            };
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'church_system_backup.json';
-            link.click();
-            
-            showNotification('تم تصدير البيانات بنجاح!', 'success');
-        }
-
-        // Modal Management
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = 'block';
-            }
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Notification System
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            
-            const colors = {
-                success: 'var(--success-color)',
-                error: 'var(--danger-color)',
-                warning: 'var(--warning-color)',
-                info: 'var(--info-color)'
-            };
-            
-            notification.style.background = colors[type] || colors.info;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 5000);
-        }
-
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            firebaseListeners.forEach(unsubscribe => {
-                if (typeof unsubscribe === 'function') {
-                    unsubscribe();
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+                     

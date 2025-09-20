@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة - النسخة النهائية الكاملة</title>
+    <title>نظام حضور خدام الملايكة - النسخة الكاملة العاملة</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Firebase SDK v9 -->
@@ -70,7 +70,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, var(--bg-color), var(--card-color));
-            color: var(--text-color); transition: all0.3s ease; min-height: 100vh;
+            color: var(--text-color); transition: all 0.3s ease; min-height: 100vh;
         }
 
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
@@ -309,12 +309,6 @@
 
         .add-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--shadow-color); }
 
-        .sync-indicator {
-            position: fixed; bottom: 20px; left: 20px; background: var(--success-color);
-            color: white; padding: 10px 15px; border-radius: 25px; font-size: 0.9rem;
-            box-shadow: 0 5px 15px var(--shadow-color); z-index: 1000;
-        }
-
         .sync-notification {
             position: fixed; top: 80px; right: 20px; background: var(--info-color);
             color: white; padding: 15px 20px; border-radius: 15px; font-size: 0.9rem;
@@ -345,16 +339,14 @@
 <body data-theme="light">
     <div class="container">
         <div class="header">
-            <div class="version">v25.0 Final Complete</div>
+            <div class="version">v28.0 Complete Working</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - النسخة النهائية الكاملة مع جميع المميزات</p>
+            <p>نظام Talanton Pro - النسخة الكاملة العاملة مع المزامنة التلقائية</p>
         </div>
 
         <div id="firebaseStatus" class="firebase-status firebase-disconnected">
             🟡 جاري الاتصال بـ Firebase...
         </div>
-
-        <div id="syncIndicator" class="sync-indicator" style="display: none;">🔄 جاري المزامنة...</div>
 
         <div class="controls">
             <button class="btn" onclick="toggleTheme()">
@@ -362,9 +354,7 @@
             </button>
             <button class="btn" onclick="showAdminLogin()">👑 دخول الأدمن</button>
             <button class="btn btn-info" onclick="generateQRCodes()">📱 إنشاء QR كودات</button>
-            <button class="btn btn-success" onclick="testSync()">🔄 اختبار المزامنة</button>
             <button class="btn btn-warning" onclick="showMemberLoginModal()">👤 دخول عضو</button>
-            <button class="btn btn-secondary" onclick="rata()">🔄 تحديث البيانات</button>
         </div>
 
         <div id="mainContent">
@@ -393,7 +383,7 @@
             <div id="birthdayAlerts"></div>
 
             <div class="card">
-                <h2>⚡ الحضور السريع</h2>
+           <h2>⚡ الحضور السريع</h2>
                 <div class="quick-attendance-input">
                     <p style="margin-bottom: 15px;">أدخل الرقم التسلسلي للعضو:</p>
                     <input type="number" id="quickAttendanceInput" class="quick-input" placeholder="رقم العضو" min="1">
@@ -404,7 +394,7 @@
             </div>
 
             <div class="card">
-             <h2>👥 اختيار العضو للحضور</h2>
+                <h2>👥 اختيار العضو للحضور</h2>
                 <div class="member-selector">
                     <select class="member-dropdown" id="memberDropdown" onchange="selectMemberFromDropdown()">
                         <option value="">اختر عضو...</option>
@@ -413,7 +403,7 @@
                 <div id="memberInfoDisplay" class="member-info-display">
                     <div id="selectedMemberInfo"></div>
                     <div class="action-buttons">
-                        <button class="btn btn-success" onclick="showAttendanceModal()">✅ تسجيل الحضور</button>
+                        <button class="btn btn-success" onclick="showAttendancdal()">✅ تسجيل الحضور</button>
                         <button class="btn btn-info" onclick="showMemberProfile()">👤 عرض الملف الشخصي</button>
                         <button class="btn btn-warning" onclick="showMemberTasks()">📋 المهام المطلوبة</button>
                     </div>
@@ -429,7 +419,7 @@
             </div>
 
             <div class="card">
-            <h2>🎉 مناسبات اليوم</h2>
+                <h2>🎉 مناسبات اليوم</h2>
                 <div id="todayEvents"></div>
             </div>
 
@@ -441,7 +431,7 @@
             </div>
 
             <div class="card">
-                <h2>🏆 لوحة الشرف</h2>
+           <h2>🏆 لوحة الشرف</h2>
                 <div id="leaderboard"></div>
             </div>
         </div>
@@ -449,7 +439,7 @@
         <!-- Member Panel -->
         <div id="memberPanel" class="admin-panel">
             <div class="card">
-             <h2>👤 لوحة العضو</h2>
+                <h2>👤 لوحة العضو</h2>
                 <div id="memberDashboard"></div>
                 <div class="action-buttons">
                     <button class="btn btn-danger" onclick="logoutMember()">🚪 تسجيل خروج</button>
@@ -475,13 +465,13 @@
                 
                 <div class="tab-buttons">
                     <button class="tab-btn active" onclick="showTab('members')">👥 إدارة الأعضاء</button>
-                    <button class="tab-btn" onclick="showTaboducts')">🏪 إدارة المتجر</button>
+                    <button class="tab-btn" onclick="showTab('products')">🏪 إدارة المتجر</button>
                     <button class="tab-btn" onclick="showTab('tasks')">📋 إدارة المهام</button>
                     <button class="tab-btn" onclick="showTab('occasions')">🎉 إدارة المناسبات</button>
                     <button class="tab-btn" onclick="showTab('weeks')">📆 إدارة الأسابيع</button>
                     <button class="tab-btn" onclick="showTab('attendance')">📊 إدارة الحضور</button>
                     <button class="tab-btn" onclick="showTab('reports')">📈 التقارير</button>
-                    <button class="tab-btn" onclick="showTab('se)">⚙️ الإعدادات</button>
+                    <button class="tab-btn" onclick="showTab('settings')">⚙️ الإعدادات</button>
                 </div>
 
                 <div id="membersTab" class="tab-content active">
@@ -489,7 +479,7 @@
                 </div>
 
                 <div id="productsTab" class="tab-content">
-                    <button class="add-button" onclick="showAddProductModal()">➕ إضافة منتج جديد</button>
+                    <button class="add-button" onclick="showal()">➕ إضافة منتج جديد</button>
                     <div id="productsTable"></div>
                 </div>
 
@@ -569,7 +559,7 @@
             <span class="close" onclick="closeModal('memberLoginModal')">&times;</span>
             <h2>👤 دخول العضو</h2>
             <div class="form-group">
-              <label>اختر اسمك:</label>
+                <label>اختر اسمك:</label>
                 <select id="memberLoginDropdown">
                     <option value="">اختر عضو...</option>
                 </select>
@@ -589,7 +579,7 @@
             
             <div class="fingerprint-scanner">
                 <div class="fingerprint-icon" onclick="simulateFingerprint()">👆</div>
-             <p>اضغط على البصمة أو أدخل كلمة المرور</p>
+                <p>اضغط على البصمة أو أدخل كلمة المرور</p>
             </div>
             
             <div class="form-row">
@@ -854,7 +844,7 @@
                         <input type="number" id="weekRewardPoints" min="0" value="50">
                     </div>
                     <div class="form-group">
-                        <label>الحد الأدنى للحضور:</label>
+                        <labelالأدنى للحضور:</label>
                         <input type="number" id="weekMinAttendance" min="1" value="5">
                     </div>
                 </div>
@@ -910,7 +900,6 @@
         let currentMember = null, currentOccasion = null, currentProduct = null, isAdmin = false, isMemberLoggedIn = false;
         let members = [], products = [], tasks = [], occasions = [], weeks = [], attendance = [], talantonHistory = [];
         let settings = { dailyAttendancePoints: 10, taskCompletionPoints: 5, birthdayAlertDays: 7, maxAbsenceDays: 3 };
-        let membersListener = null, productsListener = null, attendanceListener = null;
 
         const memberLevels = [
             { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
@@ -922,7 +911,7 @@
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 تم تحميل النظام النهائي الكامل...');
+            console.log('🚀 تم تحميل النظام الكامل العامل...');
             setTimeout(() => {
                 initializeFirebaseListeners();
                 loadDataFromFirebase();
@@ -930,11 +919,11 @@
                 document.body.setAttribute('data-theme', savedTheme);
                 const themeIcon = document.getElementById('themeIcon');
                 if (themeIcon) themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
-                showNotification('🔥 النظام النهائي الكامل متصل بـ Firebase!', 'success');
+                showNotification('🔥 النظام الكامل العامل متصل بـ Firebase مع المزامنة التلقائية!', 'success');
             }, 2000);
         });
 
-        // Firebase Real-time Listeners (FIXED)
+        // Firebase Real-time Listeners (AUTOMATIC SYNC)
         function initializeFirebaseListeners() {
             if (!window.firebaseDb || !window.firebaseUtils) {
                 console.error('Firebase not ready');
@@ -942,26 +931,23 @@
             }
 
             try {
-                // Members listener with proper update handling
+                // Members listener with automatic sync
                 const membersQuery = window.firebaseUtils.query(
                     window.firebaseUtils.collection(window.firebaseDb, 'members'),
                     window.firebaseUtils.orderBy('name')
                 );
                 
-                membersListener = window.firebaseUtils.onSnapshot(membersQuery, (snapshot) => {
-                    console.log('📥 تحديث الأعضاء من Firebase');
+                window.firebaseUtils.onSnapshot(membersQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي للأعضاء من Firebase');
                     const newMembers = [];
                     snapshot.forEach((doc) => {
                         newMembers.push({ id: doc.id, ...doc.data() });
                     });
                     
-                    // Update members array
                     members = newMembers;
                     sortMembersAlphabetically();
-                    
-                    // Force UI update
                     updateUIComplete();
-                    showSyncNotification('تم تحديث بيانات الأعضاء');
+                    showSyncNotification('تم تحديث بيانات الأعضاء تلقائياً');
                 });
 
                 // Products listener
@@ -969,8 +955,8 @@
                     window.firebaseUtils.collection(window.firebaseDb, 'products')
                 );
                 
-                productsListener = window.firebaseUtils.onSnapshot(productsQuery, (snapshot) => {
-                    console.log('📥 تحديث المنتجات من Firebase');
+                window.firebaseUtils.onSnapshot(productsQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي للمنتجات من Firebase');
                     const newProducts = [];
                     snapshot.forEach((doc) => {
                         newProducts.push({ id: doc.id, ...doc.data() });
@@ -979,7 +965,7 @@
                     products = newProducts;
                     loadStoreDisplay();
                     if (isAdmin) loadProductsTable();
-                    showSyncNotification('تم تحديث بيانات المتجر');
+                    showSyncNotification('تم تحديث بيانات المتجر تلقائياً');
                 });
 
                 // Attendance listener
@@ -987,8 +973,8 @@
                     window.firebaseUtils.collection(window.firebaseDb, 'attendance')
                 );
                 
-                attendanceListener = window.firebaseUtils.onSnapshot(attendanceQuery, (snapshot) => {
-                    console.log('📥 تحديث الحضور من Firebase');
+                window.firebaseUtils.onSnapshot(attendanceQuery, (snapshot) => {
+                    console.log('📥 تحديث تلقائي للحضور من Firebase');
                     const newAttendance = [];
                     snapshot.forEach((doc) => {
                         newAttendance.push({ id: doc.id, ...doc.data() });
@@ -997,7 +983,7 @@
                     attendance = newAttendance;
                     updateStats();
                     updateCharts();
-                    showSyncNotification('تم تحديث بيانات الحضور');
+                    showSyncNotification('تم تحديث بيانات الحضور تلقائياً');
                 });
 
                 // Other collections listeners
@@ -1007,7 +993,7 @@
                     );
                     
                     window.firebaseUtils.onSnapshot(query, (snapshot) => {
-                        console.log(`📥 تحديث ${collectionName} من Firebase`);
+                        console.log(`📥 تحديث تلقائي لـ ${collectionName} من Firebase`);
                         const data = [];
                         snapshot.forEach((doc) => {
                             data.push({ id: doc.id, ...doc.data() });
@@ -1026,19 +1012,19 @@
                         } else if (collectionName === 'talantonHistory') {
                             talantonHistory = data;
                         }
-                        showSyncNotification(`تم تحديث ${collectionName}`);
+                        showSyncNotification(`تم تحديث ${collectionName} تلقائياً`);
                     });
                 });
 
-                console.log('✅ تم تفعيل الائية المُصححة');
+                console.log('✅ تم تفعيل المزامنة التلقائية بنجاح');
 
             } catch (error) {
-                console.error('خطأ في تفعيل المراقبة التلقائية:', error);
+                console.error('خطأ في تفعيل المزامنة التلقائية:', error);
                 showNotification('خطأ في المزامنة التلقائية', 'warning');
             }
         }
 
-        // Complete UI Update Function (FIXED)
+        // Complete UI Update Function (AUTOMATIC)
         function updateUIComplete() {
             updateStats();
             checkBirthdays();
@@ -1079,50 +1065,7 @@
             setTimeout(() => syncNotification.remove(), 2000);
         }
 
-        // Test sync function
-        async function testSync() {
-            try {
-                showNotification('جاري اختبار المزامنة...', 'info');
-                
-                // Add a test member
-                const testMemberData = {
-                    name: `عضو تجريبي ${new Date().getTime()}`,
-                    password: '1234',
-                    email: 'test@example.com',
-                    phone: '01000000000',
-                    talanton: 50,
-                    service: 'altar',
-                    area: 'اختبار',
-                    joinDate: new Date().toISOString().split('T')[0],
-                    status: 'active'
-                };
-
-                await window.firebaseUtils.addDoc(
-                    window.firebaseUtils.collection(window.firebaseDb, 'members'),
-                    testMemberData
-                );
-
-                showNotification('تم إضافة عضو تجريبي - تحقق من المتصفح الآخر!', 'success');
-
-            } catch (error) {
-                console.error('خطأ في اختبار المزامنة:', error);
-                showNotification('خطأ في اختبار المزامنة', 'error');
-            }
-        }
-
-        // Refresh data function
-        async function refreshData() {
-            try {
-                showNotification('جاري تحديث البيانات...', 'info');
-                await loadDataFromFirebase();
-                showNotification('تم تحديث البيانات بنجاح!', 'success');
-            } catch (error) {
-                console.error('خطأ في تحديث البيانات:', error);
-                showNotification('خطأ في تحديث البيانات', 'error');
-            }
-        }
-
-        // Load initial data from Firebase
+        // Load initial data from Firebase (AUTOMATIC)
         async function loadDataFromFirebase() {
             try {
                 showNotification('جاري تحميل البيانات من Firebase...', 'info');
@@ -1142,8 +1085,8 @@
                 initializeCharts();
                 loadTodayOccasions();
 
-                console.log('✅ تم تحميل جميع البيانات من Firebase');
-                showNotification('تم تحميل البيانات بنجاح!', 'success');
+             .log('✅ تم تحميل جميع البيانات من Firebase تلقائياً');
+                showNotification('تم تحميل البيانات بنجاح مع المزامنة التلقائية!', 'success');
 
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
@@ -1358,7 +1301,7 @@
             showNotification(`تم تفعيل الوضع ${newTheme === 'light' ? 'النهاري' : 'الليلي'}`, 'success');
         }
 
-        // Update statistics
+        // Update statistics (AUTOMATIC)
         function updateStats() {
             const totalMembersElement = document.getElementById('totalMembers');
             const presentTodayElement = document.getElementById('presentToday');
@@ -1381,7 +1324,7 @@
             if (weeklyAttendanceElement) weeklyAttendanceElement.textContent = weeklyRate + '%';
         }
 
-        // Load member dropdown with sequential numbers
+        // Load member dropdown with sequential numbers (AUTOMATIC)
         function loadMemberDropdown() {
             const dropdown = document.getElementById('memberDropdown');
             if (!dropdown) return;
@@ -1397,7 +1340,7 @@
             });
         }
 
-        // Load member login dropdown
+        // Load member login dropdown (AUTOMATIC)
         function loadMemberLoginDropdown() {
             const dropdown = document.getElementById('memberLoginDropdown');
             if (!dropdown) return;
@@ -1410,7 +1353,7 @@
             });
         }
 
-        // Load store display for main interface
+        // Load store display for main interface (AUTOMATIC)
         function loadStoreDisplay() {
             const storeDisplay = document.getElementById('storeDisplay');
             if (!storeDisplay) return;
@@ -1426,14 +1369,14 @@
                     <div style="text-align: center;">
                         ${isMemberLoggedIn ? 
                             `<button class="btn btn-success" onclick="showPurchaseModal('${product.id}')" style="width: 100%;">🛒 شراء</button>` :
-                            `<div style="padding: 10px; background: var(--surface-color); border-radius: 10px; font-size: 0.9rem; opacity: 0.7;">للشراء: قم بتسجيل الدخول كعضو</div>`
+                            `<div style="padding: 10px; background: var(--surface-color); border-radius: 10px; font-size: 0.9rem; opacity;">للشراء: قم بتسجيل الدخول كعضو</div>`
                         }
                     </div>
                 </div>
             `).join('');
         }
 
-        // Load leaderboard
+        // Load leaderboard (AUTOMATIC)
         function loadLeaderboard() {
             const leaderboard = document.getElementById('leaderboard');
             if (!leaderboard) return;
@@ -1467,7 +1410,7 @@
             const sequentialNumber = parseInt(document.getElementById('quickAttendanceInput').value);
             
             if (!sequentialNumber || sequentialNumber < 1) {
-                showNotification('يرجى إدخال رقم صحيح!', 'warning');
+                showNotification('يرجدخال رقم صحيح!', 'warning');
                 return;
             }
             
@@ -1516,7 +1459,7 @@
             
             if (todayAttendance) {
                 statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
-                statusText = todayAttendance.type === 'late' تأخر' : 'حاضر اليوم';
+                statusText = todayAttendance.type === 'late' ? 'حاضر متأخر' : 'حاضر اليوم';
             }
 
             selectedMemberInfo.innerHTML = `
@@ -1537,7 +1480,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
                     <div><strong>📱 الهاتف:</strong> ${currentMember.phone || 'غير محدد'}</div>
                     <div><strong>🏠 المنطقة:</strong> ${currentMember.area || 'غير محدد'}</div>
-                    <div><strong>⛪ الخدمة:</strong> ${getServiceName(currentMember.service)}</div>
+                    <dirong>⛪ الخدمة:</strong> ${getServiceName(currentMember.service)}</div>
                     <div><strong>📅 حالة اليوم:</strong> <span class="${statusClass}">${statusText}</span></div>
                 </div>
             `;
@@ -1577,7 +1520,7 @@
             }
         }
 
-        // Mark attendance (saves to Firebase)
+        // Mark attendance (saves to Firebase with AUTOMATIC SYNC)
         async function markAttendance() {
             if (!currentMember) {
                 showNotification('خطأ: لم يتم اختيار عضو', 'error');
@@ -1636,7 +1579,7 @@
                     type: 'add',
                     reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
                             attendanceType === 'early' ? 'مبكر' :
-                            attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
+                            attendanceType === 'late' ? 'مأخر' : 'تعويضي'}`,
                     date: today,
                     timestamp: new Date().toISOString()
                 };
@@ -1717,7 +1660,7 @@
                 task.assignedService === 'all' || task.assignedService === currentMember.service
             );
 
-            let tasksInfo = `مهام ${currentMember.name}:\n\n`;
+            let tasksInfo = `مهام ${currentMemb.name}:\n\n`;
             
             if (memberTasks.length > 0) {
                 memberTasks.forEach((task, index) => {
@@ -1734,13 +1677,13 @@
 
         function getServiceName(service) {
             const services = {
-            altar: 'خدمة المذبح', sunday_school: 'مدرسة الأحد', youth: 'خدمة الشباب',
+                altar: 'خدمة المذبح', sunday_school: 'مدرسة الأحد', youth: 'خدمة الشباب',
                 music: 'الألحان والموسيقى', media: 'الإعلام', social: 'الخدمة الاجتماعية', other: 'أخرى'
             };
             return services[service] || 'غير محدد';
         }
 
-        // Birthday checking system
+        // Birthday checking system (AUTOMATIC)
         function checkBirthdays() {
             const today = new Date();
             const alertContainer = document.getElementById('birthdayAlerts');
@@ -1775,7 +1718,7 @@
             }
         }
 
-        // Load today's occasions
+        // Load today's occasions (AUTOMATIC)
         function loadTodayOccasions() {
             const today = new Date().toISOString().split('T')[0];
             const todayOccasionsContainer = document.getElementById('todayEvents');
@@ -1790,7 +1733,7 @@
                         <h4>${occasion.title}</h4>
                         <p>${occasion.description}</p>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                        <span>📍 ${occasion.location || 'غير محدد'}</span>
+                            <span>📍 ${occasion.location || 'غير محدد'}</span>
                             <span style="color: var(--success-color); font-weight: bold;">💰 ${occasion.points} نقطة</span>
                         </div>
                     </div>
@@ -1800,7 +1743,7 @@
             }
         }
 
-        // Charts initialization
+        // Charts initialization (AUTOMATIC)
         function initializeCharts() {
             const ctx = document.getElementById('attendanceChart');
             if (!ctx) return;
@@ -1862,14 +1805,14 @@
 
         // QR Code functionality
         function generateQRCodes() {
-            showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
+            showNotification('جاإنشاء QR كودات للأعضاء...', 'info');
             
             let qrInfo = 'QR كودات الأعضاء:\n\n';
             members.forEach(member => {
                 qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
             });
             
-            alert(qrInfo + '\nيمكن استخدام الرقم اسلسلي للحضور السريع');
+            alert(qrInfo + '\nيمكن استخدام الرقم التسلسلي للحضور السريع');
             showNotification('تم إنشاء QR كودات بنجاح!', 'success');
         }
 
@@ -1961,7 +1904,7 @@
                         <div style="margin-bottom: 10px;">📊 أيام الحضور: ${memberAttendance.length}</div>
                         <div style="margin-bottom: 10px;">⛪ الخدمة: ${getServiceName(currentMember.service)}</div>
                         <div style="margin-bottom: 10px;">🏠 المنطقة: ${currentMember.area || 'غير محدد'}</div>
-                    <div>📅 عضو منذ: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}</div>
+                        <div>📅 عضو منذ: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}</div>
                     </div>
                     
                     <div style="background: var(--card-color); border-radius: 15px; padding: 20px;">
@@ -1972,7 +1915,7 @@
                                 <div style="font-size: 0.9rem; opacity: 0.8;">💰 ${task.points} نقطة</div>
                             </div>
                         `).join('')}
-                        ${memberTasks.length > 3 ? `<div style="text-align: center; margin-top: 10px; opacity: 0.7;">وأكثر...</div>` : ''}
+                        ${memberTasks.length > 3 ? `<div style="text-align: center; top: 10px; opacity: 0.7;">وأكثر...</div>` : ''}
                     </div>
                 </div>
                 
@@ -2107,7 +2050,7 @@
                 
                 closeModal('adminLoginModal');
                 loadAdminData();
-                showNotification('مرحباً بك في لوحة تحكم الأدمن النهائية الكاملة! 👑', 'success');
+                showNotification('مرحباً بك في لوحة تحكم الأدمن الكاملة العاملة! 👑', 'success');
             } else {
                 showNotification('كلمة مرور خاطئة!', 'error');
             }
@@ -2135,7 +2078,7 @@
             loadProductsTable();
             loadTasksTable();
             loadOccasionsTable();
-         loadWeeksTable();
+            loadWeeksTable();
             loadAttendanceTable();
             loadReportsData();
         }
@@ -2145,7 +2088,7 @@
             if (!table) return;
             
             table.innerHTML = `
-                <table cls="table">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>الرقم التسلسلي</th>
@@ -2265,7 +2208,7 @@
                         <tr>
                             <th>الرقم</th>
                             <th>عنوان المناسبة</th>
-                        <th>التاريخ</th>
+                            <th>التاريخ</th>
                             <th>النقاط</th>
                             <th>النوع</th>
                             <th>الإجراءات</th>
@@ -2302,7 +2245,7 @@
                             <th>الرقم</th>
                             <th>عنوان الأسبوع</th>
                             <th>رقم الأسبوع</th>
-                            <th>نقاط المكافأة</th>
+                      h>نقاط المكافأة</th>
                             <th>الحد الأدنى للحضور</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -2349,7 +2292,7 @@
                                 <td>${new Date(record.date).toLocaleDateString('ar')}</td>
                                 <td>${record.memberName}</td>
                                 <td>${record.type}</td>
-                                <td>${record.notes 'لا توجد'}</td>
+                                <td>${record.notes || 'لا توجد'}</td>
                                 <td>
                                     <button class="btn btn-danger" onclick="deleteAttendanceRecord('${record.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
                                 </td>
@@ -2404,7 +2347,7 @@
                 content.classList.remove('active');
             });
             
-            const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabButtons = document.querySelectorAll('.tab-btn');
             tabButtons.forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -2462,9 +2405,54 @@
             if (newName && newName !== member.name) {
                 try {
                     await window.firebaseUtils.updateDoc(
-                        window.firbaseUtils.doc(window.firebaseDb, 'members', member.id),
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
                         { name: newName }
                     );
                     showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
                 } catch (error) {
-                    console.error(
+                    console.error('خطأ في تحديث العضو:', error);
+                    showNotification('خطأ في تحديث العضو', 'error');
+                }
+            }
+        }
+
+        async function addTalantonToMember(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            const points = prompt(`إضافة نقاط لـ ${member.name}:`, '10');
+            const reason = prompt('السبب:', 'إضافة نقاط إضافية');
+            
+            if (points && !isNaN(points) && parseInt(points) > 0) {
+                try {
+                    const newTalanton = (member.talanton || 0) + parseInt(points);
+                    
+                    await window.firebaseUtils.updateDoc(
+                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
+                        { talanton: newTalanton }
+                    );
+
+                    const historyData = {
+                        memberId: member.id,
+                        memberName: member.name,
+                        amount: parseInt(points),
+                        type: 'add',
+                        reason: reason,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: new Date().toISOString()
+                    };
+
+                    await window.firebaseUtils.addDoc(
+                        window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                        historyData
+                    );
+
+                    showNotification(`تم إضافة ${points} نقطة لـ ${member.name}`, 'success');
+                } catch (error) {
+                    console.error('خطأ في إضافة النقاط:', error);
+                    showNotification('خطأ في إضافة النقاط', 'error');
+                }
+            }
+        }
+
+        async function dele

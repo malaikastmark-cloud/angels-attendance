@@ -4,47 +4,65 @@
   <meta charset="UTF-8"/>
   <title>نظام حضور المجموعة - Talanton</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <!-- TailwindCSS CDN -->
+  <!-- TailwindCSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Chart.js CDN -->
+  <!-- Heroicons (لأيقونات احترافية) -->
+  <script src="https://unpkg.com/feather-icons"></script>
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Firebase CDN -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <!-- خطوط عربية حديثة -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Cairo', Arial, sans-serif; }
+    .modal-bg { background: rgba(0,0,0,0.45); }
     .rtl { direction: rtl; }
     .ltr { direction: ltr; }
-    .modal-bg { background: rgba(0,0,0,0.45); }
+    .no-select { user-select: none; }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 7px; background: #eee; }
+    ::-webkit-scrollbar-thumb { background: #c3c3f6; border-radius: 6px; }
   </style>
 </head>
 <body class="bg-gray-50 rtl">
-  <div class="max-w-6xl mx-auto py-6 px-4">
-    <!-- Header -->
-    <header class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold text-indigo-700">نظام حضور المجموعة <span class="text-green-500">Talanton</span></h1>
-      <button onclick="showAdminPanel()" class="bg-indigo-700 text-white rounded px-4 py-2 hover:bg-indigo-900">لوحة تحكم الأدمن</button>
-    </header>
+
+  <!-- Header -->
+  <header class="flex justify-between items-center p-4 bg-indigo-700 text-white shadow-lg">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl font-bold">Talanton</span>
+      <span class="bg-green-500 text-white rounded px-2 text-xs">نظام الحضور</span>
+    </div>
+    <button onclick="showAdminLogin()" class="flex items-center gap-1 bg-white text-indigo-700 font-bold px-4 py-2 rounded shadow hover:bg-gray-100 transition">
+      <span data-feather="settings"></span> لوحة الأدمن
+    </button>
+  </header>
+
+  <!-- Main Container -->
+  <div class="max-w-6xl mx-auto py-8 px-4">
 
     <!-- تسجيل الحضور -->
-    <section class="bg-white rounded-xl shadow p-6 mb-6">
+    <section class="bg-white rounded-xl shadow p-6 mb-8">
       <div class="flex flex-col md:flex-row gap-4 items-center">
         <select id="memberSelect" class="w-full md:w-1/3 border p-2 rounded text-gray-700">
           <option value="">اختر اسمك</option>
         </select>
-        <button onclick="registerAttendance()" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-700">تسجيل الحضور</button>
+        <button onclick="registerAttendance()" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-700 flex items-center gap-1">
+          <span data-feather="check-circle"></span> تسجيل الحضور
+        </button>
         <div id="attendanceMsg" class="text-green-700 font-bold"></div>
       </div>
     </section>
 
     <!-- رصيد TALANTON والتوب 10 -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <section class="bg-white rounded-xl shadow p-6 flex flex-col items-center">
         <h2 class="font-semibold text-xl mb-2">رصيدك</h2>
         <div class="text-4xl font-extrabold text-indigo-700 mb-2"><span id="talantonBalance">0</span> <span class="text-green-500">Talanton</span></div>
-        <button onclick="showStore()" class="bg-indigo-700 text-white rounded px-4 py-2 hover:bg-indigo-900">دخول المتجر</button>
+        <button onclick="showStore()" class="bg-indigo-700 text-white rounded px-4 py-2 hover:bg-indigo-900 flex items-center gap-1">
+          <span data-feather="shopping-cart"></span> دخول المتجر
+        </button>
       </section>
       <!-- Top 10 -->
       <section class="bg-white rounded-xl shadow p-6 col-span-2">
@@ -54,41 +72,59 @@
     </div>
 
     <!-- تقارير حضور -->
-    <section class="bg-white rounded-xl shadow p-6 mb-6">
+    <section class="bg-white rounded-xl shadow p-6 mb-8">
       <h2 class="font-semibold text-xl mb-4">تقارير الحضور</h2>
       <canvas id="attendanceChart" height="110"></canvas>
     </section>
 
     <!-- المتجر -->
-    <section id="storeCard" class="bg-white rounded-xl shadow p-6 mb-6 hidden">
+    <section id="storeCard" class="bg-white rounded-xl shadow p-6 mb-8 hidden">
       <h2 class="font-semibold text-xl mb-4">المتجر</h2>
       <div id="storeProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      <button onclick="hideStore()" class="mt-6 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">رجوع</button>
+      <button onclick="hideStore()" class="mt-6 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 flex items-center gap-1">
+        <span data-feather="arrow-right"></span> رجوع
+      </button>
       <div id="storeMsg" class="mt-2 text-red-600"></div>
     </section>
 
-    <!-- لوحة الأدمن (ستظهر كنافذة منبثقة) -->
+    <!-- لوحة الأدمن (مودال) -->
     <div id="adminPanel" class="hidden fixed inset-0 modal-bg flex items-center justify-center z-50">
-      <div class="bg-white rounded-xl shadow p-8 w-full max-w-3xl relative overflow-y-auto max-h-[90vh]">
-        <button onclick="hideAdminPanel()" class="absolute top-2 left-2 bg-red-100 text-red-600 px-2 py-1 rounded">X</button>
-        <h2 class="font-bold text-2xl mb-4 text-indigo-700">لوحة تحكم الأدمن</h2>
+      <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-5xl relative overflow-y-auto max-h-[95vh] border-2 border-indigo-100">
+        <button onclick="logoutAdmin()" class="absolute top-2 left-2 bg-red-100 text-red-600 px-2 py-1 rounded">خروج</button>
+        <h2 class="font-bold text-2xl mb-4 text-indigo-700 flex items-center gap-2">
+          <span data-feather="settings"></span> لوحة تحكم الأدمن
+        </h2>
         <div class="mb-4 flex flex-wrap gap-2">
-          <button onclick="showAdminTab('members')" class="bg-indigo-700 text-white px-3 py-1 rounded">الأعضاء</button>
-          <button onclick="showAdminTab('attendance')" class="bg-green-600 text-white px-3 py-1 rounded">الحضور</button>
-          <button onclick="showAdminTab('events')" class="bg-yellow-600 text-white px-3 py-1 rounded">المناسبات</button>
-          <button onclick="showAdminTab('weeks')" class="bg-blue-500 text-white px-3 py-1 rounded">الأسابيع</button>
-          <button onclick="showAdminTab('tasks')" class="bg-purple-600 text-white px-3 py-1 rounded">المهام</button>
-          <button onclick="showAdminTab('store')" class="bg-pink-600 text-white px-3 py-1 rounded">المتجر</button>
-          <button onclick="showAdminTab('reports')" class="bg-gray-600 text-white px-3 py-1 rounded">التقارير</button>
+          <button onclick="showAdminTab('members')" class="admin-tab bg-indigo-700 text-white px-3 py-1 rounded">الأعضاء</button>
+          <button onclick="showAdminTab('attendance')" class="admin-tab bg-green-600 text-white px-3 py-1 rounded">الحضور</button>
+          <button onclick="showAdminTab('events')" class="admin-tab bg-yellow-600 text-white px-3 py-1 rounded">المناسبات</button>
+          <button onclick="showAdminTab('weeks')" class="admin-tab bg-blue-500 text-white px-3 py-1 rounded">الأسابيع</button>
+          <button onclick="showAdminTab('tasks')" class="admin-tab bg-purple-600 text-white px-3 py-1 rounded">المهام</button>
+          <button onclick="showAdminTab('store')" class="admin-tab bg-pink-600 text-white px-3 py-1 rounded">المتجر</button>
+          <button onclick="showAdminTab('reports')" class="admin-tab bg-gray-600 text-white px-3 py-1 rounded">التقارير</button>
         </div>
         <div id="adminContent"></div>
       </div>
     </div>
+
+    <!-- نافذة دخول الأدمن -->
+    <div id="adminLoginModal" class="hidden fixed inset-0 modal-bg flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow p-8 w-full max-w-sm relative">
+        <button onclick="hideAdminLogin()" class="absolute top-2 left-2 bg-red-100 text-red-600 px-2 py-1 rounded">X</button>
+        <h2 class="font-bold text-2xl mb-6 text-indigo-700 text-center">دخول الأدمن</h2>
+        <div class="mb-4">
+          <input id="adminUser" class="w-full border p-2 mb-2 rounded" placeholder="اسم الأدمن">
+          <input id="adminPass" type="password" class="w-full border p-2 rounded" placeholder="كلمة السر">
+        </div>
+        <button onclick="adminLogin()" class="bg-indigo-700 w-full text-white px-3 py-2 rounded hover:bg-indigo-900">دخول</button>
+        <div id="adminLoginMsg" class="text-red-600 mt-2 text-center"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- سكريبت: منطق الموقع وربط Firebase -->
+  <!-- سكريبت المشروع: كل منطق الموقع والتبويبات -->
   <script>
-    // إعدادات Firebase الخاصة بك (يمكنك إبقاءها كما هي إن كنت تستخدم نفس المشروع السابق)
+    // إعداد فايربيز (استبدل المعلومات بمشروعك)
     const firebaseConfig = {
       apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
       authDomain: "angels-attendance.firebaseapp.com",
@@ -101,38 +137,80 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // متغيرات عامة
-    let members = [];
-    let products = [];
-    let attendance = {}; // memberId: {date: true}
-    let currentMember = null;
+    // حماية الأدمن (بسيطة - يمكن تطويرها باستخدام Firebase Auth لاحقًا)
+    const ADMIN_USER = "admin";
+    const ADMIN_PASS = "123456"; // غيّر كلمة السر عند التنفيذ
 
-    // تحميل الأعضاء
+    function showAdminLogin() { document.getElementById('adminLoginModal').classList.remove('hidden'); }
+    function hideAdminLogin() {
+      document.getElementById('adminLoginModal').classList.add('hidden');
+      document.getElementById('adminLoginMsg').innerText = '';
+      document.getElementById('adminUser').value = '';
+      document.getElementById('adminPass').value = '';
+    }
+    function adminLogin() {
+      const u = document.getElementById('adminUser').value, p = document.getElementById('adminPass').value;
+      if (u === ADMIN_USER && p === ADMIN_PASS) {
+        localStorage.setItem('admin', 'yes');
+        hideAdminLogin(); showAdminPanel();
+      } else {
+        document.getElementById('adminLoginMsg').innerText = "بيانات الدخول غير صحيحة!";
+      }
+    }
+    function showAdminPanel() {
+      if (localStorage.getItem('admin') === 'yes') {
+        document.getElementById('adminPanel').classList.remove('hidden');
+        showAdminTab('members');
+      } else showAdminLogin();
+    }
+    function logoutAdmin() {
+      localStorage.removeItem('admin');
+      document.getElementById('adminPanel').classList.add('hidden');
+    }
+
+    // بيانات عامة
+    let members = [], products = [], attendance = {}, currentMember = null, events = [], weeks = [], tasks = [];
+
+    // تحميل البيانات من فايربيز
     function loadMembers() {
       db.ref("members").on("value", snap => {
         members = [];
         snap.forEach(child => members.push({id:child.key, ...child.val()}));
-        renderMemberSelect();
-        renderTop10();
+        renderMemberSelect(); renderTop10();
       });
     }
-    // تحميل المنتجات
     function loadProducts() {
       db.ref("products").on("value", snap => {
         products = [];
         snap.forEach(child => products.push({id:child.key, ...child.val()}));
       });
     }
-    // تحميل الحضور
     function loadAttendance() {
       db.ref("attendance").on("value", snap => {
         attendance = snap.val() || {};
-        renderAttendanceChart();
-        renderTop10();
+        renderAttendanceChart(); renderTop10();
+      });
+    }
+    function loadEvents() {
+      db.ref("events").on("value", snap => {
+        events = [];
+        snap.forEach(child => events.push({id:child.key, ...child.val()}));
+      });
+    }
+    function loadWeeks() {
+      db.ref("weeks").on("value", snap => {
+        weeks = [];
+        snap.forEach(child => weeks.push({id:child.key, ...child.val()}));
+      });
+    }
+    function loadTasks() {
+      db.ref("tasks").on("value", snap => {
+        tasks = [];
+        snap.forEach(child => tasks.push({id:child.key, ...child.val()}));
       });
     }
 
-    // === واجهة المستخدم ===
+    // ========== واجهة المستخدم ==========
     function renderMemberSelect() {
       let sel = document.getElementById('memberSelect');
       if(!sel) return;
@@ -143,12 +221,19 @@
       let memberId = document.getElementById('memberSelect').value;
       if (!memberId) return alert("اختر اسمك أولاً!");
       let today = new Date().toISOString().slice(0,10);
-      db.ref(`attendance/${memberId}/${today}`).set(true, err=>{
-        if (!err) {
-          db.ref(`members/${memberId}/talanton`).transaction(t=> (t||0)+1);
-          document.getElementById('attendanceMsg').innerText = "تم تسجيل حضورك وحصلت على نقطة Talanton!";
+      db.ref(`attendance/${memberId}/${today}`).once('value', snap=>{
+        if (snap.exists()) {
+          document.getElementById('attendanceMsg').innerText = "لقد سجلت حضورك اليوم بالفعل!";
           setTimeout(()=>document.getElementById('attendanceMsg').innerText="", 2000);
-          showTalanton(memberId);
+        } else {
+          db.ref(`attendance/${memberId}/${today}`).set(true, err=>{
+            if (!err) {
+              db.ref(`members/${memberId}/talanton`).transaction(t=> (t||0)+1);
+              document.getElementById('attendanceMsg').innerText = "تم تسجيل حضورك وحصلت على نقطة Talanton!";
+              setTimeout(()=>document.getElementById('attendanceMsg').innerText="", 2000);
+              showTalanton(memberId);
+            }
+          });
         }
       });
     }
@@ -227,22 +312,17 @@
       });
     }
 
-    // لوحة تحكم الأدمن
-    function showAdminPanel() {
-      document.getElementById('adminPanel').classList.remove('hidden');
-      showAdminTab('members');
-    }
-    function hideAdminPanel() {
-      document.getElementById('adminPanel').classList.add('hidden');
-    }
+    // ========== لوحة تحكم الأدمن (كل التبويبات) ==========
     function showAdminTab(tab) {
       let c = document.getElementById('adminContent');
+      // 1- تبويب الأعضاء
       if (tab==='members') {
         c.innerHTML = `
         <div class="mb-3 flex gap-2">
           <input id="newMemberName" class="border p-2 rounded" placeholder="اسم العضو الجديد">
           <button onclick="addMember()" class="bg-green-700 text-white px-3 py-1 rounded">إضافة</button>
         </div>
+        <div class="overflow-x-auto">
         <table class="w-full text-center border"><thead>
           <tr class="bg-indigo-50"><th>الاسم</th><th>Talanton</th><th>إجراءات</th></tr>
         </thead><tbody>
@@ -256,16 +336,117 @@
               </td>
             </tr>
           `).join('')}
-        </tbody></table>`;
-      } else if (tab==='store') {
+        </tbody></table></div>`;
+      }
+      // 2- تبويب الحضور (جدول حضور احترافي)
+      else if (tab==='attendance') {
+        let dates = [];
+        Object.values(attendance).forEach(a => dates.push(...Object.keys(a)));
+        dates = [...new Set(dates)].sort();
+        c.innerHTML = `<div class="overflow-x-auto">
+        <table class="w-full text-center border text-xs"><thead>
+          <tr class="bg-green-50">
+            <th>العضو</th>
+            ${dates.map(d=>`<th>${d}</th>`).join('')}
+            <th>الإجمالي</th>
+          </tr>
+        </thead><tbody>
+        ${members.map(m=>{
+          let row = `<td>${m.name}</td>`;
+          let total = 0;
+          dates.forEach(d=>{
+            if(attendance[m.id] && attendance[m.id][d]) { row += `<td class="text-green-600 font-bold">✓</td>`; total++; }
+            else row += `<td>-</td>`;
+          });
+          row += `<td class="font-bold">${total}</td>`;
+          return `<tr>${row}</tr>`;
+        }).join('')}
+        </tbody></table></div>`;
+      }
+      // 3- المناسبات (إدارة المناسبات)
+      else if (tab==='events') {
+        c.innerHTML = `
+        <div class="mb-3 flex gap-2">
+          <input id="newEventName" class="border p-2 rounded" placeholder="اسم المناسبة">
+          <input id="newEventDate" type="date" class="border p-2 rounded">
+          <input id="newEventPoints" type="number" min="0" class="border p-2 rounded" placeholder="نقاط المناسبة">
+          <button onclick="addEvent()" class="bg-yellow-600 text-white px-3 py-1 rounded">إضافة</button>
+        </div>
+        <div class="overflow-x-auto">
+        <table class="w-full text-center border"><thead>
+          <tr class="bg-yellow-100"><th>المناسبة</th><th>التاريخ</th><th>النقاط</th><th>إجراءات</th></tr>
+        </thead><tbody>
+          ${events.map(ev=>`
+            <tr class="border-b">
+              <td>${ev.name}</td>
+              <td>${ev.date}</td>
+              <td>${ev.points||0}</td>
+              <td>
+                <button onclick="deleteEvent('${ev.id}')" class="bg-red-600 text-white px-2 py-1 rounded">حذف</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody></table></div>`;
+      }
+      // 4- الأسابيع (إدارة الأسابيع)
+      else if (tab==='weeks') {
+        c.innerHTML = `
+        <div class="mb-3 flex gap-2">
+          <input id="newWeekName" class="border p-2 rounded" placeholder="اسم الأسبوع">
+          <input id="newWeekStart" type="date" class="border p-2 rounded" placeholder="من">
+          <input id="newWeekEnd" type="date" class="border p-2 rounded" placeholder="إلى">
+          <button onclick="addWeek()" class="bg-blue-600 text-white px-3 py-1 rounded">إضافة</button>
+        </div>
+        <div class="overflow-x-auto">
+        <table class="w-full text-center border"><thead>
+          <tr class="bg-blue-100"><th>الأسبوع</th><th>من</th><th>إلى</th><th>إجراءات</th></tr>
+        </thead><tbody>
+          ${weeks.map(w=>`
+            <tr class="border-b">
+              <td>${w.name}</td>
+              <td>${w.start}</td>
+              <td>${w.end}</td>
+              <td>
+                <button onclick="deleteWeek('${w.id}')" class="bg-red-600 text-white px-2 py-1 rounded">حذف</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody></table></div>`;
+      }
+      // 5- المهام
+      else if (tab==='tasks') {
+        c.innerHTML = `
+        <div class="mb-3 flex gap-2">
+          <input id="newTaskName" class="border p-2 rounded" placeholder="اسم المهمة">
+          <input id="newTaskPoints" type="number" min="0" class="border p-2 rounded" placeholder="نقاط المهمة">
+          <button onclick="addTask()" class="bg-purple-600 text-white px-3 py-1 rounded">إضافة</button>
+        </div>
+        <div class="overflow-x-auto">
+        <table class="w-full text-center border"><thead>
+          <tr class="bg-purple-100"><th>المهمة</th><th>النقاط</th><th>إجراءات</th></tr>
+        </thead><tbody>
+          ${tasks.map(t=>`
+            <tr class="border-b">
+              <td>${t.name}</td>
+              <td>${t.points||0}</td>
+              <td>
+                <button onclick="deleteTask('${t.id}')" class="bg-red-600 text-white px-2 py-1 rounded">حذف</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody></table></div>`;
+      }
+      // 6- المتجر (كما السابق)
+      else if (tab==='store') {
         c.innerHTML = `
         <div class="mb-3 flex gap-2">
           <input id="newProductName" class="border p-2 rounded" placeholder="اسم المنتج">
           <input id="newProductPrice" type="number" min="1" class="border p-2 rounded" placeholder="سعر Talanton">
-          <button onclick="addProduct()" class="bg-green-700 text-white px-3 py-1 rounded">إضافة</button>
+          <button onclick="addProduct()" class="bg-pink-600 text-white px-3 py-1 rounded">إضافة</button>
         </div>
+        <div class="overflow-x-auto">
         <table class="w-full text-center border"><thead>
-          <tr class="bg-pink-50"><th>المنتج</th><th>السعر</th><th>إجراءات</th></tr>
+          <tr class="bg-pink-100"><th>المنتج</th><th>السعر</th><th>إجراءات</th></tr>
         </thead><tbody>
           ${products.map(p=>`
             <tr class="border-b">
@@ -276,14 +457,51 @@
               </td>
             </tr>
           `).join('')}
-        </tbody></table>`;
+        </tbody></table></div>`;
       }
-      // يمكنك تطوير باقي التبويبات بنفس الطريقة (attendance, events, weeks, tasks, reports)
-      else {
-        c.innerHTML = `<div class="text-gray-500">تطوير لاحق ...</div>`;
+      // 7- التقارير (رسوم بيانية)
+      else if (tab==='reports') {
+        c.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <canvas id="r_attendance"></canvas>
+            <div class="text-center font-bold mt-1">حضور الأعضاء</div>
+          </div>
+          <div>
+            <canvas id="r_points"></canvas>
+            <div class="text-center font-bold mt-1">نقاط Talanton</div>
+          </div>
+          <div>
+            <canvas id="r_top10"></canvas>
+            <div class="text-center font-bold mt-1">Top 10</div>
+          </div>
+        </div>
+        <script>
+          setTimeout(function(){
+            // رسم حضور الأعضاء
+            let ctx1=document.getElementById('r_attendance').getContext('2d');
+            let data1 = ${JSON.stringify(members.map(m=>Object.values(attendance[m.id]||{}).length))};
+            let labels1 = ${JSON.stringify(members.map(m=>m.name))};
+            if(window.rAttChart) window.rAttChart.destroy();
+            window.rAttChart = new Chart(ctx1,{type:'bar',data:{labels:labels1,datasets:[{label:'حضور',data:data1,backgroundColor:'#6366f1'}]},options:{plugins:{legend:{display:false}}}});
+            // رسم نقاط Talanton
+            let ctx2=document.getElementById('r_points').getContext('2d');
+            let data2 = ${JSON.stringify(members.map(m=>m.talanton||0))};
+            if(window.rTalChart) window.rTalChart.destroy();
+            window.rTalChart = new Chart(ctx2,{type:'bar',data:{labels:labels1,datasets:[{label:'Talanton',data:data2,backgroundColor:'#22c55e'}]},options:{plugins:{legend:{display:false}}}});
+            // رسم Top 10
+            let top10 = [...${JSON.stringify(members)}].sort((a,b)=>(b.talanton||0)-(a.talanton||0)).slice(0,10);
+            let ctx3=document.getElementById('r_top10').getContext('2d');
+            let data3 = top10.map(m=>m.talanton||0),labels3=top10.map(m=>m.name);
+            if(window.rTopChart) window.rTopChart.destroy();
+            window.rTopChart = new Chart(ctx3,{type:'pie',data:{labels:labels3,datasets:[{data:data3,backgroundColor:['#6366f1','#22c55e','#f59e42','#f43f5e','#818cf8','#fbbf24','#0ea5e9','#14b8a6','#eab308','#be185d']}]},options:{}});
+          },200);
+        </script>
+        `;
       }
     }
-    // أعضاء الأدمن
+
+    // دوال إدارة الأدمن (الأعضاء)
     function addMember() {
       let name = document.getElementById('newMemberName').value.trim();
       if (!name) return;
@@ -298,7 +516,8 @@
     function deleteMember(id) {
       if (confirm('تأكيد حذف العضو؟')) db.ref('members/'+id).remove();
     }
-    // متجر الأدمن
+
+    // إدارة المنتجات
     function addProduct() {
       let name = document.getElementById('newProductName').value.trim();
       let price = parseInt(document.getElementById('newProductPrice').value);
@@ -311,11 +530,55 @@
       if (confirm('تأكيد حذف المنتج؟')) db.ref('products/'+id).remove();
     }
 
-    // تحميل عند بدء الصفحة
+    // إدارة المناسبات
+    function addEvent() {
+      let name = document.getElementById('newEventName').value.trim();
+      let date = document.getElementById('newEventDate').value;
+      let points = parseInt(document.getElementById('newEventPoints').value)||0;
+      if (!name || !date) return;
+      db.ref('events').push({name: name, date: date, points: points});
+      document.getElementById('newEventName').value = "";
+      document.getElementById('newEventDate').value = "";
+      document.getElementById('newEventPoints').value = "";
+    }
+    function deleteEvent(id) {
+      if (confirm('تأكيد حذف المناسبة؟')) db.ref('events/'+id).remove();
+    }
+
+    // إدارة الأسابيع
+    function addWeek() {
+      let name = document.getElementById('newWeekName').value.trim();
+      let start = document.getElementById('newWeekStart').value;
+      let end = document.getElementById('newWeekEnd').value;
+      if (!name || !start || !end) return;
+      db.ref('weeks').push({name: name, start: start, end: end});
+      document.getElementById('newWeekName').value = "";
+      document.getElementById('newWeekStart').value = "";
+      document.getElementById('newWeekEnd').value = "";
+    }
+    function deleteWeek(id) {
+      if (confirm('تأكيد حذف الأسبوع؟')) db.ref('weeks/'+id).remove();
+    }
+
+    // إدارة المهام
+    function addTask() {
+      let name = document.getElementById('newTaskName').value.trim();
+      let points = parseInt(document.getElementById('newTaskPoints').value)||0;
+      if (!name) return;
+      db.ref('tasks').push({name: name, points: points});
+      document.getElementById('newTaskName').value = "";
+      document.getElementById('newTaskPoints').value = "";
+    }
+    function deleteTask(id) {
+      if (confirm('تأكيد حذف المهمة؟')) db.ref('tasks/'+id).remove();
+    }
+
+    // تحميل البيانات عند بدء الصفحة
     window.onload = function() {
-      loadMembers();
-      loadProducts();
-      loadAttendance();
+      feather.replace(); // لأيقونات Heroicons
+      loadMembers(); loadProducts(); loadAttendance();
+      loadEvents(); loadWeeks(); loadTasks();
+      if (localStorage.getItem('admin') === 'yes') showAdminPanel();
     };
   </script>
 </body>

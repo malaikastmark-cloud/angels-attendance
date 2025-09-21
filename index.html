@@ -2,28 +2,25 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
-  <title>نظام حضور المجموعة - Talanton</title>
+  <title>Talanton | نظام حضور المجموعة</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <!-- TailwindCSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <!-- Heroicons (لأيقونات احترافية) -->
+  <!-- Heroicons (أيقونات SVG) -->
   <script src="https://unpkg.com/feather-icons"></script>
-  <!-- Chart.js -->
+  <!-- Chart.js للرسوم البيانية -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <!-- خطوط عربية حديثة -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Cairo', Arial, sans-serif; }
     .modal-bg { background: rgba(0,0,0,0.45); }
     .rtl { direction: rtl; }
-    .ltr { direction: ltr; }
-    .no-select { user-select: none; }
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 7px; background: #eee; }
     ::-webkit-scrollbar-thumb { background: #c3c3f6; border-radius: 6px; }
+    .admin-tab.active { box-shadow: 0 2px 0 #6366f1 inset; font-weight: bold; }
   </style>
 </head>
 <body class="bg-gray-50 rtl">
@@ -39,7 +36,6 @@
     </button>
   </header>
 
-  <!-- Main Container -->
   <div class="max-w-6xl mx-auto py-8 px-4">
 
     <!-- تسجيل الحضور -->
@@ -122,9 +118,8 @@
     </div>
   </div>
 
-  <!-- سكريبت المشروع: كل منطق الموقع والتبويبات -->
   <script>
-    // إعداد فايربيز (استبدل المعلومات بمشروعك)
+    // إعدادات Firebase (غيّرها حسب مشروعك)
     const firebaseConfig = {
       apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
       authDomain: "angels-attendance.firebaseapp.com",
@@ -137,9 +132,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // حماية الأدمن (بسيطة - يمكن تطويرها باستخدام Firebase Auth لاحقًا)
+    // حماية الأدمن (محليًا - يمكن تطويرها لاحقًا بفاييربيز Auth)
     const ADMIN_USER = "admin";
-    const ADMIN_PASS = "123456"; // غيّر كلمة السر عند التنفيذ
+    const ADMIN_PASS = "123456"; // غيّرها فور تشغيل المشروع
 
     function showAdminLogin() { document.getElementById('adminLoginModal').classList.remove('hidden'); }
     function hideAdminLogin() {
@@ -315,6 +310,15 @@
     // ========== لوحة تحكم الأدمن (كل التبويبات) ==========
     function showAdminTab(tab) {
       let c = document.getElementById('adminContent');
+      document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+      let btns = document.querySelectorAll('.admin-tab');
+      if(tab==='members') btns[0].classList.add('active');
+      if(tab==='attendance') btns[1].classList.add('active');
+      if(tab==='events') btns[2].classList.add('active');
+      if(tab==='weeks') btns[3].classList.add('active');
+      if(tab==='tasks') btns[4].classList.add('active');
+      if(tab==='store') btns[5].classList.add('active');
+      if(tab==='reports') btns[6].classList.add('active');
       // 1- تبويب الأعضاء
       if (tab==='members') {
         c.innerHTML = `

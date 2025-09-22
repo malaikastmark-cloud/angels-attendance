@@ -3,221 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام ملايكة - Talanton</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- إضافة Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- Chart.js for modern reports -->
+    <title>نظام حضور خدام الملايكة - النسخة النهائية المُصلحة</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        
+        // Firebase configuration (يمكن تخصيصها لاحقاً)
+        const firebaseConfig = {
+            apiKey: "demo-key",
+            authDomain: "church-attendance-demo.firebaseapp.com",
+            projectId: "church-attendance-demo",
+            storageBucket: "church-attendance-demo.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "demo-app-id"
+        };
+        
+        // Initialize Firebase
+        window.firebaseApp = initializeApp(firebaseConfig);
+        window.firebaseDb = getFirestore(window.firebaseApp);
+        window.firebaseAuth = getAuth(window.firebaseApp);
+        
+        console.log('Firebase initialized successfully');
+        
+        // Update Firebase status
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('firebaseStatus');
+            if (statusElement) {
+                statusElement.className = 'firebase-status firebase-connected';
+                statusElement.innerHTML = '🟢 متصل بـ Firebase - جاهز للاستخدام';
+            }
+        });
+    </script>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
         }
-        
+
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-card: #334155;
+            --light-bg: #f8fafc;
+            --light-surface: #ffffff;
+            --light-card: #f1f5f9;
+            --text-light: #ffffff;
+            --text-dark: #0f172a;
+            --border-light: #e2e8f0;
+            --border-dark: #475569;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="light"] {
+            --bg-color: var(--light-bg);
+            --surface-color: var(--light-surface);
+            --card-color: var(--light-card);
+            --text-color: var(--text-dark);
+            --border-color: var(--border-light);
+            --shadow-color: var(--shadow-light);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: var(--dark-bg);
+            --surface-color: var(--dark-surface);
+            --card-color: var(--dark-card);
+            --text-color: var(--text-light);
+            --border-color: var(--border-dark);
+            --shadow-color: var(--shadow-dark);
+        }
+
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), var(--card-color));
+            color: var(--text-color);
+            transition: all 0.3s ease;
             min-height: 100vh;
-            padding: 20px;
-            color: #333;
         }
-        
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            position: relative;
-            overflow: hidden;
         }
-        
-        header {
-            background: #3498db;
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 20px;
+            padding: 40px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px var(--shadow-color);
             text-align: center;
-            border-radius: 10px;
             position: relative;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        header::before, header::after {
-            content: "✨";
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.3rem;
+        }
+
+        .version {
             position: absolute;
-            top: 15px;
-            font-size: 2rem;
-        }
-        
-        header::before {
-            left: 20px;
-        }
-        
-        header::after {
+            top: 20px;
             right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
-        
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            background: var(--surface-color);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px var(--shadow-color);
         }
-        
-        .tab-content {
-            display: none;
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px var(--shadow-color);
+        }
+
+        .btn-success { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .btn-danger { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+        .btn-info { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
+
+        .card {
+            background: var(--surface-color);
+            border-radius: 25px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px var(--shadow-color);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .member-selector {
+            margin-bottom: 25px;
+        }
+
+        .member-dropdown {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            background: var(--card-color);
+            color: var(--text-color);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .member-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .member-info-display {
+            margin-top: 20px;
             padding: 20px;
-            animation: fadeIn 0.5s;
+            background: var(--card-color);
+            border-radius: 15px;
+            border: 2px solid var(--border-color);
+            display: none;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .tab-content.active {
+
+        .member-info-display.active {
             display: block;
         }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
         }
-        
-        th, td {
-            padding: 12px 15px;
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
+            box-shadow: 0 15px 35px var(--shadow-color);
+            transition: all 0.3s ease;
         }
-        
-        th {
-            background: #3498db;
-            color: white;
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px var(--shadow-color);
+        }
+
+        .stat-number {
+            font-size: 3rem;
             font-weight: bold;
+            margin-bottom: 10px;
         }
-        
-        tr:nth-child(even) {
-            background: #f9f9f9;
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 1.2rem;
         }
-        
-        tr:hover {
-            background: #f1f1f1;
-            transform: scale(1.01);
-            transition: transform 0.2s;
-        }
-        
-        .btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 5px;
-            transition: all 0.3s;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-primary {
-            background: #2ecc71;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #27ae60;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-success {
-            background: #3498db;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #e67e22;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-info {
-            background: #9b59b6;
-            color: white;
-        }
-        
-        .btn-info:hover {
-            background: #8e44ad;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-secondary {
-            background: #7f8c8d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #636e70;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-reset {
-            background: #ff6b6b;
-            color: white;
-        }
-        
-        .btn-reset:hover {
-            background: #ee5253;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .controls {
-            margin: 15px 0;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        select, input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            min-width: 200px;
-        }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -225,1956 +267,2519 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
         }
-        
+
         .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            animation: modalFadeIn 0.3s;
+            background: var(--surface-color);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
         }
-        
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .tabs .tab {
-            padding: 12px 20px;
+
+        .close {
+            color: var(--text-color);
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
             cursor: pointer;
-            border-radius: 8px;
-            background: #f0f0f0;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
-        
-        .tabs .tab.active {
-            background: #3498db;
-            color: white;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+
+        .close:hover {
+            color: var(--danger-color);
+            transform: scale(1.2);
         }
-        
-        .summary-card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px极简15px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            flex: 1;
-            min-width: 200px;
-            transition: transform 0.3s;
+
+        .form-group {
+            margin-bottom: 25px;
         }
-        
-        .summary-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .summary-card h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-        
-        .summary-value {
-            font-size: 2.5rem;
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
             font-weight: bold;
-            color: #2ecc71;
-            margin: 10px 0;
-        }
-        
-        .summary-subtitle {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        .card-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            margin: 30px 0;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .medal {
-            font-size: 1.5rem;
-            margin-left: 5px;
-        }
-        
-        .medal-gold { color: gold; }
-        .medal-silver { color: silver; }
-        .medal-bronze { color: #cd7f32; }
-        
-        .top-members-list {
-            margin-top: 20px;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .top-members-list h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.4rem;
-        }
-        
-        .top-member-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            align-items: center;
-            transition: background 0.3s;
-        }
-        
-        .top-member-item:hover {
-            background: #f9f9f9;
-        }
-        
-        .top-member-item:last-child {
-            border-bottom: none;
-        }
-        
-        .top-member-name {
-            font-weight: bold;
+            color: var(--text-color);
             font-size: 1.1rem;
         }
-        
-        .top-member-points {
-            background: #3498db;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: bold;
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--card-color);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
         }
-        
-        .report-section {
+
+        .form-group input[type="password"] {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             margin-bottom: 30px;
         }
-        
-        .report-section h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #3498db;
-            font-size: 1.3rem;
+
+        .tab-btn {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 15px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: var(--surface-color);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .table th,
+        .table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: bold;
+        }
+
+        .table tr:hover {
+            background: var(--card-color);
+        }
+
+        .level-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         
+        .level-beginner { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .level-intermediate { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
+        .level-advanced { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+        .level-expert { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .level-legend { background: linear-gradient(135deg, var(--danger-color), #dc2626); }
+
+        .fingerprint-scanner {
+            text-align: center;
+            padding: 40px;
+            background: var(--card-color);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .fingerprint-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .fingerprint-icon:hover {
+            transform: scale(1.1);
+            color: var(--success-color);
+        }
+
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #2ecc71;
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            z-index: 10001;
+            min-width: 300px;
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .firebase-status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .firebase-connected {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .firebase-disconnected {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+
+        .birthday-alert {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
             color: white;
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            display: none;
-            animation: notify 0.5s;
-        }
-        
-        @keyframes notify {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .member-img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #3498db;
-        }
-        
-        .reward-badge {
-            background: gold;
-            color: #333;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-left: 5px;
-            font-weight: bold;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 15px;
+            border-radius: 15px;
             margin: 15px 0;
-            flex-wrap: wrap;
-        }
-        
-        .member-stats {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .member-stat-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
             text-align: center;
-            flex: 1;
         }
-        
-        .member-stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #3498db;
-        }
-        
-        .member-stat-label {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-        }
-        
-        .firebase-status {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            background: #f8f9fa;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .firebase-connected {
-            color: #2ecc71;
-        }
-        
-        .firebase-disconnected {
-            color: #e74c3c;
-        }
-        
-        .emoji-icon {
-            font-size: 1.2rem;
-            margin-left: 5px;
-        }
-        
-        .extra-point-form {
-            background: #f8f9fa;
-            padding: 极简15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .birthday-reminder {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad极简c4 100%);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 5px solid #e74c3c;
-        }
-        
-        .birthday-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            margin: 10px 0;
-            border-radius: 8px;
-            align-items: center;
-        }
-        
-        /* Modern charts styling */
-        .chart-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+
+        .search-container {
             position: relative;
-            height: 300px;
+            margin-bottom: 25px;
         }
-        
-        .chart-title {
-            text-align: center;
-            color: #3498db;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            background: var(--card-color);
+            color: var(--text-color);
+            font-size: 16px;
         }
-        
-        .stats-grid {
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+
+        .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin: 20px 极简0;
         }
-        
-        .stat-card {
-            background: white;
-            border-radius: 10px;
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .floating-action-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px var(--shadow-color);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px var(--shadow-color);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: var(--card-color);
+            border-radius: 20px;
             padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            box-shadow: 0 10px 25px var(--shadow-color);
         }
-        
-        .stat极简-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #3498db;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
+
+        .add-button {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
             font-weight: bold;
-            color: #2ecc71;
-            margin: 10px 0;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
-        
-        .stat-label {
-            color: #7f8c8d;
+
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+
+        .talanton-add-section {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 2px solid var(--border-color);
+        }
+
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px var(--shadow-color);
+        }
+
+        .product-price {
+            color: var(--warning-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .product-stock {
+            color: var(--success-color);
             font-size: 0.9rem;
         }
-        
+
+        .quick-attendance-input {
+            background: var(--card-color);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .quick-input {
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--surface-color);
+            color: var(--text-color);
+            font-size: 18px;
+            text-align: center;
+            width: 150px;
+            margin: 0 10px;
+        }
+
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
+            .header h1 {
+                font-size: 2rem;
             }
             
             .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            select, input {
-                width: 100%;
-            }
-            
-            .card-container {
-                flex-direction: column;
-            }
-            
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .export-buttons {
-                flex-direction: column;
-            }
-            
-            header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .firebase-status {
-                bottom: 80px;
-            }
-            
-            .extra-point-form {
-                flex-direction: column;
-                align-items: stretch;
+                grid-template-columns: 1fr;
             }
             
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        .login-failed {
-            animation: shake 0.5s;
-            border: 2px solid #e74c3c !important;
-        }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        /* Left alignment for member numbers */
-        .member-number {
-            text-align: left;
-            padding-left: 20px;
-            font-weight: bold;
-        }
-        
-        /* New styles for biometric authentication */
-        .biometric-section {
-            margin: 15px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            display: none;
-        }
-        
-        .biometric-section.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-        
-        .member-confirmation {
-            display: flex;
-            align-items: center;
-            gap: 10极简px;
-            margin: 10px 0;
-            padding: 10px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            border-right: 4px solid #2ecc71;
-        }
-        
-        .incorrect-password {
-            animation: shake 0.5s;
-            border-color: #e74c3c !important;
-        }
-        
-        .biometric-btn {
-            background: #9b59b6;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-        
-        .biometric-btn:hover {
-            background: #8e44ad;
-            transform: translateY(-2px);
-        }
-        
-        .biometric-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .fallback-verification {
-            margin-top: 15px;
-            padding: 15px;
-            background: #fff3e0;
-            border-radius: 8px;
-            border-left: 4px solid #ff9800;
-            display: none;
-        }
-        
-        .fallback-verification.active {
-            display: block;
-        }
-        
-        /* New styles for user reports tab */
-        .user-reports-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .user-report-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-        
-        .user-report-card:hover {
-            transform: translate极简Y(-5px);
-        }
-        
-        .user-report-icon {
-            font-size: 2.5极简rem;
-            margin-bottom: 15px;
-            color: #3498db;
-        }
-        
-        .user-report-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2ecc71;
-            margin: 10px 0;
-        }
-        
-        .user-report-label {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        .user-ranking {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .ranking-medal {
-            font-size: 2rem;
-        }
-        
-        /* New styles for password visibility */
-        .password-field {
-            position: relative;
-        }
-        
-        .toggle-password {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #7极简f8c8d;
-        }
-        
-        /* Security improvements */
-        .security-settings {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .security-settings h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-        }
-        
-        .admin-password-form {
-            background: #fff3e0;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        /* Talanton specific styles */
-        .talanton-badge {
-            background: linear-gradient(135deg, #ff9a00 0%, #ff6a00 100%);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-        
-        .talanton-icon {
-            color: #ff9a00;
-            margin-right: 5px;
-        }
-        
-        /* Store styles */
-        .store-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .store-item {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-            position: relative;
-        }
-        
-        .store-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .store-item-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .store-item-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        .store-item-price {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #2ecc71;
-            margin-bottom: 15px;
-        }
-        
-        .store-item-description {
-            color: #7f8c8d;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-        
-        .store-item-quantity {
-            color: #e74c3c;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .search-box {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .search-box input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 2px solid #3498db;
-            border-radius: 25px;
-            font-size: 1rem;
-        }
-        
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #3498db;
-            font-size: 1.2rem;
-        }
-        
-        /* Purchase modal */
-        .purchase-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 极简0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .purchase-modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            animation: modalFadeIn 0.3s;
-            text-align: center;
-        }
-        
-        .purchase-item-image {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .purchase-item-name {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-        
-        .purchase-item-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2ecc71;
-            margin-bottom: 15px;
-        }
-        
-        .purchase-balance {
-            margin: 15px 0;
-            font-size: 1.1rem;
-        }
-        
-        .purchase-balance span {
-            font-weight: bold;
-            color: #349极简8db;
-        }
-        
-        .purchase-error {
-            color: #e74c3c;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        
-        /* Store admin styles */
-        .store-admin-form {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .store-admin-form h3 {
-            color: #3498db;
-            margin-bottom: 15px;
-        }
-        
-        .image-preview {
-            width: 100px;
-            height: 100px;
-            border: 2px dashed #3498db;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-        
-        .image-preview img {
-            max-width: 100%;
-            max-height: 100%;
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 25px;
+            }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
+
+            .floating-action-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .store-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
     <div class="container">
-        <header>
-            <h1>🌟 نظام حضور خدام ملايكة - Talanton</h1>
-            <p>الحضور يساوي Talanton</p>
-        </header>
-
-        <div class="notification" id="notification"></div>
-
-        <div class="tabs">
-            <div class="tab active" data-tab="userAttendance">تسجيل الحضور</div>
-            <div class="tab" data-tab="userTalanton">Talanton الخاص بي</div>
-            <div class="tab" data-tab="userStore">متجر Talanton</div>
-            <div class="tab" data极简-tab="userReports">تقاريري</div>
+        <!-- Header -->
+        <div class="header">
+            <div class="version">v14.0 مُصلح</div>
+            <h1>🌟 نظام حضور خدام الملايكة</h1>
+            <p>نظام Talanton Pro - النسخة النهائية المُصلحة</p>
         </div>
 
-        <div class="tab-content active" id="userAttendance">
-            <h2>تسجيل الحضور</h2>
-            <div class="controls">
-                <div class="search-box">
-                    <input type="text" id="searchMember" placeholder="🔍 ابحث عن اسمك...">
-                    <i class="fas fa-search"></i>
-                </div>
-                <label>اختر اسمك: </label>
-                <select id="selectMember">
-                    <option value="">-- اختر اسمك --</option>
-                    <!-- سيتم تعبئة الخيارات من Firebase -->
-                </select>
-                <label>اختر الأسبوع: </label>
-                <select id="weekSelect">
-                    <!-- سيتم تعبئة الخيارات من Firebase -->
-                </select>
-            </div>
-            
-            <div class="biometric-section" id="biometricSection">
-                <div class="member-confirmation">
-                    <img id="confirmMemberImg" class="member-img" src="">
-                    <span id="confirmMemberName"></span>
-                </div>
-                
-                <p>لتأكيد هويتك، يرجى استخدام البصمة أو التعرف على الوجه</p>
-                
-                <button class="biometric-btn" id="biometricBtn">
-                    <i class="fas fa-fingerprint"></i> التأكد بالبصمة/الوجه
-                </button>
-                
-                <div class="fallback-verification" id="fallbackVerification">
-                    <h4>طريقة بديلة للتحقق</h4>
-                    <div class="controls">
-                        <div class="password-field">
-                            <input type="password" id="memberPassword" placeholder="كلمة السر الخاصة بك">
-                            <span class="toggle-password" id="togglePassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <button class="btn btn-primary" id="verifyPasswordBtn">تأكيد</button>
+        <!-- Firebase Status -->
+        <div id="firebaseStatus" class="firebase-status firebase-disconnected">
+            🟡 جاري الاتصال بـ Firebase...
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span> تبديل الوضع
+            </button>
+            <button class="btn" onclick="showAdminLogin()">
+                👑 دخول الأدمن
+            </button>
+            <button class="btn btn-info" onclick="generateQRCodes()">
+                📱 إنشاء QR كودات
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent">
+            <!-- Quick Stats -->
+            <div class="card">
+                <h2>📊 إحصائيات سريعة</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalMembers">0</div>
+                        <div class="stat-label">إجمالي الأعضاء</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="presentToday">0</div>
+                        <div class="stat-label">الحاضرون اليوم</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTalanton">0</div>
+                        <div class="stat-label">إجمالي Talanton</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="weeklyAttendance">0%</div>
+                        <div class="stat-label">نسبة الحضور الأسبوعي</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="controls">
-                <button class="btn btn-primary" id="markPresent">تسجيل الحضور</button>
-            </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th class="member-number">#</th>
-                        <th>الصورة</th>
-                        <th>اسم العضو</th>
-                        <th>الأسبوع</th>
-                        <th>الحضور</th>
-                        <th>Talanton</th>
-                    </tr>
-                </thead>
-                <tbody id="attendanceTableBody">
-                    <!-- سيتم تعبئة البيانات من Firebase -->
-                </tbody>
-            </table>
-            <div class="controls">
-                <span>الحضور هذا الأسبوع: <span id="attendanceCount">0</span>/<span id="totalMembers">0</span></span>
-                <span>Talanton: <span id="totalTalanton">0</span></span>
-            </div>
-        </div>
 
-        <div class="tab-content" id="userTalanton">
-            <h2>Talanton الخاص بي</h2>
-            <div class="user-reports-grid">
-                <div class="user-report-card">
-                    <div class="user-report-icon"><i class="fas fa-coins talanton-icon"></i></div>
-                    <div class="user-report-number" id="user极简TotalTalanton">0</div>
-                    <div class="user-report-label">إجمالي Talanton</div>
-                </div>
-                
-                <div class="user-report-card">
-                    <div class极简="user-report-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="user-report-number" id="userTotalAttendance">0</div>
-                    <div class="user-report-label">إجمالي أيام الحضور</div>
-                </div>
-                
-                <div class="user-report-card">
-                    <div class="user-report-icon"><i class="fas fa-trophy"></i></div>
-                    <div class="user-report-number" id="userRank">-</div>
-                    <div class="user-report-label">ترتيبي بين الأعضاء</div>
-                    <div class="user-ranking" id="userRankingMedal"></div>
-                </div>
-                
-                <div class="user-report-card">
-                    <div class="user-report-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="user-report-number" id="userPerformance">0%</div>
-                    <div class="user-report-label">معدل الحضور</div>
+            <!-- Birthday Alerts -->
+            <div id="birthdayAlerts"></div>
+
+            <!-- Quick Attendance -->
+            <div class="card">
+                <h2>⚡ الحضور السريع</h2>
+                <div class="quick-attendance-input">
+                    <p style="margin-bottom: 15px;">أدخل الرقم التسلسلي للعضو:</p>
+                    <input type="number" id="quickAttendanceInput" class="quick-input" placeholder="رقم العضو" min="1" max="10">
+                    <button class="btn btn-success" onclick="quickAttendanceByNumber()" style="margin-left: 10px;">
+                        ✅ حضور سريع
+                    </button>
                 </div>
             </div>
-            
-            <div class="report-section">
-                <h3>📊 تطور Talanton خلال الأسابيع</h3>
+
+            <!-- Member Selection -->
+            <div class="card">
+                <h2>👥 اختيار العضو للحضور</h2>
+                <div class="member-selector">
+                    <select class="member-dropdown" id="memberDropdown" onchange="selectMemberFromDropdown()">
+                        <option value="">اختر عضو...</option>
+                    </select>
+                </div>
+                <div id="memberInfoDisplay" class="member-info-display">
+                    <div id="selectedMemberInfo"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-success" onclick="showAttendanceModal()">✅ تسجيل الحضور</button>
+                        <button class="btn btn-info" onclick="showMemberProfile()">👤 عرض الملف الشخصي</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Talanton Store -->
+            <div class="card">
+                <h2>🛒 متجر Talanton</h2>
+                <p style="margin-bottom: 20px; color: var(--text-color); opacity: 0.8;">
+                    تصفح المنتجات المتاحة في المتجر (للشراء يرجى تسجيل الدخول كعضو)
+                </p>
+                <div id="storeDisplay" class="store-grid"></div>
+            </div>
+
+            <!-- Today's Events -->
+            <div class="card">
+                <h2>🎉 مناسبات اليوم</h2>
+                <div id="todayEvents"></div>
+            </div>
+
+            <!-- Charts -->
+            <div class="card">
+                <h2>📈 الرسوم البيانية</h2>
                 <div class="chart-container">
-                    <canvas id="userTalantonChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="report-section">
-                <h3>📋 سجل Talanton</极简h3>
-                <table id="userTalantonTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>التاريخ</th>
-                            <th>السبب</th>
-                            <th>القيمة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="tab-content" id="userStore">
-            <h2>متجر Talanton <i class="fas fa-store talanton-icon"></i></h2>
-            
-            <div class="search-box">
-                <input type="text" id="searchStore" placeholder="🔍 ابحث في المتجر...">
-                <i class="fas fa-search"></极简i>
-            </div>
-            
-            <div class="store-container" id="storeContainer">
-                <!-- سيتم تعبئة العناصر من Firebase -->
-            </div>
-            
-            <div class="purchase-modal" id="purchaseModal">
-                <div class="purchase-modal-content">
-                    <img id="purchaseItemImage" class="purchase-item-image" src="">
-                    <h3 id="purchaseItemName" class="purchase-item-name"></h3>
-                    <div id="purchaseItemPrice" class="purchase-item-price"></div>
-                    <p id="purchaseItemDescription" class="purchase-item-description"></p>
-                    
-                    <div class="purchase-balance">
-                        رصيدك الحالي: <span id="userBalance">0</span> Talanton
-                    </div>
-                    
-                    <div id="purchaseError" class="purchase-error" style="display: none;">
-                        رصيدك لا يكفي لشراء هذا المنتج
-                    </div>
-                    
-                    <div class="controls">
-                        <button class="btn btn-danger" id="cancelPurchase">إلغاء</button>
-                        <button class="btn btn-success" id="confirmPurchase">شراء</button>
-                    </div>
+                    <canvas id="attendanceChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="tab-content" id="userReports">
-            <h2>تقاريري الشخصية</h2>
-            <div class="user-reports-grid">
-                <div class="user-report-card">
-                    <div class="user-report-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="user-report-number" id="userReportAttendance">0</div>
-                    <div class="user-report-label">إجمالي أيام الحضور</div>
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="admin-panel">
+            <div class="card">
+                <h2>👑 لوحة تحكم الأدمن</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-danger" onclick="logoutAdmin()">🚪 تسجيل خروج</button>
+                    <button class="btn btn-success" onclick="showAddMemberModal()">➕ إضافة عضو</button>
+                    <button class="btn btn-info" onclick="showMembersReport()">📊 تقرير الأعضاء</button>
+                    <button class="btn btn-warning" onclick="showAttendanceReport()">📈 تقرير الحضور</button>
+                    <button class="btn btn-success" onclick="exportData()">💾 تصدير البيانات</button>
+                    <button class="btn btn-warning" onclick="importData()">📁 استيراد البيانات</button>
                 </div>
                 
-                <div class="user-report-card">
-                    <div class="user-report-icon"><极简i class="fas fa-coins talanton-icon"></i></div>
-                    <div class="user-report-number" id="userReportTalanton">0</div>
-                    <div class="user-report-label">إجمالي Talanton</div>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showTab('members')">👥 إدارة الأعضاء</button>
+                    <button class="tab-btn" onclick="showTab('products')">🏪 إدارة المتجر</button>
+                    <button class="tab-btn" onclick="showTab('tasks')">📋 إدارة المهام</button>
+                    <button class="tab-btn" onclick="showTab('occasions')">🎉 إدارة المناسبات</button>
+                    <button class="tab-btn" onclick="showTab('weeks')">📆 إدارة الأسابيع</button>
+                    <button class="tab-btn" onclick="showTab('reports')">📈 التقارير</button>
+                    <button class="tab-btn" onclick="showTab('settings')">⚙️ الإعدادات</button>
                 </div>
-                
-                <div class="user-report-card">
-                    <div class="user-report-icon"><i class="fas fa-trophy"></i></div>
-                    <div class="user-report-number" id="userReportRank">-</div>
-                    <div class="user-report-label">ترتيبي بين الأعضاء</div>
-                    <div class="user-ranking" id="userReportRankingMedal"></div>
-                </div>
-                
-                <div class="user-report-card">
-                    <div class="user-report-icon"><i class="fas fa-chart-line"></i></div>
-                    <div class="user-report-number" id="userReportPerformance">0%</div>
-                    <div class="user-report-label">معدل الحضور</div>
-                </div>
-            </div>
-            
-            <div class="report-section">
-                <h3>📊 تطور Talanton خلال الأسابيع</h3>
-                <div class="chart-container">
-                    <canvas id="userReportTalantonChart"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <div class="controls" style="margin-top:20px;">
-            <button class="btn btn-success" id="adminLoginBtn">تسجيل دخول الأدمن</button>
-        </div>
-
-        <div class="modal" id="adminLoginModal">
-            <div class="modal-content">
-                <h2>تسجيل دخول الأدمن</h2>
-                <div class="password-field">
-                    <input type="password" id="adminPassword" placeholder="كلمة السر">
-                    <span class="toggle-password" id="toggleAdminPassword">
-                        <i class="fas fa-eye"></i>
-                    </span>
+                <!-- Members Tab -->
+                <div id="membersTab" class="tab-content active">
+                    <div id="membersTable"></div>
                 </div>
-                <div class="controls">
-                    <button class="btn btn-danger" id="cancelAdminLogin">إلغاء</button>
-                    <button class="btn btn-success" id="confirmAdminLogin">دخول</button>
+
+                <!-- Products Tab -->
+                <div id="productsTab" class="tab-content">
+                    <button class="add-button" onclick="showAddProductModal()">➕ إضافة منتج جديد</button>
+                    <div id="productsTable"></div>
                 </div>
-            </div>
-        </div>
 
-        <div class="tab-content" id="adminTabs" style="display:none;">
-            <div class="controls">
-                <button class="btn btn-secondary" id="backToUserView">
-                    <i class="fas fa-arrow-right"></i> العودة إلى واجهة المستخدم
-                </button>
-                <button class="btn btn-info" id="exportDataBtn">
-                    <i class="fas fa-download"></i> تصدير البيانات
-                </button>
-                <button class="btn btn-warning极简" id="backupDataBtn">
-                    <i class="fas fa-save"></i> نسخ احتياطي
-                </button>
-            </div>
-
-            <div class="tabs">
-                <div class="tab active" data-tab="members">إدارة الأعضاء</div>
-                <div class="tab" data-tab="talanton">إدارة Talanton</div>
-                <div class="tab" data-tab="storeAdmin">إدارة المتجر</div>
-                <div class="tab" data-tab="weeks">إدارة الأسابيع</div>
-                <div class="tab" data-tab="attendance">إدارة الحضور</div>
-                <div class="tab" data-tab="security">الأمان والتحقق</div>
-                <div class="tab" data-tab="contests">المسابقات <i class="fas fa-trophy emoji-icon"></i></div>
-                <div class="tab" data-tab="birthdays">أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></极简i></div>
-                <div class="tab" data-tab="events">المناسبات <极简i class="fas fa-calendar-alt emoji-icon"></i></div>
-                <div class="tab" data-tab="tasks">المهمات <i class="fas fa-tasks emoji-icon"></i></div>
-                <div class="tab" data-tab="reports">التقارير</div>
-            </div>
-
-            <div class="tab-content active" id="members">
-                <h2>إدارة الأعضاء</h2>
-                <div class="controls">
-                    <input type="text" id="newMemberName" placeholder="اسم العضو">
-                    <select id="newMemberEmoji">
-                        <option value="🧒">🧒 </option>
-                        <option value="👦">👦 </option>
-                        <option value="👧">👧 </option>
-                        <option value="👨">👨 </option>
-                        <option value="👩">👩 </option>
-                    </select>
-                    <input type="password" id="newMemberPassword" placeholder="كلمة السر (اختياري)">
-                    <button class="btn btn-primary" id="addMemberBtn">إضافة عضو</button>
+                <!-- Tasks Tab -->
+                <div id="tasksTab" class="tab-content">
+                    <button class="add-button" onclick="showAddTaskModal()">➕ إضافة مهمة جديدة</button>
+                    <div id="tasksTable"></div>
                 </div>
-                <table id="membersTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم العضو</th>
-                            <th>Talanton</th>
-                            <th>كلمة السر</th>
-                            <th>تعديل</极简th>
-                            <th>حذف Talanton</th>
-                            <极简th>حذف العضو</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="tab-content" id="talanton">
-                <h2>إدارة Talanton <i class="fas fa-coins talanton-icon"></i></h2>
-                
-                <div class="extra-point-form">
-                    <h3>إضافة/خصم Talanton <i class="fas fa-coins talanton-icon"></i></h3>
-                    <select id="talantonMember">
-                        <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="number" id="talantonValue" placeholder="القيمة" value="1">
-                    <input type="text" id="talantonReason" placeholder="سبب الإضافة/الخصم">
-                    <button class="btn btn-primary" id="addTalantonBtn">إضافة</button>
-                    <button class="btn btn-danger" id="subtractTalantonBtn">خصم</button>
+                <!-- Occasions Tab -->
+                <div id="occasionsTab" class="tab-content">
+                    <button class="add-button" onclick="showAddOccasionModal()">➕ إضافة مناسبة جديدة</button>
+                    <div id="occasionsTable"></div>
                 </div>
-                
-                <h3>سجلات Talanton</h3>
-                <div class="controls">
-                    <button class="btn btn-danger" id="deleteSelectedTalanton">حذف السجلات المحددة</button>
-                </div>
-                
-                <table id="talantonRecordsTable">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="selectAllTalanton"></th>
-                            <th class="member-number">#</th>
-                            <th>العضو</th>
-                            <th>القيمة</th>
-                            <th>السبب</th>
-                            <th>التاريخ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="talantonRecordsBody">
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="tab-content" id="storeAdmin">
-                <h2>إدارة متجر Talanton <i class="fas fa-store talanton-icon"></i></h2>
-                
-                <div class="store-admin-form">
-                    <h3>إضافة منتج جديد</h3>
-                    <div class="controls">
-                        <input type="text" id="newItemName" placeholder="اسم المنتج">
-                        <input type="number" id="newItemPrice" placeholder="السعر (Talanton)" min="极简1">
-                        <input type="number" id="newItemQuantity" placeholder="الكمية" min="1" value="1">
-                    </div>
-                    <div class="controls">
-                        <textarea id="newItemDescription" placeholder="وصف المنتج" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
-                    </div>
-                    <div class="controls">
-                        <input type="text" id="newItemImage" placeholder="رابط صورة المنتج">
-                        <div class="image-preview" id="imagePreview">
-                            <span>معاينة الصورة</span>
+                <!-- Weeks Tab -->
+                <div id="weeksTab" class="tab-content">
+                    <button class="add-button" onclick="showAddWeekModal()">➕ إضافة أسبوع جديد</button>
+                    <div id="weeksTable"></div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div id="reportsTab" class="tab-content">
+                    <div id="reportContent"></div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settingsTab" class="tab-content">
+                    <div class="card">
+                        <h3>⚙️ إعدادات النظام</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>نقاط الحضور اليومي:</label>
+                                <input type="number" id="dailyAttendancePoints" value="10" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>نقاط إكمال المهمة:</label>
+                                <input type="number" id="taskCompletionPoints" value="5" min="1">
+                            </div>
                         </div>
-                    </div>
-                    <div class="controls">
-                        <button class="btn btn-primary" id="addStoreItemBtn">إضافة منتج</button>
-                    </div>
-                </div>
-                
-                <h3>منتجات المتجر</h3>
-                <div class="controls">
-                    <button class="btn btn-danger" id="deleteSelectedStoreItems">حذف المنتجات المحددة</button>
-                </div>
-                
-                <table id="storeItemsTable">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="selectAllStoreItems"></极简th>
-                            <th class="member-number">#</极简th>
-                            <th>الصورة</th>
-                            <th>اسم المنتج</th>
-                            <th>السعر</th>
-                            <th>الكمية</th>
-                            <th>الوصف</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody id="storeItemsBody">
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="weeks">
-                <h2>إدارة الأسابيع</h2>
-                <div class="controls">
-                    <input type="text" id="newWeekName" placeholder="اسم الأسبوع">
-                    <input type="date" id="newWeekDate" placeholder="تاريخ الأسبوع">
-                    <button class="btn btn-primary" id="addWeekBtn">إضافة أسبوع</button>
-                </div>
-                <table id="weeksTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم الأسبوع</th>
-                            <th>التاريخ</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="attendance">
-                <h2>إدارة تسجيلات الحضور</h2>
-                <div class="controls">
-                    <label>اختر أسبوع: </label>
-                    <select id="deleteWeekSelect">
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <button class="btn btn-danger"极简 id="deleteAttendanceBtn">حذف كل حضور هذا الأسبوع</button>
-                </div>
-                
-                <h3>سجلات الحضور</h3>
-                <div class="controls">
-                    <button class="btn btn-danger" id="deleteSelectedAttendance">حذف الحضور المحدد</button>
-                </div>
-                
-                <table id="attendanceRecordsTable">
-                    <thead>
-                        <tr>
-                            <th><input type="checkbox" id="selectAllAttendance"></th>
-                            <th class="member-number">#</th>
-                            <th>العضو</th>
-                            <th>الأسبوع</th>
-                            <th>Talanton</th>
-                            <th>تاريخ التسجيل</th>
-                        </tr>
-                    </thead>
-                    <tbody id="attendanceRecordsBody">
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="security">
-                <h2>إعدادات الأمان والتحقق</h2>
-                
-                <div class="security-settings">
-                    <h3>الإعدادات العامة</h3>
-                    <div class="controls">
-                        <label>تفعيل نظام التحقق: </label>
-                        <select id="securityLevel">
-                            <option value="none">لا يوجد تحقق</option>
-                            <option value="password">كلمة سر فقط</option>
-                            <option value="biometric">بصمة/وجه (إن أمكن)</option>
-                        </select>
-                        <button class="btn btn-primary" id="saveSecuritySettings">حفظ الإعدادات</button>
-                    </div>
-                </div>
-                
-                <div class="admin-password-form">
-                    <h3>تغيير كلمة سر الأدمن</h3>
-                    <div class="controls">
-                        <div class="password-field">
-                            <input type="password" id="currentAdminPassword" placeholder="كلمة السر الحالية">
-                            <span class="toggle-password" id="toggleCurrentAdminPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>عدد أيام التنبيه لعيد الميلاد:</label>
+                                <input type="number" id="birthdayAlertDays" value="7" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>الحد الأقصى للغياب المسموح:</label>
+                                <input type="number" id="maxAbsenceDays" value="3" min="1">
+                            </div>
                         </div>
-                        <div class="password-field">
-                            <input type="password" id="newAdminPassword" placeholder="كلمة السر الجديدة">
-                            <span class="toggle-password" id="toggleNewAdminPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <div class="password-field">
-                            <input type="password" id="confirmAdminPassword" placeholder="تأكيد كلمة السر">
-                            <span class="toggle-password" id="toggleConfirmAdminPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <button class="btn btn-warning" id="changeAdminPasswordBtn">تغيير كلمة السر</button>
+                        <button class="btn btn-success" onclick="saveSettings()">💾 حفظ الإعدادات</button>
                     </div>
-                </div>
-                
-                <div class="report-section">
-                    <h3>إعادة تعيين كلمات السر</h3>
-                    <div class="controls">
-                        <select id="resetMemberPassword">
-                            <option value="">-- اختر العضو --</option>
-                            <!-- سيتم تعبئة الخيارات من Firebase -->
-                        </select>
-                        <div class="password-field">
-                            <input type="password" id="newPasswordValue" placeholder="كلمة السر الجديدة">
-                            <span class="toggle-password" id="toggleNewPassword">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <button class="btn btn-warning" id="极简resetPasswordBtn">إعادة تعيين</button>
-                    </div>
-                </div>
-                
-                <极简div class="report-section">
-                    <h3>سجل محاولات التسجيل</h3>
-                    <table id="securityLogsTable">
-                        <thead>
-                            <tr>
-                                <th class="member-number">#</th>
-                                <th>العضو</th>
-                                <th>التاريخ</th>
-                                <th>النوع</th>
-                                <th>الحالة</极简th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- سيتم تعبئة البيانات من Firebase -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="tab-content" id="contests">
-                <h2>إدارة المسابقات <i class="fas fa-trophy emoji-icon"></i></h2>
-                <div class="controls">
-                    <select id="contestMember">
-                        <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="text" id="contestName" placeholder="اسم المسابقة">
-                    <select id="contestPoints">
-                        <option value="极简1">1 Talanton</option>
-                        <option value="2">2 Talanton</option>
-                        <option value="3">3 Talanton</option>
-                        <option value="4">4 Talanton</option>
-                        <option value="5">5 Talanton</option>
-                        <option value="6">6 Talanton</option>
-                        <option value="7">7 Talanton</option>
-                        <option value="8">8 Talanton</option>
-                        <option value="9">9 Talanton</option>
-                        <option value="10">10 Talanton</option>
-                    </select>
-                    <button class="btn btn-primary" id="addContestBtn">إضافة Talanton المسابقة</button>
-                </div>
-                <table id="contestsTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم العضو</th>
-                            <th>المسابقة</th>
-                            <th>Talanton</th>
-                            <th>التاريخ</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="birthdays">
-                <h2>أعياد الميلاد <i class="fas fa-birthday-cake emoji-icon"></i></h2>
-                
-                <div class="birthday-reminder" id="birthdayReminder">
-                    <h3><i class="fas fa-bell"></i> تذكير أعياد الميلاد القادمة</h3>
-                    <div id="upcomingBirthdays"></div>
-                </div>
-                
-                <div class="controls">
-                    <select id="birthdayMember">
-                        <option value="">-- اختر العضو --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="date" id="birthdayDate">
-                    <button class="btn btn-primary" id="addBirthdayBtn">إضافة عيد ميلاد</button>
-                </div>
-                
-                <h3>قائمة أعياد الميلاد</h3>
-                <table id="birthdaysTable">
-                    <thead>
-                        <tr>
-                            <极简th class="member-number">#</th>
-                            <th>اسم العضو</th>
-                            <th>تاريخ الميلاد</th>
-                            <th>الأيام المتبقية</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="events">
-                <h2>إدارة المناسبات <i class="fas fa-calendar-alt emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newEventName" placeholder="اسم المناسبة">
-                    <input type="date" id="newEventDate">
-                    <input type="text" id="newEventDescription" placeholder="وصف المناسبة">
-                    <button class="btn btn-primary" id="addEventBtn">إضافة مناسبة</button>
-                </div>
-                <table id="eventsTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم المناسبة</th>
-                            <th>التاريخ</th>
-                            <th>الوصف</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="tasks">
-                <h2>إدارة المهمات <i class="fas fa-tasks emoji-icon"></i></h2>
-                <div class="controls">
-                    <input type="text" id="newTaskName" placeholder="اسم المهمة">
-                    <select id="newTaskAssignee">
-                        <option value="">-- اختر المسؤول --</option>
-                        <!-- سيتم تعبئة الخيارات من Firebase -->
-                    </select>
-                    <input type="date" id="newTaskDeadline">
-                    <select极简 id="new极简TaskStatus">
-                        <option value="قيد التنفيذ">قيد التنفيذ</option>
-                        <option value="مكتملة">مكتملة</option>
-                        <option value="متأخرة">متأخرة</option>
-                    </select>
-                    <button class="btn btn-primary" id="addTaskBtn">إضافة مهمة</button>
-                </div>
-                <table id="tasksTable">
-                    <thead>
-                        <tr>
-                            <th class="member-number">#</th>
-                            <th>اسم المهمة</th>
-                            <th>المسؤول</th>
-                            <th>الموعد النهائي</th>
-                            <th>الحالة</th>
-                            <th>تعديل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- سيتم تعبئة البيانات من Firebase -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="tab-content" id="reports">
-                <h2>التقارير والإحصائيات</h2>
-                
-                <div class="report-section">
-                    <h3>📊 إحصائيات عامة</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-users"></i></div>
-                            <div class="stat-number" id="reportMembers">0</div>
-                            <div class="stat-label">إجمالي الأعضاء</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-calendar-week"></极简i></div>
-                            <div class="stat-number" id="reportWeeks">0</div>
-                            <div class="stat-label">عدد الأسابيع</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class极简="stat-icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="stat-number" id="reportAttendance">0</div>
-                            <div class="stat-label">إجمالي الحضور</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon"><i class="fas fa-coins talanton-icon"></i></div>
-                            <div class="stat-number" id="reportTalanton">0</div>
-                            <div class="stat-label">إجمالي Talanton</极简div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>📈 توزيع Talanton بين الأعضاء</h3>
-                    <div class="chart-container">
-                        <canvas id="talantonChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>📅 الحضور خلال الأسابيع</h3>
-                    <div class="chart-container">
-                        <canvas id="attendanceChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="report-section">
-                    <h3>🏆 الـ 10 الأوائل في Talanton</h3>
-                    <div class="top-members-list" id="topMembersList">
-                        <p>لا توجد بيانات حتى الآن</p>
-                    </div>
-                </div>
-                
-                <div class="export-buttons">
-                    <button class="btn btn-success" id="exportAttendanceBtn">
-                        <i class="fas fa-file-excel"></i> تصدير تقرير الحضور
-                    </button>
-                    <button class="btn btn-info" id="exportMembersBtn">
-                        <i class="fas fa-file-csv"></i> تصدير بيانات الأعضاء
-                    </button>
-                    <button class="btn btn-warning" id="exportTalantonBtn">
-                        <i class="fas fa-file-csv"></i> تصدير تقرير Talanton
-                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('adminLoginModal')">&times;</span>
+            <h2>🔐 دخول الأدمن</h2>
+            <div class="form-group">
+                <label>كلمة المرور:</label>
+                <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
+            </div>
+            <button class="btn" onclick="adminLogin()">دخول</button>
+        </div>
+    </div>
+
+    <!-- Member Attendance Modal -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('attendanceModal')">&times;</span>
+            <h2 id="attendanceTitle">تسجيل الحضور</h2>
+            
+            <div class="fingerprint-scanner">
+                <div class="fingerprint-icon" onclick="simulateFingerprint()">👆</div>
+                <p>اضغط على البصمة أو أدخل كلمة المرور</p>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>كلمة المرور الشخصية:</label>
+                    <input type="password" id="memberPassword" placeholder="أدخل كلمة المرور">
+                </div>
+                <div class="form-group">
+                    <label>نوع الحضور:</label>
+                    <select id="attendanceType">
+                        <option value="regular">حضور عادي</option>
+                        <option value="late">حضور متأخر</option>
+                        <option value="early">حضور مبكر</option>
+                        <option value="makeup">حضور تعويضي</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>ملاحظات (اختياري):</label>
+                <textarea id="attendanceNotes" rows="3" placeholder="أضف ملاحظات حول الحضور..."></textarea>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="markAttendance()">✅ تسجيل الحضور</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="addMemberModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addMemberModal')">&times;</span>
+            <h2>➕ إضافة عضو جديد</h2>
+            <form onsubmit="addMember(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم العضو:</label>
+                        <input type="text" id="memberName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور:</label>
+                        <input type="password" id="memberPass" value="1234" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>البريد الإلكتروني:</label>
+                        <input type="email" id="memberEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف:</label>
+                        <input type="tel" id="memberPhone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ الميلاد:</label>
+                        <input type="date" id="memberBirthday">
+                    </div>
+                    <div class="form-group">
+                        <label>رصيد Talanton الأولي:</label>
+                        <input type="number" id="initialTalanton" value="100" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الخدمة:</label>
+                        <select id="memberService">
+                            <option value="altar">خدمة المذبح</option>
+                            <option value="sunday_school">مدرسة الأحد</option>
+                            <option value="youth">خدمة الشباب</option>
+                            <option value="music">الألحان والموسيقى</option>
+                            <option value="media">الإعلام</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المنطقة:</label>
+                        <input type="text" id="memberArea" placeholder="المنطقة السكنية">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة العضو</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addProductModal')">&times;</span>
+            <h2>➕ إضافة منتج جديد</h2>
+            <form onsubmit="addProduct(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المنتج:</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>السعر (نقاط Talanton):</label>
+                        <input type="number" id="productPrice" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المخزون:</label>
+                        <input type="number" id="productStock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الفئة:</label>
+                        <select id="productCategory">
+                            <option value="books">كتب</option>
+                            <option value="accessories">إكسسوارات</option>
+                            <option value="certificates">شهادات</option>
+                            <option value="gifts">هدايا</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المنتج:</label>
+                    <textarea id="productDescription" rows="3" placeholder="وصف المنتج..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة المنتج</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addTaskModal')">&times;</span>
+            <h2>➕ إضافة مهمة جديدة</h2>
+            <form onsubmit="addTask(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عنوان المهمة:</label>
+                        <input type="text" id="taskTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>النقاط:</label>
+                        <input type="number" id="taskPoints" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نوع المهمة:</label>
+                        <select id="taskType">
+                            <option value="daily">يومية</option>
+                            <option value="weekly">أسبوعية</option>
+                            <option value="monthly">شهرية</option>
+                            <option value="special">خاصة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الأولوية:</label>
+                        <select id="taskPriority">
+                            <option value="low">منخفضة</option>
+                            <option value="medium">متوسطة</option>
+                            <option value="high">عالية</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المهمة:</label>
+                    <textarea id="taskDescription" rows="3" placeholder="وصف المهمة..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة المهمة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Occasion Modal -->
+    <div id="addOccasionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addOccasionModal')">&times;</span>
+            <h2>➕ إضافة مناسبة جديدة</h2>
+            <form onsubmit="addOccasion(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عنوان المناسبة:</label>
+                        <input type="text" id="occasionTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>التاريخ:</label>
+                        <input type="date" id="occasionDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الوقت:</label>
+                        <input type="time" id="occasionTime">
+                    </div>
+                    <div class="form-group">
+                        <label>المكان:</label>
+                        <input type="text" id="occasionLocation">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نقاط المشاركة:</label>
+                        <input type="number" id="occasionPoints" min="0" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المناسبة:</label>
+                        <select id="occasionType">
+                            <option value="celebration">احتفال</option>
+                            <option value="meeting">اجتماع</option>
+                            <option value="training">تدريب</option>
+                            <option value="service">خدمة</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المناسبة:</label>
+                    <textarea id="occasionDescription" rows="3" placeholder="وصف المناسبة..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة المناسبة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Week Modal -->
+    <div id="addWeekModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addWeekModal')">&times;</span>
+            <h2>➕ إضافة أسبوع جديد</h2>
+            <form onsubmit="addWeek(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عنوان الأسبوع:</label>
+                        <input type="text" id="weekTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الأسبوع:</label>
+                        <input type="number" id="weekNumber" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ البداية:</label>
+                        <input type="date" id="weekStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ النهاية:</label>
+                        <input type="date" id="weekEndDate" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نقاط المكافأة:</label>
+                        <input type="number" id="weekRewardPoints" min="0" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label>الحد الأدنى للحضور:</label>
+                        <input type="number" id="weekMinAttendance" min="1" value="5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف الأسبوع:</label>
+                    <textarea id="weekDescription" rows="3" placeholder="وصف الأسبوع..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">إضافة الأسبوع</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Occasion Talanton Modal -->
+    <div id="occasionTalantonModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('occasionTalantonModal')">&times;</span>
+            <h2 id="occasionTalantonTitle">إضافة نقاط للمناسبة</h2>
+            <div class="form-group">
+                <label>اختر الأعضاء:</label>
+                <div id="memberCheckboxes"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>عدد النقاط:</label>
+                    <input type="number" id="occasionTalantonPoints" min="1" value="10">
+                </div>
+                <div class="form-group">
+                    <label>السبب:</label>
+                    <input type="text" id="occasionTalantonReason" placeholder="سبب إضافة النقاط">
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="addTalantonToMembers()">إضافة النقاط</button>
+                <button class="btn btn-secondary" onclick="selectAllMembers()">تحديد الكل</button>
+                <button class="btn btn-secondary" onclick="unselectAllMembers()">إلغاء تحديد الكل</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyBCQIqdCsxSvh极简fYOs00AetoVWpFhj4XNAQ",
-          authDomain: "angels-attendance.firebaseapp.com",
-          databaseURL: "https://angels-attendance-default-rtdb.firebaseio.com",
-          projectId: "angels-attendance",
-          storageBucket: "angels-attendance.firebasestorage.app",
-          messagingSenderId: "157249026489",
-          appId: "1:157249026489:web:db2b420203bd81d9a19e68",
-          measurementId: "G-2YDPSFPQYT"
+        // Global Variables
+        let currentMember = null;
+        let currentOccasion = null;
+        let isAdmin = false;
+        let members = [];
+        let products = [];
+        let tasks = [];
+        let occasions = [];
+        let weeks = [];
+        let attendance = [];
+        let talantonHistory = [];
+        let settings = {
+            dailyAttendancePoints: 10,
+            taskCompletionPoints: 5,
+            birthdayAlertDays: 7,
+            maxAbsenceDays: 3
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        // الحصول على مرجع لقاعدة البيانات
-        const database = firebase.database();
+        // Storage keys
+        const STORAGE_KEYS = {
+            members: 'church_members_v14',
+            products: 'church_products_v14',
+            tasks: 'church_tasks_v14',
+            occasions: 'church_occasions_v14',
+            weeks: 'church_weeks_v14',
+            attendance: 'church_attendance_v14',
+            talantonHistory: 'church_talanton_history_v14',
+            settings: 'church_settings_v14',
+            initialized: 'church_system_initialized_v14'
+        };
 
-        // بيانات التطبيق
-        let members = [];
-        let weeks = [];
-        let attendanceRecords = [];
-        let talantonRecords = [];
-        let storeItems = [];
-        let contests = [];
-        let birthdays = [];
-        let events = [];
-        let tasks = [];
-        let securityLogs = [];
-        let currentUser = null;
-        let adminPassword = 'admin123'; // سيتم تحميلها من Firebase لاحقاً
-        let selectedStoreItem = null;
-        
-        // دالة لتحميل الأعضاء من Firebase
-        function loadMembersFromFirebase() {
-          const membersRef = database.ref('members');
+        // Member Levels System (Fixed - removed Infinity)
+        const memberLevels = [
+            { id: 1, name: 'مبتدئ', minPoints: 0, maxPoints: 100, color: 'level-beginner', icon: '🌱' },
+            { id: 2, name: 'متوسط', minPoints: 101, maxPoints: 300, color: 'level-intermediate', icon: '🌿' },
+            { id: 3, name: 'متقدم', minPoints: 301, maxPoints: 600, color: 'level-advanced', icon: '🌳' },
+            { id: 4, name: 'خبير', minPoints: 601, maxPoints: 1000, color: 'level-expert', icon: '⭐' },
+            { id: 5, name: 'أسطورة', minPoints: 1001, maxPoints: 99999, color: 'level-legend', icon: '👑' }
+        ];
 
-          membersRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            members = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                members.push({
-                  id: key,
-                  name: data[key].name,
-                  talanton: data[key].talanton || 0,
-                  password: data[key].password || "1234" // كلمة سر افتراضية
-                });
-              });
-            }
-
-            updateMembersTable();
-            updateSelectMember();
-            updateReports();
-            updateUserReports();
-            updateUserTalanton();
-          });
-        }
-
-        // دالة لتحميل الأسابيع من Firebase
-        function loadWeeksFromFirebase() {
-          const weeksRef = database.ref('weeks');
-
-          weeksRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            weeks = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                weeks.push({
-                  id: key,
-                  name: data[key].name,
-                  date: data[key].date || new Date().toISOString()
-                });
-              });
-              
-              // ترتيب الأسابيع حسب التاريخ
-              weeks.sort((a, b) => new Date(b.date) - new Date(a.date));
-            }
-
-            updateWeekSelects();
-            updateWeeksTable();
-            updateReports();
-          });
-        }
-
-        // دالة لتحميل الحضور من Firebase
-        function loadAttendanceFromFirebase() {
-          const attendanceRef = database.ref('attendance');
-
-          attendanceRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            attendanceRecords = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                attendanceRecords.push({
-                  id: key,
-                  memberId: data极简[key].memberId,
-                  weekId: data[key].weekId,
-                  date: data[key].date,
-                  talanton: data[key].talanton || 1
-                });
-              });
-            }
-
-            updateAttendanceTable();
-            updateAttendanceRecordsTable();
-            updateReports();
-            updateUserReports();
-            updateUserTalanton();
-          });
-        }
-
-        // دالة لتحميل سجلات Talanton من Firebase
-        function loadTalantonRecordsFromFirebase() {
-          const talantonRef = database.ref('talantonRecords');
-
-          talantonRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            talantonRecords = [];
-
-           极简 if (data) {
-              Object.keys(data).forEach((key) => {
-                talantonRecords.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  value: data[key].value,
-                  reason: data[key].reason,
-                  date: data[key].date
-                });
-              });
-            }
-
-            updateTalantonRecordsTable();
-            updateUserTalanton();
-          });
-        }
-
-        // دالة لتحميل منتجات المتجر من Firebase
-        function loadStoreItemsFromFirebase() {
-          const storeRef = database.ref('storeItems');
-
-          storeRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            storeItems = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                storeItems.push({
-                  id: key,
-                  name: data[key].name,
-                  price: data[key].price,
-                  quantity: data[key].quantity || 1,
-                  description: data[key].description || '',
-                  image: data[key].image || 'https://via.placeholder.com/150'
-                });
-              });
-            }
-
-            updateStoreItems();
-            updateStoreItemsTable();
-          });
-        }
-
-        // دالة لتحميل المسابقات من Firebase
-        function loadContestsFromFirebase() {
-          const contestsRef = database.ref('contests');
-
-          contestsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            contests = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                contests.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  contestName: data[key].contestName,
-                  talanton: data[key].talanton,
-                  date: data[key].date
-                });
-              });
-            }
-
-            updateContestsTable();
-          });
-        }
-
-        // دالة لتحميل أعياد الميلاد من Firebase
-        function loadBirthdaysFromFirebase() {
-          const birthdaysRef = database.ref('birthdays');
-
-          birthdaysRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            birthdays = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                birthdays.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  date: data[key].date
-                });
-              });
-            }
-
-            updateBirthdaysTable();
-            updateUpcomingBirthdays();
-          });
-        }
-
-        // دالة لتحميل المناسبات من Firebase
-        function loadEventsFromFirebase() {
-          const eventsRef = database.ref('events');
-
-          eventsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            events = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                events.push({
-                  id: key,
-                  name: data[key].name,
-                  date: data[key].date,
-                  description: data[key].description
-                });
-              });
-            }
-
-            updateEventsTable();
-          });
-        }
-
-        // دالة لتحميل المهمات من Firebase
-        function loadTasksFromFirebase() {
-          const tasksRef = database.ref('tasks');
-
-          tasksRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            tasks = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                tasks.push({
-                  id: key,
-                  name: data[key].name,
-                  assigneeId: data[key].assigneeId,
-                  assigneeName: data[key].assigneeName,
-                  deadline: data[key].deadline,
-                  status: data[key].status
-                });
-              });
-            }
-
-            updateTasksTable();
-          });
-        }
-
-        // دالة لتحميل سجلات الأمان من Firebase
-        function loadSecurityLogsFromFirebase() {
-          const securityLogsRef = database.ref('securityLogs');
-
-          securityLogsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            securityLogs = [];
-
-            if (data) {
-              Object.keys(data).forEach((key) => {
-                securityLogs.push({
-                  id: key,
-                  memberId: data[key].memberId,
-                  timestamp: data[key].timestamp,
-                  type: data[key].type,
-                  status: data[key].status
-                });
-              });
-            }
-
-            updateSecurityLogsTable();
-          });
-        }
-
-        // دالة لتحميل إعدادات النظام من Firebase
-        function loadSystemSettingsFromFirebase() {
-          const settingsRef = database.ref('systemSettings');
-
-          settingsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            
-            if (data && data.adminPassword) {
-              adminPassword = data.adminPassword;
-            }
-            
-            if (data && data.securityLevel) {
-              document.getElementById('securityLevel').value = data.securityLevel;
-            }
-          });
-        }
-
-        // تهيئة التطبيق
-        function initializeApp() {
-            setupEventListeners();
-            loadMembersFromFirebase();
-            loadWeeksFromFirebase();
-            loadAttendanceFromFirebase();
-            loadTalantonRecordsFromFirebase();
-            loadStoreItemsFromFirebase();
-            loadContestsFromFirebase();
-            loadBirthdaysFromFirebase();
-            loadEventsFromFirebase();
-            loadTasksFromFirebase();
-            loadSecurityLogs极简FromFirebase();
-            loadSystemSettingsFromFirebase();
-            updateReports();
-            setupTabListeners();
-            
-            // التحقق من حالة الاتصال بـ Firebase
-            const databaseRef = database.ref(".info/connected");
-            databaseRef.on("value", (snap) => {
-                if (snap.val() === true) {
-                    console.log("Connected to Firebase");
-                    showNotification("متصل بقاعدة البيانات", true);
-                } else {
-                    console.log("Disconnected from Firebase");
-                    showNotification("غير متصل بقاعدة البيانات", false);
-                }
-            });
-        }
-        
-        // إعداد مستمعي الأحداث
-        function setupEventListeners() {
-            // تسجيل دخول الأدمن
-            document.getElementById('adminLoginBtn').onclick = showAdminLogin;
-            document.getElementById('cancelAdminLogin').onclick = hideAdminLogin;
-            document.getElementById('confirmAdminLogin').onclick = confirmAdminLogin;
-            
-            // العودة إلى واجهة المستخدم
-            document.getElementById('backToUserView').onclick = backToUserView;
-            
-            // إدارة الأعضاء
-            document.getElementById('addMemberBtn').onclick = addMember;
-            
-            // البحث في الأعضاء
-            document.getElementById('searchMember').oninput = filterMembers;
-            
-            // البحث في المتجر
-            document.getElementById('searchStore').oninput = filterStoreItems;
-            
-            // إدارة المتجر
-            document.getElementById('addStoreItemBtn').onclick = addStoreItem;
-            document.getElementById('deleteSelectedStoreItems').onclick = deleteSelectedStoreItems;
-            document.getElementById('selectAllStoreItems').onchange = toggleSelectAllStoreItems;
-            document.getElementById('newItemImage').oninput = updateImagePreview;
-            
-            // شراء من المتجر
-            document.getElementById('cancelPurchase').onclick = hidePurchaseModal;
-            document.getElementById('confirmPurchase').onclick = confirmPurchase;
-            
-            // إدارة Talanton
-            document.getElementById('addTalantonBtn').onclick = addTalanton;
-            document.getElementById('subtractTalantonBtn').onclick = subtractTalanton;
-            document.getElementById('deleteSelectedTalanton').onclick = deleteSelectedTalanton;
-            document.getElementById('selectAllTalanton').onchange = toggleSelectAllTalanton;
-            
-            // إدارة الأسابيع
-            document.getElementById('addWeekBtn').onclick = addWeek;
-            
-            // إدارة الحضور
-            document.getElementById('markPresent').onclick = markAttendance;
-            document.getElementById('deleteAttendanceBtn').onclick = deleteAllWeekAttendance;
-            document.getElementById('deleteSelectedAttendance').onclick = deleteSelectedAttendance;
-            document.getElementById('selectAllAttendance').onchange = toggleSelectAllAttendance;
-            document.getElementById('weekSelect').onchange = updateAttendanceTable;
-            document.getElementById('selectMember').onchange = handleMemberSelection;
-            
-            // التحقق بالبصمة
-            document.getElementById('biometricBtn').onclick = startBiometricVerification;
-            document.getElementById('verifyPasswordBtn').onclick = verifyPassword;
-            
-            // إدارة الأمان
-            document.getElementById('saveSecuritySettings').onclick = saveSecuritySettings;
-            document.getElementById('resetPasswordBtn').onclick = resetPasswordFromAdmin;
-            document.getElementById('changeAdminPasswordBtn').onclick = changeAdminPassword;
-            
-            // إدارة المسابقات
-            document.getElementById('addContestBtn').onclick = addContest;
-            
-            // إدارة أعياد الميلاد
-            document.getElementById('addBirthdayBtn').onclick = addBirthday;
-            
-            // إدارة المناسبات
-            document.getElementById('addEventBtn').onclick = addEvent;
-            
-            // إدارة المهمات
-            document.getElementById('addTaskBtn').onclick = addTask;
-            
-            // تصدير البيانات
-            document.getElementById('exportDataBtn').onclick = addTask;
-                       // تصدير البيانات
-            document.getElementById('exportDataBtn').onclick = exportData;
-            document.getElementById('backupDataBtn').onclick = backupData;
-            document.getElementById('exportAttendanceBtn').onclick = exportAttendanceReport;
-            document.getElementById('exportMembersBtn').onclick = exportMembersReport;
-            document.getElementById('exportTalantonBtn').onclick = exportTalantonReport;
-            
-            // إضافة مستمعي الأحداث للعناصر الديناميكية
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('editMember')) {
-                    const id = e.target.dataset.id;
-                    editMember(id);
-                }
-                if (e.target.classList.contains('deleteMember')) {
-                    const id = e.target.dataset.id;
-                    deleteMember(id);
-                }
-                if (e.target.classList.contains('resetTalanton')) {
-                    const id = e.target.dataset.id;
-                    const name = e.target.dataset.name;
-                    resetMemberTalanton(id, name);
-                }
-                if (e.target.classList.contains('editWeek')) {
-                    const id = e.target.dataset.id;
-                    editWeek(id);
-                }
-                if (e.target.classList.contains('deleteWeek')) {
-                    const id = e.target.dataset.id;
-                    deleteWeek(id);
-                }
-                if (e.target.classList.contains('editStoreItem')) {
-                    const id = e.target.dataset.id;
-                    editStoreItem(id);
-                }
-                if (e.target.classList.contains('deleteStoreItem')) {
-                    const id = e.target.dataset.id;
-                    deleteStoreItem(id);
-                }
-                if (e.target.classList.contains('buy-item')) {
-                    const id = e.target.dataset.id;
-                    showPurchaseModal(id);
-                }
-                if (e.target.classList.contains('deleteContest')) {
-                    const id = e.target.dataset.id;
-                    deleteContest(id);
-                }
-                if (e.target.classList.contains('editBirthday')) {
-                    const id = e.target.dataset.id;
-                    editBirthday(id);
-                }
-                if (e.target.classList.contains('deleteBirthday')) {
-                    const id = e.target.dataset.id;
-                    deleteBirthday(id);
-                }
-                if (e.target.classList.contains('editEvent')) {
-                    const id = e.target.dataset.id;
-                    editEvent(id);
-                }
-                if (e.target.classList.contains('deleteEvent')) {
-                    const id = e.target.dataset.id;
-                    deleteEvent(id);
-                }
-                if (e.target.classList.contains('editTask')) {
-                    const id = e.target.dataset.id;
-                    editTask(id);
-                }
-                if (e.target.classList.contains('deleteTask')) {
-                    const id = e.target.dataset.id;
-                    deleteTask(id);
-                }
-            });
-
-            // إظهار/إخفاء كلمات السر
-            setupPasswordVisibilityToggles();
-            
-            // إدارة التبويبات
-            setupTabListeners();
-
-            console.log("✅ جميع الأزرار والمستمعين تم تهيئتهم بنجاح");
-        }
-        
-        // باقي الدوال والوظائف تبقى كما هي دون تغيير
-        // [يتم وضع جميع الدوال الأخرى هنا]
-        
-        // بدء التطبيق عند تحميل الصفحة
+        // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("🚀 جاري تهيئة التطبيق...");
-            initializeApp();
+            console.log('تم تحميل النظام النهائي المُصلح...');
+            loadDataFromLocalStorage();
+            updateUI();
+            checkBirthdays();
+            initializeCharts();
+            loadTodayOccasions();
+            loadMemberDropdown();
+            loadStoreDisplay();
+            
+            // Load theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) {
+                themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+            }
+            
+            showNotification('تم تحميل النظام النهائي المُصلح بنجاح! 🎉', 'success');
         });
+
+        // Data Management Functions
+        function loadDataFromLocalStorage() {
+            try {
+                const isInitialized = localStorage.getItem(STORAGE_KEYS.initialized);
+                
+                const storedMembers = localStorage.getItem(STORAGE_KEYS.members);
+                const storedProducts = localStorage.getItem(STORAGE_KEYS.products);
+                const storedTasks = localStorage.getItem(STORAGE_KEYS.tasks);
+                const storedOccasions = localStorage.getItem(STORAGE_KEYS.occasions);
+                const storedWeeks = localStorage.getItem(STORAGE_KEYS.weeks);
+                const storedAttendance = localStorage.getItem(STORAGE_KEYS.attendance);
+                const storedTalantonHistory = localStorage.getItem(STORAGE_KEYS.talantonHistory);
+                const storedSettings = localStorage.getItem(STORAGE_KEYS.settings);
+
+                members = storedMembers ? JSON.parse(storedMembers) : [];
+                products = storedProducts ? JSON.parse(storedProducts) : [];
+                tasks = storedTasks ? JSON.parse(storedTasks) : [];
+                occasions = storedOccasions ? JSON.parse(storedOccasions) : [];
+                weeks = storedWeeks ? JSON.parse(storedWeeks) : [];
+                attendance = storedAttendance ? JSON.parse(storedAttendance) : [];
+                talantonHistory = storedTalantonHistory ? JSON.parse(storedTalantonHistory) : [];
+                settings = storedSettings ? JSON.parse(storedSettings) : settings;
+
+                if (!isInitialized) {
+                    console.log('النظام غير مُهيأ - إنشاء بيانات تجريبية...');
+                    initializeDemoData();
+                    localStorage.setItem(STORAGE_KEYS.initialized, 'true');
+                } else {
+                    console.log('تم تحميل البيانات الموجودة:', { 
+                        members: members.length, 
+                        products: products.length,
+                        tasks: tasks.length,
+                        occasions: occasions.length,
+                        weeks: weeks.length,
+                        attendance: attendance.length
+                    });
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+                showNotification('خطأ في تحميل البيانات - سيتم إنشاء بيانات جديدة', 'warning');
+                initializeDemoData();
+                localStorage.setItem(STORAGE_KEYS.initialized, 'true');
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.members, JSON.stringify(members));
+                localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(products));
+                localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
+                localStorage.setItem(STORAGE_KEYS.occasions, JSON.stringify(occasions));
+                localStorage.setItem(STORAGE_KEYS.weeks, JSON.stringify(weeks));
+                localStorage.setItem(STORAGE_KEYS.attendance, JSON.stringify(attendance));
+                localStorage.setItem(STORAGE_KEYS.talantonHistory, JSON.stringify(talantonHistory));
+                localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+                console.log('تم حفظ البيانات بنجاح');
+            } catch (error) {
+                console.error('خطأ في حفظ البيانات:', error);
+                showNotification('خطأ في حفظ البيانات', 'error');
+            }
+        }
+
+        function initializeDemoData() {
+            // Initialize demo members (sorted alphabetically with sequential numbers)
+            members = [
+                { 
+                    id: 1, sequentialNumber: 1, name: 'أحمد محمد الشماس', password: '1234', 
+                    email: 'ahmed@church.com', phone: '01012345678',
+                    birthday: '1995-03-15', talanton: 450, joinDate: '2024-01-15',
+                    service: 'altar', area: 'المعادي', status: 'active'
+                },
+                { 
+                    id: 9, sequentialNumber: 2, name: 'علي حسام المبتدئ', password: '1234', 
+                    email: 'ali@church.com', phone: '01890123456',
+                    birthday: '2000-06-14', talanton: 165, joinDate: '2024-02-12',
+                    service: 'altar', area: 'المطرية', status: 'active'
+                },
+                { 
+                    id: 5, sequentialNumber: 3, name: 'عبدالله سالم المصور', password: '1234', 
+                    email: 'abdullah@church.com', phone: '01456789012',
+                    birthday: '1996-09-12', talanton: 395, joinDate: '2024-02-15',
+                    service: 'media', area: 'المهندسين', status: 'active'
+                },
+                { 
+                    id: 4, sequentialNumber: 4, name: 'عائشة أحمد المرنمة', password: '1234', 
+                    email: 'aisha@church.com', phone: '01345678901',
+                    birthday: '1994-05-30', talanton: 575, joinDate: '2024-02-10',
+                    service: 'music', area: 'الدقي', status: 'active'
+                },
+                { 
+                    id: 2, sequentialNumber: 5, name: 'فاطمة علي المعلمة', password: '1234', 
+                    email: 'fatima@church.com', phone: '01123456789',
+                    birthday: '1992-07-22', talanton: 620, joinDate: '2024-01-20',
+                    service: 'sunday_school', area: 'مصر الجديدة', status: 'active'
+                },
+                { 
+                    id: 3, sequentialNumber: 6, name: 'محمد حسن الخادم', password: '1234', 
+                    email: 'mohamed@church.com', phone: '01234567890',
+                    birthday: '1998-11-08', talanton: 380, joinDate: '2024-02-01',
+                    service: 'youth', area: 'الزمالك', status: 'active'
+                },
+                { 
+                    id: 6, sequentialNumber: 7, name: 'مريم خالد الخادمة', password: '1234', 
+                    email: 'maryam@church.com', phone: '01567890123',
+                    birthday: '1993-12-25', talanton: 740, joinDate: '2024-01-25',
+                    service: 'sunday_school', area: 'مدينة نصر', status: 'active'
+                },
+                { 
+                    id: 10, sequentialNumber: 8, name: 'نور الهدى الخادمة', password: '1234', 
+                    email: 'nour@church.com', phone: '01901234567',
+                    birthday: '1997-10-27', talanton: 505, joinDate: '2024-01-18',
+                    service: 'sunday_school', area: 'مصر القديمة', status: 'active'
+                },
+                { 
+                    id: 7, sequentialNumber: 9, name: 'يوسف عمر الشاب', password: '1234', 
+                    email: 'youssef@church.com', phone: '01678901234',
+                    birthday: '1999-04-18', talanton: 310, joinDate: '2024-02-05',
+                    service: 'youth', area: 'العباسية', status: 'active'
+                },
+                { 
+                    id: 8, sequentialNumber: 10, name: 'زينب محمود الأم', password: '1234', 
+                    email: 'zainab@church.com', phone: '01789012345',
+                    birthday: '1990-08-03', talanton: 485, joinDate: '2024-01-30',
+                    service: 'other', area: 'شبرا', status: 'active'
+                }
+            ];
+
+            // Sort members alphabetically
+            members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+            // Initialize products
+            products = [
+                { 
+                    id: 1, name: 'كتاب الأجبية المقدسة', price: 80, 
+                    description: 'كتاب الأجبية الكامل مع الألحان', 
+                    category: 'books', stock: 15
+                },
+                { 
+                    id: 2, name: 'مسبحة خشبية منحوتة', price: 45, 
+                    description: 'مسبحة من الخشب الطبيعي المنحوت يدوياً', 
+                    category: 'accessories', stock: 25
+                },
+                { 
+                    id: 3, name: 'صليب ذهبي صغير', price: 120, 
+                    description: 'صليب مطلي بالذهب للارتداء', 
+                    category: 'accessories', stock: 8
+                },
+                { 
+                    id: 4, name: 'شهادة تقدير مطبوعة', price: 150, 
+                    description: 'شهادة تقدير رسمية مطبوعة ومؤطرة', 
+                    category: 'certificates', stock: 20
+                },
+                { 
+                    id: 5, name: 'قلم فاخر محفور', price: 60, 
+                    description: 'قلم فاخر محفور عليه اسم الكنيسة', 
+                    category: 'gifts', stock: 30
+                },
+                { 
+                    id: 6, name: 'دفتر ملاحظات جلدي', price: 40, 
+                    description: 'دفتر ملاحظات بغلاف جلدي أنيق', 
+                    category: 'gifts', stock: 35
+                }
+            ];
+
+            // Initialize tasks
+            tasks = [
+                {
+                    id: 1, title: 'حضور القداس الإلهي', points: 15,
+                    type: 'weekly', priority: 'high', 
+                    startDate: '2024-01-01', endDate: '2024-12-31',
+                    description: 'المشاركة في القداس الإلهي كل أسبوع',
+                    assignees: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], status: 'active'
+                },
+                {
+                    id: 2, title: 'تحضير درس مدرسة الأحد', points: 10,
+                    type: 'weekly', priority: 'medium',
+                    startDate: '2024-01-01', endDate: '2024-12-31',
+                    description: 'تحضير وتقديم درس في مدرسة الأحد',
+                    assignees: [2, 6, 10], status: 'active'
+                },
+                {
+                    id: 3, title: 'خدمة المذبح', points: 12,
+                    type: 'weekly', priority: 'high',
+                    startDate: '2024-01-01', endDate: '2024-12-31',
+                    description: 'المساعدة في خدمة المذبح أثناء القداس',
+                    assignees: [1, 9], status: 'active'
+                }
+            ];
+
+            // Initialize occasions (replacing events)
+            occasions = [
+                {
+                    id: 1, title: 'احتفال عيد الميلاد المجيد', type: 'celebration',
+                    date: '2024-12-25', time: '18:00', location: 'الكنيسة الكبرى',
+                    points: 25, description: 'احتفال كبير بمناسبة عيد الميلاد المجيد'
+                },
+                {
+                    id: 2, title: 'اجتماع الخدام الشهري', type: 'meeting',
+                    date: '2024-03-15', time: '19:00', location: 'قاعة الاجتماعات',
+                    points: 10, description: 'الاجتماع الشهري لجميع الخدام'
+                },
+                {
+                    id: 3, title: 'دورة تدريبية للخدام الجدد', type: 'training',
+                    date: '2024-03-20', time: '16:00', location: 'قاعة التدريب',
+                    points: 20, description: 'دورة تدريبية شاملة للخدام الجدد'
+                }
+            ];
+
+            // Initialize weeks
+            weeks = [
+                {
+                    id: 1, title: 'أسبوع الاستعداد', number: 1,
+                    startDate: '2024-03-01', endDate: '2024-03-07',
+                    rewardPoints: 50, minAttendance: 5,
+                    description: 'أسبوع الاستعداد للصوم الكبير'
+                },
+                {
+                    id: 2, title: 'الأسبوع الأول من الصوم', number: 2,
+                    startDate: '2024-03-08', endDate: '2024-03-14',
+                    rewardPoints: 60, minAttendance: 6,
+                    description: 'بداية رحلة الصوم المقدس'
+                }
+            ];
+
+            console.log('تم إنشاء البيانات التجريبية بنجاح');
+            saveData();
+        }
+
+        // Theme Management
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            const themeIcon = document.getElementById('themeIcon');
+            
+            body.setAttribute('data-theme', newTheme);
+            if (themeIcon) themeIcon.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            localStorage.setItem('theme', newTheme);
+            
+            showNotification(`تم تفعيل الوضع ${newTheme === 'light' ? 'النهاري' : 'الليلي'}`, 'success');
+        }
+
+        // Update UI function
+        function updateUI() {
+            updateStats();
+            checkBirthdays();
+            loadTodayOccasions();
+            loadMemberDropdown();
+            loadStoreDisplay();
+            if (isAdmin) {
+                loadAdminData();
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalMembersElement = document.getElementById('totalMembers');
+            const presentTodayElement = document.getElementById('presentToday');
+            const totalTalantonElement = document.getElementById('totalTalanton');
+            const weeklyAttendanceElement = document.getElementById('weeklyAttendance');
+
+            if (totalMembersElement) totalMembersElement.textContent = members.length;
+
+            const today = new Date().toISOString().split('T')[0];
+            const presentToday = attendance.filter(a => a.date === today).length;
+            if (presentTodayElement) presentTodayElement.textContent = presentToday;
+
+            const totalTalanton = members.reduce((sum, member) => sum + member.talanton, 0);
+            if (totalTalantonElement) totalTalantonElement.textContent = totalTalanton;
+
+            // Calculate weekly attendance
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - 7);
+            const weekAttendance = attendance.filter(a => new Date(a.date) >= weekStart);
+            const weeklyRate = members.length > 0 ? Math.round((weekAttendance.length / (members.length * 7)) * 100) : 0;
+            if (weeklyAttendanceElement) weeklyAttendanceElement.textContent = weeklyRate + '%';
+        }
+
+        // Load member dropdown with sequential numbers
+        function loadMemberDropdown() {
+            const dropdown = document.getElementById('memberDropdown');
+            if (!dropdown) return;
+            
+            // Sort members alphabetically
+            const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            
+            dropdown.innerHTML = '<option value="">اختر عضو...</option>';
+            sortedMembers.forEach(member => {
+                const level = calculateLevel(member.talanton);
+                dropdown.innerHTML += `
+                    <option value="${member.id}">
+                        ${member.sequentialNumber}. ${member.name} - ${level.icon} ${level.name} (${member.talanton} نقطة)
+                    </option>
+                `;
+            });
+        }
+
+        // Load store display for main interface
+        function loadStoreDisplay() {
+            const storeDisplay = document.getElementById('storeDisplay');
+            if (!storeDisplay) return;
+            
+            storeDisplay.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <h4 style="color: var(--primary-color); margin-bottom: 10px;">${product.name}</h4>
+                    <p style="margin-bottom: 15px; opacity: 0.8;">${product.description}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span class="product-price">💰 ${product.price} نقطة</span>
+                        <span class="product-stock">📦 ${product.stock} متوفر</span>
+                    </div>
+                    <div style="padding: 10px; background: var(--surface-color); border-radius: 10px; text-align: center; font-size: 0.9rem; opacity: 0.7;">
+                        للشراء: قم بتسجيل الدخول كعضو
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Quick attendance by sequential number
+        function quickAttendanceByNumber() {
+            const sequentialNumber = parseInt(document.getElementById('quickAttendanceInput').value);
+            
+            if (!sequentialNumber || sequentialNumber < 1) {
+                showNotification('يرجى إدخال رقم صحيح!', 'warning');
+                return;
+            }
+            
+            const member = members.find(m => m.sequentialNumber === sequentialNumber);
+            if (member) {
+                currentMember = member;
+                document.getElementById('memberDropdown').value = member.id;
+                displaySelectedMember();
+                showAttendanceModal();
+                document.getElementById('quickAttendanceInput').value = '';
+            } else {
+                showNotification(`لا يوجد عضو برقم ${sequentialNumber}!`, 'error');
+            }
+        }
+
+        // Select member from dropdown
+        function selectMemberFromDropdown() {
+            const dropdown = document.getElementById('memberDropdown');
+            const memberId = parseInt(dropdown.value);
+            
+            if (memberId) {
+                currentMember = members.find(m => m.id === memberId);
+                if (currentMember) {
+                    displaySelectedMember();
+                }
+            } else {
+                document.getElementById('memberInfoDisplay').classList.remove('active');
+            }
+        }
+
+        // Display selected member
+        function displaySelectedMember() {
+            const infoDisplay = document.getElementById('memberInfoDisplay');
+            const selectedMemberInfo = document.getElementById('selectedMemberInfo');
+            
+            if (!currentMember) return;
+            
+            const level = calculateLevel(currentMember.talanton);
+            const today = new Date().toISOString().split('T')[0];
+            const todayAttendance = attendance.find(a => 
+                a.memberId === currentMember.id && a.date === today
+            );
+            
+            let statusClass = 'status-absent';
+            let statusText = 'غائب اليوم';
+            
+            if (todayAttendance) {
+                statusClass = todayAttendance.type === 'late' ? 'status-late' : 'status-present';
+                statusText = todayAttendance.type === 'late' ? 'حاضر متأخر' : 'حاضر اليوم';
+            }
+
+            selectedMemberInfo.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="color: var(--primary-color); margin-bottom: 10px;">
+                            ${currentMember.sequentialNumber}. ${currentMember.name}
+                        </h3>
+                        <div class="level-badge ${level.color}">
+                            ${level.icon} ${level.name}
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; color: var(--warning-color); font-weight: bold;">💰 ${currentMember.talanton}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">نقاط Talanton</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div><strong>📱 الهاتف:</strong> ${currentMember.phone || 'غير محدد'}</div>
+                    <div><strong>🏠 المنطقة:</strong> ${currentMember.area || 'غير محدد'}</div>
+                    <div><strong>⛪ الخدمة:</strong> ${getServiceName(currentMember.service)}</div>
+                    <div><strong>📅 حالة اليوم:</strong> <span class="${statusClass}">${statusText}</span></div>
+                </div>
+            `;
+            
+            infoDisplay.classList.add('active');
+        }
+
+        // Show attendance modal
+        function showAttendanceModal() {
+            if (!currentMember) {
+                showNotification('يرجى اختيار عضو أولاً', 'warning');
+                return;
+            }
+            
+            const attendanceTitle = document.getElementById('attendanceTitle');
+            if (attendanceTitle) {
+                attendanceTitle.textContent = `تسجيل حضور: ${currentMember.name}`;
+            }
+            showModal('attendanceModal');
+        }
+
+        // Calculate level (Fixed function)
+        function calculateLevel(points) {
+            for (let i = memberLevels.length - 1; i >= 0; i--) {
+                if (points >= memberLevels[i].minPoints) {
+                    return memberLevels[i];
+                }
+            }
+            return memberLevels[0]; // Default to first level if no match
+        }
+
+        // Simulate fingerprint
+        function simulateFingerprint() {
+            const icon = document.querySelector('.fingerprint-icon');
+            if (icon) {
+                icon.style.color = 'var(--success-color)';
+                
+                setTimeout(() => {
+                    showNotification('تم التحقق من البصمة بنجاح!', 'success');
+                    markAttendance();
+                }, 1000);
+            }
+        }
+
+        // Mark attendance
+        function markAttendance() {
+            if (!currentMember) {
+                showNotification('خطأ: لم يتم اختيار عضو', 'error');
+                return;
+            }
+
+            const password = document.getElementById('memberPassword').value;
+            const attendanceType = document.getElementById('attendanceType').value;
+            const notes = document.getElementById('attendanceNotes').value;
+            
+            if (password && password !== currentMember.password) {
+                showNotification('كلمة المرور غير صحيحة!', 'error');
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const existingAttendance = attendance.find(a => 
+                a.memberId === currentMember.id && a.date === today
+            );
+
+            if (existingAttendance) {
+                showNotification('تم تسجيل حضورك اليوم مسبقاً!', 'warning');
+                return;
+            }
+
+            // Calculate points based on attendance type
+            let attendanceReward = settings.dailyAttendancePoints;
+            if (attendanceType === 'early') attendanceReward += 5;
+            else if (attendanceType === 'late') attendanceReward -= 3;
+            else if (attendanceType === 'makeup') attendanceReward = Math.floor(attendanceReward * 0.7);
+
+            // Add attendance record
+            attendance.push({
+                id: Date.now(),
+                memberId: currentMember.id,
+                memberName: currentMember.name,
+                date: today,
+                type: attendanceType,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            });
+
+            // Add Talanton reward
+            currentMember.talanton += attendanceReward;
+            const memberIndex = members.findIndex(m => m.id === currentMember.id);
+            if (memberIndex !== -1) {
+                members[memberIndex] = currentMember;
+            }
+
+            // Add to Talanton history
+            talantonHistory.push({
+                id: Date.now() + 1,
+                memberId: currentMember.id,
+                memberName: currentMember.name,
+                amount: attendanceReward,
+                type: 'add',
+                reason: `حضور ${attendanceType === 'regular' ? 'عادي' : 
+                        attendanceType === 'early' ? 'مبكر' :
+                        attendanceType === 'late' ? 'متأخر' : 'تعويضي'}`,
+                date: today,
+                timestamp: new Date().toISOString()
+            });
+
+            saveData();
+
+            showNotification(`تم تسجيل حضورك بنجاح! حصلت على ${attendanceReward} نقاط Talanton`, 'success');
+            closeModal('attendanceModal');
+            updateUI();
+            displaySelectedMember();
+            
+            // Reset form
+            resetAttendanceForm();
+        }
+
+        function resetAttendanceForm() {
+            const memberPasswordInput = document.getElementById('memberPassword');
+            const attendanceTypeSelect = document.getElementById('attendanceType');
+            const attendanceNotesTextarea = document.getElementById('attendanceNotes');
+            
+            if (memberPasswordInput) memberPasswordInput.value = '';
+            if (attendanceTypeSelect) attendanceTypeSelect.value = 'regular';
+            if (attendanceNotesTextarea) attendanceNotesTextarea.value = '';
+            
+            const fingerprintIcon = document.querySelector('.fingerprint-icon');
+            if (fingerprintIcon) {
+                fingerprintIcon.style.color = 'var(--primary-color)';
+            }
+        }
+
+        // Show member profile
+        function showMemberProfile() {
+            if (!currentMember) return;
+
+            const memberAttendance = attendance.filter(a => a.memberId === currentMember.id);
+            const memberTalantonHistory = talantonHistory.filter(t => t.memberId === currentMember.id);
+            const level = calculateLevel(currentMember.talanton);
+
+            // Calculate attendance rate
+            const last30Days = new Date();
+            last30Days.setDate(last30Days.getDate() - 30);
+            const recentAttendance = memberAttendance.filter(a => 
+                new Date(a.date) >= last30Days
+            ).length;
+            const attendanceRate = Math.round((recentAttendance / 30) * 100);
+
+            const profileInfo = `
+ملف ${currentMember.name} الشخصي:
+
+📊 الإحصائيات:
+• الرقم التسلسلي: ${currentMember.sequentialNumber}
+• رصيد Talanton: ${currentMember.talanton}
+• المستوى: ${level.name} ${level.icon}
+• أيام الحضور الكلي: ${memberAttendance.length}
+• معدل الحضور (30 يوم): ${attendanceRate}%
+
+📧 معلومات الاتصال:
+• البريد: ${currentMember.email || 'غير محدد'}
+• الهاتف: ${currentMember.phone || 'غير محدد'}
+• المنطقة: ${currentMember.area || 'غير محددة'}
+
+⛪ معلومات الخدمة:
+• الخدمة: ${getServiceName(currentMember.service)}
+• تاريخ الانضمام: ${new Date(currentMember.joinDate).toLocaleDateString('ar')}
+• عيد الميلاد: ${currentMember.birthday ? new Date(currentMember.birthday).toLocaleDateString('ar') : 'غير محدد'}
+
+💰 آخر العمليات المالية:
+${memberTalantonHistory.slice(-5).reverse().map(t => 
+    `• ${t.type === 'add' ? '+' : '-'}${t.amount} نقطة - ${t.reason}`
+).join('\n')}
+            `;
+
+            alert(profileInfo);
+        }
+
+        function getServiceName(service) {
+            const services = {
+                altar: 'خدمة المذبح',
+                sunday_school: 'مدرسة الأحد',
+                youth: 'خدمة الشباب',
+                music: 'الألحان والموسيقى',
+                media: 'الإعلام',
+                other: 'أخرى'
+            };
+            return services[service] || 'غير محدد';
+        }
+
+        // Birthday checking system
+        function checkBirthdays() {
+            const today = new Date();
+            const alertContainer = document.getElementById('birthdayAlerts');
+            if (!alertContainer) return;
+
+            const upcomingBirthdays = members.filter(member => {
+                if (!member.birthday) return false;
+                
+                const birthday = new Date(member.birthday);
+                const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+                
+                const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
+                return daysDiff >= 0 && daysDiff <= settings.birthdayAlertDays;
+            });
+
+            if (upcomingBirthdays.length > 0) {
+                alertContainer.innerHTML = upcomingBirthdays.map(member => {
+                    const birthday = new Date(member.birthday);
+                    const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+                    const daysDiff = Math.ceil((thisYearBirthday - today) / (1000 * 60 * 60 * 24));
+                    
+                    return `
+                        <div class="birthday-alert">
+                            🎂 ${daysDiff === 0 ? 'اليوم عيد ميلاد' : `خلال ${daysDiff} أيام عيد ميلاد`} 
+                            <strong>${member.name}</strong>
+                            ${daysDiff === 0 ? '🎉' : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                alertContainer.innerHTML = '';
+            }
+        }
+
+        // Load today's occasions
+        function loadTodayOccasions() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayOccasionsContainer = document.getElementById('todayEvents');
+            if (!todayOccasionsContainer) return;
+
+            const todayOccasions = occasions.filter(occasion => occasion.date === today);
+            
+            if (todayOccasions.length > 0) {
+                todayOccasionsContainer.innerHTML = todayOccasions.map(occasion => `
+                    <div style="background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+                        <div style="color: var(--primary-color); font-weight: bold;">${occasion.time || 'طوال اليوم'}</div>
+                        <h4>${occasion.title}</h4>
+                        <p>${occasion.description}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                            <span>📍 ${occasion.location || 'غير محدد'}</span>
+                            <span style="color: var(--success-color); font-weight: bold;">
+                                💰 ${occasion.points} نقطة
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                todayOccasionsContainer.innerHTML = '<p>لا توجد مناسبات مجدولة لهذا اليوم</p>';
+            }
+        }
+
+        // Charts initialization
+        function initializeCharts() {
+            const ctx = document.getElementById('attendanceChart');
+            if (!ctx) return;
+
+            // Prepare data for the last 7 days
+            const last7Days = [];
+            const attendanceCounts = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = date.toLocaleDateString('ar', { weekday: 'short' });
+                
+                last7Days.push(dayName);
+                attendanceCounts.push(attendance.filter(a => a.date === dateStr).length);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'عدد الحاضرين',
+                        data: attendanceCounts,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'إحصائيات الحضور - آخر 7 أيام'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // QR Code functionality
+        function generateQRCodes() {
+            showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
+            
+            let qrInfo = 'QR كودات الأعضاء:\n\n';
+            members.forEach(member => {
+                qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
+            });
+            
+            alert(qrInfo + '\nيمكن استخدام الرقم التسلسلي للحضور السريع');
+            showNotification('تم إنشاء QR كودات بنجاح!', 'success');
+        }
+
+        // Admin Functions
+        function showAdminLogin() {
+            showModal('adminLoginModal');
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === 'admin123' || password === 'admin' || password === 'superadmin2024') {
+                isAdmin = true;
+                const mainContent = document.getElementById('mainContent');
+                const adminPanel = document.getElementById('adminPanel');
+                
+                if (mainContent) mainContent.style.display = 'none';
+                if (adminPanel) adminPanel.style.display = 'block';
+                
+                closeModal('adminLoginModal');
+                loadAdminData();
+                showNotification('مرحباً بك في لوحة تحكم الأدمن! 👑', 'success');
+            } else {
+                showNotification('كلمة مرور خاطئة!', 'error');
+            }
+            
+            // Reset form
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function logoutAdmin() {
+            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+                isAdmin = false;
+                currentMember = null;
+                const mainContent = document.getElementById('mainContent');
+                const adminPanel = document.getElementById('adminPanel');
+                
+                if (mainContent) mainContent.style.display = 'block';
+                if (adminPanel) adminPanel.style.display = 'none';
+                
+                showNotification('تم تسجيل الخروج بنجاح', 'success');
+                updateUI();
+            }
+        }
+
+        function loadAdminData() {
+            loadMembersTable();
+            loadProductsTable();
+            loadTasksTable();
+            loadOccasionsTable();
+            loadWeeksTable();
+            loadReportsData();
+        }
+
+        function loadMembersTable() {
+            const table = document.getElementById('membersTable');
+            if (!table) return;
+            
+            // Sort members alphabetically
+            const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم التسلسلي</th>
+                            <th>الاسم</th>
+                            <th>البريد</th>
+                            <th>الهاتف</th>
+                            <th>Talanton</th>
+                            <th>المستوى</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedMembers.map(member => {
+                            const level = calculateLevel(member.talanton);
+                            return `
+                                <tr>
+                                    <td>${member.sequentialNumber}</td>
+                                    <td>${member.name}</td>
+                                    <td>${member.email || 'غير محدد'}</td>
+                                    <td>${member.phone || 'غير محدد'}</td>
+                                    <td>${member.talanton}</td>
+                                    <td><span class="level-badge ${level.color}">${level.icon} ${level.name}</span></td>
+                                    <td>
+                                        <button class="btn btn-warning" onclick="editMember(${member.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                        <button class="btn btn-danger" onclick="deleteMember(${member.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadProductsTable() {
+            const table = document.getElementById('productsTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>اسم المنتج</th>
+                            <th>السعر</th>
+                            <th>المخزون</th>
+                            <th>الفئة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(product => `
+                            <tr>
+                                <td>${product.id}</td>
+                                <td>${product.name}</td>
+                                <td>${product.price} نقطة</td>
+                                <td>${product.stock}</td>
+                                <td>${product.category}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editProduct(${product.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteProduct(${product.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadTasksTable() {
+            const table = document.getElementById('tasksTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>عنوان المهمة</th>
+                            <th>النقاط</th>
+                            <th>النوع</th>
+                            <th>الأولوية</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tasks.map(task => `
+                            <tr>
+                                <td>${task.id}</td>
+                                <td>${task.title}</td>
+                                <td>${task.points}</td>
+                                <td>${task.type}</td>
+                                <td>${task.priority}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editTask(${task.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteTask(${task.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadOccasionsTable() {
+            const table = document.getElementById('occasionsTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>عنوان المناسبة</th>
+                            <th>التاريخ</th>
+                            <th>النقاط</th>
+                            <th>النوع</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${occasions.map(occasion => `
+                            <tr>
+                                <td>${occasion.id}</td>
+                                <td>${occasion.title}</td>
+                                <td>${new Date(occasion.date).toLocaleDateString('ar')}</td>
+                                <td>${occasion.points}</td>
+                                <td>${occasion.type}</td>
+                                <td>
+                                    <button class="btn btn-success" onclick="showOccasionTalantonModal(${occasion.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">💰</button>
+                                    <button class="btn btn-warning" onclick="editOccasion(${occasion.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteOccasion(${occasion.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadWeeksTable() {
+            const table = document.getElementById('weeksTable');
+            if (!table) return;
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>الرقم</th>
+                            <th>عنوان الأسبوع</th>
+                            <th>رقم الأسبوع</th>
+                            <th>نقاط المكافأة</th>
+                            <th>الحد الأدنى للحضور</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${weeks.map(week => `
+                            <tr>
+                                <td>${week.id}</td>
+                                <td>${week.title}</td>
+                                <td>${week.number}</td>
+                                <td>${week.rewardPoints}</td>
+                                <td>${week.minAttendance}</td>
+                                <td>
+                                    <button class="btn btn-warning" onclick="editWeek(${week.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
+                                    <button class="btn btn-danger" onclick="deleteWeek(${week.id})" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function loadReportsData() {
+            const reportContent = document.getElementById('reportContent');
+            if (!reportContent) return;
+            
+            reportContent.innerHTML = `
+                <div style="background: var(--card-color); padding: 25px; border-radius: 15px;">
+                    <h3>📊 تقرير شامل</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${members.length}</div>
+                            <div class="stat-label">إجمالي الأعضاء</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${attendance.length}</div>
+                            <div class="stat-label">سجلات الحضور</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${products.length}</div>
+                            <div class="stat-label">منتجات المتجر</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${occasions.length}</div>
+                            <div class="stat-label">المناسبات</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Tab Management
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabName + 'Tab');
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Member Management Functions
+        function showAddMemberModal() {
+            showModal('addMemberModal');
+        }
+
+        function addMember(event) {
+            event.preventDefault();
+            
+            // Get next sequential number
+            const maxSequentialNumber = Math.max(...members.map(m => m.sequentialNumber || 0));
+            
+            const newMember = {
+                id: Date.now(),
+                sequentialNumber: maxSequentialNumber + 1,
+                name: document.getElementById('memberName').value,
+                password: document.getElementById('memberPass').value,
+                email: document.getElementById('memberEmail').value,
+                phone: document.getElementById('memberPhone').value,
+                birthday: document.getElementById('memberBirthday').value,
+                talanton: parseInt(document.getElementById('initialTalanton').value) || 0,
+                service: document.getElementById('memberService').value,
+                area: document.getElementById('memberArea').value,
+                joinDate: new Date().toISOString().split('T')[0],
+                status: 'active'
+            };
+            
+            members.push(newMember);
+            saveData();
+            updateUI();
+            loadMembersTable();
+            closeModal('addMemberModal');
+            
+            showNotification(`تم إضافة العضو ${newMember.name} برقم ${newMember.sequentialNumber} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function editMember(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            const newName = prompt('اسم العضو:', member.name);
+            if (newName && newName !== member.name) {
+                member.name = newName;
+                saveData();
+                updateUI();
+                loadMembersTable();
+                showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
+            }
+        }
+
+        function deleteMember(memberId) {
+            const member = members.find(m => m.id === memberId);
+            if (!member) return;
+            
+            if (confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
+                members = members.filter(m => m.id !== memberId);
+                attendance = attendance.filter(a => a.memberId !== memberId);
+                talantonHistory = talantonHistory.filter(t => t.memberId !== memberId);
+                
+                saveData();
+                updateUI();
+                loadMembersTable();
+                showNotification('تم حذف العضو نهائياً!', 'success');
+            }
+        }
+
+        // Product Management Functions
+        function showAddProductModal() {
+            showModal('addProductModal');
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('productName').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                category: document.getElementById('productCategory').value,
+                description: document.getElementById('productDescription').value
+            };
+            
+            products.push(newProduct);
+            saveData();
+            loadProductsTable();
+            loadStoreDisplay();
+            closeModal('addProductModal');
+            
+            showNotification(`تم إضافة المنتج ${newProduct.name} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const newName = prompt('اسم المنتج:', product.name);
+            if (newName && newName !== product.name) {
+                product.name = newName;
+                saveData();
+                loadProductsTable();
+                loadStoreDisplay();
+                showNotification('تم تحديث المنتج بنجاح!', 'success');
+            }
+        }
+
+        function deleteProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (confirm(`هل أنت متأكد من حذف المنتج ${product.name}؟`)) {
+                products = products.filter(p => p.id !== productId);
+                saveData();
+                loadProductsTable();
+                loadStoreDisplay();
+                showNotification('تم حذف المنتج نهائياً!', 'success');
+            }
+        }
+
+        // Task Management Functions
+        function showAddTaskModal() {
+            showModal('addTaskModal');
+        }
+
+        function addTask(event) {
+            event.preventDefault();
+            
+            const newTask = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                points: parseInt(document.getElementById('taskPoints').value),
+                type: document.getElementById('taskType').value,
+                priority: document.getElementById('taskPriority').value,
+                description: document.getElementById('taskDescription').value,
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                assignees: [],
+                status: 'active'
+            };
+            
+            tasks.push(newTask);
+            saveData();
+            loadTasksTable();
+            closeModal('addTaskModal');
+            
+            showNotification(`تم إضافة المهمة ${newTask.title} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function editTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const newTitle = prompt('عنوان المهمة:', task.title);
+            if (newTitle && newTitle !== task.title) {
+                task.title = newTitle;
+                saveData();
+                loadTasksTable();
+                showNotification('تم تحديث المهمة بنجاح!', 'success');
+            }
+        }
+
+        function deleteTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            if (confirm(`هل أنت متأكد من حذف المهمة ${task.title}؟`)) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveData();
+                loadTasksTable();
+                showNotification('تم حذف المهمة نهائياً!', 'success');
+            }
+        }
+
+        // Occasion Management Functions
+        function showAddOccasionModal() {
+            showModal('addOccasionModal');
+        }
+
+        function addOccasion(event) {
+            event.preventDefault();
+            
+            const newOccasion = {
+                id: Date.now(),
+                title: document.getElementById('occasionTitle').value,
+                date: document.getElementById('occasionDate').value,
+                time: document.getElementById('occasionTime').value,
+                location: document.getElementById('occasionLocation').value,
+                points: parseInt(document.getElementById('occasionPoints').value),
+                type: document.getElementById('occasionType').value,
+                description: document.getElementById('occasionDescription').value
+            };
+            
+            occasions.push(newOccasion);
+            saveData();
+            loadOccasionsTable();
+            closeModal('addOccasionModal');
+            
+            showNotification(`تم إضافة المناسبة ${newOccasion.title} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function editOccasion(occasionId) {
+            const occasion = occasions.find(e => e.id === occasionId);
+            if (!occasion) return;
+            
+            const newTitle = prompt('عنوان المناسبة:', occasion.title);
+            if (newTitle && newTitle !== occasion.title) {
+                occasion.title = newTitle;
+                saveData();
+                loadOccasionsTable();
+                showNotification('تم تحديث المناسبة بنجاح!', 'success');
+            }
+        }
+
+        function deleteOccasion(occasionId) {
+            const occasion = occasions.find(e => e.id === occasionId);
+            if (!occasion) return;
+            
+            if (confirm(`هل أنت متأكد من حذف المناسبة ${occasion.title}؟`)) {
+                occasions = occasions.filter(e => e.id !== occasionId);
+                saveData();
+                loadOccasionsTable();
+                showNotification('تم حذف المناسبة نهائياً!', 'success');
+            }
+        }
+
+        // Occasion Talanton Functions
+        function showOccasionTalantonModal(occasionId) {
+            currentOccasion = occasions.find(o => o.id === occasionId);
+            if (!currentOccasion) return;
+            
+            const title = document.getElementById('occasionTalantonTitle');
+            if (title) {
+                title.textContent = `إضافة نقاط للمناسبة: ${currentOccasion.title}`;
+            }
+            
+            // Load member checkboxes
+            const checkboxContainer = document.getElementById('memberCheckboxes');
+            if (checkboxContainer) {
+                const sortedMembers = [...members].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                checkboxContainer.innerHTML = sortedMembers.map(member => `
+                    <div style="margin: 10px 0;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" value="${member.id}" style="width: auto;">
+                            <span>${member.sequentialNumber}. ${member.name} (${member.talanton} نقطة)</span>
+                        </label>
+                    </div>
+                `).join('');
+            }
+            
+            showModal('occasionTalantonModal');
+        }
+
+        function selectAllMembers() {
+            const checkboxes = document.querySelectorAll('#memberCheckboxes input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        }
+
+        function unselectAllMembers() {
+            const checkboxes = document.querySelectorAll('#memberCheckboxes input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+
+        function addTalantonToMembers() {
+            const checkboxes = document.querySelectorAll('#memberCheckboxes input[type="checkbox"]:checked');
+            const points = parseInt(document.getElementById('occasionTalantonPoints').value);
+            const reason = document.getElementById('occasionTalantonReason').value || `مشاركة في: ${currentOccasion.title}`;
+            
+            if (checkboxes.length === 0) {
+                showNotification('يرجى اختيار عضو واحد على الأقل', 'warning');
+                return;
+            }
+            
+            if (!points || points <= 0) {
+                showNotification('يرجى إدخال عدد نقاط صحيح', 'warning');
+                return;
+            }
+            
+            let addedCount = 0;
+            checkboxes.forEach(checkbox => {
+                const memberId = parseInt(checkbox.value);
+                const member = members.find(m => m.id === memberId);
+                if (member) {
+                    member.talanton += points;
+                    
+                    // Add to history
+                    talantonHistory.push({
+                        id: Date.now() + addedCount,
+                        memberId: member.id,
+                        memberName: member.name,
+                        amount: points,
+                        type: 'add',
+                        reason: reason,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    addedCount++;
+                }
+            });
+            
+            saveData();
+            updateUI();
+            loadMembersTable();
+            closeModal('occasionTalantonModal');
+            
+            showNotification(`تم إضافة ${points} نقطة لـ ${addedCount} عضو بنجاح!`, 'success');
+        }
+
+        // Week Management Functions
+        function showAddWeekModal() {
+            showModal('addWeekModal');
+        }
+
+        function addWeek(event) {
+            event.preventDefault();
+            
+            const newWeek = {
+                id: Date.now(),
+                title: document.getElementById('weekTitle').value,
+                number: parseInt(document.getElementById('weekNumber').value),
+                startDate: document.getElementById('weekStartDate').value,
+                endDate: document.getElementById('weekEndDate').value,
+                rewardPoints: parseInt(document.getElementById('weekRewardPoints').value),
+                minAttendance: parseInt(document.getElementById('weekMinAttendance').value),
+                description: document.getElementById('weekDescription').value
+            };
+            
+            weeks.push(newWeek);
+            saveData();
+            loadWeeksTable();
+            closeModal('addWeekModal');
+            
+            showNotification(`تم إضافة الأسبوع ${newWeek.title} بنجاح!`, 'success');
+            
+            // Reset form
+            event.target.reset();
+        }
+
+        function editWeek(weekId) {
+            const week = weeks.find(w => w.id === weekId);
+            if (!week) return;
+            
+            const newTitle = prompt('عنوان الأسبوع:', week.title);
+            if (newTitle && newTitle !== week.title) {
+                week.title = newTitle;
+                saveData();
+                loadWeeksTable();
+                showNotification('تم تحديث الأسبوع بنجاح!', 'success');
+            }
+        }
+
+        function deleteWeek(weekId) {
+            const week = weeks.find(w => w.id === weekId);
+            if (!week) return;
+            
+            if (confirm(`هل أنت متأكد من حذف الأسبوع ${week.title}؟`)) {
+                weeks = weeks.filter(w => w.id !== weekId);
+                saveData();
+                loadWeeksTable();
+                showNotification('تم حذف الأسبوع نهائياً!', 'success');
+            }
+        }
+
+        // Report Functions
+        function showMembersReport() {
+            let report = 'تقرير الأعضاء:\n\n';
+            report += `إجمالي الأعضاء: ${members.length}\n`;
+            report += `إجمالي نقاط Talanton: ${members.reduce((sum, m) => sum + m.talanton, 0)}\n\n`;
+            
+            memberLevels.forEach(level => {
+                const count = members.filter(m => {
+                    const memberLevel = calculateLevel(m.talanton);
+                    return memberLevel.name === level.name;
+                }).length;
+                report += `${level.icon} ${level.name}: ${count} عضو\n`;
+            });
+            
+            alert(report);
+        }
+
+        function showAttendanceReport() {
+            const today = new Date().toISOString().split('T')[0];
+            const thisMonth = new Date().toISOString().substring(0, 7);
+            
+            const todayAttendance = attendance.filter(a => a.date === today);
+            const monthlyAttendance = attendance.filter(a => a.date.startsWith(thisMonth));
+            
+            let report = 'تقرير الحضور:\n\n';
+            report += `الحضور اليوم: ${todayAttendance.length} من ${members.length}\n`;
+            report += `الحضور هذا الشهر: ${monthlyAttendance.length} مرة\n`;
+            report += `معدل الحضور اليومي: ${Math.round((todayAttendance.length / members.length) * 100)}%\n\n`;
+            
+            report += 'الحاضرون اليوم:\n';
+            todayAttendance.forEach(a => {
+                report += `• ${a.memberName} (${a.type})\n`;
+            });
+            
+            alert(report);
+        }
+
+        // Settings Functions
+        function saveSettings() {
+            settings.dailyAttendancePoints = parseInt(document.getElementById('dailyAttendancePoints').value) || 10;
+            settings.taskCompletionPoints = parseInt(document.getElementById('taskCompletionPoints').value) || 5;
+            settings.birthdayAlertDays = parseInt(document.getElementById('birthdayAlertDays').value) || 7;
+            settings.maxAbsenceDays = parseInt(document.getElementById('maxAbsenceDays').value) || 3;
+            
+            saveData();
+            showNotification('تم حفظ الإعدادات بنجاح!', 'success');
+        }
+
+        // Export/Import Functions (Admin Only)
+        function exportData() {
+            if (!isAdmin) {
+                showNotification('هذه الوظيفة متاحة للأدمن فقط!', 'error');
+                return;
+            }
+
+            const data = {
+                members: members,
+                products: products,
+                tasks: tasks,
+                occasions: occasions,
+                weeks: weeks,
+                attendance: attendance,
+                talantonHistory: talantonHistory,
+                settings: settings,
+                exportDate: new Date().toISOString(),
+                version: '14.0'
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `church_attendance_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            showNotification('تم تصدير البيانات بنجاح!', 'success');
+        }
+
+        function importData() {
+            if (!isAdmin) {
+                showNotification('هذه الوظيفة متاحة للأدمن فقط!', 'error');
+                return;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            
+                            if (confirm('هل أنت متأكد من استيراد البيانات؟ سيتم استبدال البيانات الحالية.')) {
+                                if (data.members) members = data.members;
+                                if (data.products) products = data.products;
+                                if (data.tasks) tasks = data.tasks;
+                                if (data.occasions) occasions = data.occasions;
+                                if (data.weeks) weeks = data.weeks;
+                                if (data.attendance) attendance = data.attendance;
+                                if (data.talantonHistory) talantonHistory = data.talantonHistory;
+                                if (data.settings) settings = data.settings;
+                                
+                                saveData();
+                                updateUI();
+                                showNotification('تم استيراد البيانات بنجاح!', 'success');
+                            }
+                        } catch (error) {
+                            showNotification('خطأ في قراءة الملف!', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // Utility functions
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+
+            // Set background color based on type
+            const colors = {
+                success: 'linear-gradient(135deg, var(--success-color), #059669)',
+                error: 'linear-gradient(135deg, var(--danger-color), #dc2626)',
+                warning: 'linear-gradient(135deg, var(--warning-color), #d97706)',
+                info: 'linear-gradient(135deg, var(--info-color), #1d4ed8)'
+            };
+            notification.style.background = colors[type] || colors.info;
+
+            document.body.appendChild(notification);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>

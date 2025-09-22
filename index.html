@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حضور خدام الملايكة - الأزرار مُصححة</title>
+    <title>نظام حضور خدام الملايكة - الإصدار المُحسّن</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Firebase SDK v9 -->
@@ -11,7 +11,7 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { 
             getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, 
-            doc, query, orderBy, onSnapshot, setDoc
+            doc, query, orderBy, onSnapshot, setDoc, where
         } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         
         const firebaseConfig = {
@@ -29,7 +29,7 @@
         
         window.firebaseApp = app;
         window.firebaseDb = db;
-        window.firebaseUtils = { addDoc, getDocs, updateDoc, deleteDoc, doc, collection, query, orderBy, onSnapshot, setDoc };
+        window.firebaseUtils = { addDoc, getDocs, updateDoc, deleteDoc, doc, collection, query, orderBy, onSnapshot, setDoc, where };
         
         console.log('🔥 Firebase initialized successfully');
         
@@ -37,7 +37,7 @@
             const statusElement = document.getElementById('firebaseStatus');
             if (statusElement) {
                 statusElement.className = 'firebase-status firebase-connected';
-                statusElement.innerHTML = '🟢 متصل بـ Firebase - الأزرار مُصححة';
+                statusElement.innerHTML = '🟢 متصل بـ Firebase - النظام مُحسّن';
             }
         });
     </script>
@@ -339,9 +339,9 @@
 <body data-theme="light">
     <div class="container">
         <div class="header">
-            <div class="version">v29.0 Fixed Buttons</div>
+            <div class="version">v30.0 محسّن</div>
             <h1>🌟 نظام حضور خدام الملايكة</h1>
-            <p>نظام Talanton Pro - الأزرار مُصححة وتعمل بشكل كامل</p>
+            <p>نظام Talanton Pro - الإصدار المُحسّن والمُصلح</p>
         </div>
 
         <div id="firebaseStatus" class="firebase-status firebase-disconnected">
@@ -353,7 +353,6 @@
                 <span id="themeIcon">🌙</span> تبديل الوضع
             </button>
             <button class="btn" onclick="showAdminLogin()">👑 دخول الأدمن</button>
-            <button class="btn btn-info" onclick="generateQRCodes()">📱 إنشاء QR كودات</button>
             <button class="btn btn-warning" onclick="showMemberLoginModal()">👤 دخول عضو</button>
         </div>
 
@@ -475,6 +474,7 @@
                 </div>
 
                 <div id="membersTab" class="tab-content active">
+                    <button class="add-button" onclick="showAddMemberModal()">➕ إضافة عضو جديد</button>
                     <div id="membersTable"></div>
                 </div>
 
@@ -708,6 +708,113 @@
         </div>
     </div>
 
+    <div id="editMemberModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editMemberModal')">&times;</span>
+            <h2>✏️ تعديل بيانات العضو</h2>
+            <form onsubmit="updateMember(event)">
+                <input type="hidden" id="editMemberId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم العضو:</label>
+                        <input type="text" id="editMemberName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>كلمة المرور:</label>
+                        <input type="password" id="editMemberPass">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>البريد الإلكتروني:</label>
+                        <input type="email" id="editMemberEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف:</label>
+                        <input type="tel" id="editMemberPhone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ الميلاد:</label>
+                        <input type="date" id="editMemberBirthday">
+                    </div>
+                    <div class="form-group">
+                        <label>رصيد Talanton:</label>
+                        <input type="number" id="editMemberTalanton" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الخدمة:</label>
+                        <select id="editMemberService">
+                            <option value="altar">خدمة المذبح</option>
+                            <option value="sunday_school">مدرسة الأحد</option>
+                            <option value="youth">خدمة الشباب</option>
+                            <option value="music">الألحان والموسيقى</option>
+                            <option value="media">الإعلام</option>
+                            <option value="social">الخدمة الاجتماعية</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المنطقة:</label>
+                        <input type="text" id="editMemberArea" placeholder="المنطقة السكنية">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">💾 حفظ التعديلات</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteMemberConfirmed()">🗑️ حذف العضو</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editProductModal')">&times;</span>
+            <h2>✏️ تعديل بيانات المنتج</h2>
+            <form onsubmit="updateProduct(event)">
+                <input type="hidden" id="editProductId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المنتج:</label>
+                        <input type="text" id="editProductName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>السعر (نقاط Talanton):</label>
+                        <input type="number" id="editProductPrice" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المخزون:</label>
+                        <input type="number" id="editProductStock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الفئة:</label>
+                        <select id="editProductCategory">
+                            <option value="books">كتب</option>
+                            <option value="accessories">إكسسوارات</option>
+                            <option value="certificates">شهادات</option>
+                            <option value="gifts">هدايا</option>
+                            <option value="clothing">ملابس</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>وصف المنتج:</label>
+                    <textarea id="editProductDescription" rows="3" placeholder="وصف المنتج..."></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">💾 حفظ التعديلات</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteProductConfirmed()">🗑️ حذف المنتج</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="purchaseModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('purchaseModal')">&times;</span>
@@ -736,7 +843,7 @@
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 تم تحميل النظام مع الأزرار المُصححة...');
+            console.log('🚀 تم تحميل النظام المُحسّن...');
             setTimeout(() => {
                 initializeFirebaseListeners();
                 loadDataFromFirebase();
@@ -744,14 +851,15 @@
                 document.body.setAttribute('data-theme', savedTheme);
                 const themeIcon = document.getElementById('themeIcon');
                 if (themeIcon) themeIcon.textContent = savedTheme === 'light' ? '🌙' : '☀️';
-                showNotification('🔥 النظام متصل بـ Firebase - جميع الأزرار تعمل!', 'success');
+                showNotification('🔥 النظام متصل بـ Firebase - جميع الميزات تعمل!', 'success');
             }, 2000);
         });
 
-        // Firebase Real-time Listeners
+        // Firebase Real-time Listeners - محسّن
         function initializeFirebaseListeners() {
             if (!window.firebaseDb || !window.firebaseUtils) {
                 console.error('Firebase not ready');
+                setTimeout(initializeFirebaseListeners, 1000);
                 return;
             }
 
@@ -772,6 +880,8 @@
                     members = newMembers;
                     sortMembersAlphabetically();
                     updateUIComplete();
+                }, (error) => {
+                    console.error('خطأ في مستمع الأعضاء:', error);
                 });
 
                 // Products listener
@@ -793,7 +903,8 @@
 
                 // Attendance listener
                 const attendanceQuery = window.firebaseUtils.query(
-                    window.firebaseUtils.collection(window.firebaseDb, 'attendance')
+                    window.firebaseUtils.collection(window.firebaseDb, 'attendance'),
+                    window.firebaseUtils.orderBy('timestamp', 'desc')
                 );
                 
                 window.firebaseUtils.onSnapshot(attendanceQuery, (snapshot) => {
@@ -806,25 +917,44 @@
                     attendance = newAttendance;
                     updateStats();
                     updateCharts();
+                    if (isAdmin) loadAttendanceTable();
                 });
 
-                console.log('✅ تم تفعيل المزامنة التلقائية');
+                // Talanton History listener
+                const historyQuery = window.firebaseUtils.query(
+                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory'),
+                    window.firebaseUtils.orderBy('timestamp', 'desc')
+                );
+                
+                window.firebaseUtils.onSnapshot(historyQuery, (snapshot) => {
+                    console.log('📥 تحديث تاريخ النقاط من Firebase');
+                    const newHistory = [];
+                    snapshot.forEach((doc) => {
+                        newHistory.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    talantonHistory = newHistory;
+                });
+
+                console.log('✅ تم تفعيل المزامنة التلقائية المُحسّنة');
 
             } catch (error) {
                 console.error('خطأ في تفعيل المزامنة:', error);
-                showNotification('خطأ في المزامنة', 'warning');
+                showNotification('خطأ في المزامنة، جاري إعادة المحاولة...', 'warning');
+                setTimeout(initializeFirebaseListeners, 3000);
             }
         }
 
-        // Load initial data from Firebase
+        // Load initial data from Firebase - محسّن
         async function loadDataFromFirebase() {
             try {
                 showNotification('جاري تحميل البيانات من Firebase...', 'info');
                 
                 await Promise.all([
-                    loadMembersFromFirebase(), loadProductsFromFirebase(), loadTasksFromFirebase(),
-                    loadOccasionsFromFirebase(), loadWeeksFromFirebase(), loadAttendanceFromFirebase(),
-                    loadTalantonHistoryFromFirebase(), loadSettingsFromFirebase()
+                    loadMembersFromFirebase(), 
+                    loadProductsFromFirebase(), 
+                    loadAttendanceFromFirebase(),
+                    loadTalantonHistoryFromFirebase()
                 ]);
 
                 if (members.length === 0) {
@@ -836,96 +966,75 @@
                 initializeCharts();
                 loadTodayOccasions();
 
-                console.log('✅ تم تحميل جميع البيانات من Firebase');
+                console.log('✅ تم تحميل جميع البيانات من Firebase بنجاح');
                 showNotification('تم تحميل البيانات بنجاح!', 'success');
 
             } catch (error) {
                 console.error('خطأ في تحميل البيانات:', error);
-                showNotification('خطأ في تحميل البيانات - سيتم إنشاء بيانات تجريبية', 'warning');
-                await initializeDemoDataInFirebase();
+                showNotification('خطأ في تحميل البيانات - جاري إعادة المحاولة', 'warning');
+                setTimeout(loadDataFromFirebase, 3000);
             }
         }
 
-        // Load specific collections
+        // Load specific collections - محسّن
         async function loadMembersFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'members')
-            );
-            members = [];
-            snapshot.forEach((doc) => {
-                members.push({ id: doc.id, ...doc.data() });
-            });
-            sortMembersAlphabetically();
+            try {
+                const snapshot = await window.firebaseUtils.getDocs(
+                    window.firebaseUtils.collection(window.firebaseDb, 'members')
+                );
+                members = [];
+                snapshot.forEach((doc) => {
+                    members.push({ id: doc.id, ...doc.data() });
+                });
+                sortMembersAlphabetically();
+            } catch (error) {
+                console.error('خطأ في تحميل الأعضاء:', error);
+                throw error;
+            }
         }
 
         async function loadProductsFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'products')
-            );
-            products = [];
-            snapshot.forEach((doc) => {
-                products.push({ id: doc.id, ...doc.data() });
-            });
-        }
-
-        async function loadTasksFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'tasks')
-            );
-            tasks = [];
-            snapshot.forEach((doc) => {
-                tasks.push({ id: doc.id, ...doc.data() });
-            });
-        }
-
-        async function loadOccasionsFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'occasions')
-            );
-            occasions = [];
-            snapshot.forEach((doc) => {
-                occasions.push({ id: doc.id, ...doc.data() });
-            });
-        }
-
-        async function loadWeeksFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'weeks')
-            );
-            weeks = [];
-            snapshot.forEach((doc) => {
-                weeks.push({ id: doc.id, ...doc.data() });
-            });
+            try {
+                const snapshot = await window.firebaseUtils.getDocs(
+                    window.firebaseUtils.collection(window.firebaseDb, 'products')
+                );
+                products = [];
+                snapshot.forEach((doc) => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (error) {
+                console.error('خطأ في تحميل المنتجات:', error);
+                throw error;
+            }
         }
 
         async function loadAttendanceFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'attendance')
-            );
-            attendance = [];
-            snapshot.forEach((doc) => {
-                attendance.push({ id: doc.id, ...doc.data() });
-            });
+            try {
+                const snapshot = await window.firebaseUtils.getDocs(
+                    window.firebaseUtils.collection(window.firebaseDb, 'attendance')
+                );
+                attendance = [];
+                snapshot.forEach((doc) => {
+                    attendance.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (error) {
+                console.error('خطأ في تحميل الحضور:', error);
+                throw error;
+            }
         }
 
         async function loadTalantonHistoryFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory')
-            );
-            talantonHistory = [];
-            snapshot.forEach((doc) => {
-                talantonHistory.push({ id: doc.id, ...doc.data() });
-            });
-        }
-
-        async function loadSettingsFromFirebase() {
-            const snapshot = await window.firebaseUtils.getDocs(
-                window.firebaseUtils.collection(window.firebaseDb, 'settings')
-            );
-            if (!snapshot.empty) {
+            try {
+                const snapshot = await window.firebaseUtils.getDocs(
+                    window.firebaseUtils.collection(window.firebaseDb, 'talantonHistory')
+                );
+                talantonHistory = [];
                 snapshot.forEach((doc) => {
-                    settings = { ...settings, ...doc.data() };
+                    talantonHistory.push({ id: doc.id, ...doc.data() });
                 });
+            } catch (error) {
+                console.error('خطأ في تحميل تاريخ النقاط:', error);
+                throw error;
             }
         }
 
@@ -936,7 +1045,7 @@
             });
         }
 
-        // Initialize demo data in Firebase
+        // Initialize demo data in Firebase - محسّن
         async function initializeDemoDataInFirebase() {
             try {
                 showNotification('جاري إنشاء البيانات التجريبية...', 'info');
@@ -976,7 +1085,7 @@
                     );
                 }
 
-                console.log('✅ تم إنشاء البيانات التجريبية');
+                console.log('✅ تم إنشاء البيانات التجريبية بنجاح');
                 showNotification('تم إنشاء البيانات التجريبية بنجاح!', 'success');
 
             } catch (error) {
@@ -1245,7 +1354,7 @@
             }
         }
 
-        // Mark attendance
+        // Mark attendance - محسّن
         async function markAttendance() {
             if (!currentMember) {
                 showNotification('خطأ: لم يتم اختيار عضو', 'error');
@@ -1528,19 +1637,6 @@
             });
         }
 
-        // QR Code functionality
-        function generateQRCodes() {
-            showNotification('جاري إنشاء QR كودات للأعضاء...', 'info');
-            
-            let qrInfo = 'QR كودات الأعضاء:\n\n';
-            members.forEach(member => {
-                qrInfo += `${member.sequentialNumber}. ${member.name}: QR-${member.sequentialNumber}\n`;
-            });
-            
-            alert(qrInfo + '\nيمكن استخدام الرقم التسلسلي للحضور السريع');
-            showNotification('تم إنشاء QR كودات بنجاح!', 'success');
-        }
-
         // Member Login Functions
         function showMemberLoginModal() {
             showModal('memberLoginModal');
@@ -1801,6 +1897,7 @@
         function loadAdminData() {
             loadMembersTable();
             loadProductsTable();
+            loadAttendanceTable();
         }
 
         function loadMembersTable() {
@@ -1834,9 +1931,8 @@
                                     <td><span class="level-badge ${level.color}">${level.icon} ${level.name}</span></td>
                                     <td>${getServiceName(member.service)}</td>
                                     <td>
-                                        <button class="btn btn-warning" onclick="editMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                                        <button class="btn btn-info" onclick="addTalantonToMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">💰</button>
-                                        <button class="btn btn-danger" onclick="deleteMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                        <button class="btn btn-warning" onclick="showEditMemberModal('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️ تعديل</button>
+                                        <button class="btn btn-info" onclick="addTalantonToMember('${member.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">💰 إضافة نقاط</button>
                                     </td>
                                 </tr>
                             `;
@@ -1871,14 +1967,55 @@
                                 <td>${product.stock}</td>
                                 <td>${product.category}</td>
                                 <td>
-                                    <button class="btn btn-warning" onclick="editProduct('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️</button>
-                                    <button class="btn btn-danger" onclick="deleteProduct('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">🗑️</button>
+                                    <button class="btn btn-warning" onclick="showEditProductModal('${product.id}')" style="margin: 2px; padding: 8px 12px; font-size: 12px;">✏️ تعديل</button>
                                 </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
+        }
+
+        function loadAttendanceTable() {
+            const table = document.getElementById('attendanceTable');
+            if (!table) return;
+            
+            const recentAttendance = attendance.slice(0, 20); // آخر 20 سجل حضور
+            
+            table.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>اسم العضو</th>
+                            <th>نوع الحضور</th>
+                            <th>الملاحظات</th>
+                            <th>الوقت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recentAttendance.map(record => `
+                            <tr>
+                                <td>${record.date}</td>
+                                <td>${record.memberName}</td>
+                                <td>${getAttendanceTypeName(record.type)}</td>
+                                <td>${record.notes || 'لا توجد'}</td>
+                                <td>${new Date(record.timestamp).toLocaleTimeString('ar')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function getAttendanceTypeName(type) {
+            const types = {
+                'regular': 'عادي',
+                'late': 'متأخر',
+                'early': 'مبكر',
+                'makeup': 'تعويضي'
+            };
+            return types[type] || type;
         }
 
         // Tab Management
@@ -1901,7 +2038,7 @@
             event.target.classList.add('active');
         }
 
-        // Member Management Functions
+        // Member Management Functions - محسّن
         function showAddMemberModal() {
             showModal('addMemberModal');
         }
@@ -1938,22 +2075,76 @@
             }
         }
 
-        async function editMember(memberId) {
+        function showEditMemberModal(memberId) {
             const member = members.find(m => m.id === memberId);
             if (!member) return;
             
-            const newName = prompt('اسم العضو:', member.name);
-            if (newName && newName !== member.name) {
-                try {
-                    await window.firebaseUtils.updateDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id),
-                        { name: newName }
-                    );
-                    showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
-                } catch (error) {
-                    console.error('خطأ في تحديث العضو:', error);
-                    showNotification('خطأ في تحديث العضو', 'error');
+            document.getElementById('editMemberId').value = member.id;
+            document.getElementById('editMemberName').value = member.name;
+            document.getElementById('editMemberEmail').value = member.email || '';
+            document.getElementById('editMemberPhone').value = member.phone || '';
+            document.getElementById('editMemberBirthday').value = member.birthday || '';
+            document.getElementById('editMemberTalanton').value = member.talanton || 0;
+            document.getElementById('editMemberService').value = member.service || 'altar';
+            document.getElementById('editMemberArea').value = member.area || '';
+            
+            showModal('editMemberModal');
+        }
+
+        async function updateMember(event) {
+            event.preventDefault();
+            
+            try {
+                const memberId = document.getElementById('editMemberId').value;
+                const updateData = {
+                    name: document.getElementById('editMemberName').value,
+                    email: document.getElementById('editMemberEmail').value,
+                    phone: document.getElementById('editMemberPhone').value,
+                    birthday: document.getElementById('editMemberBirthday').value,
+                    talanton: parseInt(document.getElementById('editMemberTalanton').value) || 0,
+                    service: document.getElementById('editMemberService').value,
+                    area: document.getElementById('editMemberArea').value
+                };
+
+                // تحديث كلمة المرور فقط إذا تم إدخالها
+                const newPassword = document.getElementById('editMemberPass').value;
+                if (newPassword) {
+                    updateData.password = newPassword;
                 }
+
+                await window.firebaseUtils.updateDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'members', memberId),
+                    updateData
+                );
+
+                closeModal('editMemberModal');
+                showNotification('تم تحديث بيانات العضو بنجاح!', 'success');
+
+            } catch (error) {
+                console.error('خطأ في تحديث العضو:', error);
+                showNotification('خطأ في تحديث العضو', 'error');
+            }
+        }
+
+        function deleteMemberConfirmed() {
+            const memberId = document.getElementById('editMemberId').value;
+            const member = members.find(m => m.id === memberId);
+            
+            if (member && confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
+                deleteMember(memberId);
+            }
+        }
+
+        async function deleteMember(memberId) {
+            try {
+                await window.firebaseUtils.deleteDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'members', memberId)
+                );
+                showNotification('تم حذف العضو بنجاح', 'success');
+                closeModal('editMemberModal');
+            } catch (error) {
+                console.error('خطأ في حذف العضو:', error);
+                showNotification('خطأ في حذف العضو', 'error');
             }
         }
 
@@ -1996,24 +2187,7 @@
             }
         }
 
-        async function deleteMember(memberId) {
-            const member = members.find(m => m.id === memberId);
-            if (!member) return;
-            
-            if (confirm(`هل أنت متأكد من حذف العضو ${member.name}؟`)) {
-                try {
-                    await window.firebaseUtils.deleteDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'members', member.id)
-                    );
-                    showNotification(`تم حذف العضو ${member.name}`, 'success');
-                } catch (error) {
-                    console.error('خطأ في حذف العضو:', error);
-                    showNotification('خطأ في حذف العضو', 'error');
-                }
-            }
-        }
-
-        // Product Management Functions
+        // Product Management Functions - محسّن
         function showAddProductModal() {
             showModal('addProductModal');
         }
@@ -2045,39 +2219,66 @@
             }
         }
 
-        async function editProduct(productId) {
+        function showEditProductModal(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
             
-            const newName = prompt('اسم المنتج:', product.name);
-            if (newName && newName !== product.name) {
-                try {
-                    await window.firebaseUtils.updateDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'products', product.id),
-                        { name: newName }
-                    );
-                    showNotification('تم تحديث بيانات المنتج بنجاح!', 'success');
-                } catch (error) {
-                    console.error('خطأ في تحديث المنتج:', error);
-                    showNotification('خطأ في تحديث المنتج', 'error');
-                }
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductStock').value = product.stock;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductDescription').value = product.description || '';
+            
+            showModal('editProductModal');
+        }
+
+        async function updateProduct(event) {
+            event.preventDefault();
+            
+            try {
+                const productId = document.getElementById('editProductId').value;
+                const updateData = {
+                    name: document.getElementById('editProductName').value,
+                    price: parseInt(document.getElementById('editProductPrice').value),
+                    stock: parseInt(document.getElementById('editProductStock').value),
+                    category: document.getElementById('editProductCategory').value,
+                    description: document.getElementById('editProductDescription').value
+                };
+
+                await window.firebaseUtils.updateDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'products', productId),
+                    updateData
+                );
+
+                closeModal('editProductModal');
+                showNotification('تم تحديث بيانات المنتج بنجاح!', 'success');
+
+            } catch (error) {
+                console.error('خطأ في تحديث المنتج:', error);
+                showNotification('خطأ في تحديث المنتج', 'error');
+            }
+        }
+
+        function deleteProductConfirmed() {
+            const productId = document.getElementById('editProductId').value;
+            const product = products.find(p => p.id === productId);
+            
+            if (product && confirm(`هل أنت متأكد من حذف المنتج ${product.name}؟`)) {
+                deleteProduct(productId);
             }
         }
 
         async function deleteProduct(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            
-            if (confirm(`هل أنت متأكد من حذف المنتج ${product.name}؟`)) {
-                try {
-                    await window.firebaseUtils.deleteDoc(
-                        window.firebaseUtils.doc(window.firebaseDb, 'products', product.id)
-                    );
-                    showNotification(`تم حذف المنتج ${product.name}`, 'success');
-                } catch (error) {
-                    console.error('خطأ في حذف المنتج:', error);
-                    showNotification('خطأ في حذف المنتج', 'error');
-                }
+            try {
+                await window.firebaseUtils.deleteDoc(
+                    window.firebaseUtils.doc(window.firebaseDb, 'products', productId)
+                );
+                showNotification('تم حذف المنتج بنجاح', 'success');
+                closeModal('editProductModal');
+            } catch (error) {
+                console.error('خطأ في حذف المنتج:', error);
+                showNotification('خطأ في حذف المنتج', 'error');
             }
         }
 

@@ -1,206 +1,654 @@
-
-
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl" id="html-root">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>نظام حضور اجتماع خدام الملائكة - Talanton</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-        <script>
-          tailwind.config = {
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حضور اجتماع خدام الملائكة - Talanton</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
             darkMode: 'class',
             theme: {
-              extend: {
-                fontFamily: {
-                  'arabic': ['Cairo', 'Amiri', 'Arial', 'sans-serif'],
-                  'english': ['Inter', 'Arial', 'sans-serif']
+                extend: {
+                    fontFamily: {
+                        'arabic': ['Cairo', 'Amiri', 'Arial', 'sans-serif'],
+                        'english': ['Inter', 'Arial', 'sans-serif']
+                    }
                 }
-              }
             }
-          }
-        </script>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-        <style>
-          body { font-family: 'Cairo', 'Arial', sans-serif; }
-          .ltr { direction: ltr; }
-          .rtl { direction: rtl; }
-          .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-          .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-          .hover-scale { transition: transform 0.2s; }
-          .hover-scale:hover { transform: scale(1.02); }
-          .biometric-button { background: linear-gradient(45deg, #4f46e5, #7c3aed); }
-          .biometric-button:hover { background: linear-gradient(45deg, #6366f1, #8b5cf6); }
-          .pulse-animation { animation: pulse 2s infinite; }
-          @keyframes pulse {
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', 'Arial', sans-serif; }
+        .ltr { direction: ltr; }
+        .rtl { direction: rtl; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .hover-scale { transition: transform 0.2s; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .biometric-button { background: linear-gradient(45deg, #4f46e5, #7c3aed); }
+        .biometric-button:hover { background: linear-gradient(45deg, #6366f1, #8b5cf6); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
-          }
-        </style>
-    </head>
-    <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300 min-h-screen">
-        <!-- Navigation -->
-        <nav class="bg-white dark:bg-gray-800 shadow-lg">
-            <div class="max-w-7xl mx-auto px-4">
-                <div class="flex justify-between items-center py-4">
-                    <!-- Logo and Title -->
-                    <div class="flex items-center space-x-3 space-x-reverse">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <i class="fas fa-users text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <h1 id="system-title" class="text-xl font-bold text-gray-800 dark:text-white">نظام حضور اجتماع خدام الملائكة</h1>
-                            <p id="sub-title" class="text-sm text-gray-500 dark:text-gray-400">Talanton</p>
-                        </div>
+        }
+        .loading { display: none; }
+        .loading.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-users text-white text-xl"></i>
                     </div>
-                    
-                    <!-- Controls -->
-                    <div class="flex items-center space-x-4 space-x-reverse">
-                        <!-- Language Toggle -->
-                        <button id="lang-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                            <span id="lang-text">عربي</span>
-                        </button>
-                        
-                        <!-- Dark Mode Toggle -->
-                        <button id="dark-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                            <i id="dark-icon" class="fas fa-moon"></i>
-                        </button>
-                        
-                        <!-- Admin Panel -->
-                        <button id="admin-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                            <i class="fas fa-cog ml-2"></i>
-                            <span id="admin-text">لوحة الإدارة</span>
-                        </button>
+                    <div>
+                        <h1 id="system-title" class="text-xl font-bold text-gray-800 dark:text-white">نظام حضور اجتماع خدام الملائكة</h1>
+                        <p id="sub-title" class="text-sm text-gray-500 dark:text-gray-400">Talanton</p>
                     </div>
                 </div>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <main class="max-w-4xl mx-auto px-4 py-8">
-            <!-- Welcome Section -->
-            <div class="text-center mb-8">
-                <div class="gradient-bg text-white rounded-2xl p-8 card-shadow">
-                    <i class="fas fa-church text-5xl mb-4"></i>
-                    <h2 id="welcome-title" class="text-3xl font-bold mb-2">أهلاً وسهلاً بكم</h2>
-                    <p id="welcome-subtitle" class="text-xl opacity-90">في نظام حضور خدام الملائكة</p>
-                </div>
-            </div>
-
-            <!-- Attendance Form -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
-                <h3 id="attendance-title" class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-                    <i class="fas fa-calendar-check ml-3 text-indigo-600"></i>
-                    تسجيل الحضور
-                </h3>
                 
-                <form id="attendance-form" class="space-y-6">
-                    <!-- Member Selection -->
-                    <div>
-                        <label id="select-name-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر اسمك</label>
-                        <select id="member-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
-                            <option value="">اختر عضو...</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Week Selection -->
-                    <div>
-                        <label id="select-week-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر الأسبوع</label>
-                        <select id="week-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
-                            <option value="">اختر أسبوع...</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Verification Method -->
-                    <div>
-                        <label id="login-options-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">خيارات تسجيل الدخول</label>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <!-- Password Method -->
-                            <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="password">
-                                <div class="text-center">
-                                    <i class="fas fa-key text-3xl text-indigo-600 mb-2"></i>
-                                    <p id="password-text" class="font-medium text-gray-800 dark:text-white">كلمة المرور</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Fingerprint Method -->
-                            <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="fingerprint">
-                                <div class="text-center">
-                                    <i class="fas fa-fingerprint text-3xl text-green-600 mb-2"></i>
-                                    <p id="fingerprint-text" class="font-medium text-gray-800 dark:text-white">البصمة</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Face Recognition Method -->
-                            <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="face">
-                                <div class="text-center">
-                                    <i class="fas fa-user-circle text-3xl text-purple-600 mb-2"></i>
-                                    <p id="face-text" class="font-medium text-gray-800 dark:text-white">التعرف على الوجه</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Password Input (Hidden by default) -->
-                    <div id="password-input" class="hidden">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
-                        <input type="password" id="password-field" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل كلمة المرور">
-                    </div>
-                    
-                    <!-- Biometric Simulation (Hidden by default) -->
-                    <div id="biometric-simulation" class="hidden text-center">
-                        <div class="biometric-button text-white p-8 rounded-xl">
-                            <i id="biometric-icon" class="text-6xl mb-4 pulse-animation"></i>
-                            <p id="biometric-text" class="text-xl font-bold">اضغط للمسح</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover-scale disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-check-circle ml-2"></i>
-                        <span id="submit-text">تسجيل الحضور</span>
+                <!-- Controls -->
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <!-- Language Toggle -->
+                    <button id="lang-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <span id="lang-text">عربي</span>
                     </button>
-                </form>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <button id="dark-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <i id="dark-icon" class="fas fa-moon"></i>
+                    </button>
+                    
+                    <!-- Admin Panel -->
+                    <button id="admin-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-cog ml-2"></i>
+                        <span id="admin-text">لوحة الإدارة</span>
+                    </button>
+                </div>
             </div>
+        </div>
+    </nav>
 
-            <!-- Quick Actions -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Store -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="goToStore()">
-                    <div class="text-center">
-                        <i class="fas fa-store text-4xl text-green-600 mb-4"></i>
-                        <h4 id="store-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">المتجر</h4>
-                        <p class="text-gray-600 dark:text-gray-400">استبدل نقاط التالانتون</p>
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Welcome Section -->
+        <div class="text-center mb-8">
+            <div class="gradient-bg text-white rounded-2xl p-8 card-shadow">
+                <i class="fas fa-church text-5xl mb-4"></i>
+                <h2 id="welcome-title" class="text-3xl font-bold mb-2">أهلاً وسهلاً بكم</h2>
+                <p id="welcome-subtitle" class="text-xl opacity-90">في نظام حضور خدام الملائكة</p>
+            </div>
+        </div>
+
+        <!-- Attendance Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
+            <h3 id="attendance-title" class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+                <i class="fas fa-calendar-check ml-3 text-indigo-600"></i>
+                تسجيل الحضور
+            </h3>
+            
+            <form id="attendance-form" class="space-y-6">
+                <!-- Member Selection -->
+                <div>
+                    <label id="select-name-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر اسمك</label>
+                    <select id="member-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
+                        <option value="">جاري تحميل الأعضاء...</option>
+                    </select>
+                </div>
+                
+                <!-- Week Selection -->
+                <div>
+                    <label id="select-week-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر الأسبوع</label>
+                    <select id="week-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
+                        <option value="">جاري تحميل الأسابيع...</option>
+                    </select>
+                </div>
+                
+                <!-- Verification Method -->
+                <div>
+                    <label id="login-options-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">خيارات تسجيل الدخول</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Password Method -->
+                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="password">
+                            <div class="text-center">
+                                <i class="fas fa-key text-3xl text-indigo-600 mb-2"></i>
+                                <p id="password-text" class="font-medium text-gray-800 dark:text-white">كلمة المرور</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Fingerprint Method -->
+                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="fingerprint">
+                            <div class="text-center">
+                                <i class="fas fa-fingerprint text-3xl text-green-600 mb-2"></i>
+                                <p id="fingerprint-text" class="font-medium text-gray-800 dark:text-white">البصمة</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Face Recognition Method -->
+                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="face">
+                            <div class="text-center">
+                                <i class="fas fa-user-circle text-3xl text-purple-600 mb-2"></i>
+                                <p id="face-text" class="font-medium text-gray-800 dark:text-white">التعرف على الوجه</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Reports -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer">
-                    <div class="text-center">
-                        <i class="fas fa-chart-bar text-4xl text-blue-600 mb-4"></i>
-                        <h4 id="reports-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">التقارير</h4>
-                        <p class="text-gray-600 dark:text-gray-400">عرض الإحصائيات</p>
+                <!-- Password Input (Hidden by default) -->
+                <div id="password-input" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
+                    <input type="password" id="password-field" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل كلمة المرور">
+                </div>
+                
+                <!-- Biometric Simulation (Hidden by default) -->
+                <div id="biometric-simulation" class="hidden text-center">
+                    <div class="biometric-button text-white p-8 rounded-xl cursor-pointer" id="biometric-button">
+                        <i id="biometric-icon" class="text-6xl mb-4 pulse-animation"></i>
+                        <p id="biometric-text" class="text-xl font-bold">اضغط للمسح</p>
                     </div>
                 </div>
                 
-                <!-- My Talanton -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer">
-                    <div class="text-center">
-                        <i class="fas fa-coins text-4xl text-yellow-600 mb-4"></i>
-                        <h4 id="talanton-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">نقاطي</h4>
-                        <p id="user-talanton" class="text-2xl font-bold text-yellow-600">--- نقطة</p>
-                    </div>
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover-scale disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-check-circle ml-2"></i>
+                    <span id="submit-text">تسجيل الحضور</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Store -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="goToStore()">
+                <div class="text-center">
+                    <i class="fas fa-store text-4xl text-green-600 mb-4"></i>
+                    <h4 id="store-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">المتجر</h4>
+                    <p class="text-gray-600 dark:text-gray-400">استبدل نقاط التالانتون</p>
                 </div>
             </div>
-        </main>
+            
+            <!-- Reports -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="showReports()">
+                <div class="text-center">
+                    <i class="fas fa-chart-bar text-4xl text-blue-600 mb-4"></i>
+                    <h4 id="reports-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">التقارير</h4>
+                    <p class="text-gray-600 dark:text-gray-400">عرض الإحصائيات</p>
+                </div>
+            </div>
+            
+            <!-- My Talanton -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="showMyTalanton()">
+                <div class="text-center">
+                    <i class="fas fa-coins text-4xl text-yellow-600 mb-4"></i>
+                    <h4 id="talanton-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">نقاطي</h4>
+                    <p id="user-talanton" class="text-2xl font-bold text-yellow-600">--- نقطة</p>
+                </div>
+            </div>
+        </div>
+    </main>
 
-        <!-- Success/Error Messages -->
-        <div id="message-container" class="fixed top-4 right-4 z-50"></div>
+    <!-- Loading Spinner -->
+    <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
+            <p class="text-gray-800 dark:text-white text-lg">جاري المعالجة...</p>
+        </div>
+    </div>
 
-        <!-- Scripts -->
-        <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
-        <script src="/static/app.js"></script>
-    </body>
-    </html>
-  
+    <!-- Success/Error Messages -->
+    <div id="message-container" class="fixed top-4 right-4 z-50"></div>
+
+    <!-- Firebase and App Script -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHso7dhJC7P_akMQQ0oN_8ZMTQqsRoVbY",
+            authDomain: "angel-meeting-attendance.firebaseapp.com",
+            projectId: "angel-meeting-attendance",
+            storageBucket: "angel-meeting-attendance.firebasestorage.app",
+            messagingSenderId: "100624957418",
+            appId: "1:100624957418:web:291d087797cec9ec79fc93",
+            measurementId: "G-2TTXV6CD8F"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // النظام الأساسي
+        class AttendanceSystem {
+            constructor() {
+                this.currentLanguage = 'ar';
+                this.isDarkMode = localStorage.getItem('darkMode') === 'true';
+                this.selectedMethod = null;
+                this.members = [];
+                this.weeks = [];
+                this.currentUser = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.applyDarkMode();
+                this.loadMembers();
+                this.loadWeeks();
+                this.setupEventListeners();
+                this.updateTalantonPoints();
+            }
+
+            // تطبيق وضع الظلام
+            applyDarkMode() {
+                if (this.isDarkMode) {
+                    document.documentElement.classList.add('dark');
+                    document.getElementById('dark-icon').className = 'fas fa-sun';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.getElementById('dark-icon').className = 'fas fa-moon';
+                }
+            }
+
+            // تحميل الأعضاء من Firebase
+            async loadMembers() {
+                try {
+                    const membersSnapshot = await getDocs(collection(db, 'members'));
+                    this.members = membersSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    const select = document.getElementById('member-select');
+                    select.innerHTML = '<option value="">اختر عضو...</option>';
+                    
+                    this.members.forEach(member => {
+                        const option = document.createElement('option');
+                        option.value = member.id;
+                        option.textContent = member.name;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading members:', error);
+                    this.showMessage('خطأ في تحميل قائمة الأعضاء', 'error');
+                }
+            }
+
+            // تحميل الأسابيع من Firebase
+            async loadWeeks() {
+                try {
+                    const weeksSnapshot = await getDocs(collection(db, 'weeks'));
+                    this.weeks = weeksSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    const select = document.getElementById('week-select');
+                    select.innerHTML = '<option value="">اختر أسبوع...</option>';
+                    
+                    this.weeks.forEach(week => {
+                        const option = document.createElement('option');
+                        option.value = week.id;
+                        option.textContent = week.name;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading weeks:', error);
+                    this.showMessage('خطأ في تحميل قائمة الأسابيع', 'error');
+                }
+            }
+
+            // إعداد مستمعي الأحداث
+            setupEventListeners() {
+                // تبديل اللغة
+                document.getElementById('lang-toggle').addEventListener('click', () => {
+                    this.toggleLanguage();
+                });
+
+                // تبديل وضع الظلام
+                document.getElementById('dark-toggle').addEventListener('click', () => {
+                    this.toggleDarkMode();
+                });
+
+                // زر الإدارة
+                document.getElementById('admin-btn').addEventListener('click', () => {
+                    this.showAdminPanel();
+                });
+
+                // طرق التحقق
+                document.querySelectorAll('.verification-method').forEach(method => {
+                    method.addEventListener('click', (e) => {
+                        this.selectVerificationMethod(e.currentTarget.dataset.method);
+                    });
+                });
+
+                // زر البصمة/الوجه
+                document.getElementById('biometric-button').addEventListener('click', () => {
+                    this.simulateBiometric();
+                });
+
+                // نموذج الحضور
+                document.getElementById('attendance-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitAttendance();
+                });
+
+                // تحديث نقاط التالانتون عند اختيار عضو
+                document.getElementById('member-select').addEventListener('change', (e) => {
+                    this.updateTalantonPoints(e.target.value);
+                });
+            }
+
+            // تبديل اللغة
+            toggleLanguage() {
+                this.currentLanguage = this.currentLanguage === 'ar' ? 'en' : 'ar';
+                const isArabic = this.currentLanguage === 'ar';
+                
+                document.getElementById('html-root').setAttribute('dir', isArabic ? 'rtl' : 'ltr');
+                document.getElementById('html-root').setAttribute('lang', isArabic ? 'ar' : 'en');
+                
+                document.getElementById('lang-text').textContent = isArabic ? 'English' : 'عربي';
+                
+                // تحديث النصوص الأخرى حسب اللغة
+                this.updateLanguageTexts();
+            }
+
+            updateLanguageTexts() {
+                const texts = {
+                    ar: {
+                        systemTitle: 'نظام حضور اجتماع خدام الملائكة',
+                        welcomeTitle: 'أهلاً وسهلاً بكم',
+                        welcomeSubtitle: 'في نظام حضور خدام الملائكة',
+                        attendanceTitle: 'تسجيل الحضور',
+                        selectName: 'اختر اسمك',
+                        selectWeek: 'اختر الأسبوع',
+                        loginOptions: 'خيارات تسجيل الدخول',
+                        password: 'كلمة المرور',
+                        fingerprint: 'البصمة',
+                        face: 'التعرف على الوجه',
+                        submit: 'تسجيل الحضور',
+                        admin: 'لوحة الإدارة',
+                        store: 'المتجر',
+                        reports: 'التقارير',
+                        talanton: 'نقاطي'
+                    },
+                    en: {
+                        systemTitle: 'Angels Servants Meeting Attendance System',
+                        welcomeTitle: 'Welcome',
+                        welcomeSubtitle: 'To Angels Servants Attendance System',
+                        attendanceTitle: 'Attendance Registration',
+                        selectName: 'Select Your Name',
+                        selectWeek: 'Select Week',
+                        loginOptions: 'Login Options',
+                        password: 'Password',
+                        fingerprint: 'Fingerprint',
+                        face: 'Face Recognition',
+                        submit: 'Register Attendance',
+                        admin: 'Admin Panel',
+                        store: 'Store',
+                        reports: 'Reports',
+                        talanton: 'My Talanton'
+                    }
+                };
+
+                const currentTexts = texts[this.currentLanguage];
+                
+                document.getElementById('system-title').textContent = currentTexts.systemTitle;
+                document.getElementById('welcome-title').textContent = currentTexts.welcomeTitle;
+                document.getElementById('welcome-subtitle').textContent = currentTexts.welcomeSubtitle;
+                document.getElementById('attendance-title').innerHTML = `<i class="fas fa-calendar-check ${this.currentLanguage === 'ar' ? 'ml-3' : 'mr-3'} text-indigo-600"></i>${currentTexts.attendanceTitle}`;
+                document.getElementById('select-name-label').textContent = currentTexts.selectName;
+                document.getElementById('select-week-label').textContent = currentTexts.selectWeek;
+                document.getElementById('login-options-label').textContent = currentTexts.loginOptions;
+                document.getElementById('password-text').textContent = currentTexts.password;
+                document.getElementById('fingerprint-text').textContent = currentTexts.fingerprint;
+                document.getElementById('face-text').textContent = currentTexts.face;
+                document.getElementById('submit-text').textContent = currentTexts.submit;
+                document.getElementById('admin-text').textContent = currentTexts.admin;
+                document.getElementById('store-title').textContent = currentTexts.store;
+                document.getElementById('reports-title').textContent = currentTexts.reports;
+                document.getElementById('talanton-title').textContent = currentTexts.talanton;
+            }
+
+            // تبديل وضع الظلام
+            toggleDarkMode() {
+                this.isDarkMode = !this.isDarkMode;
+                localStorage.setItem('darkMode', this.isDarkMode);
+                this.applyDarkMode();
+            }
+
+            // اختيار طريقة التحقق
+            selectVerificationMethod(method) {
+                this.selectedMethod = method;
+                
+                // إزالة التحديد من جميع الطرق
+                document.querySelectorAll('.verification-method').forEach(m => {
+                    m.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900');
+                    m.classList.add('border-gray-200', 'dark:border-gray-600');
+                });
+                
+                // إضافة التحديد للطريقة المختارة
+                document.querySelector(`[data-method="${method}"]`).classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900');
+                document.querySelector(`[data-method="${method}"]`).classList.remove('border-gray-200', 'dark:border-gray-600');
+                
+                // إظهار/إخفاء الحقول المناسبة
+                document.getElementById('password-input').classList.add('hidden');
+                document.getElementById('biometric-simulation').classList.add('hidden');
+                
+                if (method === 'password') {
+                    document.getElementById('password-input').classList.remove('hidden');
+                } else {
+                    document.getElementById('biometric-simulation').classList.remove('hidden');
+                    const icon = method === 'fingerprint' ? 'fa-fingerprint' : 'fa-user-circle';
+                    const text = method === 'fingerprint' ? 'اضغط للمسح البصمي' : 'اضغط للمسح الضوئي';
+                    document.getElementById('biometric-icon').className = `fas ${icon} text-6xl mb-4 pulse-animation`;
+                    document.getElementById('biometric-text').textContent = text;
+                }
+            }
+
+            // محاكاة البصمة/التعرف على الوجه
+            simulateBiometric() {
+                this.showLoading(true);
+                
+                setTimeout(() => {
+                    this.showLoading(false);
+                    this.showMessage('تم التحقق بنجاح!', 'success');
+                }, 2000);
+            }
+
+            // تسجيل الحضور
+            async submitAttendance() {
+                const memberId = document.getElementById('member-select').value;
+                const weekId = document.getElementById('week-select').value;
+                const password = document.getElementById('password-field').value;
+
+                if (!memberId || !weekId) {
+                    this.showMessage('يرجى اختيار العضو والأسبوع', 'error');
+                    return;
+                }
+
+                if (!this.selectedMethod) {
+                    this.showMessage('يرجى اختيار طريقة التحقق', 'error');
+                    return;
+                }
+
+                if (this.selectedMethod === 'password' && !password) {
+                    this.showMessage('يرجى إدخال كلمة المرور', 'error');
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    // التحقق من العضو
+                    const member = this.members.find(m => m.id === memberId);
+                    
+                    if (this.selectedMethod === 'password') {
+                        if (member.password !== password) {
+                            throw new Error('كلمة المرور غير صحيحة');
+                        }
+                    }
+
+                    // تسجيل الحضور
+                    const attendanceData = {
+                        memberId: memberId,
+                        memberName: member.name,
+                        weekId: weekId,
+                        weekName: this.weeks.find(w => w.id === weekId).name,
+                        method: this.selectedMethod,
+                        timestamp: new Date(),
+                        points: 10 // نقاط لكل حضور
+                    };
+
+                    await addDoc(collection(db, 'attendance'), attendanceData);
+
+                    // تحديث نقاط العضو
+                    await this.updateMemberPoints(memberId, 10);
+
+                    this.showLoading(false);
+                    this.showMessage('تم تسجيل الحضور بنجاح! +10 نقاط', 'success');
+                    
+                    // إعادة تعيين النموذج
+                    this.resetForm();
+                    this.updateTalantonPoints(memberId);
+
+                } catch (error) {
+                    this.showLoading(false);
+                    this.showMessage(error.message || 'حدث خطأ أثناء تسجيل الحضور', 'error');
+                }
+            }
+
+            // تحديث نقاط العضو
+            async updateMemberPoints(memberId, pointsToAdd) {
+                try {
+                    const memberRef = doc(db, 'members', memberId);
+                    const memberDoc = await getDoc(memberRef);
+                    
+                    if (memberDoc.exists()) {
+                        const currentPoints = memberDoc.data().points || 0;
+                        await updateDoc(memberRef, {
+                            points: currentPoints + pointsToAdd
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error updating points:', error);
+                }
+            }
+
+            // تحديث عرض نقاط التالانتون
+            async updateTalantonPoints(memberId = null) {
+                if (!memberId) {
+                    document.getElementById('user-talanton').textContent = '--- نقطة';
+                    return;
+                }
+
+                try {
+                    const memberDoc = await getDoc(doc(db, 'members', memberId));
+                    if (memberDoc.exists()) {
+                        const points = memberDoc.data().points || 0;
+                        document.getElementById('user-talanton').textContent = `${points} نقطة`;
+                    }
+                } catch (error) {
+                    console.error('Error loading points:', error);
+                }
+            }
+
+            // إعادة تعيين النموذج
+            resetForm() {
+                document.getElementById('attendance-form').reset();
+                document.getElementById('password-input').classList.add('hidden');
+                document.getElementById('biometric-simulation').classList.add('hidden');
+                document.querySelectorAll('.verification-method').forEach(m => {
+                    m.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900');
+                    m.classList.add('border-gray-200', 'dark:border-gray-600');
+                });
+                this.selectedMethod = null;
+            }
+
+            // عرض لوحة الإدارة
+            showAdminPanel() {
+                this.showMessage('لوحة الإدارة قريباً...', 'info');
+            }
+
+            // عرض/إخفاء التحميل
+            showLoading(show) {
+                document.getElementById('loading').style.display = show ? 'flex' : 'none';
+            }
+
+            // عرض الرسائل
+            showMessage(message, type = 'info') {
+                const container = document.getElementById('message-container');
+                const messageDiv = document.createElement('div');
+                
+                const colors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                    info: 'bg-blue-500'
+                };
+
+                messageDiv.className = `p-4 rounded-lg text-white mb-2 ${colors[type]} animate-fade-in`;
+                messageDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>${message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-4">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(messageDiv);
+
+                // إزالة الرسالة تلقائياً بعد 5 ثواني
+                setTimeout(() => {
+                    if (messageDiv.parentElement) {
+                        messageDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // الدوال العامة للروابط السريعة
+        function goToStore() {
+            attendanceSystem.showMessage('المتجر قريباً...', 'info');
+        }
+
+        function showReports() {
+            attendanceSystem.showMessage('التقارير قريباً...', 'info');
+        }
+
+        function showMyTalanton() {
+            attendanceSystem.showMessage('عرض النقاط قريباً...', 'info');
+        }
+
+        // تهيئة النظام عند تحميل الصفحة
+        let attendanceSystem;
+        document.addEventListener('DOMContentLoaded', () => {
+            attendanceSystem = new AttendanceSystem();
+        });
+
+        // إضافة أنيميشن للرسائل
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fade-in {
+                from { opacity: 0; transform: translateY(-20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in {
+                animation: fade-in 0.3s ease-out;
+            }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+</body>
+</html>

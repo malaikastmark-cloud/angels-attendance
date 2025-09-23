@@ -6,7 +6,7 @@
     <title>نظام حضور اجتماع خدام الملائكة - Talanton</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -15,6 +15,14 @@
                     fontFamily: {
                         'arabic': ['Cairo', 'Amiri', 'Arial', 'sans-serif'],
                         'english': ['Inter', 'Arial', 'sans-serif']
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1'
+                        }
                     }
                 }
             }
@@ -23,65 +31,102 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', 'Arial', sans-serif; }
-        .ltr { direction: ltr; }
-        .rtl { direction: rtl; }
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .hover-scale { transition: transform 0.2s; }
         .hover-scale:hover { transform: scale(1.02); }
-        .biometric-button { background: linear-gradient(45deg, #4f46e5, #7c3aed); }
-        .biometric-button:hover { background: linear-gradient(45deg, #6366f1, #8b5cf6); }
         .pulse-animation { animation: pulse 2s infinite; }
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
-        .loading { display: none; }
-        .loading.active { display: block; }
-        .admin-panel { display: none; }
-        .admin-panel.active { display: block; }
+        
         .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300 min-h-screen">
+    <!-- Admin Login -->
+    <div id="admin-login" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-md mx-4 glass-effect">
+            <div class="text-center mb-6">
+                <i class="fas fa-lock text-4xl text-indigo-600 mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">دخول الأدمن</h2>
+                <p class="text-gray-600 dark:text-gray-400">أدخل كلمة المرور للوصول إلى لوحة الإدارة</p>
+            </div>
+            <form id="admin-login-form" class="space-y-4">
+                <div>
+                    <input type="password" id="admin-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-sign-in-alt ml-2"></i>
+                    دخول
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Navigation -->
-    <nav class="bg-white dark:bg-gray-800 shadow-lg">
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <!-- Logo and Title -->
                 <div class="flex items-center space-x-3 space-x-reverse">
                     <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                         <i class="fas fa-users text-white text-xl"></i>
                     </div>
                     <div>
-                        <h1 id="system-title" class="text-xl font-bold text-gray-800 dark:text-white">نظام حضور اجتماع خدام الملائكة</h1>
-                        <p id="sub-title" class="text-sm text-gray-500 dark:text-gray-400">Talanton</p>
+                        <h1 class="text-xl font-bold text-gray-800 dark:text-white">نظام حضور اجتماع خدام الملائكة</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Talanton</p>
                     </div>
                 </div>
                 
-                <!-- Controls -->
                 <div class="flex items-center space-x-4 space-x-reverse">
-                    <!-- Language Toggle -->
                     <button id="lang-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <span id="lang-text">عربي</span>
+                        <span>عربي</span>
                     </button>
                     
-                    <!-- Dark Mode Toggle -->
                     <button id="dark-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                         <i id="dark-icon" class="fas fa-moon"></i>
                     </button>
                     
-                    <!-- Admin Panel -->
                     <button id="admin-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                         <i class="fas fa-cog ml-2"></i>
-                        <span id="admin-text">دخول الأدمن</span>
+                        دخول الأدمن
                     </button>
 
-                    <!-- Back to Main -->
                     <button id="back-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors hidden">
                         <i class="fas fa-arrow-right ml-2"></i>
-                        <span id="back-text">العودة للرئيسية</span>
+                        العودة للرئيسية
                     </button>
                 </div>
             </div>
@@ -91,155 +136,89 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8" id="main-content">
         <!-- Welcome Section -->
-        <div class="text-center mb-8">
-            <div class="gradient-bg text-white rounded-2xl p-8 card-shadow">
+        <div class="text-center mb-8 fade-in">
+            <div class="gradient-bg text-white rounded-2xl p-8 card-shadow hover-lift">
                 <i class="fas fa-church text-5xl mb-4"></i>
-                <h2 id="welcome-title" class="text-3xl font-bold mb-2">أهلاً وسهلاً بكم</h2>
-                <p id="welcome-subtitle" class="text-xl opacity-90">في نظام حضور خدام الملائكة</p>
+                <h2 class="text-3xl font-bold mb-2">أهلاً وسهلاً بكم</h2>
+                <p class="text-xl opacity-90">في نظام حضور خدام الملائكة</p>
             </div>
         </div>
 
-        <!-- Attendance Form -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
-            <h3 id="attendance-title" class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-                <i class="fas fa-calendar-check ml-3 text-indigo-600"></i>
-                تسجيل الحضور
+        <!-- Quick Registration -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8 hover-lift">
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+                <i class="fas fa-bolt ml-3 text-yellow-500"></i>
+                التسجيل السريع
             </h3>
             
-            <form id="attendance-form" class="space-y-6">
-                <!-- Member Selection -->
+            <form id="quick-registration-form" class="space-y-6 max-w-md mx-auto">
                 <div>
-                    <label id="select-name-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر اسمك</label>
-                    <select id="member-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
-                        <option value="">جاري تحميل الأعضاء...</option>
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رقم العضو التسلسلي</label>
+                    <input type="number" id="member-id-input" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل رقمك التسلسلي" min="1">
                 </div>
                 
-                <!-- Week Selection -->
                 <div>
-                    <label id="select-week-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر الأسبوع</label>
-                    <select id="week-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر الأسبوع</label>
+                    <select id="week-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white">
                         <option value="">جاري تحميل الأسابيع...</option>
                     </select>
                 </div>
                 
-                <!-- Verification Method -->
-                <div>
-                    <label id="login-options-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">خيارات تسجيل الدخول</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Password Method -->
-                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="password">
-                            <div class="text-center">
-                                <i class="fas fa-key text-3xl text-indigo-600 mb-2"></i>
-                                <p id="password-text" class="font-medium text-gray-800 dark:text-white">كلمة المرور</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Fingerprint Method -->
-                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="fingerprint">
-                            <div class="text-center">
-                                <i class="fas fa-fingerprint text-3xl text-green-600 mb-2"></i>
-                                <p id="fingerprint-text" class="font-medium text-gray-800 dark:text-white">البصمة</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Face Recognition Method -->
-                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="face">
-                            <div class="text-center">
-                                <i class="fas fa-user-circle text-3xl text-purple-600 mb-2"></i>
-                                <p id="face-text" class="font-medium text-gray-800 dark:text-white">التعرف على الوجه</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Password Input (Hidden by default) -->
-                <div id="password-input" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
-                    <input type="password" id="password-field" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل كلمة المرور">
-                </div>
-                
-                <!-- Biometric Simulation (Hidden by default) -->
-                <div id="biometric-simulation" class="hidden text-center">
-                    <div class="biometric-button text-white p-8 rounded-xl cursor-pointer" id="biometric-button">
-                        <i id="biometric-icon" class="text-6xl mb-4 pulse-animation"></i>
-                        <p id="biometric-text" class="text-xl font-bold">اضغط للمسح</p>
-                    </div>
-                </div>
-                
-                <!-- Submit Button -->
-                <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover-scale disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 pulse-glow">
                     <i class="fas fa-check-circle ml-2"></i>
-                    <span id="submit-text">تسجيل الحضور</span>
+                    تسجيل الحضور السريع
                 </button>
             </form>
         </div>
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Store -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="showStore()">
                 <div class="text-center">
                     <i class="fas fa-store text-4xl text-green-600 mb-4"></i>
-                    <h4 id="store-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">المتجر</h4>
+                    <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-2">المتجر</h4>
                     <p class="text-gray-600 dark:text-gray-400">استبدل نقاط التالانتون</p>
                 </div>
             </div>
             
-            <!-- Reports -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="showReports()">
                 <div class="text-center">
                     <i class="fas fa-chart-bar text-4xl text-blue-600 mb-4"></i>
-                    <h4 id="reports-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">التقارير</h4>
+                    <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-2">التقارير</h4>
                     <p class="text-gray-600 dark:text-gray-400">عرض الإحصائيات</p>
                 </div>
             </div>
             
-            <!-- My Talanton -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-6 hover-scale cursor-pointer" onclick="showMyTalanton()">
                 <div class="text-center">
                     <i class="fas fa-coins text-4xl text-yellow-600 mb-4"></i>
-                    <h4 id="talanton-title" class="text-xl font-bold text-gray-800 dark:text-white mb-2">Talanton</h4>
+                    <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Talanton الخاص بي</h4>
                     <p id="user-talanton" class="text-2xl font-bold text-yellow-600">---</p>
                 </div>
             </div>
         </div>
 
         <!-- Store Section -->
-        <div id="store-section" class="hidden">
+        <div id="store-section" class="hidden fade-in">
             <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
                 <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
                     <i class="fas fa-store ml-3 text-green-600"></i>
                     متجر التالانتون
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-container">
-                    <!-- سيتم ملؤها بالمنتجات -->
+                    <!-- Products will be loaded here -->
                 </div>
             </div>
         </div>
 
         <!-- Reports Section -->
-        <div id="reports-section" class="hidden">
+        <div id="reports-section" class="hidden fade-in">
             <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
                 <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
                     <i class="fas fa-chart-bar ml-3 text-blue-600"></i>
                     التقارير والإحصائيات
                 </h3>
                 
-                <!-- Weekly Reports -->
-                <div class="mb-8">
-                    <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-4">التقارير الأسبوعية</h4>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                            <canvas id="weeklyAttendanceChart"></canvas>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
-                            <canvas id="membersPointsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl p-6 text-center">
                         <i class="fas fa-users text-3xl mb-2"></i>
@@ -262,14 +241,22 @@
                         <p class="text-yellow-100">معدل الحضور</p>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                        <canvas id="pointsChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
     <!-- Admin Panel -->
-    <div id="admin-panel" class="admin-panel max-w-7xl mx-auto px-4 py-8">
-        <!-- Admin Header -->
-        <div class="text-center mb-8">
+    <div id="admin-panel" class="max-w-7xl mx-auto px-4 py-8 hidden">
+        <div class="text-center mb-8 fade-in">
             <div class="gradient-bg text-white rounded-2xl p-8 card-shadow">
                 <i class="fas fa-cog text-5xl mb-4"></i>
                 <h2 class="text-3xl font-bold mb-2">لوحة الإدارة</h2>
@@ -277,45 +264,19 @@
             </div>
         </div>
 
-        <!-- Admin Tabs -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow mb-8">
             <div class="flex border-b border-gray-200 dark:border-gray-600 overflow-x-auto">
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors active" data-tab="members">
+                <button class="admin-tab py-4 px-6 border-b-2 border-indigo-500 font-medium text-indigo-600 dark:text-indigo-400" data-tab="members">
                     <i class="fas fa-users ml-2"></i>
                     إدارة الأعضاء
                 </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="weeks">
-                    <i class="fas fa-calendar ml-2"></i>
-                    إدارة الأسابيع
-                </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="products">
+                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400" data-tab="products">
                     <i class="fas fa-store ml-2"></i>
                     إدارة المتجر
                 </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="competitions">
-                    <i class="fas fa-trophy ml-2"></i>
-                    المسابقات
-                </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="events">
-                    <i class="fas fa-calendar-day ml-2"></i>
-                    المناسبات
-                </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="birthdays">
-                    <i class="fas fa-birthday-cake ml-2"></i>
-                    أعياد الميلاد
-                </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="attendance">
-                    <i class="fas fa-clipboard-list ml-2"></i>
-                    سجل الحضور
-                </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" data-tab="security">
-                    <i class="fas fa-shield-alt ml-2"></i>
-                    الأمان
-                </button>
             </div>
 
-            <!-- Members Management Tab -->
-            <div id="tab-members" class="admin-tab-content p-6 active">
+            <div id="tab-members" class="p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة الأعضاء</h3>
                     <button onclick="showAddMemberModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
@@ -328,37 +289,22 @@
                     <table class="w-full text-right">
                         <thead>
                             <tr class="bg-gray-50 dark:bg-gray-700">
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">الاسم</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">البريد الإلكتروني</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">نقاط التالانتون</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">آخر حضور</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">الإجراءات</th>
+                                <th class="p-3 text-sm font-semibold">#</th>
+                                <th class="p-3 text-sm font-semibold">الاسم</th>
+                                <th class="p-3 text-sm font-semibold">رقم التسلسلي</th>
+                                <th class="p-3 text-sm font-semibold">النقاط</th>
+                                <th class="p-3 text-sm font-semibold">آخر حضور</th>
+                                <th class="p-3 text-sm font-semibold">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="members-table-body">
-                            <!-- سيتم ملؤها بالبيانات -->
+                            <!-- Members will be loaded here -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Weeks Management Tab -->
-            <div id="tab-weeks" class="admin-tab-content p-6 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة الأسابيع</h3>
-                    <button onclick="showAddWeekModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-plus ml-2"></i>
-                        إضافة أسبوع جديد
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="weeks-container">
-                    <!-- سيتم ملؤها بالبيانات -->
-                </div>
-            </div>
-
-            <!-- Products Management Tab -->
-            <div id="tab-products" class="admin-tab-content p-6 hidden">
+            <div id="tab-products" class="p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المتجر</h3>
                     <button onclick="showAddProductModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
@@ -368,171 +314,13 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-admin-container">
-                    <!-- سيتم ملؤها بالمنتجات -->
+                    <!-- Products will be loaded here -->
                 </div>
             </div>
-
-            <!-- Competitions Management Tab -->
-            <div id="tab-competitions" class="admin-tab-content p-6 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المسابقات</h3>
-                    <button onclick="showAddCompetitionModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-plus ml-2"></i>
-                        إضافة مسابقة جديدة
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="competitions-container">
-                    <!-- سيتم ملؤها بالمسابقات -->
-                </div>
-            </div>
-
-            <!-- Events Management Tab -->
-            <div id="tab-events" class="admin-tab-content p-6 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المناسبات</h3>
-                    <button onclick="showAddEventModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-plus ml-2"></i>
-                        إضافة مناسبة جديدة
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="events-container">
-                    <!-- سيتم ملؤها بالمناسبات -->
-                </div>
-            </div>
-
-            <!-- Birthdays Management Tab -->
-            <div id="tab-birthdays" class="admin-tab-content p-6 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة أعياد الميلاد</h3>
-                    <button onclick="showAddBirthdayModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-plus ml-2"></i>
-                        إضافة عيد ميلاد
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="birthdays-container">
-                    <!-- سيتم ملؤها بأعياد الميلاد -->
-                </div>
-            </div>
-
-            <!-- Attendance Records Tab -->
-            <div id="tab-attendance" class="admin-tab-content p-6 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">سجل الحضور</h3>
-                    <div class="flex space-x-2 space-x-reverse">
-                        <select id="attendance-filter" class="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
-                            <option value="all">جميع السجلات</option>
-                            <option value="today">اليوم</option>
-                            <option value="week">هذا الأسبوع</option>
-                            <option value="month">هذا الشهر</option>
-                        </select>
-                        <button onclick="showAddPointsModal()" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
-                            <i class="fas fa-plus ml-2"></i>
-                            إضافة نقاط
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right">
-                        <thead>
-                            <tr class="bg-gray-50 dark:bg-gray-700">
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">العضو</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">الأسبوع</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">طريقة التحقق</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">التاريخ والوقت</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">النقاط</th>
-                                <th class="p-3 text-sm font-semibold text-gray-600 dark:text-gray-300">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendance-table-body">
-                            <!-- سيتم ملؤها بالبيانات -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Security Tab -->
-            <div id="tab-security" class="admin-tab-content p-6 hidden">
-                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-6">إعدادات الأمان</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- تغيير كلمة مرور الأدمن -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 card-shadow">
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-4">تغيير كلمة مرور الأدمن</h4>
-                        <form id="change-admin-password-form" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور الحالية</label>
-                                <input type="password" id="current-admin-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور الجديدة</label>
-                                <input type="password" id="new-admin-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تأكيد كلمة المرور الجديدة</label>
-                                <input type="password" id="confirm-admin-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                            </div>
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors">
-                                تغيير كلمة المرور
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- إعادة تعيين كلمات مرور الأعضاء -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 card-shadow">
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-4">إعادة تعيين كلمات مرور الأعضاء</h4>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اختر العضو</label>
-                                <select id="reset-member-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
-                                    <option value="">اختر عضو...</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور الجديدة</label>
-                                <input type="password" id="new-member-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
-                            </div>
-                            <button onclick="attendanceSystem.resetMemberPassword()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition-colors">
-                                إعادة تعيين كلمة المرور
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Login Modal -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-md mx-4">
-            <div class="text-center mb-6">
-                <i class="fas fa-lock text-4xl text-indigo-600 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">دخول الأدمن</h2>
-                <p class="text-gray-600 dark:text-gray-400">أدخل كلمة المرور للوصول إلى لوحة الإدارة</p>
-            </div>
-            <form id="admin-login-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
-                    <input type="password" id="admin-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل كلمة المرور" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse">
-                    <button type="button" onclick="hideAdminLogin()" class="flex-1 px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                        إلغاء
-                    </button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors">
-                        <i class="fas fa-sign-in-alt ml-2"></i>
-                        دخول
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 
     <!-- Modals -->
-    <!-- Add Member Modal -->
     <div id="add-member-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة عضو جديد</h3>
@@ -545,10 +333,6 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">البريد الإلكتروني</label>
                     <input type="email" id="member-email" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور</label>
-                    <input type="password" id="member-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
                 <div class="flex space-x-3 space-x-reverse justify-end">
                     <button type="button" onclick="hideAddMemberModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
                     <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
@@ -557,80 +341,6 @@
         </div>
     </div>
 
-    <!-- Edit Member Modal -->
-    <div id="edit-member-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">تعديل العضو</h3>
-            <form id="edit-member-form" class="space-y-4">
-                <input type="hidden" id="edit-member-id">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم العضو</label>
-                    <input type="text" id="edit-member-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="edit-member-email" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور الجديدة (اتركها فارغة للحفاظ على القديمة)</label>
-                    <input type="password" id="edit-member-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">نقاط التالانتون</label>
-                    <input type="number" id="edit-member-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideEditMemberModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">تحديث</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Week Modal -->
-    <div id="add-week-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة أسبوع جديد</h3>
-            <form id="add-week-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم الأسبوع</label>
-                    <input type="text" id="week-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الأسبوع</label>
-                    <input type="date" id="week-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddWeekModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Week Modal -->
-    <div id="edit-week-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">تعديل الأسبوع</h3>
-            <form id="edit-week-form" class="space-y-4">
-                <input type="hidden" id="edit-week-id">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم الأسبوع</label>
-                    <input type="text" id="edit-week-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الأسبوع</label>
-                    <input type="date" id="edit-week-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideEditWeekModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">تحديث</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Product Modal -->
     <div id="add-product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة منتج جديد</h3>
@@ -655,118 +365,6 @@
         </div>
     </div>
 
-    <!-- Add Points Modal -->
-    <div id="add-points-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة نقاط إضافية</h3>
-            <form id="add-points-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اختر العضو</label>
-                    <select id="points-member-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                        <option value="">اختر عضو...</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">عدد النقاط</label>
-                    <input type="number" id="points-amount" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">السبب</label>
-                    <input type="text" id="points-reason" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" placeholder="مثال: مشاركة في فعالية" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddPointsModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">إضافة النقاط</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Competition Modal -->
-    <div id="add-competition-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة مسابقة جديدة</h3>
-            <form id="add-competition-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المسابقة</label>
-                    <input type="text" id="competition-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الوصف</label>
-                    <textarea id="competition-description" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" rows="3" required></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الجائزة (نقاط)</label>
-                    <input type="number" id="competition-prize" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الانتهاء</label>
-                    <input type="date" id="competition-deadline" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddCompetitionModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Event Modal -->
-    <div id="add-event-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة مناسبة جديدة</h3>
-            <form id="add-event-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المناسبة</label>
-                    <input type="text" id="event-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الوصف</label>
-                    <textarea id="event-description" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" rows="3"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
-                    <input type="number" id="event-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">التاريخ</label>
-                    <input type="date" id="event-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddEventModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Birthday Modal -->
-    <div id="add-birthday-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة عيد ميلاد</h3>
-            <form id="add-birthday-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اختر العضو</label>
-                    <select id="birthday-member-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                        <option value="">اختر عضو...</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الميلاد</label>
-                    <input type="date" id="birthday-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
-                    <input type="number" id="birthday-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" value="20" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddBirthdayModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Loading Spinner -->
     <div id="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center">
@@ -775,44 +373,19 @@
         </div>
     </div>
 
-    <!-- Success/Error Messages -->
+    <!-- Messages -->
     <div id="message-container" class="fixed top-4 right-4 z-50"></div>
 
-    <!-- Firebase and App Script -->
-    <script type="module">
-        // Import Firebase functions
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
-
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBHso7dhJC7P_akMQQ0oN_8ZMTQqsRoVbY",
-            authDomain: "angel-meeting-attendance.firebaseapp.com",
-            projectId: "angel-meeting-attendance",
-            storageBucket: "angel-meeting-attendance.firebasestorage.app",
-            messagingSenderId: "100624957418",
-            appId: "1:100624957418:web:291d087797cec9ec79fc93",
-            measurementId: "G-2TTXV6CD8F"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // النظام الأساسي
+    <script>
+        // النظام الرئيسي
         class AttendanceSystem {
             constructor() {
-                this.currentLanguage = 'ar';
                 this.isDarkMode = localStorage.getItem('darkMode') === 'true';
-                this.selectedMethod = null;
                 this.members = [];
                 this.weeks = [];
                 this.products = [];
-                this.competitions = [];
-                this.events = [];
-                this.birthdays = [];
                 this.attendanceRecords = [];
-                this.currentUser = null;
+                this.currentMember = null;
                 this.isAdminPanel = false;
                 this.isAdminAuthenticated = false;
                 this.adminPassword = "admin123";
@@ -820,41 +393,226 @@
                 this.init();
             }
 
-            init() {
+            async init() {
                 this.applyDarkMode();
-                this.loadMembers();
-                this.loadWeeks();
-                this.loadProducts();
-                this.loadCompetitions();
-                this.loadEvents();
-                this.loadBirthdays();
-                this.loadAttendanceRecords();
+                await this.loadAllData();
                 this.setupEventListeners();
-                this.updateTalantonPoints();
+                this.updateUI();
             }
 
-            // ... (جميع الدوال السابقة تبقى كما هي)
+            applyDarkMode() {
+                if (this.isDarkMode) {
+                    document.documentElement.classList.add('dark');
+                    document.getElementById('dark-icon').className = 'fas fa-sun';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.getElementById('dark-icon').className = 'fas fa-moon';
+                }
+            }
 
-            // دوال التعديل والحذف المحسنة
-            async editMember(memberId) {
+            async loadAllData() {
+                await this.loadMembers();
+                await this.loadWeeks();
+                await this.loadProducts();
+                await this.loadAttendanceRecords();
+            }
+
+            async loadMembers() {
+                // بيانات تجريبية
+                this.members = [
+                    { id: 1, name: "أحمد محمد", points: 150, lastAttendance: "2024-01-15", email: "ahmed@example.com" },
+                    { id: 2, name: "محمد علي", points: 200, lastAttendance: "2024-01-14", email: "mohamed@example.com" },
+                    { id: 3, name: "ياسين أحمد", points: 75, lastAttendance: "2024-01-13", email: "yaseen@example.com" },
+                    { id: 4, name: "عمر كريم", points: 300, lastAttendance: "2024-01-15", email: "omar@example.com" },
+                    { id: 5, name: "خالد إبراهيم", points: 120, lastAttendance: "2024-01-12", email: "khaled@example.com" }
+                ].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            }
+
+            async loadWeeks() {
+                this.weeks = [
+                    { id: 1, name: "الأسبوع الأول - يناير", date: "2024-01-01" },
+                    { id: 2, name: "الأسبوع الثاني - يناير", date: "2024-01-08" },
+                    { id: 3, name: "الأسبوع الثالث - يناير", date: "2024-01-15" },
+                    { id: 4, name: "الأسبوع الرابع - يناير", date: "2024-01-22" }
+                ];
+            }
+
+            async loadProducts() {
+                this.products = [
+                    { id: 1, name: "كتاب روحي", price: 50, description: "كتاب مفيد للتنمية الروحية", stock: 10 },
+                    { id: 2, name: "قلم تذكاري", price: 30, description: "قلم جميل للكتابة", stock: 20 },
+                    { id: 3, name: "كوب مخصص", price: 80, description: "كوب بحجم كبير ومخصص", stock: 5 },
+                    { id: 4, name: "حقيبة ظهر", price: 150, description: "حقيبة ظهر عملية وجميلة", stock: 8 }
+                ];
+            }
+
+            async loadAttendanceRecords() {
+                this.attendanceRecords = [
+                    { memberId: 1, weekId: 1, points: 10, timestamp: new Date('2024-01-01') },
+                    { memberId: 2, weekId: 1, points: 10, timestamp: new Date('2024-01-01') },
+                    { memberId: 1, weekId: 2, points: 10, timestamp: new Date('2024-01-08') },
+                    { memberId: 3, weekId: 2, points: 10, timestamp: new Date('2024-01-08') },
+                    { memberId: 4, weekId: 3, points: 10, timestamp: new Date('2024-01-15') }
+                ];
+            }
+
+            setupEventListeners() {
+                // Dark Mode
+                document.getElementById('dark-toggle').addEventListener('click', () => this.toggleDarkMode());
+                
+                // Admin
+                document.getElementById('admin-btn').addEventListener('click', () => this.showAdminLogin());
+                document.getElementById('back-btn').addEventListener('click', () => this.hideAdminPanel());
+                document.getElementById('admin-login-form').addEventListener('submit', (e) => this.adminLogin(e));
+
+                // Quick Registration
+                document.getElementById('quick-registration-form').addEventListener('submit', (e) => this.quickRegister(e));
+                document.getElementById('member-id-input').addEventListener('input', (e) => this.handleMemberInput(e));
+
+                // Admin Tabs
+                document.querySelectorAll('.admin-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => this.switchAdminTab(e.currentTarget.dataset.tab));
+                });
+
+                // Forms
+                document.getElementById('add-member-form').addEventListener('submit', (e) => this.addMember(e));
+                document.getElementById('add-product-form').addEventListener('submit', (e) => this.addProduct(e));
+
+                // Language Toggle
+                document.getElementById('lang-toggle').addEventListener('click', () => this.toggleLanguage());
+            }
+
+            toggleDarkMode() {
+                this.isDarkMode = !this.isDarkMode;
+                localStorage.setItem('darkMode', this.isDarkMode);
+                this.applyDarkMode();
+                this.showMessage(`تم تفعيل ${this.isDarkMode ? 'الوضع الداكن' : 'الوضع الفاتح'}`, 'success');
+            }
+
+            toggleLanguage() {
+                this.showMessage('تبديل اللغة - قريباً', 'info');
+            }
+
+            adminLogin(e) {
+                e.preventDefault();
+                const password = document.getElementById('admin-password').value;
+                if (password === this.adminPassword) {
+                    this.isAdminAuthenticated = true;
+                    document.getElementById('admin-login').classList.add('hidden');
+                    this.showAdminPanel();
+                    this.showMessage('تم الدخول بنجاح', 'success');
+                } else {
+                    this.showMessage('كلمة المرور غير صحيحة', 'error');
+                }
+            }
+
+            showAdminLogin() {
+                if (!this.isAdminAuthenticated) {
+                    document.getElementById('admin-login').classList.remove('hidden');
+                } else {
+                    this.showAdminPanel();
+                }
+            }
+
+            showAdminPanel() {
+                this.isAdminPanel = true;
+                document.getElementById('main-content').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-btn').classList.add('hidden');
+                document.getElementById('back-btn').classList.remove('hidden');
+                this.updateAdminUI();
+            }
+
+            hideAdminPanel() {
+                this.isAdminPanel = false;
+                document.getElementById('main-content').classList.remove('hidden');
+                document.getElementById('admin-panel').classList.add('hidden');
+                document.getElementById('admin-btn').classList.remove('hidden');
+                document.getElementById('back-btn').classList.add('hidden');
+            }
+
+            switchAdminTab(tabName) {
+                document.querySelectorAll('.admin-tab').forEach(tab => {
+                    tab.classList.remove('border-indigo-500', 'text-indigo-600');
+                    tab.classList.add('border-transparent', 'text-gray-500');
+                });
+
+                document.querySelectorAll('[data-tab]').forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                document.querySelector(`[data-tab="${tabName}"]`).classList.remove('border-transparent', 'text-gray-500');
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('border-indigo-500', 'text-indigo-600');
+                
+                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            }
+
+            handleMemberInput(e) {
+                const memberId = parseInt(e.target.value);
                 const member = this.members.find(m => m.id === memberId);
-                if (!member) return;
-
-                document.getElementById('edit-member-id').value = member.id;
-                document.getElementById('edit-member-name').value = member.name;
-                document.getElementById('edit-member-email').value = member.email || '';
-                document.getElementById('edit-member-points').value = member.points || 0;
-                document.getElementById('edit-member-password').value = '';
-
-                document.getElementById('edit-member-modal').classList.remove('hidden');
+                
+                if (member) {
+                    this.currentMember = member;
+                    this.updateMemberUI();
+                    this.showMessage(`مرحباً ${member.name}!`, 'success');
+                } else {
+                    this.currentMember = null;
+                    this.resetMemberUI();
+                }
             }
 
-            async updateMember() {
-                const memberId = document.getElementById('edit-member-id').value;
-                const name = document.getElementById('edit-member-name').value;
-                const email = document.getElementById('edit-member-email').value;
-                const password = document.getElementById('edit-member-password').value;
-                const points = parseInt(document.getElementById('edit-member-points').value);
+            async quickRegister(e) {
+                e.preventDefault();
+                const memberId = parseInt(document.getElementById('member-id-input').value);
+                const weekId = parseInt(document.getElementById('week-select').value);
+
+                if (!memberId) {
+                    this.showMessage('يرجى إدخال رقم العضو', 'error');
+                    return;
+                }
+
+                if (!weekId) {
+                    this.showMessage('يرجى اختيار الأسبوع', 'error');
+                    return;
+                }
+
+                const member = this.members.find(m => m.id === memberId);
+                if (!member) {
+                    this.showMessage('رقم العضو غير صحيح', 'error');
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    const attendanceRecord = {
+                        memberId: memberId,
+                        weekId: weekId,
+                        points: 10,
+                        timestamp: new Date()
+                    };
+
+                    this.attendanceRecords.push(attendanceRecord);
+                    member.points += 10;
+                    member.lastAttendance = new Date().toISOString().split('T')[0];
+
+                    this.showLoading(false);
+                    this.showMessage(`تم تسجيل حضور ${member.name} بنجاح! +10 نقاط`, 'success');
+                    this.updateMemberUI();
+                    this.updateAdminUI();
+
+                } catch (error) {
+                    this.showLoading(false);
+                    this.showMessage('حدث خطأ أثناء التسجيل', 'error');
+                }
+            }
+
+            async addMember(e) {
+                e.preventDefault();
+                const name = document.getElementById('member-name').value;
+                const email = document.getElementById('member-email').value;
 
                 if (!name) {
                     this.showMessage('يرجى إدخال اسم العضو', 'error');
@@ -864,297 +622,37 @@
                 this.showLoading(true);
 
                 try {
-                    const memberData = {
+                    const newId = this.members.length > 0 ? Math.max(...this.members.map(m => m.id)) + 1 : 1;
+                    
+                    const newMember = {
+                        id: newId,
                         name: name,
                         email: email,
-                        points: points
+                        points: 0,
+                        lastAttendance: null
                     };
 
-                    // إذا تم إدخال كلمة مرور جديدة، أضفها للبيانات
-                    if (password) {
-                        memberData.password = password;
-                    }
+                    this.members.push(newMember);
+                    this.members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
-                    await updateDoc(doc(db, 'members', memberId), memberData);
-                    
                     this.showLoading(false);
-                    this.showMessage('تم تحديث العضو بنجاح', 'success');
-                    this.hideEditMemberModal();
-                    this.loadMembers();
+                    this.showMessage('تم إضافة العضو بنجاح', 'success');
+                    this.hideAddMemberModal();
+                    this.updateAdminUI();
 
                 } catch (error) {
                     this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء تحديث العضو', 'error');
+                    this.showMessage('حدث خطأ أثناء إضافة العضو', 'error');
                 }
             }
 
-            async deleteMember(memberId) {
-                if (confirm('هل أنت متأكد من حذف هذا العضو؟ سيتم حذف جميع سجلات الحضور المرتبطة به.')) {
-                    this.showLoading(true);
-                    try {
-                        // حذف سجلات الحضور المرتبطة بالعضو أولاً
-                        const attendanceQuery = query(collection(db, 'attendance'), where('memberId', '==', memberId));
-                        const attendanceSnapshot = await getDocs(attendanceQuery);
-                        
-                        const deletePromises = attendanceSnapshot.docs.map(doc => deleteDoc(doc.ref));
-                        await Promise.all(deletePromises);
+            async addProduct(e) {
+                e.preventDefault();
+                const name = document.getElementById('product-name').value;
+                const price = parseInt(document.getElementById('product-price').value);
+                const description = document.getElementById('product-description').value;
 
-                        // ثم حذف العضو
-                        await deleteDoc(doc(db, 'members', memberId));
-                        
-                        this.showLoading(false);
-                        this.showMessage('تم حذف العضو وجميع سجلاته بنجاح', 'success');
-                        this.loadMembers();
-                        this.loadAttendanceRecords();
-
-                    } catch (error) {
-                        this.showLoading(false);
-                        this.showMessage('حدث خطأ أثناء حذف العضو', 'error');
-                    }
-                }
-            }
-
-            async editWeek(weekId) {
-                const week = this.weeks.find(w => w.id === weekId);
-                if (!week) return;
-
-                document.getElementById('edit-week-id').value = week.id;
-                document.getElementById('edit-week-name').value = week.name;
-                document.getElementById('edit-week-date').value = week.date;
-
-                document.getElementById('edit-week-modal').classList.remove('hidden');
-            }
-
-            async updateWeek() {
-                const weekId = document.getElementById('edit-week-id').value;
-                const name = document.getElementById('edit-week-name').value;
-                const date = document.getElementById('edit-week-date').value;
-
-                if (!name || !date) {
-                    this.showMessage('يرجى ملء جميع الحقول', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    await updateDoc(doc(db, 'weeks', weekId), {
-                        name: name,
-                        date: date
-                    });
-                    
-                    this.showLoading(false);
-                    this.showMessage('تم تحديث الأسبوع بنجاح', 'success');
-                    this.hideEditWeekModal();
-                    this.loadWeeks();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء تحديث الأسبوع', 'error');
-                }
-            }
-
-            async deleteWeek(weekId) {
-                if (confirm('هل أنت متأكد من حذف هذا الأسبوع؟ سيتم حذف جميع سجلات الحضور المرتبطة به.')) {
-                    this.showLoading(true);
-                    try {
-                        // حذف سجلات الحضور المرتبطة بالأسبوع أولاً
-                        const attendanceQuery = query(collection(db, 'attendance'), where('weekId', '==', weekId));
-                        const attendanceSnapshot = await getDocs(attendanceQuery);
-                        
-                        const deletePromises = attendanceSnapshot.docs.map(doc => deleteDoc(doc.ref));
-                        await Promise.all(deletePromises);
-
-                        // ثم حذف الأسبوع
-                        await deleteDoc(doc(db, 'weeks', weekId));
-                        
-                        this.showLoading(false);
-                        this.showMessage('تم حذف الأسبوع وجميع سجلاته بنجاح', 'success');
-                        this.loadWeeks();
-                        this.loadAttendanceRecords();
-
-                    } catch (error) {
-                        this.showLoading(false);
-                        this.showMessage('حدث خطأ أثناء حذف الأسبوع', 'error');
-                    }
-                }
-            }
-
-            async deleteAttendance(attendanceId) {
-                if (confirm('هل أنت متأكد من حذف سجل الحضور هذا؟')) {
-                    this.showLoading(true);
-                    try {
-                        // الحصول على بيانات سجل الحضور قبل الحذف
-                        const attendanceDoc = await getDoc(doc(db, 'attendance', attendanceId));
-                        if (attendanceDoc.exists()) {
-                            const attendanceData = attendanceDoc.data();
-                            // خصم النقاط من العضو
-                            const memberRef = doc(db, 'members', attendanceData.memberId);
-                            const memberDoc = await getDoc(memberRef);
-                            
-                            if (memberDoc.exists()) {
-                                const currentPoints = memberDoc.data().points || 0;
-                                await updateDoc(memberRef, {
-                                    points: Math.max(0, currentPoints - (attendanceData.points || 0))
-                                });
-                            }
-                        }
-
-                        await deleteDoc(doc(db, 'attendance', attendanceId));
-                        
-                        this.showLoading(false);
-                        this.showMessage('تم حذف سجل الحضور بنجاح', 'success');
-                        this.loadAttendanceRecords();
-                        this.loadMembers();
-
-                    } catch (error) {
-                        this.showLoading(false);
-                        this.showMessage('حدث خطأ أثناء حذف سجل الحضور', 'error');
-                    }
-                }
-            }
-
-            async addPoints() {
-                const memberId = document.getElementById('points-member-select').value;
-                const points = parseInt(document.getElementById('points-amount').value);
-                const reason = document.getElementById('points-reason').value;
-
-                if (!memberId || !points || !reason) {
-                    this.showMessage('يرجى ملء جميع الحقول', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    // إضافة النقاط للعضو
-                    const memberRef = doc(db, 'members', memberId);
-                    const memberDoc = await getDoc(memberRef);
-                    
-                    if (memberDoc.exists()) {
-                        const currentPoints = memberDoc.data().points || 0;
-                        await updateDoc(memberRef, {
-                            points: currentPoints + points
-                        });
-                    }
-
-                    // تسجيل العملية
-                    const pointsData = {
-                        memberId: memberId,
-                        memberName: this.members.find(m => m.id === memberId)?.name,
-                        points: points,
-                        reason: reason,
-                        timestamp: new Date(),
-                        type: 'manual'
-                    };
-
-                    await addDoc(collection(db, 'points_history'), pointsData);
-                    
-                    this.showLoading(false);
-                    this.showMessage(`تم إضافة ${points} نقطة بنجاح`, 'success');
-                    this.hideAddPointsModal();
-                    this.loadMembers();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة النقاط', 'error');
-                }
-            }
-
-            async resetMemberPassword() {
-                const memberId = document.getElementById('reset-member-select').value;
-                const newPassword = document.getElementById('new-member-password').value;
-
-                if (!memberId || !newPassword) {
-                    this.showMessage('يرجى اختيار العضو وإدخال كلمة المرور الجديدة', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    await updateDoc(doc(db, 'members', memberId), {
-                        password: newPassword
-                    });
-                    
-                    this.showLoading(false);
-                    this.showMessage('تم إعادة تعيين كلمة المرور بنجاح', 'success');
-                    document.getElementById('new-member-password').value = '';
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إعادة تعيين كلمة المرور', 'error');
-                }
-            }
-
-            async changeAdminPassword() {
-                const currentPassword = document.getElementById('current-admin-password').value;
-                const newPassword = document.getElementById('new-admin-password').value;
-                const confirmPassword = document.getElementById('confirm-admin-password').value;
-
-                if (currentPassword !== this.adminPassword) {
-                    this.showMessage('كلمة المرور الحالية غير صحيحة', 'error');
-                    return;
-                }
-
-                if (newPassword !== confirmPassword) {
-                    this.showMessage('كلمات المرور الجديدة غير متطابقة', 'error');
-                    return;
-                }
-
-                this.adminPassword = newPassword;
-                this.showMessage('تم تغيير كلمة مرور الأدمن بنجاح', 'success');
-                
-                // مسح الحقول
-                document.getElementById('current-admin-password').value = '';
-                document.getElementById('new-admin-password').value = '';
-                document.getElementById('confirm-admin-password').value = '';
-            }
-
-            async addCompetition() {
-                const name = document.getElementById('competition-name').value;
-                const description = document.getElementById('competition-description').value;
-                const prize = parseInt(document.getElementById('competition-prize').value);
-                const deadline = document.getElementById('competition-deadline').value;
-
-                if (!name || !description || !prize || !deadline) {
-                    this.showMessage('يرجى ملء جميع الحقول', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    const competitionData = {
-                        name: name,
-                        description: description,
-                        prize: prize,
-                        deadline: deadline,
-                        createdAt: new Date(),
-                        participants: 0,
-                        status: 'active'
-                    };
-
-                    await addDoc(collection(db, 'competitions'), competitionData);
-                    
-                    this.showLoading(false);
-                    this.showMessage('تم إضافة المسابقة بنجاح', 'success');
-                    this.hideAddCompetitionModal();
-                    this.loadCompetitions();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة المسابقة', 'error');
-                }
-            }
-
-            async addEvent() {
-                const name = document.getElementById('event-name').value;
-                const description = document.getElementById('event-description').value;
-                const points = parseInt(document.getElementById('event-points').value);
-                const date = document.getElementById('event-date').value;
-
-                if (!name || !points || !date) {
+                if (!name || !price) {
                     this.showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
                     return;
                 }
@@ -1162,81 +660,116 @@
                 this.showLoading(true);
 
                 try {
-                    const eventData = {
+                    const newProduct = {
+                        id: this.products.length > 0 ? Math.max(...this.products.map(p => p.id)) + 1 : 1,
                         name: name,
+                        price: price,
                         description: description,
-                        points: points,
-                        date: date,
-                        createdAt: new Date()
+                        stock: 10
                     };
 
-                    await addDoc(collection(db, 'events'), eventData);
-                    
+                    this.products.push(newProduct);
+
                     this.showLoading(false);
-                    this.showMessage('تم إضافة المناسبة بنجاح', 'success');
-                    this.hideAddEventModal();
-                    this.loadEvents();
+                    this.showMessage('تم إضافة المنتج بنجاح', 'success');
+                    this.hideAddProductModal();
+                    this.updateAdminUI();
+                    this.updateStoreUI();
 
                 } catch (error) {
                     this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة المناسبة', 'error');
+                    this.showMessage('حدث خطأ أثناء إضافة المنتج', 'error');
                 }
             }
 
-            async addBirthday() {
-                const memberId = document.getElementById('birthday-member-select').value;
-                const birthDate = document.getElementById('birthday-date').value;
-                const points = parseInt(document.getElementById('birthday-points').value);
+            updateUI() {
+                this.updateWeeksSelect();
+                this.updateStoreUI();
+            }
 
-                if (!memberId || !birthDate || !points) {
-                    this.showMessage('يرجى ملء جميع الحقول', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    const member = this.members.find(m => m.id === memberId);
-                    const birthdayData = {
-                        memberId: memberId,
-                        memberName: member.name,
-                        birthDate: birthDate,
-                        points: points,
-                        createdAt: new Date()
-                    };
-
-                    await addDoc(collection(db, 'birthdays'), birthdayData);
-                    
-                    this.showLoading(false);
-                    this.showMessage('تم إضافة عيد الميلاد بنجاح', 'success');
-                    this.hideAddBirthdayModal();
-                    this.loadBirthdays();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة عيد الميلاد', 'error');
+            updateMemberUI() {
+                if (this.currentMember) {
+                    document.getElementById('user-talanton').textContent = `${this.currentMember.points} Talanton`;
                 }
             }
 
-            // تحديث جداول البيانات مع إضافة أزرار الحذف
+            resetMemberUI() {
+                document.getElementById('user-talanton').textContent = '---';
+            }
+
+            updateWeeksSelect() {
+                const select = document.getElementById('week-select');
+                select.innerHTML = '<option value="">اختر الأسبوع...</option>';
+                
+                this.weeks.forEach(week => {
+                    const option = document.createElement('option');
+                    option.value = week.id;
+                    option.textContent = week.name;
+                    select.appendChild(option);
+                });
+            }
+
+            updateStoreUI() {
+                const container = document.getElementById('products-container');
+                container.innerHTML = '';
+
+                this.products.forEach(product => {
+                    const canAfford = this.currentMember && this.currentMember.points >= product.price;
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
+                    productCard.innerHTML = `
+                        <h4 class="font-bold text-gray-800 dark:text-white mb-2">${product.name}</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">${product.description}</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-yellow-600 font-bold">${product.price} Talanton</span>
+                            <span class="text-green-600 text-sm">${product.stock} متوفر</span>
+                        </div>
+                        ${this.currentMember ? `
+                            <div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>نقاطك:</span>
+                                    <span class="${this.currentMember.points >= product.price ? 'text-green-600' : 'text-red-600'}">${this.currentMember.points}</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-${this.currentMember.points >= product.price ? 'green' : 'red'}-500 h-2 rounded-full" 
+                                         style="width: ${Math.min((this.currentMember.points / product.price) * 100, 100)}%"></div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        <button onclick="attendanceSystem.buyProduct(${product.id})" 
+                                class="w-full ${canAfford ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} text-white py-2 rounded-lg transition-colors"
+                                ${!canAfford ? 'disabled' : ''}>
+                            ${canAfford ? 'شراء الآن' : 'نقاط غير كافية'}
+                        </button>
+                    `;
+                    container.appendChild(productCard);
+                });
+            }
+
+            updateAdminUI() {
+                this.updateMembersTable();
+                this.updateProductsAdmin();
+                this.updateReports();
+            }
+
             updateMembersTable() {
                 const tbody = document.getElementById('members-table-body');
-                if (!tbody) return;
-                
                 tbody.innerHTML = '';
-                this.members.forEach(member => {
+
+                this.members.forEach((member, index) => {
                     const row = document.createElement('tr');
                     row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
                     row.innerHTML = `
+                        <td class="p-3 text-gray-800 dark:text-white">${index + 1}</td>
                         <td class="p-3 text-gray-800 dark:text-white">${member.name}</td>
-                        <td class="p-3 text-gray-600 dark:text-gray-300">${member.email || '---'}</td>
-                        <td class="p-3 text-yellow-600 font-bold">${member.points || 0} Talanton</td>
+                        <td class="p-3 text-blue-600 font-bold">${member.id}</td>
+                        <td class="p-3 text-yellow-600 font-bold">${member.points} Talanton</td>
                         <td class="p-3 text-gray-600 dark:text-gray-300">${member.lastAttendance || '---'}</td>
                         <td class="p-3">
-                            <button onclick="attendanceSystem.editMember('${member.id}')" class="text-blue-600 hover:text-blue-800 ml-2">
+                            <button onclick="attendanceSystem.editMember(${member.id})" class="text-blue-600 hover:text-blue-800 ml-2">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="attendanceSystem.deleteMember('${member.id}')" class="text-red-600 hover:text-red-800">
+                            <button onclick="attendanceSystem.deleteMember(${member.id})" class="text-red-600 hover:text-red-800">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -1245,111 +778,209 @@
                 });
             }
 
-            updateWeeksTable() {
-                const container = document.getElementById('weeks-container');
-                if (!container) return;
-                
+            updateProductsAdmin() {
+                const container = document.getElementById('products-admin-container');
                 container.innerHTML = '';
-                this.weeks.forEach(week => {
-                    const weekCard = document.createElement('div');
-                    weekCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4';
-                    weekCard.innerHTML = `
-                        <h4 class="font-bold text-gray-800 dark:text-white mb-2">${week.name}</h4>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">${week.date || '---'}</p>
+
+                this.products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
+                    productCard.innerHTML = `
+                        <h4 class="font-bold text-gray-800 dark:text-white mb-2">${product.name}</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">${product.description}</p>
+                        <p class="text-yellow-600 font-bold mb-3">${product.price} Talanton</p>
                         <div class="flex justify-between items-center">
-                            <span class="text-green-600 text-sm">${week.attendanceCount || 0} حضور</span>
+                            <span class="text-green-600 text-sm">${product.stock} متوفر</span>
                             <div>
-                                <button onclick="attendanceSystem.editWeek('${week.id}')" class="text-blue-600 hover:text-blue-800 ml-2">
+                                <button onclick="attendanceSystem.editProduct(${product.id})" class="text-blue-600 hover:text-blue-800 ml-2">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button onclick="attendanceSystem.deleteWeek('${week.id}')" class="text-red-600 hover:text-red-800">
+                                <button onclick="attendanceSystem.deleteProduct(${product.id})" class="text-red-600 hover:text-red-800">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     `;
-                    container.appendChild(weekCard);
+                    container.appendChild(productCard);
                 });
             }
 
-            updateAttendanceTable() {
-                const tbody = document.getElementById('attendance-table-body');
-                if (!tbody) return;
+            updateReports() {
+                document.getElementById('total-members').textContent = this.members.length;
+                document.getElementById('total-attendance').textContent = this.attendanceRecords.length;
                 
-                tbody.innerHTML = '';
-                this.attendanceRecords.forEach(record => {
-                    const row = document.createElement('tr');
-                    row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
-                    row.innerHTML = `
-                        <td class="p-3 text-gray-800 dark:text-white">${record.memberName}</td>
-                        <td class="p-3 text-gray-600 dark:text-gray-300">${record.weekName}</td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 rounded-full text-xs ${
-                                record.method === 'password' ? 'bg-blue-100 text-blue-800' :
-                                record.method === 'fingerprint' ? 'bg-green-100 text-green-800' :
-                                'bg-purple-100 text-purple-800'
-                            }">
-                                ${record.method === 'password' ? 'كلمة المرور' : 
-                                  record.method === 'fingerprint' ? 'البصمة' : 'التعرف على الوجه'}
-                            </span>
-                        </td>
-                        <td class="p-3 text-gray-600 dark:text-gray-300">${new Date(record.timestamp?.toDate()).toLocaleString('ar-EG')}</td>
-                        <td class="p-3 text-green-600 font-bold">+${record.points} Talanton</td>
-                        <td class="p-3">
-                            <button onclick="attendanceSystem.deleteAttendance('${record.id}')" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
+                const totalPoints = this.members.reduce((sum, member) => sum + member.points, 0);
+                document.getElementById('total-points').textContent = totalPoints;
+                
+                const attendanceRate = this.members.length > 0 ? 
+                    Math.round((this.attendanceRecords.length / (this.members.length * this.weeks.length)) * 100) : 0;
+                document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+
+                this.updateCharts();
+            }
+
+            updateCharts() {
+                this.updateAttendanceChart();
+                this.updatePointsChart();
+            }
+
+            updateAttendanceChart() {
+                const ctx = document.getElementById('attendanceChart');
+                if (!ctx) return;
+
+                const weeklyData = this.weeks.map(week => 
+                    this.attendanceRecords.filter(r => r.weekId === week.id).length
+                );
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: this.weeks.map(w => w.name),
+                        datasets: [{
+                            label: 'عدد الحضور',
+                            data: weeklyData,
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                rtl: true
+                            }
+                        }
+                    }
                 });
             }
 
-            // إعداد مستمعي الأحداث للنماذج الجديدة
-            setupEventListeners() {
-                // النماذج الجديدة
-                document.getElementById('edit-member-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.updateMember();
-                });
+            updatePointsChart() {
+                const ctx = document.getElementById('pointsChart');
+                if (!ctx) return;
 
-                document.getElementById('edit-week-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.updateWeek();
-                });
+                const topMembers = [...this.members]
+                    .sort((a, b) => b.points - a.points)
+                    .slice(0, 5);
 
-                document.getElementById('add-points-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addPoints();
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: topMembers.map(m => m.name),
+                        datasets: [{
+                            data: topMembers.map(m => m.points),
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                rtl: true,
+                                position: 'bottom'
+                            }
+                        }
+                    }
                 });
-
-                document.getElementById('change-admin-password-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.changeAdminPassword();
-                });
-
-                document.getElementById('add-competition-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addCompetition();
-                });
-
-                document.getElementById('add-event-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addEvent();
-                });
-
-                document.getElementById('add-birthday-form').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.addBirthday();
-                });
-
-                // ... (بقية المستمعين)
             }
 
-            // ... (بقية الدوال)
+            async buyProduct(productId) {
+                if (!this.currentMember) {
+                    this.showMessage('يرجى إدخال رقمك التسلسلي أولاً', 'error');
+                    return;
+                }
+
+                const product = this.products.find(p => p.id === productId);
+                if (!product) return;
+
+                if (this.currentMember.points < product.price) {
+                    this.showMessage('نقاطك غير كافية لشراء هذا المنتج', 'error');
+                    return;
+                }
+
+                if (confirm(`هل تريد شراء ${product.name} مقابل ${product.price} نقطة؟`)) {
+                    this.showLoading(true);
+                    
+                    try {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        this.currentMember.points -= product.price;
+                        product.stock -= 1;
+                        
+                        this.showLoading(false);
+                        this.showMessage(`تم شراء ${product.name} بنجاح!`, 'success');
+                        this.updateMemberUI();
+                        this.updateStoreUI();
+                        this.updateAdminUI();
+                        
+                    } catch (error) {
+                        this.showLoading(false);
+                        this.showMessage('حدث خطأ أثناء الشراء', 'error');
+                    }
+                }
+            }
+
+            editMember(memberId) {
+                const member = this.members.find(m => m.id === memberId);
+                this.showMessage(`تعديل العضو: ${member.name} - قريباً`, 'info');
+            }
+
+            deleteMember(memberId) {
+                if (confirm('هل أنت متأكد من حذف هذا العضو؟')) {
+                    this.members = this.members.filter(m => m.id !== memberId);
+                    this.showMessage('تم حذف العضو بنجاح', 'success');
+                    this.updateAdminUI();
+                }
+            }
+
+            editProduct(productId) {
+                const product = this.products.find(p => p.id === productId);
+                this.showMessage(`تعديل المنتج: ${product.name} - قريباً`, 'info');
+            }
+
+            deleteProduct(productId) {
+                if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                    this.products = this.products.filter(p => p.id !== productId);
+                    this.showMessage('تم حذف المنتج بنجاح', 'success');
+                    this.updateAdminUI();
+                    this.updateStoreUI();
+                }
+            }
+
+            showLoading(show) {
+                document.getElementById('loading').style.display = show ? 'flex' : 'none';
+            }
+
+            showMessage(message, type = 'info') {
+                const container = document.getElementById('message-container');
+                const messageDiv = document.createElement('div');
+                
+                const colors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                    info: 'bg-blue-500'
+                };
+
+                messageDiv.className = `p-4 rounded-lg text-white mb-2 ${colors[type]} fade-in`;
+                messageDiv.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>${message}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-4">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(messageDiv);
+
+                setTimeout(() => {
+                    if (messageDiv.parentElement) {
+                        messageDiv.remove();
+                    }
+                }, 5000);
+            }
         }
 
-        // الدوال العامة للواجهة
+        // الدوال العامة
         function showAddMemberModal() {
             document.getElementById('add-member-modal').classList.remove('hidden');
         }
@@ -1357,25 +988,6 @@
         function hideAddMemberModal() {
             document.getElementById('add-member-modal').classList.add('hidden');
             document.getElementById('add-member-form').reset();
-        }
-
-        function hideEditMemberModal() {
-            document.getElementById('edit-member-modal').classList.add('hidden');
-            document.getElementById('edit-member-form').reset();
-        }
-
-        function showAddWeekModal() {
-            document.getElementById('add-week-modal').classList.remove('hidden');
-        }
-
-        function hideAddWeekModal() {
-            document.getElementById('add-week-modal').classList.add('hidden');
-            document.getElementById('add-week-form').reset();
-        }
-
-        function hideEditWeekModal() {
-            document.getElementById('edit-week-modal').classList.add('hidden');
-            document.getElementById('edit-week-form').reset();
         }
 
         function showAddProductModal() {
@@ -1387,106 +999,31 @@
             document.getElementById('add-product-form').reset();
         }
 
-        function showAddPointsModal() {
-            // تحديث قائمة الأعضاء في النموذج
-            const select = document.getElementById('points-member-select');
-            select.innerHTML = '<option value="">اختر عضو...</option>';
-            attendanceSystem.members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.id;
-                option.textContent = member.name;
-                select.appendChild(option);
-            });
-            
-            document.getElementById('add-points-modal').classList.remove('hidden');
-        }
-
-        function hideAddPointsModal() {
-            document.getElementById('add-points-modal').classList.add('hidden');
-            document.getElementById('add-points-form').reset();
-        }
-
-        function showAddCompetitionModal() {
-            document.getElementById('add-competition-modal').classList.remove('hidden');
-        }
-
-        function hideAddCompetitionModal() {
-            document.getElementById('add-competition-modal').classList.add('hidden');
-            document.getElementById('add-competition-form').reset();
-        }
-
-        function showAddEventModal() {
-            document.getElementById('add-event-modal').classList.remove('hidden');
-        }
-
-        function hideAddEventModal() {
-            document.getElementById('add-event-modal').classList.add('hidden');
-            document.getElementById('add-event-form').reset();
-        }
-
-        function showAddBirthdayModal() {
-            // تحديث قائمة الأعضاء في النموذج
-            const select = document.getElementById('birthday-member-select');
-            select.innerHTML = '<option value="">اختر عضو...</option>';
-            attendanceSystem.members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.id;
-                option.textContent = member.name;
-                select.appendChild(option);
-            });
-            
-            document.getElementById('add-birthday-modal').classList.remove('hidden');
-        }
-
-        function hideAddBirthdayModal() {
-            document.getElementById('add-birthday-modal').classList.add('hidden');
-            document.getElementById('add-birthday-form').reset();
-        }
-
-        function hideAdminLogin() {
-            document.getElementById('admin-login-modal').classList.add('hidden');
-            document.getElementById('admin-password').value = '';
-        }
-
         function showStore() {
             document.getElementById('store-section').classList.remove('hidden');
             document.getElementById('reports-section').classList.add('hidden');
-            attendanceSystem.updateStoreProducts();
+            attendanceSystem.updateStoreUI();
         }
 
         function showReports() {
             document.getElementById('reports-section').classList.remove('hidden');
             document.getElementById('store-section').classList.add('hidden');
-            attendanceSystem.updateCharts();
+            attendanceSystem.updateReports();
         }
 
         function showMyTalanton() {
-            const memberId = document.getElementById('member-select').value;
-            if (!memberId) {
-                attendanceSystem.showMessage('يرجى اختيار اسمك أولاً', 'info');
+            if (!attendanceSystem.currentMember) {
+                attendanceSystem.showMessage('يرجى إدخال رقمك التسلسلي أولاً', 'info');
                 return;
             }
-            attendanceSystem.updateTalantonPoints(memberId);
+            attendanceSystem.showMessage(`نقاطك الحالية: ${attendanceSystem.currentMember.points} Talanton`, 'success');
         }
 
-        // تهيئة النظام عند تحميل الصفحة
+        // تهيئة النظام
         let attendanceSystem;
         document.addEventListener('DOMContentLoaded', () => {
             attendanceSystem = new AttendanceSystem();
         });
-
-        // إضافة أنيميشن للرسائل
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fade-in {
-                from { opacity: 0; transform: translateY(-20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .animate-fade-in {
-                animation: fade-in 0.3s ease-out;
-            }
-        `;
-        document.head.appendChild(style);
 
     </script>
 </body>

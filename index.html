@@ -272,3 +272,128 @@ sidebar.querySelectorAll("button[data-section]").forEach(btn => {
 </script>
 </body>
 </html>
+<!-- جزء إدارة الأعضاء داخل لوحة الأدمن -->
+<div id="membersSection" class="section">
+  <h1>إدارة الأعضاء</h1>
+  
+  <!-- نموذج إضافة/تعديل عضو -->
+  <div>
+    <input type="text" id="memberName" placeholder="اسم العضو">
+    <input type="number" id="memberPoints" placeholder="النقاط الأولية" value="0">
+    <button id="addMemberBtn">إضافة عضو</button>
+    <button id="updateMemberBtn" style="display:none;">تحديث العضو</button>
+  </div>
+  
+  <!-- جدول عرض الأعضاء -->
+  <table>
+    <thead>
+      <tr>
+        <th>رقم</th>
+        <th>الاسم</th>
+        <th>النقاط</th>
+        <th>تحكم</th>
+      </tr>
+    </thead>
+    <tbody id="membersTableBody"></tbody>
+  </table>
+</div>
+
+<script type="module">
+import { ref, set, get, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+// ====== عناصر DOM ======
+const memberName = document.getElementById("memberName");
+const memberPoints = document.getElementById("memberPoints");
+const addMemberBtn = document.getElementById("addMemberBtn");
+const updateMemberBtn = document.getElementById("updateMemberBtn");
+const membersTableBody = document.getElementById("membersTableBody");
+
+let editMemberId = null;
+
+// ====== جلب الأعضاء وعرضهم ======
+function loadMembers(){
+  membersTableBody.innerHTML = "";
+  get(ref(db, "users")).then(snapshot=>{
+    if(snapshot.exists()){
+      const users = snapshot.val();
+      const sortedKeys = Object.keys(users).sort((a,b)=>{
+        return users[a].name.localeCompare(users[b].name);
+      });
+      let count = 1;
+      sortedKeys.forEach(key=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${count}</td>
+          <td>${users[key].name}</td>
+          <td>${users[key].points || 0}</td>
+          <td>
+            <button class="editBtn" data-id="${key}">تعديل</button>
+            <button class="deleteBtn" data-id="${key}">حذف</button>
+          </td>
+        `;
+        membersTableBody.appendChild(tr);
+        count++;
+      });
+
+      // أزرار تعديل وحذف
+      document.querySelectorAll(".editBtn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          editMemberId = btn.dataset.id;
+          memberName.value = users[editMemberId].name;
+          memberPoints.value = users[editMemberId].points || 0;
+          addMemberBtn.style.display = "none";
+          updateMemberBtn.style.display = "inline-block";
+        });
+      });
+
+      document.querySelectorAll(".deleteBtn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.dataset.id;
+          if(confirm("هل أنت متأكد من حذف هذا العضو؟")){
+            remove(ref(db, `users/${id}`)).then(()=>loadMembers());
+          }
+        });
+      });
+
+    }
+  });
+}
+
+// ====== إضافة عضو جديد ======
+addMemberBtn.addEventListener("click", ()=>{
+  const name = memberName.value.trim();
+  const points = parseInt(memberPoints.value) || 0;
+  if(!name){
+    alert("ادخل اسم العضو");
+    return;
+  }
+  const newMemberRef = ref(db, "users/" + Date.now());
+  set(newMemberRef, {name, points}).then(()=>{
+    memberName.value = "";
+    memberPoints.value = 0;
+    loadMembers();
+  });
+});
+
+// ====== تحديث عضو ======
+updateMemberBtn.addEventListener("click", ()=>{
+  if(!editMemberId) return;
+  const name = memberName.value.trim();
+  const points = parseInt(memberPoints.value) || 0;
+  if(!name){
+    alert("ادخل اسم العضو");
+    return;
+  }
+  update(ref(db, `users/${editMemberId}`), {name, points}).then(()=>{
+    memberName.value = "";
+    memberPoints.value = 0;
+    editMemberId = null;
+    addMemberBtn.style.display = "inline-block";
+    updateMemberBtn.style.display = "none";
+    loadMembers();
+  });
+});
+
+// ====== تحميل الأعضاء عند فتح الصفحة ======
+loadMembers();
+</script>

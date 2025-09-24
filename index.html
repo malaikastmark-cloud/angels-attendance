@@ -22,11 +22,6 @@
                             500: '#0ea5e9',
                             600: '#0284c7',
                             700: '#0369a1'
-                        },
-                        store: {
-                            primary: '#10b981',
-                            secondary: '#059669',
-                            accent: '#34d399'
                         }
                     }
                 }
@@ -79,28 +74,6 @@
             100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
         }
         
-        .store-gradient {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-        
-        .store-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-            border: 1px solid #d1fae5;
-        }
-        
-        .store-card-dark {
-            background: linear-gradient(135deg, #1f2937 0%, #064e3b 100%);
-            border: 1px solid #065f46;
-        }
-        
-        .chart-container {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        }
-        
-        .chart-container-dark {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        }
-
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -158,7 +131,7 @@
                     
                     <button id="admin-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                         <i class="fas fa-cog ml-2"></i>
-                        لوحة الإدارة
+                        دخول الأدمن
                     </button>
 
                     <button id="back-btn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors hidden">
@@ -181,6 +154,78 @@
             </div>
         </div>
 
+        <!-- Attendance Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8 hover-lift">
+            <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+                <i class="fas fa-calendar-check ml-3 text-indigo-600"></i>
+                تسجيل الحضور
+            </h3>
+            
+            <form id="attendance-form" class="space-y-6">
+                <!-- Member Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر اسمك</label>
+                    <select id="member-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white">
+                        <option value="">اختر اسم العضو...</option>
+                    </select>
+                </div>
+                
+                <!-- Week Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر الأسبوع</label>
+                    <select id="week-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white">
+                        <option value="">اختر الأسبوع...</option>
+                    </select>
+                </div>
+                
+                <!-- Verification Method -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">طريقة التحقق</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="password">
+                            <div class="text-center">
+                                <i class="fas fa-key text-3xl text-indigo-600 mb-2"></i>
+                                <p class="font-medium text-gray-800 dark:text-white">كلمة المرور</p>
+                            </div>
+                        </div>
+                        
+                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="fingerprint">
+                            <div class="text-center">
+                                <i class="fas fa-fingerprint text-3xl text-green-600 mb-2"></i>
+                                <p class="font-medium text-gray-800 dark:text-white">البصمة</p>
+                            </div>
+                        </div>
+                        
+                        <div class="verification-method p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:border-indigo-500 transition-colors" data-method="face">
+                            <div class="text-center">
+                                <i class="fas fa-user-circle text-3xl text-purple-600 mb-2"></i>
+                                <p class="font-medium text-gray-800 dark:text-white">التعرف على الوجه</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Password Input -->
+                <div id="password-input" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
+                    <input type="password" id="password-field" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل كلمة المرور">
+                </div>
+                
+                <!-- Biometric Simulation -->
+                <div id="biometric-simulation" class="hidden text-center">
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8 rounded-xl cursor-pointer" id="biometric-button">
+                        <i id="biometric-icon" class="text-6xl mb-4 pulse-animation"></i>
+                        <p id="biometric-text" class="text-xl font-bold">اضغط للمسح</p>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 pulse-glow">
+                    <i class="fas fa-check-circle ml-2"></i>
+                    تسجيل الحضور
+                </button>
+            </form>
+        </div>
+
         <!-- Quick Registration -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8 hover-lift">
             <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
@@ -190,35 +235,12 @@
             
             <form id="quick-registration-form" class="space-y-6 max-w-md mx-auto">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر اسم العضو</label>
-                    <select id="member-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white">
-                        <option value="">اختر اسم العضو...</option>
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">رقم العضو</label>
+                    <input type="number" id="member-id-input" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white" placeholder="أدخل رقم العضو" min="1">
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">اختر الأسبوع</label>
-                    <select id="week-select" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 dark:text-white">
-                        <option value="">جاري تحميل الأسابيع...</option>
-                    </select>
-                </div>
-                
-                <!-- نظام التحقق -->
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
-                    <h4 class="font-bold text-gray-800 dark:text-white mb-3 text-center">نظام التحقق</h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button type="button" onclick="attendanceSystem.verifyFingerprint()" class="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-fingerprint ml-2"></i>
-                            بصمة الإصبع
-                        </button>
-                        <button type="button" onclick="attendanceSystem.verifyFace()" class="bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors">
-                            <i class="fas fa-user-check ml-2"></i>
-                            بصمة الوجه
-                        </button>
-                    </div>
-                    <div class="mt-4">
-                        <input type="password" id="member-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" placeholder="أو أدخل كلمة المرور">
-                    </div>
+                <div id="member-name-display" class="hidden p-4 bg-green-50 dark:bg-green-900 rounded-xl mb-4">
+                    <p class="text-green-700 dark:text-green-300 text-center font-bold" id="member-name-text"></p>
                 </div>
                 
                 <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 pulse-glow">
@@ -257,9 +279,9 @@
 
         <!-- Store Section -->
         <div id="store-section" class="hidden fade-in">
-            <div class="store-gradient text-white rounded-2xl card-shadow p-8 mb-8">
-                <h3 class="text-2xl font-bold text-white mb-6 text-center">
-                    <i class="fas fa-store ml-3 text-white"></i>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+                    <i class="fas fa-store ml-3 text-green-600"></i>
                     متجر التالانتون
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-container">
@@ -273,7 +295,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl card-shadow p-8 mb-8">
                 <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
                     <i class="fas fa-chart-bar ml-3 text-blue-600"></i>
-                    التقارير والإحصائيات المتقدمة
+                    التقارير والإحصائيات
                 </h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -299,25 +321,12 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="chart-container dark:chart-container-dark rounded-xl p-6">
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">إحصائيات الحضور الأسبوعي</h4>
-                        <canvas id="attendanceChart" height="250"></canvas>
-                    </div>
-                    <div class="chart-container dark:chart-container-dark rounded-xl p-6">
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">توزيع النقاط بين الأعضاء</h4>
-                        <canvas id="pointsChart" height="250"></canvas>
-                    </div>
-                </div>
-
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="chart-container dark:chart-container-dark rounded-xl p-6">
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">نشاط الأعضاء</h4>
-                        <canvas id="activityChart" height="250"></canvas>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                        <canvas id="attendanceChart"></canvas>
                     </div>
-                    <div class="chart-container dark:chart-container-dark rounded-xl p-6">
-                        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-4 text-center">مقارنة النقاط</h4>
-                        <canvas id="comparisonChart" height="250"></canvas>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                        <canvas id="pointsChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -329,7 +338,7 @@
         <div class="text-center mb-8 fade-in">
             <div class="gradient-bg text-white rounded-2xl p-8 card-shadow">
                 <i class="fas fa-cog text-5xl mb-4"></i>
-                <h2 class="text-3xl font-bold mb-2">لوحة الإدارة المتكاملة</h2>
+                <h2 class="text-3xl font-bold mb-2">لوحة الإدارة</h2>
                 <p class="text-xl opacity-90">إدارة نظام حضور خدام الملائكة</p>
             </div>
         </div>
@@ -349,7 +358,7 @@
                     المسابقات
                 </button>
                 <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400" data-tab="events">
-                    <i class="fas fa-calendar ml-2"></i>
+                    <i class="fas fa-calendar-day ml-2"></i>
                     المناسبات
                 </button>
                 <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400" data-tab="birthdays">
@@ -358,15 +367,11 @@
                 </button>
                 <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400" data-tab="talanton">
                     <i class="fas fa-coins ml-2"></i>
-                    إدارة النقاط
-                </button>
-                <button class="admin-tab py-4 px-6 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400" data-tab="tasks">
-                    <i class="fas fa-tasks ml-2"></i>
-                    إدارة المهام
+                    إدارة Talanton
                 </button>
             </div>
 
-            <!-- إدارة الأعضاء -->
+            <!-- Members Management -->
             <div id="tab-members" class="p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة الأعضاء</h3>
@@ -382,7 +387,6 @@
                             <tr class="bg-gray-50 dark:bg-gray-700">
                                 <th class="p-3 text-sm font-semibold">#</th>
                                 <th class="p-3 text-sm font-semibold">الاسم</th>
-                                <th class="p-3 text-sm font-semibold">رقم التسلسلي</th>
                                 <th class="p-3 text-sm font-semibold">النقاط</th>
                                 <th class="p-3 text-sm font-semibold">آخر حضور</th>
                                 <th class="p-3 text-sm font-semibold">الإجراءات</th>
@@ -395,7 +399,7 @@
                 </div>
             </div>
 
-            <!-- إدارة المتجر -->
+            <!-- Products Management -->
             <div id="tab-products" class="p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المتجر</h3>
@@ -410,7 +414,7 @@
                 </div>
             </div>
 
-            <!-- إدارة المسابقات -->
+            <!-- Competitions Management -->
             <div id="tab-competitions" class="p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المسابقات</h3>
@@ -420,12 +424,12 @@
                     </button>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="competitions-admin-container">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="competitions-container">
                     <!-- Competitions will be loaded here -->
                 </div>
             </div>
 
-            <!-- إدارة المناسبات -->
+            <!-- Events Management -->
             <div id="tab-events" class="p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المناسبات</h3>
@@ -435,12 +439,12 @@
                     </button>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="events-admin-container">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="events-container">
                     <!-- Events will be loaded here -->
                 </div>
             </div>
 
-            <!-- إدارة أعياد الميلاد -->
+            <!-- Birthdays Management -->
             <div id="tab-birthdays" class="p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة أعياد الميلاد</h3>
@@ -450,58 +454,30 @@
                     </button>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="birthdays-admin-container">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="birthdays-container">
                     <!-- Birthdays will be loaded here -->
                 </div>
             </div>
 
-            <!-- إدارة Talanton -->
+            <!-- Talanton Management -->
             <div id="tab-talanton" class="p-6 hidden">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة نقاط Talanton</h3>
-                    <button onclick="showAddPointsModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة Talanton</h3>
+                    <button onclick="showAddTalantonModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                         <i class="fas fa-plus ml-2"></i>
                         إضافة نقاط
                     </button>
                 </div>
                 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right">
-                        <thead>
-                            <tr class="bg-gray-50 dark:bg-gray-700">
-                                <th class="p-3 text-sm font-semibold">#</th>
-                                <th class="p-3 text-sm font-semibold">اسم العضو</th>
-                                <th class="p-3 text-sm font-semibold">النقاط الحالية</th>
-                                <th class="p-3 text-sm font-semibold">آخر تحديث</th>
-                                <th class="p-3 text-sm font-semibold">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="talanton-table-body">
-                            <!-- Talanton points will be loaded here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- إدارة المهام -->
-            <div id="tab-tasks" class="p-6 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">إدارة المهام</h3>
-                    <button onclick="showAddTaskModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-plus ml-2"></i>
-                        إضافة مهمة جديدة
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tasks-admin-container">
-                    <!-- Tasks will be loaded here -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="talanton-container">
+                    <!-- Talanton records will be loaded here -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- جميع الـ Modals -->
-    <!-- Modal إضافة عضو -->
+    <!-- Modals -->
+    <!-- Add Member Modal -->
     <div id="add-member-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة عضو جديد</h3>
@@ -512,7 +488,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور</label>
-                    <input type="password" id="member-password-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
+                    <input type="password" id="member-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
                 </div>
                 <div class="flex space-x-3 space-x-reverse justify-end">
                     <button type="button" onclick="hideAddMemberModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
@@ -522,15 +498,19 @@
         </div>
     </div>
 
-    <!-- Modal تعديل عضو -->
+    <!-- Edit Member Modal -->
     <div id="edit-member-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">تعديل بيانات العضو</h3>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">تعديل العضو</h3>
             <form id="edit-member-form" class="space-y-4">
                 <input type="hidden" id="edit-member-id">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم العضو</label>
                     <input type="text" id="edit-member-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">كلمة المرور الجديدة (اختياري)</label>
+                    <input type="password" id="edit-member-password" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white">
                 </div>
                 <div class="flex space-x-3 space-x-reverse justify-end">
                     <button type="button" onclick="hideEditMemberModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
@@ -540,7 +520,7 @@
         </div>
     </div>
 
-    <!-- Modal إضافة منتج -->
+    <!-- Add Product Modal -->
     <div id="add-product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة منتج جديد</h3>
@@ -565,7 +545,7 @@
         </div>
     </div>
 
-    <!-- Modal تعديل منتج -->
+    <!-- Edit Product Modal -->
     <div id="edit-product-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">تعديل المنتج</h3>
@@ -591,7 +571,7 @@
         </div>
     </div>
 
-    <!-- Modal إضافة مسابقة -->
+    <!-- Add Competition Modal -->
     <div id="add-competition-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة مسابقة جديدة</h3>
@@ -601,104 +581,15 @@
                     <input type="text" id="competition-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
-                    <input type="number" id="competition-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الوصف</label>
                     <textarea id="competition-description" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" rows="3"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">التاريخ</label>
-                    <input type="date" id="competition-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
+                    <input type="number" id="competition-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
                 </div>
                 <div class="flex space-x-3 space-x-reverse justify-end">
                     <button type="button" onclick="hideAddCompetitionModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal إضافة مناسبة -->
-    <div id="add-event-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة مناسبة جديدة</h3>
-            <form id="add-event-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المناسبة</label>
-                    <input type="text" id="event-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
-                    <input type="number" id="event-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الوصف</label>
-                    <textarea id="event-description" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" rows="3"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">التاريخ</label>
-                    <input type="date" id="event-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddEventModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal إضافة عيد ميلاد -->
-    <div id="add-birthday-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة عيد ميلاد</h3>
-            <form id="add-birthday-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اختر العضو</label>
-                    <select id="birthday-member" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                        <option value="">اختر العضو...</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الميلاد</label>
-                    <input type="date" id="birthday-date" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
-                    <input type="number" id="birthday-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" value="10" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddBirthdayModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal إضافة مهمة -->
-    <div id="add-task-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">إضافة مهمة جديدة</h3>
-            <form id="add-task-form" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المهمة</label>
-                    <input type="text" id="task-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">النقاط</label>
-                    <input type="number" id="task-points" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الوصف</label>
-                    <textarea id="task-description" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" rows="3"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الانتهاء</label>
-                    <input type="date" id="task-deadline" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 dark:text-white" required>
-                </div>
-                <div class="flex space-x-3 space-x-reverse justify-end">
-                    <button type="button" onclick="hideAddTaskModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">إلغاء</button>
                     <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">إضافة</button>
                 </div>
             </form>
@@ -727,13 +618,13 @@
                 this.competitions = [];
                 this.events = [];
                 this.birthdays = [];
-                this.tasks = [];
+                this.talantonRecords = [];
                 this.attendanceRecords = [];
                 this.currentMember = null;
                 this.isAdminPanel = false;
-                this.isAdminAuthenticated = localStorage.getItem('adminAuthenticated') === 'true';
+                this.isAdminAuthenticated = false; // تم التعديل: لا يتم تذكر حالة الأدمن
                 this.adminPassword = "admin123";
-                this.verificationMethod = null;
+                this.selectedMethod = null;
                 
                 this.init();
             }
@@ -743,10 +634,6 @@
                 await this.loadAllData();
                 this.setupEventListeners();
                 this.updateUI();
-                
-                if (this.isAdminAuthenticated) {
-                    document.getElementById('admin-btn').textContent = 'لوحة الإدارة';
-                }
             }
 
             applyDarkMode() {
@@ -766,24 +653,19 @@
                 await this.loadCompetitions();
                 await this.loadEvents();
                 await this.loadBirthdays();
-                await this.loadTasks();
+                await this.loadTalantonRecords();
                 await this.loadAttendanceRecords();
             }
 
             async loadMembers() {
-                // بيانات الأعضاء مرتبة أبجدياً مع أرقام تسلسلية مترابطة
+                // بيانات الأعضاء مرتبة حسب الترتيب المطلوب مع الأرقام
                 this.members = [
-                    { id: 1, name: "أحمد محمد", points: 15, lastAttendance: "2024-01-15", password: "123456" },
-                    { id: 2, name: "خالد إبراهيم", points: 8, lastAttendance: "2024-01-12", password: "123456" },
-                    { id: 3, name: "عمر كريم", points: 22, lastAttendance: "2024-01-15", password: "123456" },
-                    { id: 4, name: "محمد علي", points: 12, lastAttendance: "2024-01-14", password: "123456" },
-                    { id: 5, name: "ياسين أحمد", points: 18, lastAttendance: "2024-01-13", password: "123456" }
-                ].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-
-                // تحديث الأرقام التسلسلية لترتيب أبجدي
-                this.members.forEach((member, index) => {
-                    member.serialNumber = index + 1;
-                });
+                    { id: 1, name: "أحمد محمد", password: "123456", points: 1, lastAttendance: "2024-01-15" },
+                    { id: 2, name: "خالد إبراهيم", password: "123456", points: 1, lastAttendance: "2024-01-12" },
+                    { id: 3, name: "عمر كريم", password: "123456", points: 1, lastAttendance: "2024-01-15" },
+                    { id: 4, name: "محمد علي", password: "123456", points: 1, lastAttendance: "2024-01-14" },
+                    { id: 5, name: "ياسين أحمد", password: "123456", points: 1, lastAttendance: "2024-01-13" }
+                ];
             }
 
             async loadWeeks() {
@@ -797,84 +679,80 @@
 
             async loadProducts() {
                 this.products = [
-                    { id: 1, name: "كتاب روحي", price: 50, description: "كتاب مفيد للتنمية الروحية", stock: 10, image: "📚" },
-                    { id: 2, name: "قلم تذكاري", price: 30, description: "قلم جميل للكتابة", stock: 20, image: "✏️" },
-                    { id: 3, name: "كوب مخصص", price: 80, description: "كوب بحجم كبير ومخصص", stock: 5, image: "☕" },
-                    { id: 4, name: "حقيبة ظهر", price: 150, description: "حقيبة ظهر عملية وجميلة", stock: 8, image: "🎒" },
-                    { id: 5, name: "ساعة ذكية", price: 200, description: "ساعة ذكية متطورة", stock: 3, image: "⌚" },
-                    { id: 6, name: "سماعات لاسلكية", price: 120, description: "سماعات عالية الجودة", stock: 6, image: "🎧" }
+                    { id: 1, name: "كتاب روحي", price: 5, description: "كتاب مفيد للتنمية الروحية", stock: 10 },
+                    { id: 2, name: "قلم تذكاري", price: 3, description: "قلم جميل للكتابة", stock: 20 },
+                    { id: 3, name: "كوب مخصص", price: 8, description: "كوب بحجم كبير ومخصص", stock: 5 }
                 ];
             }
 
             async loadCompetitions() {
                 this.competitions = [
-                    { id: 1, name: "مسابقة القرآن الكريم", points: 5, description: "مسابقة لحفظ القرآن", date: "2024-01-20", participants: 15 },
-                    { id: 2, name: "مسابقة الأنشطة", points: 3, description: "مسابقة للأنشطة المختلفة", date: "2024-01-25", participants: 8 }
+                    { id: 1, name: "مسابقة القرآن", description: "أفضل قارئ للقرآن", points: 5, participants: [] },
+                    { id: 2, name: "مسابقة الأنشطة", description: "أفضل مشارك في الأنشطة", points: 3, participants: [] }
                 ];
             }
 
             async loadEvents() {
                 this.events = [
-                    { id: 1, name: "مناسبة العائلة", points: 2, description: "مناسبة عائلية شهرية", date: "2024-01-30", attendees: 20 },
-                    { id: 2, name: "مناسبة روحية", points: 4, description: "مناسبة روحية خاصة", date: "2024-02-05", attendees: 12 }
+                    { id: 1, name: "عيد الميلاد المجيد", description: "احتفال عيد الميلاد", date: "2024-01-07", points: 2 },
+                    { id: 2, name: "عيد القيامة", description: "احتفال عيد القيامة", date: "2024-04-28", points: 2 }
                 ];
             }
 
             async loadBirthdays() {
                 this.birthdays = [
-                    { id: 1, memberId: 1, memberName: "أحمد محمد", date: "2024-03-15", points: 10 },
-                    { id: 2, memberId: 2, memberName: "خالد إبراهيم", date: "2024-04-20", points: 10 }
+                    { id: 1, memberId: 1, memberName: "أحمد محمد", birthDate: "1990-05-15", points: 2 },
+                    { id: 2, memberId: 4, memberName: "محمد علي", birthDate: "1992-08-20", points: 2 }
                 ];
             }
 
-            async loadTasks() {
-                this.tasks = [
-                    { id: 1, name: "تنظيم المكتبة", points: 5, description: "ترتيب وتنظيم مكتبة الكنيسة", deadline: "2024-02-01", completed: false },
-                    { id: 2, name: "تحضير الدرس", points: 8, description: "تحضير درس الأحد", deadline: "2024-01-28", completed: true }
-                ];
+            async loadTalantonRecords() {
+                this.talantonRecords = [];
             }
 
             async loadAttendanceRecords() {
-                this.attendanceRecords = [
-                    { memberId: 1, weekId: 1, points: 1, timestamp: new Date('2024-01-01') },
-                    { memberId: 2, weekId: 1, points: 1, timestamp: new Date('2024-01-01') },
-                    { memberId: 3, weekId: 1, points: 1, timestamp: new Date('2024-01-01') },
-                    { memberId: 1, weekId: 2, points: 1, timestamp: new Date('2024-01-08') },
-                    { memberId: 3, weekId: 2, points: 1, timestamp: new Date('2024-01-08') },
-                    { memberId: 4, weekId: 3, points: 1, timestamp: new Date('2024-01-15') },
-                    { memberId: 5, weekId: 3, points: 1, timestamp: new Date('2024-01-15') }
-                ];
+                this.attendanceRecords = [];
             }
 
             setupEventListeners() {
+                // Dark Mode
                 document.getElementById('dark-toggle').addEventListener('click', () => this.toggleDarkMode());
-                document.getElementById('admin-btn').addEventListener('click', () => this.handleAdminAccess());
+                
+                // Admin
+                document.getElementById('admin-btn').addEventListener('click', () => this.showAdminLogin());
                 document.getElementById('back-btn').addEventListener('click', () => this.hideAdminPanel());
                 document.getElementById('admin-login-form').addEventListener('submit', (e) => this.adminLogin(e));
-                document.getElementById('quick-registration-form').addEventListener('submit', (e) => this.quickRegister(e));
-                document.getElementById('member-select').addEventListener('change', (e) => this.handleMemberSelect(e));
 
+                // Attendance Form
+                document.getElementById('attendance-form').addEventListener('submit', (e) => this.submitAttendance(e));
+                document.getElementById('member-select').addEventListener('change', (e) => this.handleMemberSelect(e));
+                
+                // Verification Methods
+                document.querySelectorAll('.verification-method').forEach(method => {
+                    method.addEventListener('click', (e) => this.selectVerificationMethod(e.currentTarget.dataset.method));
+                });
+
+                // Biometric Button
+                document.getElementById('biometric-button').addEventListener('click', () => this.simulateBiometric());
+
+                // Quick Registration
+                document.getElementById('quick-registration-form').addEventListener('submit', (e) => this.quickRegister(e));
+                document.getElementById('member-id-input').addEventListener('input', (e) => this.handleMemberInput(e));
+
+                // Admin Tabs
                 document.querySelectorAll('.admin-tab').forEach(tab => {
                     tab.addEventListener('click', (e) => this.switchAdminTab(e.currentTarget.dataset.tab));
                 });
 
                 // Forms
                 document.getElementById('add-member-form').addEventListener('submit', (e) => this.addMember(e));
-                document.getElementById('edit-member-form').addEventListener('submit', (e) => this.updateMember(e));
+                document.getElementById('edit-member-form').addEventListener('submit', (e) => this.editMember(e));
                 document.getElementById('add-product-form').addEventListener('submit', (e) => this.addProduct(e));
-                document.getElementById('edit-product-form').addEventListener('submit', (e) => this.updateProduct(e));
+                document.getElementById('edit-product-form').addEventListener('submit', (e) => this.editProduct(e));
                 document.getElementById('add-competition-form').addEventListener('submit', (e) => this.addCompetition(e));
-                document.getElementById('add-event-form').addEventListener('submit', (e) => this.addEvent(e));
-                document.getElementById('add-birthday-form').addEventListener('submit', (e) => this.addBirthday(e));
-                document.getElementById('add-task-form').addEventListener('submit', (e) => this.addTask(e));
-            }
 
-            handleAdminAccess() {
-                if (this.isAdminAuthenticated) {
-                    this.showAdminPanel();
-                } else {
-                    this.showAdminLogin();
-                }
+                // Language Toggle
+                document.getElementById('lang-toggle').addEventListener('click', () => this.toggleLanguage());
             }
 
             toggleDarkMode() {
@@ -884,14 +762,21 @@
                 this.showMessage(`تم تفعيل ${this.isDarkMode ? 'الوضع الداكن' : 'الوضع الفاتح'}`, 'success');
             }
 
+            toggleLanguage() {
+                this.showMessage('تبديل اللغة - قريباً', 'info');
+            }
+
+            showAdminLogin() {
+                document.getElementById('admin-login').classList.remove('hidden');
+            }
+
             adminLogin(e) {
                 e.preventDefault();
                 const password = document.getElementById('admin-password').value;
+                
                 if (password === this.adminPassword) {
                     this.isAdminAuthenticated = true;
-                    localStorage.setItem('adminAuthenticated', 'true');
                     document.getElementById('admin-login').classList.add('hidden');
-                    document.getElementById('admin-btn').textContent = 'لوحة الإدارة';
                     this.showAdminPanel();
                     this.showMessage('تم الدخول بنجاح', 'success');
                 } else {
@@ -899,11 +784,13 @@
                 }
             }
 
-            showAdminLogin() {
-                document.getElementById('admin-login').classList.remove('hidden');
-            }
-
             showAdminPanel() {
+                // تم التعديل: يطلب كلمة المرور في كل مرة
+                if (!this.isAdminAuthenticated) {
+                    this.showAdminLogin();
+                    return;
+                }
+
                 this.isAdminPanel = true;
                 document.getElementById('main-content').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
@@ -914,6 +801,7 @@
 
             hideAdminPanel() {
                 this.isAdminPanel = false;
+                this.isAdminAuthenticated = false; // تم التعديل: إعادة تعيين حالة المصادقة
                 document.getElementById('main-content').classList.remove('hidden');
                 document.getElementById('admin-panel').classList.add('hidden');
                 document.getElementById('admin-btn').classList.remove('hidden');
@@ -922,8 +810,8 @@
 
             switchAdminTab(tabName) {
                 document.querySelectorAll('.admin-tab').forEach(tab => {
-                    tab.classList.remove('border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
-                    tab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400');
+                    tab.classList.remove('border-indigo-500', 'text-indigo-600');
+                    tab.classList.add('border-transparent', 'text-gray-500');
                 });
 
                 document.querySelectorAll('[id^="tab-"]').forEach(content => {
@@ -932,56 +820,85 @@
 
                 const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
                 if (activeTab) {
-                    activeTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
-                    activeTab.classList.add('border-indigo-500', 'text-indigo-600', 'dark:text-indigo-400');
+                    activeTab.classList.remove('border-transparent', 'text-gray-500');
+                    activeTab.classList.add('border-indigo-500', 'text-indigo-600');
                 }
                 
-                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+                const tabContent = document.getElementById(`tab-${tabName}`);
+                if (tabContent) {
+                    tabContent.classList.remove('hidden');
+                }
             }
 
             handleMemberSelect(e) {
+                const memberId = parseInt(e.target.value);
+                if (memberId) {
+                    const member = this.members.find(m => m.id === memberId);
+                    this.currentMember = member;
+                    this.updateMemberUI();
+                }
+            }
+
+            handleMemberInput(e) {
                 const memberId = parseInt(e.target.value);
                 const member = this.members.find(m => m.id === memberId);
                 
                 if (member) {
                     this.currentMember = member;
+                    document.getElementById('member-name-display').classList.remove('hidden');
+                    document.getElementById('member-name-text').textContent = `مرحباً ${member.name}`;
                     this.updateMemberUI();
-                    this.showMessage(`مرحباً ${member.name}!`, 'success');
                 } else {
                     this.currentMember = null;
+                    document.getElementById('member-name-display').classList.add('hidden');
                     this.resetMemberUI();
                 }
             }
 
-            verifyFingerprint() {
-                this.verificationMethod = 'fingerprint';
-                this.showMessage('جاري التحقق بالبصمة...', 'info');
+            selectVerificationMethod(method) {
+                this.selectedMethod = method;
+                
+                document.querySelectorAll('.verification-method').forEach(m => {
+                    m.classList.remove('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900');
+                });
+                
+                document.querySelector(`[data-method="${method}"]`).classList.add('border-indigo-500', 'bg-indigo-50', 'dark:bg-indigo-900');
+                
+                document.getElementById('password-input').classList.add('hidden');
+                document.getElementById('biometric-simulation').classList.add('hidden');
+                
+                if (method === 'password') {
+                    document.getElementById('password-input').classList.remove('hidden');
+                } else {
+                    document.getElementById('biometric-simulation').classList.remove('hidden');
+                    const icon = method === 'fingerprint' ? 'fa-fingerprint' : 'fa-user-circle';
+                    const text = method === 'fingerprint' ? 'اضغط للمسح البصمي' : 'اضغط للمسح الضوئي';
+                    document.getElementById('biometric-icon').className = `fas ${icon} text-6xl mb-4 pulse-animation`;
+                    document.getElementById('biometric-text').textContent = text;
+                }
+            }
+
+            simulateBiometric() {
+                this.showLoading(true);
                 setTimeout(() => {
-                    this.showMessage('تم التحقق بالبصمة بنجاح', 'success');
+                    this.showLoading(false);
+                    this.showMessage('تم التحقق بنجاح!', 'success');
                 }, 2000);
             }
 
-            verifyFace() {
-                this.verificationMethod = 'face';
-                this.showMessage('جاري التحقق ببصمة الوجه...', 'info');
-                setTimeout(() => {
-                    this.showMessage('تم التحقق ببصمة الوجه بنجاح', 'success');
-                }, 2000);
-            }
-
-            async quickRegister(e) {
+            async submitAttendance(e) {
                 e.preventDefault();
                 const memberId = parseInt(document.getElementById('member-select').value);
                 const weekId = parseInt(document.getElementById('week-select').value);
-                const password = document.getElementById('member-password').value;
+                const password = document.getElementById('password-field').value;
 
-                if (!memberId) {
-                    this.showMessage('يرجى اختيار اسم العضو', 'error');
+                if (!memberId || !weekId) {
+                    this.showMessage('يرجى اختيار العضو والأسبوع', 'error');
                     return;
                 }
 
-                if (!weekId) {
-                    this.showMessage('يرجى اختيار الأسبوع', 'error');
+                if (!this.selectedMethod) {
+                    this.showMessage('يرجى اختيار طريقة التحقق', 'error');
                     return;
                 }
 
@@ -992,23 +909,80 @@
                 }
 
                 // التحقق من عدم التسجيل المسبق
-                const alreadyRegistered = this.attendanceRecords.some(record => 
+                const existingAttendance = this.attendanceRecords.find(record => 
                     record.memberId === memberId && record.weekId === weekId
                 );
 
-                if (alreadyRegistered) {
-                    this.showMessage('تم تسجيل الحضور مسبقاً لهذا الأسبوع', 'error');
+                if (existingAttendance) {
+                    this.showMessage('تم تسجيل حضورك لهذا الأسبوع مسبقاً', 'error');
                     return;
                 }
 
-                // التحقق من طريقة التحقق
-                if (!this.verificationMethod && !password) {
-                    this.showMessage('يرجى اختيار طريقة تحقق أو إدخال كلمة المرور', 'error');
+                if (this.selectedMethod === 'password') {
+                    if (!password) {
+                        this.showMessage('يرجى إدخال كلمة المرور', 'error');
+                        return;
+                    }
+                    if (password !== member.password) {
+                        this.showMessage('كلمة المرور غير صحيحة', 'error');
+                        return;
+                    }
+                }
+
+                this.showLoading(true);
+
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    const attendanceRecord = {
+                        memberId: memberId,
+                        memberName: member.name,
+                        weekId: weekId,
+                        weekName: this.weeks.find(w => w.id === weekId).name,
+                        method: this.selectedMethod,
+                        points: 1,
+                        timestamp: new Date()
+                    };
+
+                    this.attendanceRecords.push(attendanceRecord);
+                    member.points += 1;
+                    member.lastAttendance = new Date().toISOString().split('T')[0];
+
+                    this.showLoading(false);
+                    this.showMessage(`تم تسجيل حضور ${member.name} بنجاح! +1 Talanton`, 'success');
+                    this.updateMemberUI();
+                    this.updateAdminUI();
+
+                } catch (error) {
+                    this.showLoading(false);
+                    this.showMessage('حدث خطأ أثناء التسجيل', 'error');
+                }
+            }
+
+            async quickRegister(e) {
+                e.preventDefault();
+                const memberId = parseInt(document.getElementById('member-id-input').value);
+
+                if (!memberId) {
+                    this.showMessage('يرجى إدخال رقم العضو', 'error');
                     return;
                 }
 
-                if (password && password !== member.password) {
-                    this.showMessage('كلمة المرور غير صحيحة', 'error');
+                const member = this.members.find(m => m.id === memberId);
+                if (!member) {
+                    this.showMessage('رقم العضو غير صحيح', 'error');
+                    return;
+                }
+
+                const currentWeek = this.weeks[this.weeks.length - 1];
+
+                // التحقق من عدم التسجيل المسبق
+                const existingAttendance = this.attendanceRecords.find(record => 
+                    record.memberId === memberId && record.weekId === currentWeek.id
+                );
+
+                if (existingAttendance) {
+                    this.showMessage('تم تسجيل حضورك لهذا الأسبوع مسبقاً', 'error');
                     return;
                 }
 
@@ -1019,7 +993,10 @@
                     
                     const attendanceRecord = {
                         memberId: memberId,
-                        weekId: weekId,
+                        memberName: member.name,
+                        weekId: currentWeek.id,
+                        weekName: currentWeek.name,
+                        method: 'quick',
                         points: 1,
                         timestamp: new Date()
                     };
@@ -1029,11 +1006,9 @@
                     member.lastAttendance = new Date().toISOString().split('T')[0];
 
                     this.showLoading(false);
-                    this.showMessage(`تم تسجيل حضور ${member.name} بنجاح! +1 نقطة`, 'success');
+                    this.showMessage(`تم تسجيل حضور ${member.name} بنجاح! +1 Talanton`, 'success');
                     this.updateMemberUI();
                     this.updateAdminUI();
-                    this.verificationMethod = null;
-                    document.getElementById('member-password').value = '';
 
                 } catch (error) {
                     this.showLoading(false);
@@ -1044,10 +1019,10 @@
             async addMember(e) {
                 e.preventDefault();
                 const name = document.getElementById('member-name').value;
-                const password = document.getElementById('member-password-input').value;
+                const password = document.getElementById('member-password').value;
 
                 if (!name || !password) {
-                    this.showMessage('يرجى إدخال اسم العضو وكلمة المرور', 'error');
+                    this.showMessage('يرجى ملء جميع الحقول', 'error');
                     return;
                 }
 
@@ -1065,17 +1040,12 @@
                     };
 
                     this.members.push(newMember);
-                    // إعادة ترتيب الأعضاء أبجدياً وتحديث الأرقام التسلسلية
-                    this.members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-                    this.members.forEach((member, index) => {
-                        member.serialNumber = index + 1;
-                    });
 
                     this.showLoading(false);
                     this.showMessage('تم إضافة العضو بنجاح', 'success');
                     this.hideAddMemberModal();
-                    this.updateAdminUI();
                     this.updateUI();
+                    this.updateAdminUI();
 
                 } catch (error) {
                     this.showLoading(false);
@@ -1083,10 +1053,11 @@
                 }
             }
 
-            async updateMember(e) {
+            async editMember(e) {
                 e.preventDefault();
                 const memberId = parseInt(document.getElementById('edit-member-id').value);
                 const name = document.getElementById('edit-member-name').value;
+                const password = document.getElementById('edit-member-password').value;
 
                 if (!name) {
                     this.showMessage('يرجى إدخال اسم العضو', 'error');
@@ -1099,22 +1070,20 @@
                     const memberIndex = this.members.findIndex(m => m.id === memberId);
                     if (memberIndex !== -1) {
                         this.members[memberIndex].name = name;
-                        
-                        // إعادة ترتيب الأعضاء أبجدياً وتحديث الأرقام التسلسلية
-                        this.members.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-                        this.members.forEach((member, index) => {
-                            member.serialNumber = index + 1;
-                        });
-                        
-                        this.showLoading(false);
-                        this.showMessage('تم تحديث بيانات العضو بنجاح', 'success');
-                        this.hideEditMemberModal();
-                        this.updateAdminUI();
-                        this.updateUI();
+                        if (password) {
+                            this.members[memberIndex].password = password;
+                        }
                     }
+
+                    this.showLoading(false);
+                    this.showMessage('تم تعديل العضو بنجاح', 'success');
+                    this.hideEditMemberModal();
+                    this.updateUI();
+                    this.updateAdminUI();
+
                 } catch (error) {
                     this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء تحديث العضو', 'error');
+                    this.showMessage('حدث خطأ أثناء تعديل العضو', 'error');
                 }
             }
 
@@ -1137,8 +1106,7 @@
                         name: name,
                         price: price,
                         description: description,
-                        stock: 10,
-                        image: "📦"
+                        stock: 10
                     };
 
                     this.products.push(newProduct);
@@ -1155,7 +1123,7 @@
                 }
             }
 
-            async updateProduct(e) {
+            async editProduct(e) {
                 e.preventDefault();
                 const productId = parseInt(document.getElementById('edit-product-id').value);
                 const name = document.getElementById('edit-product-name').value;
@@ -1175,27 +1143,27 @@
                         this.products[productIndex].name = name;
                         this.products[productIndex].price = price;
                         this.products[productIndex].description = description;
-                        
-                        this.showLoading(false);
-                        this.showMessage('تم تحديث المنتج بنجاح', 'success');
-                        this.hideEditProductModal();
-                        this.updateAdminUI();
-                        this.updateStoreUI();
                     }
+
+                    this.showLoading(false);
+                    this.showMessage('تم تعديل المنتج بنجاح', 'success');
+                    this.hideEditProductModal();
+                    this.updateAdminUI();
+                    this.updateStoreUI();
+
                 } catch (error) {
                     this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء تحديث المنتج', 'error');
+                    this.showMessage('حدث خطأ أثناء تعديل المنتج', 'error');
                 }
             }
 
             async addCompetition(e) {
                 e.preventDefault();
                 const name = document.getElementById('competition-name').value;
-                const points = parseInt(document.getElementById('competition-points').value);
                 const description = document.getElementById('competition-description').value;
-                const date = document.getElementById('competition-date').value;
+                const points = parseInt(document.getElementById('competition-points').value);
 
-                if (!name || !points || !date) {
+                if (!name || !points) {
                     this.showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
                     return;
                 }
@@ -1206,10 +1174,9 @@
                     const newCompetition = {
                         id: this.competitions.length > 0 ? Math.max(...this.competitions.map(c => c.id)) + 1 : 1,
                         name: name,
-                        points: points,
                         description: description,
-                        date: date,
-                        participants: 0
+                        points: points,
+                        participants: []
                     };
 
                     this.competitions.push(newCompetition);
@@ -1225,137 +1192,10 @@
                 }
             }
 
-            async addEvent(e) {
-                e.preventDefault();
-                const name = document.getElementById('event-name').value;
-                const points = parseInt(document.getElementById('event-points').value);
-                const description = document.getElementById('event-description').value;
-                const date = document.getElementById('event-date').value;
-
-                if (!name || !points || !date) {
-                    this.showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    const newEvent = {
-                        id: this.events.length > 0 ? Math.max(...this.events.map(e => e.id)) + 1 : 1,
-                        name: name,
-                        points: points,
-                        description: description,
-                        date: date,
-                        attendees: 0
-                    };
-
-                    this.events.push(newEvent);
-
-                    this.showLoading(false);
-                    this.showMessage('تم إضافة المناسبة بنجاح', 'success');
-                    this.hideAddEventModal();
-                    this.updateAdminUI();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة المناسبة', 'error');
-                }
-            }
-
-            async addBirthday(e) {
-                e.preventDefault();
-                const memberId = parseInt(document.getElementById('birthday-member').value);
-                const date = document.getElementById('birthday-date').value;
-                const points = parseInt(document.getElementById('birthday-points').value);
-
-                if (!memberId || !date || !points) {
-                    this.showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
-                    return;
-                }
-
-                const member = this.members.find(m => m.id === memberId);
-                if (!member) {
-                    this.showMessage('العضو غير موجود', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    const newBirthday = {
-                        id: this.birthdays.length > 0 ? Math.max(...this.birthdays.map(b => b.id)) + 1 : 1,
-                        memberId: memberId,
-                        memberName: member.name,
-                        date: date,
-                        points: points
-                    };
-
-                    this.birthdays.push(newBirthday);
-
-                    this.showLoading(false);
-                    this.showMessage('تم إضافة عيد الميلاد بنجاح', 'success');
-                    this.hideAddBirthdayModal();
-                    this.updateAdminUI();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة عيد الميلاد', 'error');
-                }
-            }
-
-            async addTask(e) {
-                e.preventDefault();
-                const name = document.getElementById('task-name').value;
-                const points = parseInt(document.getElementById('task-points').value);
-                const description = document.getElementById('task-description').value;
-                const deadline = document.getElementById('task-deadline').value;
-
-                if (!name || !points || !deadline) {
-                    this.showMessage('يرجى ملء جميع الحقول المطلوبة', 'error');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    const newTask = {
-                        id: this.tasks.length > 0 ? Math.max(...this.tasks.map(t => t.id)) + 1 : 1,
-                        name: name,
-                        points: points,
-                        description: description,
-                        deadline: deadline,
-                        completed: false
-                    };
-
-                    this.tasks.push(newTask);
-
-                    this.showLoading(false);
-                    this.showMessage('تم إضافة المهمة بنجاح', 'success');
-                    this.hideAddTaskModal();
-                    this.updateAdminUI();
-
-                } catch (error) {
-                    this.showLoading(false);
-                    this.showMessage('حدث خطأ أثناء إضافة المهمة', 'error');
-                }
-            }
-
             updateUI() {
                 this.updateMembersSelect();
                 this.updateWeeksSelect();
                 this.updateStoreUI();
-            }
-
-            updateMembersSelect() {
-                const select = document.getElementById('member-select');
-                select.innerHTML = '<option value="">اختر اسم العضو...</option>';
-                
-                this.members.forEach(member => {
-                    const option = document.createElement('option');
-                    option.value = member.id;
-                    option.textContent = `${member.name} (${member.serialNumber})`;
-                    select.appendChild(option);
-                });
             }
 
             updateMemberUI() {
@@ -1366,6 +1206,18 @@
 
             resetMemberUI() {
                 document.getElementById('user-talanton').textContent = '---';
+            }
+
+            updateMembersSelect() {
+                const select = document.getElementById('member-select');
+                select.innerHTML = '<option value="">اختر اسم العضو...</option>';
+                
+                this.members.forEach((member, index) => {
+                    const option = document.createElement('option');
+                    option.value = member.id;
+                    option.textContent = `${index + 1}- ${member.name}`; // إضافة الرقم قبل الاسم
+                    select.appendChild(option);
+                });
             }
 
             updateWeeksSelect() {
@@ -1387,13 +1239,10 @@
                 this.products.forEach(product => {
                     const canAfford = this.currentMember && this.currentMember.points >= product.price;
                     const productCard = document.createElement('div');
-                    productCard.className = 'store-card dark:store-card-dark rounded-xl p-6 hover-lift';
+                    productCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
                     productCard.innerHTML = `
-                        <div class="text-center mb-4">
-                            <span class="text-4xl">${product.image}</span>
-                        </div>
-                        <h4 class="font-bold text-gray-800 dark:text-white mb-2 text-center">${product.name}</h4>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 text-center">${product.description}</p>
+                        <h4 class="font-bold text-gray-800 dark:text-white mb-2">${product.name}</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">${product.description}</p>
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-yellow-600 font-bold">${product.price} Talanton</span>
                             <span class="text-green-600 text-sm">${product.stock} متوفر</span>
@@ -1423,11 +1272,10 @@
             updateAdminUI() {
                 this.updateMembersTable();
                 this.updateProductsAdmin();
-                this.updateCompetitionsAdmin();
-                this.updateEventsAdmin();
-                this.updateBirthdaysAdmin();
-                this.updateTalantonAdmin();
-                this.updateTasksAdmin();
+                this.updateCompetitionsTable();
+                this.updateEventsTable();
+                this.updateBirthdaysTable();
+                this.updateTalantonTable();
                 this.updateReports();
             }
 
@@ -1441,7 +1289,6 @@
                     row.innerHTML = `
                         <td class="p-3 text-gray-800 dark:text-white">${index + 1}</td>
                         <td class="p-3 text-gray-800 dark:text-white">${member.name}</td>
-                        <td class="p-3 text-blue-600 font-bold">${member.serialNumber}</td>
                         <td class="p-3 text-yellow-600 font-bold">${member.points} Talanton</td>
                         <td class="p-3 text-gray-600 dark:text-gray-300">${member.lastAttendance || '---'}</td>
                         <td class="p-3">
@@ -1484,33 +1331,35 @@
                 });
             }
 
-            updateCompetitionsAdmin() {
-                const container = document.getElementById('competitions-admin-container');
+            updateCompetitionsTable() {
+                const container = document.getElementById('competitions-container');
                 container.innerHTML = '';
 
                 this.competitions.forEach(competition => {
-                    const competitionCard = document.createElement('div');
-                    competitionCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
-                    competitionCard.innerHTML = `
+                    const compCard = document.createElement('div');
+                    compCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
+                    compCard.innerHTML = `
                         <h4 class="font-bold text-gray-800 dark:text-white mb-2">${competition.name}</h4>
                         <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">${competition.description}</p>
-                        <p class="text-yellow-600 font-bold mb-1">${competition.points} نقاط</p>
-                        <p class="text-blue-600 text-sm mb-3">${competition.date} - ${competition.participants} مشارك</p>
+                        <p class="text-yellow-600 font-bold mb-3">${competition.points} نقاط</p>
                         <div class="flex justify-between items-center">
-                            <button onclick="attendanceSystem.editCompetition(${competition.id})" class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="attendanceSystem.deleteCompetition(${competition.id})" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <span class="text-green-600 text-sm">${competition.participants.length} مشارك</span>
+                            <div>
+                                <button onclick="attendanceSystem.showEditCompetitionModal(${competition.id})" class="text-blue-600 hover:text-blue-800 ml-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="attendanceSystem.deleteCompetition(${competition.id})" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
-                    container.appendChild(competitionCard);
+                    container.appendChild(compCard);
                 });
             }
 
-            updateEventsAdmin() {
-                const container = document.getElementById('events-admin-container');
+            updateEventsTable() {
+                const container = document.getElementById('events-container');
                 container.innerHTML = '';
 
                 this.events.forEach(event => {
@@ -1519,91 +1368,166 @@
                     eventCard.innerHTML = `
                         <h4 class="font-bold text-gray-800 dark:text-white mb-2">${event.name}</h4>
                         <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">${event.description}</p>
-                        <p class="text-yellow-600 font-bold mb-1">${event.points} نقاط</p>
-                        <p class="text-blue-600 text-sm mb-3">${event.date} - ${event.attendees} حاضـر</p>
+                        <p class="text-yellow-600 font-bold mb-3">${event.points} نقاط</p>
                         <div class="flex justify-between items-center">
-                            <button onclick="attendanceSystem.editEvent(${event.id})" class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="attendanceSystem.deleteEvent(${event.id})" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <span class="text-green-600 text-sm">${event.date}</span>
+                            <div>
+                                <button onclick="attendanceSystem.showEditEventModal(${event.id})" class="text-blue-600 hover:text-blue-800 ml-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="attendanceSystem.deleteEvent(${event.id})" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                     container.appendChild(eventCard);
                 });
             }
 
-            updateBirthdaysAdmin() {
-                const container = document.getElementById('birthdays-admin-container');
+            updateBirthdaysTable() {
+                const container = document.getElementById('birthdays-container');
                 container.innerHTML = '';
 
                 this.birthdays.forEach(birthday => {
-                    const birthdayCard = document.createElement('div');
-                    birthdayCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
-                    birthdayCard.innerHTML = `
+                    const bdayCard = document.createElement('div');
+                    bdayCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
+                    bdayCard.innerHTML = `
                         <h4 class="font-bold text-gray-800 dark:text-white mb-2">${birthday.memberName}</h4>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">عيد ميلاد</p>
-                        <p class="text-yellow-600 font-bold mb-1">${birthday.points} نقاط</p>
-                        <p class="text-blue-600 text-sm mb-3">${birthday.date}</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">${birthday.birthDate}</p>
+                        <p class="text-yellow-600 font-bold mb-3">${birthday.points} نقاط</p>
                         <div class="flex justify-between items-center">
-                            <button onclick="attendanceSystem.editBirthday(${birthday.id})" class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="attendanceSystem.deleteBirthday(${birthday.id})" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <span class="text-green-600 text-sm">عيد ميلاد</span>
+                            <div>
+                                <button onclick="attendanceSystem.showEditBirthdayModal(${birthday.id})" class="text-blue-600 hover:text-blue-800 ml-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="attendanceSystem.deleteBirthday(${birthday.id})" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
-                    container.appendChild(birthdayCard);
+                    container.appendChild(bdayCard);
                 });
             }
 
-            updateTalantonAdmin() {
-                const tbody = document.getElementById('talanton-table-body');
-                tbody.innerHTML = '';
-
-                this.members.forEach((member, index) => {
-                    const row = document.createElement('tr');
-                    row.className = 'border-b border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700';
-                    row.innerHTML = `
-                        <td class="p-3 text-gray-800 dark:text-white">${index + 1}</td>
-                        <td class="p-3 text-gray-800 dark:text-white">${member.name}</td>
-                        <td class="p-3 text-yellow-600 font-bold">${member.points} Talanton</td>
-                        <td class="p-3 text-gray-600 dark:text-gray-300">${member.lastAttendance || '---'}</td>
-                        <td class="p-3">
-                            <button onclick="attendanceSystem.adjustPoints(${member.id})" class="text-green-600 hover:text-green-800 ml-2">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-
-            updateTasksAdmin() {
-                const container = document.getElementById('tasks-admin-container');
+            updateTalantonTable() {
+                const container = document.getElementById('talanton-container');
                 container.innerHTML = '';
 
-                this.tasks.forEach(task => {
-                    const taskCard = document.createElement('div');
-                    taskCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
-                    taskCard.innerHTML = `
-                        <h4 class="font-bold text-gray-800 dark:text-white mb-2">${task.name}</h4>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">${task.description}</p>
-                        <p class="text-yellow-600 font-bold mb-1">${task.points} نقاط</p>
-                        <p class="text-blue-600 text-sm mb-3">${task.deadline} - ${task.completed ? 'مكتملة' : 'قيد التنفيذ'}</p>
+                this.talantonRecords.forEach(record => {
+                    const recordCard = document.createElement('div');
+                    recordCard.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl p-4 hover-scale';
+                    recordCard.innerHTML = `
+                        <h4 class="font-bold text-gray-800 dark:text-white mb-2">${record.memberName}</h4>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-2">${record.reason}</p>
+                        <p class="text-yellow-600 font-bold mb-3">${record.points} نقاط</p>
                         <div class="flex justify-between items-center">
-                            <button onclick="attendanceSystem.editTask(${task.id})" class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="attendanceSystem.deleteTask(${task.id})" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <span class="text-green-600 text-sm">${record.date}</span>
+                            <div>
+                                <button onclick="attendanceSystem.showEditTalantonModal(${record.id})" class="text-blue-600 hover:text-blue-800 ml-2">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="attendanceSystem.deleteTalanton(${record.id})" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
-                    container.appendChild(taskCard);
+                    container.appendChild(recordCard);
                 });
+            }
+
+            showEditMemberModal(memberId) {
+                const member = this.members.find(m => m.id === memberId);
+                if (member) {
+                    document.getElementById('edit-member-id').value = member.id;
+                    document.getElementById('edit-member-name').value = member.name;
+                    document.getElementById('edit-member-password').value = '';
+                    document.getElementById('edit-member-modal').classList.remove('hidden');
+                }
+            }
+
+            showEditProductModal(productId) {
+                const product = this.products.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('edit-product-id').value = product.id;
+                    document.getElementById('edit-product-name').value = product.name;
+                    document.getElementById('edit-product-price').value = product.price;
+                    document.getElementById('edit-product-description').value = product.description;
+                    document.getElementById('edit-product-modal').classList.remove('hidden');
+                }
+            }
+
+            showEditCompetitionModal(competitionId) {
+                const competition = this.competitions.find(c => c.id === competitionId);
+                if (competition) {
+                    // سيتم تنفيذ هذا لاحقاً
+                    this.showMessage('تعديل المسابقة - قريباً', 'info');
+                }
+            }
+
+            showEditEventModal(eventId) {
+                this.showMessage('تعديل المناسبة - قريباً', 'info');
+            }
+
+            showEditBirthdayModal(birthdayId) {
+                this.showMessage('تعديل عيد الميلاد - قريباً', 'info');
+            }
+
+            showEditTalantonModal(recordId) {
+                this.showMessage('تعديل سجل Talanton - قريباً', 'info');
+            }
+
+            deleteMember(memberId) {
+                if (confirm('هل أنت متأكد من حذف هذا العضو؟')) {
+                    this.members = this.members.filter(m => m.id !== memberId);
+                    this.showMessage('تم حذف العضو بنجاح', 'success');
+                    this.updateUI();
+                    this.updateAdminUI();
+                }
+            }
+
+            deleteProduct(productId) {
+                if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                    this.products = this.products.filter(p => p.id !== productId);
+                    this.showMessage('تم حذف المنتج بنجاح', 'success');
+                    this.updateAdminUI();
+                    this.updateStoreUI();
+                }
+            }
+
+            deleteCompetition(competitionId) {
+                if (confirm('هل أنت متأكد من حذف هذه المسابقة؟')) {
+                    this.competitions = this.competitions.filter(c => c.id !== competitionId);
+                    this.showMessage('تم حذف المسابقة بنجاح', 'success');
+                    this.updateAdminUI();
+                }
+            }
+
+            deleteEvent(eventId) {
+                if (confirm('هل أنت متأكد من حذف هذه المناسبة؟')) {
+                    this.events = this.events.filter(e => e.id !== eventId);
+                    this.showMessage('تم حذف المناسبة بنجاح', 'success');
+                    this.updateAdminUI();
+                }
+            }
+
+            deleteBirthday(birthdayId) {
+                if (confirm('هل أنت متأكد من حذف عيد الميلاد هذا؟')) {
+                    this.birthdays = this.birthdays.filter(b => b.id !== birthdayId);
+                    this.showMessage('تم حذف عيد الميلاد بنجاح', 'success');
+                    this.updateAdminUI();
+                }
+            }
+
+            deleteTalanton(recordId) {
+                if (confirm('هل أنت متأكد من حذف هذا السجل؟')) {
+                    this.talantonRecords = this.talantonRecords.filter(r => r.id !== recordId);
+                    this.showMessage('تم حذف السجل بنجاح', 'success');
+                    this.updateAdminUI();
+                }
             }
 
             updateReports() {
@@ -1623,8 +1547,6 @@
             updateCharts() {
                 this.updateAttendanceChart();
                 this.updatePointsChart();
-                this.updateActivityChart();
-                this.updateComparisonChart();
             }
 
             updateAttendanceChart() {
@@ -1642,47 +1564,14 @@
                         datasets: [{
                             label: 'عدد الحضور',
                             data: weeklyData,
-                            backgroundColor: '#3b82f6',
-                            borderColor: '#1d4ed8',
-                            borderWidth: 2,
-                            borderRadius: 8
+                            backgroundColor: '#3b82f6'
                         }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
                             legend: {
-                                rtl: true,
-                                labels: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'توزيع الحضور على الأسابيع',
-                                font: {
-                                    family: 'Cairo',
-                                    size: 16
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
+                                rtl: true
                             }
                         }
                     }
@@ -1703,8 +1592,7 @@
                         labels: topMembers.map(m => m.name),
                         datasets: [{
                             data: topMembers.map(m => m.points),
-                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'],
-                            borderWidth: 2
+                            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6']
                         }]
                     },
                     options: {
@@ -1712,148 +1600,7 @@
                         plugins: {
                             legend: {
                                 rtl: true,
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'أعلى 5 أعضاء من حيث النقاط',
-                                font: {
-                                    family: 'Cairo',
-                                    size: 16
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            updateActivityChart() {
-                const ctx = document.getElementById('activityChart');
-                if (!ctx) return;
-
-                const memberActivity = this.members.map(member => {
-                    const attendanceCount = this.attendanceRecords.filter(r => r.memberId === member.id).length;
-                    return {
-                        name: member.name,
-                        attendance: attendanceCount,
-                        points: member.points
-                    };
-                }).sort((a, b) => b.attendance - a.attendance);
-
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: memberActivity.map(m => m.name),
-                        datasets: [{
-                            label: 'عدد مرات الحضور',
-                            data: memberActivity.map(m => m.attendance),
-                            backgroundColor: '#10b981',
-                            borderColor: '#059669',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                rtl: true,
-                                labels: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'نشاط الأعضاء في الحضور',
-                                font: {
-                                    family: 'Cairo',
-                                    size: 16
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            updateComparisonChart() {
-                const ctx = document.getElementById('comparisonChart');
-                if (!ctx) return;
-
-                const sortedMembers = [...this.members].sort((a, b) => b.points - a.points);
-
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: sortedMembers.map(m => m.name),
-                        datasets: [{
-                            label: 'النقاط',
-                            data: sortedMembers.map(m => m.points),
-                            backgroundColor: '#8b5cf6',
-                            borderColor: '#7c3aed',
-                            borderWidth: 2,
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                rtl: true,
-                                labels: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'مقارنة نقاط الأعضاء',
-                                font: {
-                                    family: 'Cairo',
-                                    size: 16
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'Cairo'
-                                    }
-                                }
+                                position: 'bottom'
                             }
                         }
                     }
@@ -1894,123 +1641,6 @@
                         this.showMessage('حدث خطأ أثناء الشراء', 'error');
                     }
                 }
-            }
-
-            showEditMemberModal(memberId) {
-                const member = this.members.find(m => m.id === memberId);
-                if (member) {
-                    document.getElementById('edit-member-id').value = member.id;
-                    document.getElementById('edit-member-name').value = member.name;
-                    document.getElementById('edit-member-modal').classList.remove('hidden');
-                }
-            }
-
-            hideEditMemberModal() {
-                document.getElementById('edit-member-modal').classList.add('hidden');
-                document.getElementById('edit-member-form').reset();
-            }
-
-            showEditProductModal(productId) {
-                const product = this.products.find(p => p.id === productId);
-                if (product) {
-                    document.getElementById('edit-product-id').value = product.id;
-                    document.getElementById('edit-product-name').value = product.name;
-                    document.getElementById('edit-product-price').value = product.price;
-                    document.getElementById('edit-product-description').value = product.description || '';
-                    document.getElementById('edit-product-modal').classList.remove('hidden');
-                }
-            }
-
-            hideEditProductModal() {
-                document.getElementById('edit-product-modal').classList.add('hidden');
-                document.getElementById('edit-product-form').reset();
-            }
-
-            deleteMember(memberId) {
-                if (confirm('هل أنت متأكد من حذف هذا العضو؟')) {
-                    this.members = this.members.filter(m => m.id !== memberId);
-                    // إعادة ترتيب الأرقام التسلسلية
-                    this.members.forEach((member, index) => {
-                        member.serialNumber = index + 1;
-                    });
-                    this.showMessage('تم حذف العضو بنجاح', 'success');
-                    this.updateAdminUI();
-                    this.updateUI();
-                }
-            }
-
-            deleteProduct(productId) {
-                if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-                    this.products = this.products.filter(p => p.id !== productId);
-                    this.showMessage('تم حذف المنتج بنجاح', 'success');
-                    this.updateAdminUI();
-                    this.updateStoreUI();
-                }
-            }
-
-            deleteCompetition(competitionId) {
-                if (confirm('هل أنت متأكد من حذف هذه المسابقة؟')) {
-                    this.competitions = this.competitions.filter(c => c.id !== competitionId);
-                    this.showMessage('تم حذف المسابقة بنجاح', 'success');
-                    this.updateAdminUI();
-                }
-            }
-
-            deleteEvent(eventId) {
-                if (confirm('هل أنت متأكد من حذف هذه المناسبة؟')) {
-                    this.events = this.events.filter(e => e.id !== eventId);
-                    this.showMessage('تم حذف المناسبة بنجاح', 'success');
-                    this.updateAdminUI();
-                }
-            }
-
-            deleteBirthday(birthdayId) {
-                if (confirm('هل أنت متأكد من حذف عيد الميلاد هذا؟')) {
-                    this.birthdays = this.birthdays.filter(b => b.id !== birthdayId);
-                    this.showMessage('تم حذف عيد الميلاد بنجاح', 'success');
-                    this.updateAdminUI();
-                }
-            }
-
-            deleteTask(taskId) {
-                if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
-                    this.tasks = this.tasks.filter(t => t.id !== taskId);
-                    this.showMessage('تم حذف المهمة بنجاح', 'success');
-                    this.updateAdminUI();
-                }
-            }
-
-            adjustPoints(memberId) {
-                const member = this.members.find(m => m.id === memberId);
-                if (member) {
-                    const newPoints = prompt(`إدخال النقاط الجديدة لـ ${member.name} (النقاط الحالية: ${member.points}):`, member.points);
-                    if (newPoints !== null && !isNaN(newPoints)) {
-                        member.points = parseInt(newPoints);
-                        this.showMessage(`تم تحديث نقاط ${member.name} إلى ${newPoints}`, 'success');
-                        this.updateAdminUI();
-                        this.updateUI();
-                    }
-                }
-            }
-
-            editCompetition(competitionId) {
-                const competition = this.competitions.find(c => c.id === competitionId);
-                this.showMessage(`تعديل المسابقة: ${competition.name} - قريباً`, 'info');
-            }
-
-            editEvent(eventId) {
-                const event = this.events.find(e => e.id === eventId);
-                this.showMessage(`تعديل المناسبة: ${event.name} - قريباً`, 'info');
-            }
-
-            editBirthday(birthdayId) {
-                const birthday = this.birthdays.find(b => b.id === birthdayId);
-                this.showMessage(`تعديل عيد الميلاد: ${birthday.memberName} - قريباً`, 'info');
-            }
-
-            editTask(taskId) {
-                const task = this.tasks.find(t => t.id === taskId);
-                this.showMessage(`تعديل المهمة: ${task.name} - قريباً`, 'info');
             }
 
             showLoading(show) {
@@ -2058,6 +1688,11 @@
             document.getElementById('add-member-form').reset();
         }
 
+        function hideEditMemberModal() {
+            document.getElementById('edit-member-modal').classList.add('hidden');
+            document.getElementById('edit-member-form').reset();
+        }
+
         function showAddProductModal() {
             document.getElementById('add-product-modal').classList.remove('hidden');
         }
@@ -2065,6 +1700,11 @@
         function hideAddProductModal() {
             document.getElementById('add-product-modal').classList.add('hidden');
             document.getElementById('add-product-form').reset();
+        }
+
+        function hideEditProductModal() {
+            document.getElementById('edit-product-modal').classList.add('hidden');
+            document.getElementById('edit-product-form').reset();
         }
 
         function showAddCompetitionModal() {
@@ -2077,54 +1717,15 @@
         }
 
         function showAddEventModal() {
-            document.getElementById('add-event-modal').classList.remove('hidden');
-        }
-
-        function hideAddEventModal() {
-            document.getElementById('add-event-modal').classList.add('hidden');
-            document.getElementById('add-event-form').reset();
+            attendanceSystem.showMessage('إضافة مناسبة - قريباً', 'info');
         }
 
         function showAddBirthdayModal() {
-            const select = document.getElementById('birthday-member');
-            select.innerHTML = '<option value="">اختر العضو...</option>';
-            attendanceSystem.members.forEach(member => {
-                const option = document.createElement('option');
-                option.value = member.id;
-                option.textContent = member.name;
-                select.appendChild(option);
-            });
-            document.getElementById('add-birthday-modal').classList.remove('hidden');
+            attendanceSystem.showMessage('إضافة عيد ميلاد - قريباً', 'info');
         }
 
-        function hideAddBirthdayModal() {
-            document.getElementById('add-birthday-modal').classList.add('hidden');
-            document.getElementById('add-birthday-form').reset();
-        }
-
-        function showAddTaskModal() {
-            document.getElementById('add-task-modal').classList.remove('hidden');
-        }
-
-        function hideAddTaskModal() {
-            document.getElementById('add-task-modal').classList.add('hidden');
-            document.getElementById('add-task-form').reset();
-        }
-
-        function showEditMemberModal(memberId) {
-            attendanceSystem.showEditMemberModal(memberId);
-        }
-
-        function hideEditMemberModal() {
-            attendanceSystem.hideEditMemberModal();
-        }
-
-        function showEditProductModal(productId) {
-            attendanceSystem.showEditProductModal(productId);
-        }
-
-        function hideEditProductModal() {
-            attendanceSystem.hideEditProductModal();
+        function showAddTalantonModal() {
+            attendanceSystem.showMessage('إضافة نقاط Talanton - قريباً', 'info');
         }
 
         function showStore() {

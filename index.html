@@ -398,6 +398,8 @@
                 await this.loadAllData();
                 this.setupEventListeners();
                 this.updateUI();
+                
+                console.log('System initialized successfully');
             }
 
             applyDarkMode() {
@@ -457,29 +459,68 @@
             }
 
             setupEventListeners() {
-                // Dark Mode
-                document.getElementById('dark-toggle').addEventListener('click', () => this.toggleDarkMode());
+                console.log('Setting up event listeners...');
                 
-                // Admin
-                document.getElementById('admin-btn').addEventListener('click', () => this.showAdminLogin());
-                document.getElementById('back-btn').addEventListener('click', () => this.hideAdminPanel());
-                document.getElementById('admin-login-form').addEventListener('submit', (e) => this.adminLogin(e));
+                // Dark Mode - يعمل
+                document.getElementById('dark-toggle').addEventListener('click', () => {
+                    console.log('Dark mode toggle clicked');
+                    this.toggleDarkMode();
+                });
+                
+                // Admin Button - الإصلاح هنا
+                document.getElementById('admin-btn').addEventListener('click', () => {
+                    console.log('Admin button clicked');
+                    this.showAdminLogin();
+                });
+                
+                // Back Button
+                document.getElementById('back-btn').addEventListener('click', () => {
+                    console.log('Back button clicked');
+                    this.hideAdminPanel();
+                });
+                
+                // Admin Login Form
+                document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+                    console.log('Admin login form submitted');
+                    this.adminLogin(e);
+                });
 
                 // Quick Registration
-                document.getElementById('quick-registration-form').addEventListener('submit', (e) => this.quickRegister(e));
-                document.getElementById('member-id-input').addEventListener('input', (e) => this.handleMemberInput(e));
+                document.getElementById('quick-registration-form').addEventListener('submit', (e) => {
+                    console.log('Quick registration form submitted');
+                    this.quickRegister(e);
+                });
+                
+                document.getElementById('member-id-input').addEventListener('input', (e) => {
+                    this.handleMemberInput(e);
+                });
 
                 // Admin Tabs
                 document.querySelectorAll('.admin-tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => this.switchAdminTab(e.currentTarget.dataset.tab));
+                    tab.addEventListener('click', (e) => {
+                        console.log('Admin tab clicked:', e.currentTarget.dataset.tab);
+                        this.switchAdminTab(e.currentTarget.dataset.tab);
+                    });
                 });
 
                 // Forms
-                document.getElementById('add-member-form').addEventListener('submit', (e) => this.addMember(e));
-                document.getElementById('add-product-form').addEventListener('submit', (e) => this.addProduct(e));
+                document.getElementById('add-member-form').addEventListener('submit', (e) => {
+                    console.log('Add member form submitted');
+                    this.addMember(e);
+                });
+                
+                document.getElementById('add-product-form').addEventListener('submit', (e) => {
+                    console.log('Add product form submitted');
+                    this.addProduct(e);
+                });
 
                 // Language Toggle
-                document.getElementById('lang-toggle').addEventListener('click', () => this.toggleLanguage());
+                document.getElementById('lang-toggle').addEventListener('click', () => {
+                    console.log('Language toggle clicked');
+                    this.toggleLanguage();
+                });
+
+                console.log('All event listeners set up successfully');
             }
 
             toggleDarkMode() {
@@ -493,45 +534,56 @@
                 this.showMessage('تبديل اللغة - قريباً', 'info');
             }
 
+            showAdminLogin() {
+                console.log('Showing admin login modal');
+                if (!this.isAdminAuthenticated) {
+                    document.getElementById('admin-login').classList.remove('hidden');
+                    console.log('Admin login modal shown');
+                } else {
+                    this.showAdminPanel();
+                }
+            }
+
             adminLogin(e) {
                 e.preventDefault();
+                console.log('Admin login attempted');
                 const password = document.getElementById('admin-password').value;
+                
                 if (password === this.adminPassword) {
                     this.isAdminAuthenticated = true;
                     document.getElementById('admin-login').classList.add('hidden');
                     this.showAdminPanel();
                     this.showMessage('تم الدخول بنجاح', 'success');
+                    console.log('Admin login successful');
                 } else {
                     this.showMessage('كلمة المرور غير صحيحة', 'error');
-                }
-            }
-
-            showAdminLogin() {
-                if (!this.isAdminAuthenticated) {
-                    document.getElementById('admin-login').classList.remove('hidden');
-                } else {
-                    this.showAdminPanel();
+                    console.log('Admin login failed - wrong password');
                 }
             }
 
             showAdminPanel() {
+                console.log('Showing admin panel');
                 this.isAdminPanel = true;
                 document.getElementById('main-content').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
                 document.getElementById('admin-btn').classList.add('hidden');
                 document.getElementById('back-btn').classList.remove('hidden');
                 this.updateAdminUI();
+                console.log('Admin panel shown successfully');
             }
 
             hideAdminPanel() {
+                console.log('Hiding admin panel');
                 this.isAdminPanel = false;
                 document.getElementById('main-content').classList.remove('hidden');
                 document.getElementById('admin-panel').classList.add('hidden');
                 document.getElementById('admin-btn').classList.remove('hidden');
                 document.getElementById('back-btn').classList.add('hidden');
+                console.log('Admin panel hidden successfully');
             }
 
             switchAdminTab(tabName) {
+                console.log('Switching to tab:', tabName);
                 document.querySelectorAll('.admin-tab').forEach(tab => {
                     tab.classList.remove('border-indigo-500', 'text-indigo-600');
                     tab.classList.add('border-transparent', 'text-gray-500');
@@ -541,10 +593,16 @@
                     content.classList.add('hidden');
                 });
 
-                document.querySelector(`[data-tab="${tabName}"]`).classList.remove('border-transparent', 'text-gray-500');
-                document.querySelector(`[data-tab="${tabName}"]`).classList.add('border-indigo-500', 'text-indigo-600');
+                const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+                if (activeTab) {
+                    activeTab.classList.remove('border-transparent', 'text-gray-500');
+                    activeTab.classList.add('border-indigo-500', 'text-indigo-600');
+                }
                 
-                document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+                const tabContent = document.getElementById(`tab-${tabName}`);
+                if (tabContent) {
+                    tabContent.classList.remove('hidden');
+                }
             }
 
             handleMemberInput(e) {
@@ -1022,6 +1080,7 @@
         // تهيئة النظام
         let attendanceSystem;
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing system...');
             attendanceSystem = new AttendanceSystem();
         });
 

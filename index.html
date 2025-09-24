@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Talanton - النظام الإداري</title>
 <style>
-/* ====== تصميم أساسي + Dark Mode ====== */
 body {
   font-family: Arial, sans-serif;
   background-color: #121212;
@@ -39,7 +38,7 @@ button:hover { background-color: #45a049; }
   top: 0;
   left: 0;
   padding-top: 20px;
-  display: none; /* تظهر بعد تسجيل دخول الأدمن */
+  display: none;
 }
 .sidebar button {
   width: 100%;
@@ -58,7 +57,13 @@ button:hover { background-color: #45a049; }
 table { width: 100%; border-collapse: collapse; margin-bottom: 20px; color: #f0f0f0; }
 th, td { border: 1px solid #333; padding: 8px; text-align: center; }
 th { background-color: #2c2c2c; }
-
+.returnBtn {
+  margin-bottom: 20px;
+  background-color: #f44336;
+}
+.returnBtn:hover {
+  background-color: #e53935;
+}
 </style>
 </head>
 <body>
@@ -66,7 +71,6 @@ th { background-color: #2c2c2c; }
 <!-- ====== الواجهة الرئيسية للخدام ====== -->
 <div class="container" id="userInterface">
   <h1>Talanton</h1>
-  <!-- تسجيل الحضور -->
   <h2>تسجيل الحضور</h2>
   <select id="userSelect">
     <option value="">اختر اسمك</option>
@@ -81,15 +85,12 @@ th { background-color: #2c2c2c; }
   <button id="submitAttendance">تسجيل حضور</button>
   <div class="msg" id="attendanceMsg"></div>
 
-  <!-- المتجر -->
   <h2>المتجر</h2>
   <div id="storeContainer"></div>
 
-  <!-- التقارير + نقاط Talanton -->
   <h2>التقارير الخاصة بك</h2>
   <div id="reportContainer"></div>
 
-  <!-- زرار دخول الأدمن -->
   <button id="adminEntryBtn">دخول الأدمن</button>
 </div>
 
@@ -103,6 +104,7 @@ th { background-color: #2c2c2c; }
 
 <!-- ====== Sidebar للأدمن ====== -->
 <div class="sidebar" id="sidebar">
+  <button id="returnBtn" class="returnBtn">العودة للصفحة الرئيسية</button>
   <button data-section="membersSection">إدارة الأعضاء</button>
   <button data-section="attendanceSection">إدارة الحضور</button>
   <button data-section="competitionsSection">إدارة المسابقات</button>
@@ -113,7 +115,6 @@ th { background-color: #2c2c2c; }
   <button data-section="settingsSection">إدارة Talanton</button>
 </div>
 
-<!-- ====== Main content للأدمن ====== -->
 <div class="main" id="mainContent">
   <div id="membersSection" class="section"><h1>إدارة الأعضاء</h1></div>
   <div id="attendanceSection" class="section"><h1>إدارة الحضور</h1></div>
@@ -125,12 +126,10 @@ th { background-color: #2c2c2c; }
   <div id="settingsSection" class="section"><h1>إدارة Talanton</h1></div>
 </div>
 
-<!-- ====== Firebase SDK ====== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
   authDomain: "angels-attendance.firebaseapp.com",
@@ -141,11 +140,10 @@ const firebaseConfig = {
   appId: "1:157249026489:web:db2b420203bd81d9a19e68",
   measurementId: "G-2YDPSFPQYT"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ====== الواجهة للخدام ======
+// ====== واجهة الخدام ======
 const userInterface = document.getElementById("userInterface");
 const userSelect = document.getElementById("userSelect");
 const weekSelect = document.getElementById("weekSelect");
@@ -159,9 +157,7 @@ get(ref(db, "users")).then(snapshot => {
   if(snapshot.exists()){
     const users = snapshot.val();
     const sortedKeys = Object.keys(users).sort((a,b)=>{
-      const nameA = users[a].name.toLowerCase();
-      const nameB = users[b].name.toLowerCase();
-      return nameA.localeCompare(nameB);
+      return users[a].name.localeCompare(users[b].name);
     });
     sortedKeys.forEach(key=>{
       const option = document.createElement("option");
@@ -220,9 +216,7 @@ function loadUserReports(){
   get(ref(db, `users/${userId}`)).then(snapshot=>{
     if(snapshot.exists()){
       const data = snapshot.val();
-      reportContainer.innerHTML = `
-        <p>نقاطك الحالية: ${data.points || 0}</p>
-      `;
+      reportContainer.innerHTML = `<p>نقاطك الحالية: ${data.points || 0}</p>`;
     }
   });
 }
@@ -231,18 +225,19 @@ userSelect.addEventListener("change", loadUserReports);
 // ====== دخول الأدمن ======
 const adminEntryBtn = document.getElementById("adminEntryBtn");
 const adminLogin = document.getElementById("adminLogin");
-adminEntryBtn.addEventListener("click", ()=>{
-  userInterface.style.display = "none";
-  adminLogin.style.display = "block";
-});
-
 const adminPasswordInput = document.getElementById("adminPassword");
 const loginBtn = document.getElementById("loginBtn");
 const loginMsg = document.getElementById("loginMsg");
 const sidebar = document.getElementById("sidebar");
 const mainContent = document.getElementById("mainContent");
+const returnBtn = document.getElementById("returnBtn");
 
-const ADMIN_PASSWORD = "123456"; // غيره حسب رغبتك
+const ADMIN_PASSWORD = "123456";
+
+adminEntryBtn.addEventListener("click", ()=>{
+  userInterface.style.display = "none";
+  adminLogin.style.display = "block";
+});
 
 loginBtn.addEventListener("click", () => {
   if(adminPasswordInput.value === ADMIN_PASSWORD){
@@ -255,16 +250,25 @@ loginBtn.addEventListener("click", () => {
   }
 });
 
+// زر العودة للواجهة الرئيسية
+returnBtn.addEventListener("click", ()=>{
+  sidebar.style.display = "none";
+  mainContent.style.marginLeft = "0";
+  const sections = document.querySelectorAll(".section");
+  sections.forEach(s => s.style.display = "none");
+  userInterface.style.display = "block";
+});
+
 // ====== التحكم في عرض Sections ======
 function showSection(id){
   const sections = document.querySelectorAll(".section");
   sections.forEach(s => s.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
-sidebar.querySelectorAll("button").forEach(btn => {
+sidebar.querySelectorAll("button[data-section]").forEach(btn => {
   btn.addEventListener("click", () => showSection(btn.dataset.section));
 });
-</script>
 
+</script>
 </body>
 </html>

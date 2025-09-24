@@ -68,7 +68,7 @@ th { background-color: #2c2c2c; }
 </head>
 <body>
 
-<!-- ====== الواجهة الرئيسية للخدام ====== -->
+<!-- ====== واجهة المستخدم ====== -->
 <div class="container" id="userInterface">
   <h1>Talanton</h1>
   <h2>تسجيل الحضور</h2>
@@ -168,7 +168,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ====== واجهة الخدام ======
+// ====== عناصر DOM واجهة المستخدم ======
 const userInterface = document.getElementById("userInterface");
 const userSelect = document.getElementById("userSelect");
 const weekSelect = document.getElementById("weekSelect");
@@ -177,22 +177,28 @@ const attendanceMsg = document.getElementById("attendanceMsg");
 const storeContainer = document.getElementById("storeContainer");
 const reportContainer = document.getElementById("reportContainer");
 
-// جلب أسماء الخدام
-get(ref(db, "users")).then(snapshot => {
-  if(snapshot.exists()){
-    const users = snapshot.val();
-    const sortedKeys = Object.keys(users).sort((a,b)=> users[a].name.localeCompare(users[b].name));
-    sortedKeys.forEach(key=>{
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = users[key].name;
-      userSelect.appendChild(option);
-    });
-  }
-});
+// ====== جلب أسماء الخدام ======
+function loadUsersSelect(){
+  userSelect.innerHTML = `<option value="">اختر اسمك</option>`;
+  get(ref(db, "users")).then(snapshot=>{
+    if(snapshot.exists()){
+      const users = snapshot.val();
+      const sortedKeys = Object.keys(users).sort((a,b)=>{
+        return users[a].name.localeCompare(users[b].name);
+      });
+      sortedKeys.forEach(key=>{
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = users[key].name;
+        userSelect.appendChild(option);
+      });
+    }
+  });
+}
+loadUsersSelect();
 
-// تسجيل الحضور
-submitAttendance.addEventListener("click", () => {
+// ====== تسجيل الحضور ======
+submitAttendance.addEventListener("click", ()=>{
   const userId = userSelect.value;
   const week = weekSelect.value;
   if(!userId || !week){
@@ -200,7 +206,7 @@ submitAttendance.addEventListener("click", () => {
     return;
   }
   const attendanceRef = ref(db, `attendance/${week}/${userId}`);
-  get(attendanceRef).then(snapshot => {
+  get(attendanceRef).then(snapshot=>{
     if(snapshot.exists()){
       attendanceMsg.textContent = "لقد تم تسجيل حضورك مسبقاً لهذا الأسبوع.";
     } else {
@@ -211,29 +217,32 @@ submitAttendance.addEventListener("click", () => {
           update(ref(db, `users/${userId}`), {points: currentPoints + 1});
         });
         attendanceMsg.textContent = "تم تسجيل حضورك بنجاح ✅";
-        loadUserReports();
+        loadUserReports(); // تحديث التقارير
       });
     }
   });
 });
 
-// عرض المتجر
-get(ref(db,"store")).then(snapshot=>{
-  if(snapshot.exists()){
-    const gifts = snapshot.val();
-    storeContainer.innerHTML = "";
-    for(const key in gifts){
-      const div = document.createElement("div");
-      div.style.border="1px solid #444";
-      div.style.padding="8px";
-      div.style.margin="5px 0";
-      div.textContent = `${gifts[key].name} - نقاط: ${gifts[key].pointsRequired}`;
-      storeContainer.appendChild(div);
+// ====== عرض المتجر ======
+function loadStore(){
+  get(ref(db,"store")).then(snapshot=>{
+    if(snapshot.exists()){
+      const gifts = snapshot.val();
+      storeContainer.innerHTML = "";
+      for(const key in gifts){
+        const div = document.createElement("div");
+        div.style.border="1px solid #444";
+        div.style.padding="8px";
+        div.style.margin="5px 0";
+        div.textContent = `${gifts[key].name} - نقاط: ${gifts[key].pointsRequired}`;
+        storeContainer.appendChild(div);
+      }
     }
-  }
-});
+  });
+}
+loadStore();
 
-// عرض التقارير + نقاط Talanton للخدام
+// ====== عرض التقارير ======
 function loadUserReports(){
   const userId = userSelect.value;
   reportContainer.innerHTML = "";
@@ -264,7 +273,7 @@ adminEntryBtn.addEventListener("click", ()=>{
   adminLogin.style.display = "block";
 });
 
-loginBtn.addEventListener("click", () => {
+loginBtn.addEventListener("click", ()=>{
   if(adminPasswordInput.value === ADMIN_PASSWORD){
     adminLogin.style.display = "none";
     sidebar.style.display = "block";
@@ -276,26 +285,23 @@ loginBtn.addEventListener("click", () => {
   }
 });
 
-// زر العودة للواجهة الرئيسية
 returnBtn.addEventListener("click", ()=>{
   sidebar.style.display = "none";
   mainContent.style.marginLeft = "0";
-  const sections = document.querySelectorAll(".section");
-  sections.forEach(s => s.style.display = "none");
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
   userInterface.style.display = "block";
 });
 
-// ====== التحكم في عرض Sections ======
+// ====== عرض الأقسام ======
 function showSection(id){
-  const sections = document.querySelectorAll(".section");
-  sections.forEach(s => s.style.display = "none");
+  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
-sidebar.querySelectorAll("button[data-section]").forEach(btn => {
-  btn.addEventListener("click", () => showSection(btn.dataset.section));
+sidebar.querySelectorAll("button[data-section]").forEach(btn=>{
+  btn.addEventListener("click", ()=>showSection(btn.dataset.section));
 });
 
-// ====== إدارة الأعضاء CRUD ======
+// ====== إدارة الأعضاء ======
 const memberName = document.getElementById("memberName");
 const memberPoints = document.getElementById("memberPoints");
 const addMemberBtn = document.getElementById("addMemberBtn");
@@ -306,10 +312,12 @@ let editMemberId = null;
 
 function loadMembers(){
   membersTableBody.innerHTML = "";
-  get(ref(db, "users")).then(snapshot=>{
+  get(ref(db,"users")).then(snapshot=>{
     if(snapshot.exists()){
       const users = snapshot.val();
-      const sortedKeys = Object.keys(users).sort((a,b)=> users[a].name.localeCompare(users[b].name));
+      const sortedKeys = Object.keys(users).sort((a,b)=>{
+        return users[a].name.localeCompare(users[b].name);
+      });
       let count = 1;
       sortedKeys.forEach(key=>{
         const tr = document.createElement("tr");
@@ -326,7 +334,7 @@ function loadMembers(){
         count++;
       });
 
-      // أزرار تعديل وحذف
+      // أزرار التعديل
       document.querySelectorAll(".editBtn").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           editMemberId = btn.dataset.id;
@@ -337,6 +345,7 @@ function loadMembers(){
         });
       });
 
+      // أزرار الحذف
       document.querySelectorAll(".deleteBtn").forEach(btn=>{
         btn.addEventListener("click", ()=>{
           const id = btn.dataset.id;
@@ -349,19 +358,17 @@ function loadMembers(){
   });
 }
 
-// إضافة عضو جديد
+// إضافة عضو
 addMemberBtn.addEventListener("click", ()=>{
   const name = memberName.value.trim();
   const points = parseInt(memberPoints.value) || 0;
-  if(!name){
-    alert("ادخل اسم العضو");
-    return;
-  }
+  if(!name){ alert("ادخل اسم العضو"); return; }
   const newMemberRef = ref(db, "users/" + Date.now());
-  set(newMemberRef, {name, points}).then(()=>{
+  set(newMemberRef,{name,points}).then(()=>{
     memberName.value = "";
     memberPoints.value = 0;
     loadMembers();
+    loadUsersSelect(); // تحديث القائمة
   });
 });
 
@@ -370,23 +377,22 @@ updateMemberBtn.addEventListener("click", ()=>{
   if(!editMemberId) return;
   const name = memberName.value.trim();
   const points = parseInt(memberPoints.value) || 0;
-  if(!name){
-    alert("ادخل اسم العضو");
-    return;
-  }
-  update(ref(db, `users/${editMemberId}`), {name, points}).then(()=>{
+  if(!name){ alert("ادخل اسم العضو"); return; }
+  update(ref(db, `users/${editMemberId}`), {name,points}).then(()=>{
     memberName.value = "";
     memberPoints.value = 0;
     editMemberId = null;
     addMemberBtn.style.display = "inline-block";
     updateMemberBtn.style.display = "none";
     loadMembers();
+    loadUsersSelect(); // تحديث قائمة اختيار المستخدم
+  }).catch(err=>{
+    console.error(err);
+    alert("فشل تحديث العضو");
   });
 });
 
-// تحميل الأعضاء عند فتح الصفحة
 loadMembers();
-
 </script>
 </body>
 </html>

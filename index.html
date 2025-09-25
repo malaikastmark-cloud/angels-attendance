@@ -93,7 +93,20 @@
             color: var(--text-light);
         }
 
+        /* إخفاء كل الصفحات في البداية */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
         /* ========== STYLES FOR INDEX PAGE ========== */
+        #mainPage {
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -502,9 +515,8 @@
         }
 
         /* ========== STYLES FOR ADMIN PANEL ========== */
-        .admin-container {
+        #adminPanel {
             min-height: 100vh;
-            display: none;
         }
 
         .admin-header {
@@ -745,7 +757,7 @@
     </button>
 
     <!-- ========== الصفحة الرئيسية ========== -->
-    <div id="mainPage">
+    <div id="mainPage" class="page active">
         <div class="container">
             <header>
                 <div class="logo">🕊</div>
@@ -887,7 +899,7 @@
     </div>
 
     <!-- ========== لوحة تحكم الأدمن ========== -->
-    <div class="admin-container" id="adminPanel">
+    <div id="adminPanel" class="page">
         <!-- الشريط الجانبي -->
         <div class="admin-sidebar">
             <div class="sidebar-logo">
@@ -1326,6 +1338,18 @@
         const menuItems = document.querySelectorAll('.menu-item');
         const sections = document.querySelectorAll('.section');
 
+        // ========== دوال إدارة الصفحات ==========
+        function showMainPage() {
+            mainPage.classList.add('active');
+            adminPanel.classList.remove('active');
+        }
+
+        function showAdminPanel() {
+            mainPage.classList.remove('active');
+            adminPanel.classList.add('active');
+            loadDashboardData();
+        }
+
         // ========== دوال عامة ==========
         // تبديل الوضع الداكن/الفاتح
         themeToggle.addEventListener('click', () => {
@@ -1379,18 +1403,6 @@
                 loadSectionData(sectionId);
             });
         });
-
-        // ========== دوال إدارة الصفحات ==========
-        function showMainPage() {
-            mainPage.style.display = 'block';
-            adminPanel.style.display = 'none';
-        }
-
-        function showAdminPanel() {
-            mainPage.style.display = 'none';
-            adminPanel.style.display = 'block';
-            loadDashboardData();
-        }
 
         // ========== دوال الصفحة الرئيسية ==========
         // تحميل الأعضاء من Firebase

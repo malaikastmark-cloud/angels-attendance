@@ -1046,7 +1046,8 @@
                 verificationStatus.innerHTML = '<div class="alert alert-danger">حدث خطأ أثناء التسجيل</div>';
             }
         });
-        // في صفحة index.html - بدل كود دخول الأدمن السابق
+
+       // في صفحة index.html - بدل زر دخول الأدمن
 confirmAdminLogin.addEventListener('click', () => {
     const password = document.getElementById('adminPassword').value;
     if (password === 'admin123') {
@@ -1056,6 +1057,7 @@ confirmAdminLogin.addEventListener('click', () => {
         adminLoginStatus.innerHTML = '<div class="alert alert-danger">كلمة المرور خاطئة</div>';
     }
 });
+
         // إغلاق المودال
         document.querySelector('.close-modal').addEventListener('click', () => {
             adminLoginModal.classList.remove('show');
@@ -1107,14 +1109,6 @@ confirmAdminLogin.addEventListener('click', () => {
             --transition: all 0.3s ease;
         }
 
-        .light-mode {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            --text-dark: #212529;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -1145,7 +1139,6 @@ confirmAdminLogin.addEventListener('click', () => {
             height: 100vh;
             overflow-y: auto;
             z-index: 1000;
-            transition: var(--transition);
         }
 
         .logo-section {
@@ -1153,10 +1146,6 @@ confirmAdminLogin.addEventListener('click', () => {
             padding: 20px 0;
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 20px;
-        }
-
-        .light-mode .logo-section {
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -1188,7 +1177,6 @@ confirmAdminLogin.addEventListener('click', () => {
             transition: var(--transition);
             gap: 12px;
             font-weight: 600;
-            border: 2px solid transparent;
         }
 
         .menu-link:hover, .menu-link.active {
@@ -1208,7 +1196,6 @@ confirmAdminLogin.addEventListener('click', () => {
             flex: 1;
             margin-left: var(--sidebar-width);
             padding: 30px;
-            transition: var(--transition);
         }
 
         .header {
@@ -1220,10 +1207,6 @@ confirmAdminLogin.addEventListener('click', () => {
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        .light-mode .header {
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-        }
-
         .page-title {
             font-size: 2rem;
             font-weight: 700;
@@ -1233,27 +1216,6 @@ confirmAdminLogin.addEventListener('click', () => {
         .header-actions {
             display: flex;
             gap: 15px;
-            align-items: center;
-        }
-
-        .theme-toggle {
-            background: var(--card-gradient);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            font-size: 1.3rem;
-            color: var(--text-dark);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .light-mode .theme-toggle {
-            border: 2px solid rgba(0, 0, 0, 0.1);
         }
 
         .btn {
@@ -1349,7 +1311,7 @@ confirmAdminLogin.addEventListener('click', () => {
 
         .table-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: between;
             align-items: center;
             margin-bottom: 20px;
         }
@@ -1372,10 +1334,6 @@ confirmAdminLogin.addEventListener('click', () => {
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .light-mode .table th, .light-mode .table td {
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
         .table th {
             background: var(--primary);
             color: white;
@@ -1384,10 +1342,6 @@ confirmAdminLogin.addEventListener('click', () => {
 
         .table tr:hover {
             background: rgba(255, 255, 255, 0.05);
-        }
-
-        .light-mode .table tr:hover {
-            background: rgba(0, 0, 0, 0.05);
         }
 
         /* المودال */
@@ -1429,10 +1383,6 @@ confirmAdminLogin.addEventListener('click', () => {
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        .light-mode .modal-header {
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-        }
-
         .modal-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -1469,20 +1419,10 @@ confirmAdminLogin.addEventListener('click', () => {
             transition: var(--transition);
         }
 
-        .light-mode .form-control {
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--text-light);
-        }
-
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
-        }
-
-        .w-100 {
-            width: 100%;
         }
 
         /* الرسوم البيانية */
@@ -1560,25 +1500,6 @@ confirmAdminLogin.addEventListener('click', () => {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-weight: 600;
-        }
-
-        .alert-success {
-            background: rgba(76, 201, 240, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
-
-        .alert-danger {
-            background: rgba(247, 37, 133, 0.2);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
     </style>
 </head>
 <body>
@@ -1616,9 +1537,6 @@ confirmAdminLogin.addEventListener('click', () => {
                 <div class="header">
                     <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> لوحة التحكم الرئيسية</h1>
                     <div class="header-actions">
-                        <button class="theme-toggle" id="themeToggle">
-                            <i class="fas fa-moon"></i>
-                        </button>
                         <div class="btn btn-info" id="refreshData">
                             <i class="fas fa-sync-alt"></i> تحديث البيانات
                         </div>
@@ -1654,7 +1572,9 @@ confirmAdminLogin.addEventListener('click', () => {
             </div>
 
             <!-- باقي الأقسام سيتم تحميلها ديناميكياً -->
-            <div id="sectionsContainer"></div>
+            <div id="sectionsContainer">
+                <!-- سيتم تحميل المحتوى هنا -->
+            </div>
         </main>
     </div>
 
@@ -1665,13 +1585,15 @@ confirmAdminLogin.addEventListener('click', () => {
                 <h3 class="modal-title" id="modalTitle">إضافة عنصر جديد</h3>
                 <button class="close-modal">&times;</button>
             </div>
-            <div id="modalBody"></div>
+            <div id="modalBody">
+                <!-- سيتم تحميل النموذج هنا -->
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, remove, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBCQIqdCsxSvhfYOs00AetoVWpFhj4XNAQ",
@@ -1698,8 +1620,6 @@ confirmAdminLogin.addEventListener('click', () => {
         const crudModal = document.getElementById('crudModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
-        const themeToggle = document.getElementById('themeToggle');
-        const refreshData = document.getElementById('refreshData');
 
         // إحصائيات لوحة التحكم
         const totalMembers = document.getElementById('totalMembers');
@@ -1722,9 +1642,7 @@ confirmAdminLogin.addEventListener('click', () => {
                 let attendanceCount = 0;
                 if (attendanceSnap.exists()) {
                     Object.values(attendanceSnap.val()).forEach(week => {
-                        if (week) {
-                            attendanceCount += Object.keys(week).length;
-                        }
+                        attendanceCount += Object.keys(week || {}).length;
                     });
                 }
                 totalAttendance.textContent = attendanceCount;
@@ -1743,21 +1661,33 @@ confirmAdminLogin.addEventListener('click', () => {
             }
         }
 
-        // تبديل الوضع الداكن/الفاتح
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('light-mode');
-            themeToggle.innerHTML = document.body.classList.contains('light-mode') ? 
-                '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-        });
-
-        // تحديث البيانات
-        refreshData.addEventListener('click', () => {
-            loadDashboardStats();
-            const activeSection = document.querySelector('.menu-link.active').getAttribute('data-section');
-            if (activeSection !== 'dashboard') {
-                loadSection(activeSection);
-            }
-        });
+        // تحميل الرسم البياني
+        function loadAttendanceChart() {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            // سيتم تحميل البيانات من Firebase هنا
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['الأسبوع 1', 'الأسبوع 2', 'الأسبوع 3', 'الأسبوع 4'],
+                    datasets: [{
+                        label: 'عدد الحضور',
+                        data: [12, 19, 15, 17],
+                        backgroundColor: 'rgba(67, 97, 238, 0.8)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
 
         // التنقل بين الأقسام
         menuLinks.forEach(link => {
@@ -1831,7 +1761,7 @@ confirmAdminLogin.addEventListener('click', () => {
                     <div class="header">
                         <h1 class="page-title"><i class="fas fa-${getSectionIcon(section)}"></i> ${title}</h1>
                         <div class="header-actions">
-                            ${section !== 'dashboard' ? `<button class="btn btn-success" onclick="window.openAddModal('${section}')"><i class="fas fa-plus"></i> إضافة جديد</button>` : ''}
+                            ${section !== 'dashboard' ? `<button class="btn btn-success" onclick="openAddModal('${section}')"><i class="fas fa-plus"></i> إضافة جديد</button>` : ''}
                         </div>
                     </div>
                     ${html}
@@ -1856,116 +1786,56 @@ confirmAdminLogin.addEventListener('click', () => {
             return icons[section] || 'cog';
         }
 
-        // ========== إدارة الأعضاء ==========
+        // تحميل قسم الأعضاء
         async function loadMembersSection() {
-            try {
-                const snapshot = await get(ref(db, 'members'));
-                let tableHTML = '<p>لا توجد بيانات</p>';
-                
-                if (snapshot.exists()) {
-                    const members = Object.entries(snapshot.val());
-                    tableHTML = `
-                        <div class="table-container">
-                            <div class="table-header">
-                                <h3 class="table-title">قائمة الأعضاء (${members.length} عضو)</h3>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>الاسم</th>
-                                            <th>الجنس</th>
-                                            <th>رصيد Talanton</th>
-                                            <th>الحضور</th>
-                                            <th>الإجراءات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${members.map(([id, member], index) => `
-                                            <tr>
-                                                <td>${index + 1}</td>
-                                                <td>${member.name || 'غير معروف'}</td>
-                                                <td>${member.gender === 'male' ? '👦 ولد' : '👧 بنت'}</td>
-                                                <td>${member.balance || 0}</td>
-                                                <td>${member.attendanceCount || 0}</td>
-                                                <td class="action-buttons">
-                                                    <button class="btn btn-primary btn-sm" onclick="window.editItem('members', '${id}')">
-                                                        <i class="fas fa-edit"></i> تعديل
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm" onclick="window.deleteItem('members', '${id}', '${member.name || 'هذا العضو'}')">
-                                                        <i class="fas fa-trash"></i> حذف
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
+            const snapshot = await get(ref(db, 'members'));
+            let tableHTML = '<p>لا توجد بيانات</p>';
+            
+            if (snapshot.exists()) {
+                const members = Object.entries(snapshot.val());
+                tableHTML = `
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">قائمة الأعضاء</h3>
                         </div>
-                    `;
-                }
-                
-                return tableHTML;
-            } catch (error) {
-                console.error('Error loading members:', error);
-                return '<div class="alert alert-danger">خطأ في تحميل البيانات</div>';
-            }
-        }
-
-        // ========== إدارة المتجر ==========
-        async function loadStoreSection() {
-            try {
-                const snapshot = await get(ref(db, 'store/products'));
-                let tableHTML = '<p>لا توجد منتجات</p>';
-                
-                if (snapshot.exists()) {
-                    const products = Object.entries(snapshot.val());
-                    tableHTML = `
-                        <div class="table-container">
-                            <div class="table-header">
-                                <h3 class="table-title">إدارة المتجر (${products.length} منتج)</h3>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>الاسم</th>
+                                        <th>الجنس</th>
+                                        <th>رصيد Talanton</th>
+                                        <th>عدد الحضور</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${members.map(([id, member], index) => `
                                         <tr>
-                                            <th>#</th>
-                                            <th>اسم المنتج</th>
-                                            <th>الوصف</th>
-                                            <th>السعر</th>
-                                            <th>الإجراءات</th>
+                                            <td>${index + 1}</td>
+                                            <td>${member.name}</td>
+                                            <td>${member.gender === 'male' ? '👦 ولد' : '👧 بنت'}</td>
+                                            <td>${member.balance || 0}</td>
+                                            <td>${member.attendanceCount || 0}</td>
+                                            <td class="action-buttons">
+                                                <button class="btn btn-primary btn-sm" onclick="editItem('members', '${id}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteItem('members', '${id}', '${member.name}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${products.map(([id, product], index) => `
-                                            <tr>
-                                                <td>${index + 1}</td>
-                                                <td><i class="fas ${product.icon || 'fa-gift'}"></i> ${product.name}</td>
-                                                <td>${product.description || 'لا يوجد وصف'}</td>
-                                                <td><span class="badge badge-warning">${product.price} Talanton</span></td>
-                                                <td class="action-buttons">
-                                                    <button class="btn btn-primary btn-sm" onclick="window.editItem('store', '${id}')">
-                                                        <i class="fas fa-edit"></i> تعديل
-                                                    </button>
-                                                    <button class="btn btn-danger btn-sm" onclick="window.deleteItem('store', '${id}', '${product.name}')">
-                                                        <i class="fas fa-trash"></i> حذف
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         </div>
-                    `;
-                }
-                
-                return tableHTML;
-            } catch (error) {
-                console.error('Error loading store:', error);
-                return '<div class="alert alert-danger">خطأ في تحميل البيانات</div>';
+                    </div>
+                `;
             }
+            
+            return tableHTML;
         }
 
         // دوال CRUD العالمية
@@ -1976,32 +1846,109 @@ confirmAdminLogin.addEventListener('click', () => {
         };
 
         window.editItem = async function(section, id) {
-            try {
-                const snapshot = await get(ref(db, `${section}/${id}`));
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    modalTitle.textContent = `تعديل ${getSectionName(section)}`;
-                    modalBody.innerHTML = getFormHTML(section, data, id);
-                    crudModal.classList.add('show');
-                }
-            } catch (error) {
-                console.error('Error editing item:', error);
-                alert('حدث خطأ أثناء تحميل البيانات');
+            const snapshot = await get(ref(db, `${section}/${id}`));
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                modalTitle.textContent = `تعديل ${getSectionName(section)}`;
+                modalBody.innerHTML = getFormHTML(section, data, id);
+                crudModal.classList.add('show');
             }
         };
 
-        window.deleteItem = async function(section, id, name) {
-            if (confirm(`هل أنت متأكد من حذف "${name}"؟`)) {
-                try {
-                    await remove(ref(db, `${section}/${id}`));
+        window.deleteItem = function(section, id, name) {
+            if (confirm(`هل أنت متأكد من حذف ${name}؟`)) {
+                remove(ref(db, `${section}/${id}`)).then(() => {
                     alert('تم الحذف بنجاح');
                     loadSection(section);
-                } catch (error) {
-                    console.error('Error deleting item:', error);
-                    alert('حدث خطأ أثناء الحذف');
-                }
+                });
             }
         };
+
+        // إغلاق المودال
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            crudModal.classList.remove('show');
+        });
+
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('adminLoggedIn');
+            window.location.href = 'index.html';
+        });
+
+        // التحميل الأولي
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardStats();
+            loadAttendanceChart();
+        });
+
+        // سأكمل باقي الدوال في الجزء الثاني بسبب طول الكود...
+    </script>
+
+    <script>
+        // دوال مساعدة
+        function getSectionName(section) {
+            const names = {
+                'members': 'عضو',
+                'weeks': 'أسبوع',
+                'contests': 'مسابقة',
+                'tasks': 'مهمة',
+                'events': 'مناسبة',
+                'talanton': 'رصيد',
+                'store': 'منتج',
+                'birthdays': 'عيد ميلاد'
+            };
+            return names[section] || 'عنصر';
+        }
+
+        function getFormHTML(section, data = {}, id = null) {
+            const forms = {
+                'members': `
+                    <form onsubmit="saveMember(event, '${id}')">
+                        <div class="form-group">
+                            <label class="form-label">الاسم الكامل</label>
+                            <input type="text" class="form-control" name="name" value="${data.name || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الجنس</label>
+                            <select class="form-control" name="gender" required>
+                                <option value="">اختر الجنس</option>
+                                <option value="male" ${data.gender === 'male' ? 'selected' : ''}>ولد</option>
+                                <option value="female" ${data.gender === 'female' ? 'selected' : ''}>بنت</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">رصيد Talanton</label>
+                            <input type="number" class="form-control" name="balance" value="${data.balance || 0}" min="0">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">حفظ</button>
+                    </form>
+                `,
+                'store': `
+                    <form onsubmit="saveProduct(event, '${id}')">
+                        <div class="form-group">
+                            <label class="form-label">اسم المنتج</label>
+                            <input type="text" class="form-control" name="name" value="${data.name || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الوصف</label>
+                            <textarea class="form-control" name="description" rows="3">${data.description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">السعر (Talanton)</label>
+                            <input type="number" class="form-control" name="price" value="${data.price || 0}" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الأيقونة</label>
+                            <input type="text" class="form-control" name="icon" value="${data.icon || 'fa-gift'}" placeholder="fa-gift">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">حفظ</button>
+                    </form>
+                `
+                // يمكن إضافة باقي النماذج هنا
+            };
+            
+            return forms[section] || '<p>نموذج غير متوفر</p>';
+        }
 
         // دوال الحفظ
         window.saveMember = async function(e, id) {
@@ -2010,8 +1957,7 @@ confirmAdminLogin.addEventListener('click', () => {
             const memberData = {
                 name: formData.get('name'),
                 gender: formData.get('gender'),
-                balance: parseInt(formData.get('balance')) || 0,
-                attendanceCount: parseInt(formData.get('attendanceCount')) || 0
+                balance: parseInt(formData.get('balance')) || 0
             };
 
             try {
@@ -2021,12 +1967,11 @@ confirmAdminLogin.addEventListener('click', () => {
                     const newId = 'member' + Date.now();
                     await set(ref(db, `members/${newId}`), memberData);
                 }
-                alert('تم حفظ العضو بنجاح');
+                alert('تم الحفظ بنجاح');
                 crudModal.classList.remove('show');
                 loadSection('members');
             } catch (error) {
-                console.error('Error saving member:', error);
-                alert('حدث خطأ أثناء الحفظ: ' + error.message);
+                alert('حدث خطأ أثناء الحفظ');
             }
         };
 
@@ -2047,132 +1992,13 @@ confirmAdminLogin.addEventListener('click', () => {
                     const newId = 'product' + Date.now();
                     await set(ref(db, `store/products/${newId}`), productData);
                 }
-                alert('تم حفظ المنتج بنجاح');
+                alert('تم الحفظ بنجاح');
                 crudModal.classList.remove('show');
                 loadSection('store');
             } catch (error) {
-                console.error('Error saving product:', error);
-                alert('حدث خطأ أثناء الحفظ: ' + error.message);
+                alert('حدث خطأ أثناء الحفظ');
             }
         };
-
-        // إغلاق المودال
-        document.querySelector('.close-modal').addEventListener('click', () => {
-            crudModal.classList.remove('show');
-        });
-
-        // تسجيل الخروج
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            sessionStorage.removeItem('adminLoggedIn');
-            window.location.href = 'index.html';
-        });
-
-        // التحميل الأولي
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDashboardStats();
-        });
-
-        // دوال مساعدة
-        function getSectionName(section) {
-            const names = {
-                'members': 'عضو',
-                'weeks': 'أسبوع',
-                'contests': 'مسابقة',
-                'tasks': 'مهمة',
-                'events': 'مناسبة',
-                'talanton': 'رصيد',
-                'store': 'منتج',
-                'birthdays': 'عيد ميلاد'
-            };
-            return names[section] || 'عنصر';
-        }
-
-        function getFormHTML(section, data = {}, id = null) {
-            const forms = {
-                'members': `
-                    <form onsubmit="window.saveMember(event, '${id}')">
-                        <div class="form-group">
-                            <label class="form-label">الاسم الكامل</label>
-                            <input type="text" class="form-control" name="name" value="${data.name || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">الجنس</label>
-                            <select class="form-control" name="gender" required>
-                                <option value="">اختر الجنس</option>
-                                <option value="male" ${data.gender === 'male' ? 'selected' : ''}>ولد</option>
-                                <option value="female" ${data.gender === 'female' ? 'selected' : ''}>بنت</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">رصيد Talanton</label>
-                            <input type="number" class="form-control" name="balance" value="${data.balance || 0}" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">عدد الحضور</label>
-                            <input type="number" class="form-control" name="attendanceCount" value="${data.attendanceCount || 0}" min="0" required>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">حفظ</button>
-                    </form>
-                `,
-                'store': `
-                    <form onsubmit="window.saveProduct(event, '${id}')">
-                        <div class="form-group">
-                            <label class="form-label">اسم المنتج</label>
-                            <input type="text" class="form-control" name="name" value="${data.name || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">الوصف</label>
-                            <textarea class="form-control" name="description" rows="3" required>${data.description || ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">السعر (Talanton)</label>
-                            <input type="number" class="form-control" name="price" value="${data.price || 0}" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">الأيقونة (اختياري)</label>
-                            <input type="text" class="form-control" name="icon" value="${data.icon || 'fa-gift'}" placeholder="fa-gift">
-                            <small class="text-muted">يمكنك اختيار أيقونة من <a href="https://fontawesome.com/icons" target="_blank">FontAwesome</a></small>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">حفظ</button>
-                    </form>
-                `
-            };
-            
-            return forms[section] || `<p>نموذج إدارة ${getSectionName(section)} قيد التطوير</p>`;
-        }
-
-        // دوال الأقسام الأخرى (سيتم تطويرها)
-        async function loadWeeksSection() {
-            return '<div class="alert alert-info">قسم إدارة الأسابيع قيد التطوير</div>';
-        }
-
-        async function loadContestsSection() {
-            return '<div class="alert alert-info">قسم إدارة المسابقات قيد التطوير</div>';
-        }
-
-        async function loadTasksSection() {
-            return '<div class="alert alert-info">قسم إدارة المهام قيد التطوير</div>';
-        }
-
-        async function loadEventsSection() {
-            return '<div class="alert alert-info">قسم إدارة المناسبات قيد التطوير</div>';
-        }
-
-        async function loadTalantonSection() {
-            return '<div class="alert alert-info">قسم إدارة Talanton قيد التطوير</div>';
-        }
-
-        async function loadBirthdaysSection() {
-            return '<div class="alert alert-info">قسم أعياد الميلاد قيد التطوير</div>';
-        }
-
-        async function loadReportsSection() {
-            return '<div class="alert alert-info">قسم التقارير قيد التطوير</div>';
-        }
-
-        async function loadExportSection() {
-            return '<div class="alert alert-info">قسم تصدير البيانات قيد التطوير</div>';
-        }
     </script>
 </body>
 </html>

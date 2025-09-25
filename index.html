@@ -1433,29 +1433,31 @@
             }
         }
 
-        // تحميل الأسابيع
-        function loadWeeks() {
-            weekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
-            const currentWeekNumber = getCurrentWeek();
-            
-            for (let i = 1; i <= 52; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `الأسبوع ${i}`;
-                if (i === currentWeekNumber) {
-                    option.selected = true;
+        // تحميل الأسابيع من Firebase بدلاً من التلقائي
+        async function loadWeeks() {
+            try {
+                weekSelect.innerHTML = '<option value="">جاري تحميل الأسابيع...</option>';
+                const snapshot = await get(ref(db, 'weeks'));
+                
+                if (snapshot.exists()) {
+                    const weeks = Object.entries(snapshot.val())
+                        .sort((a, b) => new Date(b[1].startDate) - new Date(a[1].startDate));
+                    
+                    weekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
+                    
+                    weeks.forEach(([id, week]) => {
+                        const option = document.createElement('option');
+                        option.value = week.name; // استخدام اسم الأسبوع كقيمة
+                        option.textContent = `${week.name} (${new Date(week.startDate).toLocaleDateString('ar-EG')} - ${new Date(week.endDate).toLocaleDateString('ar-EG')})`;
+                        weekSelect.appendChild(option);
+                    });
+                } else {
+                    weekSelect.innerHTML = '<option value="">لا توجد أسابيع مضافوة</option>';
                 }
-                weekSelect.appendChild(option);
+            } catch (error) {
+                console.error('Error loading weeks:', error);
+                weekSelect.innerHTML = '<option value="">خطأ في تحميل الأسابيع</option>';
             }
-        }
-
-        // الحصول على رقم الأسبوع الحالي
-        function getCurrentWeek() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 1);
-            const diff = now - start;
-            const oneWeek = 1000 * 60 * 60 * 24 * 7;
-            return Math.floor(diff / oneWeek) + 1;
         }
 
         // تحميل رصيد Talanton
@@ -1677,7 +1679,7 @@
 
             try {
                 // التحقق من عدم التسجيل المسبق
-                const attendanceRef = ref(db, `attendance/week${currentWeek}/${currentMemberId}`);
+                const attendanceRef = ref(db, `attendance/${currentWeek}/${currentMemberId}`);
                 const existingAttendance = await get(attendanceRef);
 
                 if (existingAttendance.exists()) {
@@ -1724,15 +1726,17 @@
         // تحميل بيانات لوحة التحكم
         async function loadDashboardData() {
             try {
-                const [membersSnapshot, attendanceSnapshot, talantonSnapshot] = await Promise.all([
+                const [membersSnapshot, attendanceSnapshot, talantonSnapshot, weeksSnapshot] = await Promise.all([
                     get(ref(db, 'members')),
                     get(ref(db, 'attendance')),
-                    get(ref(db, 'talanton'))
+                    get(ref(db, 'talanton')),
+                    get(ref(db, 'weeks'))
                 ]);
 
                 let totalMembers = 0;
                 let totalAttendance = 0;
                 let totalPoints = 0;
+                let totalWeeks = 0;
 
                 if (membersSnapshot.exists()) totalMembers = Object.keys(membersSnapshot.val()).length;
                 if (talantonSnapshot.exists()) {
@@ -1743,6 +1747,7 @@
                         totalAttendance += Object.keys(week).length;
                     });
                 }
+                if (weeksSnapshot.exists()) totalWeeks = Object.keys(weeksSnapshot.val()).length;
 
                 document.getElementById('dashboardStats').innerHTML = `
                     <div class="stat-card">
@@ -1761,23 +1766,13 @@
                         <p>إجمالي النقاط</p>
                     </div>
                     <div class="stat-card">
-                        <i class="fas fa-store stat-icon"></i>
-                        <div class="stat-number">${await getProductsCount()}</div>
-                        <p>المنتجات في المتجر</p>
+                        <i class="fas fa-calendar-alt stat-icon"></i>
+                        <div class="stat-number">${totalWeeks}</div>
+                        <p>الأسابيع المضافوة</p>
                     </div>
                 `;
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
-            }
-        }
-
-        // الحصول على عدد المنتجات
-        async function getProductsCount() {
-            try {
-                const snapshot = await get(ref(db, 'store/products'));
-                return snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-            } catch (error) {
-                return 0;
             }
         }
 
@@ -1861,7 +1856,7 @@
 
                     for (const [id, week] of Object.entries(weeks)) {
                         // حساب عدد الحضور لهذا الأسبوع
-                        const attendanceSnapshot = await get(ref(db, `attendance/week${week.name}`));
+                        const attendanceSnapshot = await get(ref(db, `attendance/${week.name}`));
                         const attendanceCount = attendanceSnapshot.exists() ? Object.keys(attendanceSnapshot.val()).length : 0;
                         
                         const tr = document.createElement('tr');
@@ -2228,6 +2223,7 @@
                 
                 document.getElementById('weekModal').classList.remove('show');
                 await loadAdminWeeks();
+                await loadWeeks(); // تحديث قائمة الأسابيع في الصفحة الرئيسية
             } catch (error) {
                 console.error('Error saving week:', error);
                 alert('حدث خطأ أثناء حفظ البيانات');
@@ -2329,7 +2325,7 @@
                 console.error('Error saving product:', error);
                 alert('حدث خطأ أثناء حفظ البيانات');
             }
-        });
+        };
 
         // ========== دوال الحذف ==========
         // حذف العضو
@@ -2353,6 +2349,7 @@
                 try {
                     await remove(ref(db, `weeks/${id}`));
                     await loadAdminWeeks();
+                    await loadWeeks(); // تحديث قائمة الأسابيع في الصفحة الرئيسية
                 } catch (error) {
                     console.error('Error deleting week:', error);
                     alert('حدث خطأ أثناء الحذف');
@@ -2418,7 +2415,7 @@
         // التحميل الأولي
         document.addEventListener('DOMContentLoaded', async function() {
             await loadMembers();
-            loadWeeks();
+            await loadWeeks(); // تحميل الأسابيع من Firebase بدلاً من التلقائي
             
             // تحديث الرصيد عند تغيير العضو
             memberSelect.addEventListener('change', (e) => {

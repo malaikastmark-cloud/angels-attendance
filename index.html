@@ -748,6 +748,24 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .verification-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .verified {
+            background: var(--success);
+            color: white;
+        }
+
+        .not-verified {
+            background: var(--danger);
+            color: white;
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -800,6 +818,7 @@
                                     <option value="">جاري تحميل الأسابيع...</option>
                                 </select>
                             </div>
+                            <div id="attendanceStatus" class="mb-3"></div>
                             <button class="btn btn-success w-100" id="attendanceBtn">
                                 <i class="fas fa-check-circle"></i> تسجيل الحضور
                             </button>
@@ -914,6 +933,9 @@
                 <li class="menu-item" data-section="members">
                     <i class="fas fa-users"></i>إدارة الأعضاء
                 </li>
+                <li class="menu-item" data-section="attendanceManagement">
+                    <i class="fas fa-calendar-check"></i>إدارة الحضور
+                </li>
                 <li class="menu-item" data-section="weeks">
                     <i class="fas fa-calendar"></i>إدارة الأسابيع
                 </li>
@@ -925,6 +947,9 @@
                 </li>
                 <li class="menu-item" data-section="store">
                     <i class="fas fa-store"></i>إدارة المتجر
+                </li>
+                <li class="menu-item" data-section="security">
+                    <i class="fas fa-shield-alt"></i>إدارة الأمان
                 </li>
                 <li class="menu-item" data-section="reports">
                     <i class="fas fa-chart-bar"></i>التقارير والإحصائيات
@@ -987,6 +1012,32 @@
                         <tbody>
                             <!-- سيتم ملؤها بالبيانات -->
                         </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- قسم إدارة الحضور -->
+            <div class="section" id="attendanceManagement">
+                <div class="section-header">
+                    <h3>إدارة الحضور</h3>
+                    <button class="btn btn-primary" id="addAttendanceBtn">
+                        <i class="fas fa-plus"></i> إضافة حضور
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="attendanceTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>اسم العضو</th>
+                                <th>الأسبوع</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>وقت التسجيل</th>
+                                <th>نوع المصادقة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
@@ -1092,6 +1143,29 @@
                 </div>
             </div>
 
+            <!-- قسم إدارة الأمان -->
+            <div class="section" id="security">
+                <div class="section-header">
+                    <h3>إدارة الأمان والمصادقة</h3>
+                </div>
+                <div class="table-container">
+                    <table id="securityTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>اسم العضو</th>
+                                <th>بصمة الوجه</th>
+                                <th>بصمة الإصبع</th>
+                                <th>كلمة المرور</th>
+                                <th>آخر مصادقة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- قسم التقارير -->
             <div class="section" id="reports">
                 <div class="section-header">
@@ -1143,6 +1217,51 @@
                 <div class="form-group">
                     <label class="form-label">رقم الهاتف</label>
                     <input type="tel" class="form-control" id="memberPhone">
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-save"></i> حفظ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال إضافة حضور -->
+    <div class="modal" id="attendanceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="attendanceModalTitle">إضافة حضور</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="attendanceForm">
+                <input type="hidden" id="attendanceId">
+                <div class="form-group">
+                    <label class="form-label">اختر العضو</label>
+                    <select class="form-control" id="attendanceMemberSelect" required>
+                        <option value="">اختر العضو</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">اختر الأسبوع</label>
+                    <select class="form-control" id="attendanceWeekSelect" required>
+                        <option value="">اختر الأسبوع</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">تاريخ الحضور</label>
+                    <input type="date" class="form-control" id="attendanceDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">وقت الحضور</label>
+                    <input type="time" class="form-control" id="attendanceTime" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">نوع المصادقة</label>
+                    <select class="form-control" id="attendanceAuthType" required>
+                        <option value="face">بصمة الوجه</option>
+                        <option value="fingerprint">بصمة الإصبع</option>
+                        <option value="password">كلمة المرور</option>
+                        <option value="admin">إداري</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-success w-100">
                     <i class="fas fa-save"></i> حفظ
@@ -1327,6 +1446,7 @@
         const memberSelect = document.getElementById('memberSelect');
         const weekSelect = document.getElementById('weekSelect');
         const attendanceBtn = document.getElementById('attendanceBtn');
+        const attendanceStatus = document.getElementById('attendanceStatus');
         const verificationSection = document.getElementById('verificationSection');
         const faceIdBtn = document.getElementById('faceIdBtn');
         const fingerprintBtn = document.getElementById('fingerprintBtn');
@@ -1433,29 +1553,65 @@
             }
         }
 
-        // تحميل الأسابيع
-        function loadWeeks() {
-            weekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
-            const currentWeekNumber = getCurrentWeek();
-            
-            for (let i = 1; i <= 52; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `الأسبوع ${i}`;
-                if (i === currentWeekNumber) {
-                    option.selected = true;
+        // تحميل الأسابيع من Firebase بدلاً من الثابت
+        async function loadWeeks() {
+            try {
+                weekSelect.innerHTML = '<option value="">جاري تحميل الأسابيع...</option>';
+                const snapshot = await get(ref(db, 'weeks'));
+                
+                if (snapshot.exists()) {
+                    const weeks = Object.entries(snapshot.val())
+                        .sort((a, b) => new Date(b[1].startDate) - new Date(a[1].startDate));
+                    
+                    weekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
+                    
+                    weeks.forEach(([id, week]) => {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = week.name;
+                        weekSelect.appendChild(option);
+                    });
+                } else {
+                    weekSelect.innerHTML = '<option value="">لا توجد أسابيع مسجلة</option>';
                 }
-                weekSelect.appendChild(option);
+            } catch (error) {
+                console.error('Error loading weeks:', error);
+                weekSelect.innerHTML = '<option value="">خطأ في تحميل البيانات</option>';
             }
         }
 
-        // الحصول على رقم الأسبوع الحالي
-        function getCurrentWeek() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 1);
-            const diff = now - start;
-            const oneWeek = 1000 * 60 * 60 * 24 * 7;
-            return Math.floor(diff / oneWeek) + 1;
+        // التحقق من الحضور المسبق
+        async function checkExistingAttendance(memberId, weekId) {
+            try {
+                const snapshot = await get(ref(db, `attendance/${weekId}/${memberId}`));
+                return snapshot.exists();
+            } catch (error) {
+                console.error('Error checking attendance:', error);
+                return false;
+            }
+        }
+
+        // تحديث حالة الحضور
+        async function updateAttendanceStatus() {
+            const currentMemberId = memberSelect.value;
+            const currentWeekId = weekSelect.value;
+            
+            if (!currentMemberId || !currentWeekId) {
+                attendanceStatus.innerHTML = '';
+                return;
+            }
+
+            const hasAttended = await checkExistingAttendance(currentMemberId, currentWeekId);
+            
+            if (hasAttended) {
+                attendanceStatus.innerHTML = '<div class="alert alert-warning">لقد سجلت حضورك لهذا الأسبوع مسبقاً</div>';
+                attendanceBtn.disabled = true;
+                attendanceBtn.innerHTML = '<i class="fas fa-check-circle"></i> تم التسجيل مسبقاً';
+            } else {
+                attendanceStatus.innerHTML = '<div class="alert alert-info">يمكنك تسجيل حضورك لهذا الأسبوع</div>';
+                attendanceBtn.disabled = false;
+                attendanceBtn.innerHTML = '<i class="fas fa-check-circle"></i> تسجيل الحضور';
+            }
         }
 
         // تحميل رصيد Talanton
@@ -1649,9 +1805,9 @@
         // تسجيل الحضور
         attendanceBtn.addEventListener('click', () => {
             const currentMemberId = memberSelect.value;
-            const currentWeek = weekSelect.value;
+            const currentWeekId = weekSelect.value;
             
-            if (!currentMemberId || !currentWeek) {
+            if (!currentMemberId || !currentWeekId) {
                 alert('يرجى اختيار الاسم والأسبوع');
                 return;
             }
@@ -1660,40 +1816,57 @@
             verificationStatus.innerHTML = '';
         });
 
+        // متغيرات لتتبع حالة المصادقة
+        let isFaceIdVerified = false;
+        let isFingerprintVerified = false;
+
         // محاكاة بصمة الوجه
         faceIdBtn.addEventListener('click', () => {
+            isFaceIdVerified = true;
             verificationStatus.innerHTML = '<div class="alert alert-success">تم التحقق ببصمة الوجه بنجاح</div>';
         });
 
         // محاكاة بصمة الإصبع
         fingerprintBtn.addEventListener('click', () => {
+            isFingerprintVerified = true;
             verificationStatus.innerHTML = '<div class="alert alert-success">تم التحقق ببصمة الإصبع بنجاح</div>';
         });
 
         // تأكيد التسجيل
         confirmAttendanceBtn.addEventListener('click', async () => {
             const currentMemberId = memberSelect.value;
-            const currentWeek = weekSelect.value;
+            const currentWeekId = weekSelect.value;
+            const password = document.getElementById('memberPassword').value;
+
+            // التحقق من المصادقة
+            if (!isFaceIdVerified && !isFingerprintVerified && !password) {
+                verificationStatus.innerHTML = '<div class="alert alert-danger">يرجى إجراء المصادقة أولاً</div>';
+                return;
+            }
 
             try {
                 // التحقق من عدم التسجيل المسبق
-                const attendanceRef = ref(db, `attendance/week${currentWeek}/${currentMemberId}`);
-                const existingAttendance = await get(attendanceRef);
-
-                if (existingAttendance.exists()) {
+                const hasAttended = await checkExistingAttendance(currentMemberId, currentWeekId);
+                if (hasAttended) {
                     verificationStatus.innerHTML = '<div class="alert alert-danger">لقد سجلت حضورك لهذا الأسبوع مسبقاً</div>';
                     return;
                 }
 
                 // تسجيل الحضور
-                await set(attendanceRef, {
+                const attendanceData = {
                     attended: true,
                     timestamp: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    time: new Date().toLocaleTimeString('ar-EG'),
                     verification: {
-                        faceId: true,
-                        fingerprint: true
-                    }
-                });
+                        faceId: isFaceIdVerified,
+                        fingerprint: isFingerprintVerified,
+                        password: !!password
+                    },
+                    authType: isFaceIdVerified ? 'face' : isFingerprintVerified ? 'fingerprint' : 'password'
+                };
+
+                await set(ref(db, `attendance/${currentWeekId}/${currentMemberId}`), attendanceData);
 
                 // تحديث رصيد Talanton
                 const talantonRef = ref(db, `talanton/${currentMemberId}`);
@@ -1702,16 +1875,23 @@
                 const newBalance = currentBalance + ATTENDANCE_POINTS;
 
                 await set(talantonRef, {
-                    balance: newBalance
+                    balance: newBalance,
+                    lastUpdated: Date.now()
                 });
 
                 verificationStatus.innerHTML = `<div class="alert alert-success">تم تسجيل الحضور بنجاح! +${ATTENDANCE_POINTS} Talanton</div>`;
                 loadTalantonBalance(currentMemberId);
                 
+                // إعادة تعيين حالة المصادقة
+                isFaceIdVerified = false;
+                isFingerprintVerified = false;
+                document.getElementById('memberPassword').value = '';
+                
                 // إخفاء قسم التحقق بعد 3 ثواني
                 setTimeout(() => {
                     verificationSection.style.display = 'none';
                     verificationStatus.innerHTML = '';
+                    updateAttendanceStatus();
                 }, 3000);
 
             } catch (error) {
@@ -1790,6 +1970,9 @@
                 case 'members':
                     await loadAdminMembers();
                     break;
+                case 'attendanceManagement':
+                    await loadAttendanceManagement();
+                    break;
                 case 'weeks':
                     await loadAdminWeeks();
                     break;
@@ -1801,6 +1984,9 @@
                     break;
                 case 'store':
                     await loadAdminProducts();
+                    break;
+                case 'security':
+                    await loadSecurityManagement();
                     break;
                 case 'reports':
                     await loadAdminReports();
@@ -1848,6 +2034,60 @@
             }
         }
 
+        // تحميل إدارة الحضور
+        async function loadAttendanceManagement() {
+            try {
+                const attendanceSnapshot = await get(ref(db, 'attendance'));
+                const membersSnapshot = await get(ref(db, 'members'));
+                const weeksSnapshot = await get(ref(db, 'weeks'));
+                const tbody = document.querySelector('#attendanceTable tbody');
+                tbody.innerHTML = '';
+
+                if (attendanceSnapshot.exists() && membersSnapshot.exists() && weeksSnapshot.exists()) {
+                    const attendance = attendanceSnapshot.val();
+                    const members = membersSnapshot.val();
+                    const weeks = weeksSnapshot.val();
+                    let index = 1;
+
+                    for (const [weekId, weekAttendance] of Object.entries(attendance)) {
+                        for (const [memberId, attendanceData] of Object.entries(weekAttendance)) {
+                            const member = members[memberId];
+                            const week = weeks[weekId];
+                            
+                            if (member && week) {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td>${index++}</td>
+                                    <td>${member.name}</td>
+                                    <td>${week.name}</td>
+                                    <td>${attendanceData.date}</td>
+                                    <td>${attendanceData.time}</td>
+                                    <td>
+                                        <span class="verification-badge ${attendanceData.verification.faceId || attendanceData.verification.fingerprint ? 'verified' : 'not-verified'}">
+                                            ${attendanceData.authType === 'face' ? 'بصمة وجه' : 
+                                              attendanceData.authType === 'fingerprint' ? 'بصمة إصبع' : 
+                                              attendanceData.authType === 'password' ? 'كلمة مرور' : 'إداري'}
+                                        </span>
+                                    </td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-warning btn-sm" onclick="editAttendance('${weekId}', '${memberId}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteAttendance('${weekId}', '${memberId}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                `;
+                                tbody.appendChild(tr);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+            }
+        }
+
         // تحميل الأسابيع في لوحة الأدمن
         async function loadAdminWeeks() {
             try {
@@ -1861,7 +2101,7 @@
 
                     for (const [id, week] of Object.entries(weeks)) {
                         // حساب عدد الحضور لهذا الأسبوع
-                        const attendanceSnapshot = await get(ref(db, `attendance/week${week.name}`));
+                        const attendanceSnapshot = await get(ref(db, `attendance/${id}`));
                         const attendanceCount = attendanceSnapshot.exists() ? Object.keys(attendanceSnapshot.val()).length : 0;
                         
                         const tr = document.createElement('tr');
@@ -1997,6 +2237,70 @@
             }
         }
 
+        // تحميل إدارة الأمان
+        async function loadSecurityManagement() {
+            try {
+                const membersSnapshot = await get(ref(db, 'members'));
+                const attendanceSnapshot = await get(ref(db, 'attendance'));
+                const tbody = document.querySelector('#securityTable tbody');
+                tbody.innerHTML = '';
+
+                if (membersSnapshot.exists()) {
+                    const members = membersSnapshot.val();
+                    let index = 1;
+
+                    for (const [id, member] of Object.entries(members)) {
+                        // البحث عن آخر مصادقة للعضو
+                        let lastAuth = 'لم يتم المصادقة بعد';
+                        let faceAuth = false;
+                        let fingerprintAuth = false;
+                        let hasPassword = !!member.password;
+
+                        if (attendanceSnapshot.exists()) {
+                            for (const [weekId, weekAttendance] of Object.entries(attendanceSnapshot.val())) {
+                                if (weekAttendance[id]) {
+                                    const authData = weekAttendance[id];
+                                    faceAuth = faceAuth || authData.verification.faceId;
+                                    fingerprintAuth = fingerprintAuth || authData.verification.fingerprint;
+                                    lastAuth = new Date(authData.timestamp).toLocaleString('ar-EG');
+                                }
+                            }
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${index++}</td>
+                            <td>${member.name}</td>
+                            <td>
+                                <span class="verification-badge ${faceAuth ? 'verified' : 'not-verified'}">
+                                    ${faceAuth ? '✔ مفعل' : '✘ غير مفعل'}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="verification-badge ${fingerprintAuth ? 'verified' : 'not-verified'}">
+                                    ${fingerprintAuth ? '✔ مفعل' : '✘ غير مفعل'}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="verification-badge ${hasPassword ? 'verified' : 'not-verified'}">
+                                    ${hasPassword ? '✔ مضبوط' : '✘ غير مضبوط'}
+                                </span>
+                            </td>
+                            <td>${lastAuth}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-info btn-sm" onclick="manageSecurity('${id}')">
+                                    <i class="fas fa-cog"></i> إدارة
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading security data:', error);
+            }
+        }
+
         // تحميل التقارير في لوحة الأدمن
         async function loadAdminReports() {
             try {
@@ -2064,6 +2368,63 @@
                 title.textContent = 'إضافة عضو جديد';
                 form.reset();
                 document.getElementById('memberId').value = '';
+            }
+            
+            modal.classList.add('show');
+        };
+
+        // إضافة/تعديل حضور
+        window.editAttendance = async function(weekId, memberId) {
+            const modal = document.getElementById('attendanceModal');
+            const form = document.getElementById('attendanceForm');
+            const title = document.getElementById('attendanceModalTitle');
+            
+            // تحميل قائمة الأعضاء
+            const memberSelect = document.getElementById('attendanceMemberSelect');
+            memberSelect.innerHTML = '<option value="">اختر العضو</option>';
+            const membersSnapshot = await get(ref(db, 'members'));
+            if (membersSnapshot.exists()) {
+                const members = membersSnapshot.val();
+                for (const [id, member] of Object.entries(members)) {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = member.name;
+                    if (id === memberId) option.selected = true;
+                    memberSelect.appendChild(option);
+                }
+            }
+
+            // تحميل قائمة الأسابيع
+            const weekSelect = document.getElementById('attendanceWeekSelect');
+            weekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
+            const weeksSnapshot = await get(ref(db, 'weeks'));
+            if (weeksSnapshot.exists()) {
+                const weeks = weeksSnapshot.val();
+                for (const [id, week] of Object.entries(weeks)) {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = week.name;
+                    if (id === weekId) option.selected = true;
+                    weekSelect.appendChild(option);
+                }
+            }
+
+            if (weekId && memberId) {
+                title.textContent = 'تعديل الحضور';
+                const snapshot = await get(ref(db, `attendance/${weekId}/${memberId}`));
+                if (snapshot.exists()) {
+                    const attendance = snapshot.val();
+                    document.getElementById('attendanceId').value = `${weekId}_${memberId}`;
+                    document.getElementById('attendanceDate').value = attendance.date;
+                    document.getElementById('attendanceTime').value = attendance.time;
+                    document.getElementById('attendanceAuthType').value = attendance.authType;
+                }
+            } else {
+                title.textContent = 'إضافة حضور';
+                form.reset();
+                document.getElementById('attendanceId').value = '';
+                document.getElementById('attendanceDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('attendanceTime').value = new Date().toLocaleTimeString('ar-EG', {hour12: false});
             }
             
             modal.classList.add('show');
@@ -2170,6 +2531,24 @@
             modal.classList.add('show');
         };
 
+        // إدارة الأمان
+        window.manageSecurity = async function(memberId) {
+            const memberSnapshot = await get(ref(db, `members/${memberId}`));
+            if (memberSnapshot.exists()) {
+                const member = memberSnapshot.val();
+                if (confirm(`إدارة أمان العضو: ${member.name}\n\nهل تريد إعادة تعيين كلمة المرور؟`)) {
+                    const newPassword = prompt('أدخل كلمة المرور الجديدة:');
+                    if (newPassword) {
+                        await update(ref(db, `members/${memberId}`), {
+                            password: newPassword
+                        });
+                        alert('تم تحديث كلمة المرور بنجاح');
+                        loadSecurityManagement();
+                    }
+                }
+            }
+        };
+
         // ========== دوال الحفظ ==========
         // حفظ العضو
         document.getElementById('memberForm').addEventListener('submit', async function(e) {
@@ -2205,6 +2584,42 @@
             }
         });
 
+        // حفظ الحضور
+        document.getElementById('attendanceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('attendanceId').value;
+            const memberId = document.getElementById('attendanceMemberSelect').value;
+            const weekId = document.getElementById('attendanceWeekSelect').value;
+            const date = document.getElementById('attendanceDate').value;
+            const time = document.getElementById('attendanceTime').value;
+            const authType = document.getElementById('attendanceAuthType').value;
+
+            const attendanceData = {
+                attended: true,
+                timestamp: new Date(`${date}T${time}`).getTime(),
+                date: date,
+                time: time,
+                authType: authType,
+                verification: {
+                    faceId: authType === 'face',
+                    fingerprint: authType === 'fingerprint',
+                    password: authType === 'password',
+                    admin: authType === 'admin'
+                }
+            };
+
+            try {
+                await set(ref(db, `attendance/${weekId}/${memberId}`), attendanceData);
+                
+                document.getElementById('attendanceModal').classList.remove('show');
+                await loadAttendanceManagement();
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                alert('حدث خطأ أثناء حفظ البيانات');
+            }
+        });
+
         // حفظ الأسبوع
         document.getElementById('weekForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -2228,6 +2643,7 @@
                 
                 document.getElementById('weekModal').classList.remove('show');
                 await loadAdminWeeks();
+                await loadWeeks(); // تحديث قائمة الأسابيع في الصفحة الرئيسية
             } catch (error) {
                 console.error('Error saving week:', error);
                 alert('حدث خطأ أثناء حفظ البيانات');
@@ -2347,12 +2763,26 @@
             }
         };
 
+        // حذف الحضور
+        window.deleteAttendance = async function(weekId, memberId) {
+            if (confirm('هل أنت متأكد من حذف هذا الحضور؟')) {
+                try {
+                    await remove(ref(db, `attendance/${weekId}/${memberId}`));
+                    await loadAttendanceManagement();
+                } catch (error) {
+                    console.error('Error deleting attendance:', error);
+                    alert('حدث خطأ أثناء الحذف');
+                }
+            }
+        };
+
         // حذف الأسبوع
         window.deleteWeek = async function(id) {
             if (confirm('هل أنت متأكد من حذف هذا الأسبوع؟')) {
                 try {
                     await remove(ref(db, `weeks/${id}`));
                     await loadAdminWeeks();
+                    await loadWeeks(); // تحديث قائمة الأسابيع في الصفحة الرئيسية
                 } catch (error) {
                     console.error('Error deleting week:', error);
                     alert('حدث خطأ أثناء الحذف');
@@ -2399,6 +2829,10 @@
             window.editMember();
         });
 
+        document.getElementById('addAttendanceBtn').addEventListener('click', () => {
+            window.editAttendance();
+        });
+
         document.getElementById('addWeekBtn').addEventListener('click', () => {
             window.editWeek();
         });
@@ -2418,12 +2852,19 @@
         // التحميل الأولي
         document.addEventListener('DOMContentLoaded', async function() {
             await loadMembers();
-            loadWeeks();
+            await loadWeeks();
             
             // تحديث الرصيد عند تغيير العضو
             memberSelect.addEventListener('change', (e) => {
                 loadTalantonBalance(e.target.value);
+                updateAttendanceStatus();
             });
+            
+            // تحديث حالة الحضور عند تغيير الأسبوع
+            weekSelect.addEventListener('change', updateAttendanceStatus);
+            
+            // تحديث أولي لحالة الحضور
+            setTimeout(updateAttendanceStatus, 1000);
         });
     </script>
 </body>

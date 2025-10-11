@@ -37,6 +37,7 @@
     </script>
 
     <style>
+        /* جميع الأنماط تبقى كما هي */
         :root {
             --primary: #4361ee;
             --primary-dark: #3a56d4;
@@ -862,8 +863,8 @@
             flex-wrap: wrap;
         }
 
-        /* ========== NEW STYLES FOR ATTENDANCE EDIT ========== */
-        .attendance-edit-section {
+        /* ========== NEW STYLES FOR DAILY REPORTS ========== */
+        .daily-report-section {
             margin-top: 20px;
             padding: 20px;
             background: rgba(255, 255, 255, 0.05);
@@ -871,91 +872,94 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .attendance-controls {
+        .date-filter {
             display: flex;
             gap: 10px;
             align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        .attendance-input {
-            width: 80px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
+        .date-input {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text-light);
         }
 
-        .attendance-btn {
-            padding: 8px 16px;
-            font-size: 1.1rem;
+        .dark-mode .date-input {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-dark);
         }
 
-        /* ========== NEW STYLES FOR COMPETITIONS ========== */
-        .competition-grid {
+        .daily-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .daily-stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .daily-stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .daily-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .attendance-list {
+            max-height: 400px;
+            overflow-y: auto;
             margin-top: 20px;
         }
 
-        .competition-card {
-            background: var(--card-gradient);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
+        .attendance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .competition-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
+        .attendance-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
-        .competition-status {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+        .attendance-member {
             font-weight: bold;
+            color: var(--primary);
         }
 
-        .status-active {
-            background: var(--success);
-            color: white;
-        }
-
-        .status-ended {
-            background: var(--danger);
-            color: white;
-        }
-
-        .competition-prize {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--warning);
-            margin: 10px 0;
-        }
-
-        .competition-date {
-            color: var(--text-muted);
+        .attendance-time {
             font-size: 0.9rem;
-            margin: 5px 0;
+            color: var(--text-muted);
         }
 
-        .points-earned {
-            background: var(--success);
+        .attendance-week {
+            font-size: 0.8rem;
+            background: var(--secondary);
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin-top: 15px;
-            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -1154,6 +1158,9 @@
                 <li class="menu-item" data-section="store">
                     <i class="fas fa-store"></i>إدارة المتجر
                 </li>
+                <li class="menu-item" data-section="dailyReports">
+                    <i class="fas fa-calendar-day"></i>التقارير اليومية
+                </li>
                 <li class="menu-item" data-section="security">
                     <i class="fas fa-shield-alt"></i>إدارة الأمان
                 </li>
@@ -1175,6 +1182,75 @@
                     <button class="btn btn-danger" id="adminLogoutBtn">
                         <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                     </button>
+                </div>
+            </div>
+
+            <!-- قسم التقارير اليومية -->
+            <div class="section" id="dailyReports">
+                <div class="section-header">
+                    <h3><i class="fas fa-calendar-day"></i> التقارير اليومية للحضور</h3>
+                    <div class="export-buttons">
+                        <button class="btn btn-success" id="exportDailyReport">
+                            <i class="fas fa-file-excel"></i> تصدير التقرير اليومي
+                        </button>
+                    </div>
+                </div>
+
+                <!-- فلتر التاريخ -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="card-title"><i class="fas fa-filter"></i> تصفية التقارير حسب التاريخ</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="date-filter">
+                            <div class="form-group">
+                                <label class="form-label">من تاريخ</label>
+                                <input type="date" class="date-input" id="dailyReportStartDate">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">إلى تاريخ</label>
+                                <input type="date" class="date-input" id="dailyReportEndDate">
+                            </div>
+                            <button class="btn btn-primary" id="generateDailyReportBtn">
+                                <i class="fas fa-search"></i> عرض التقرير
+                            </button>
+                            <button class="btn btn-info" id="showTodayReportBtn">
+                                <i class="fas fa-calendar-day"></i> عرض اليوم
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إحصائيات سريعة -->
+                <div class="daily-stats" id="dailyStats">
+                    <div class="daily-stat-item">
+                        <div class="daily-stat-value" id="totalAttendanceToday">0</div>
+                        <div class="daily-stat-label">إجمالي الحضور</div>
+                    </div>
+                    <div class="daily-stat-item">
+                        <div class="daily-stat-value" id="uniqueMembersToday">0</div>
+                        <div class="daily-stat-label">عدد الأعضاء</div>
+                    </div>
+                    <div class="daily-stat-item">
+                        <div class="daily-stat-value" id="firstAttendanceTime">--:--</div>
+                        <div class="daily-stat-label">أول تسجيل</div>
+                    </div>
+                    <div class="daily-stat-item">
+                        <div class="daily-stat-value" id="lastAttendanceTime">--:--</div>
+                        <div class="daily-stat-label">آخر تسجيل</div>
+                    </div>
+                </div>
+
+                <!-- قائمة الحضور -->
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title"><i class="fas fa-list"></i> تفاصيل الحضور اليومي</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="attendance-list" id="dailyAttendanceList">
+                            <p class="text-center text-muted">اختر التاريخ ثم انقر على "عرض التقرير"</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1681,38 +1757,6 @@
         </div>
     </div>
 
-    <!-- مودال تعديل مرات الحضور -->
-    <div class="modal" id="editAttendanceModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="editAttendanceModalTitle">تعديل مرات الحضور</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="editAttendanceForm">
-                <input type="hidden" id="editAttendanceMemberId">
-                <div class="form-group">
-                    <label class="form-label">اسم العضو</label>
-                    <input type="text" class="form-control" id="editAttendanceMemberName" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">عدد مرات الحضور الحالية</label>
-                    <input type="number" class="form-control" id="editAttendanceCurrentCount" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">عدد مرات الحضور الجديدة</label>
-                    <input type="number" class="form-control" id="editAttendanceNewCount" required min="0">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">السبب</label>
-                    <input type="text" class="form-control" id="editAttendanceReason" required placeholder="أدخل سبب التعديل">
-                </div>
-                <button type="submit" class="btn btn-success w-100">
-                    <i class="fas fa-save"></i> حفظ التعديل
-                </button>
-            </form>
-        </div>
-    </div>
-
     <script>
         // الانتظار حتى يتم تحميل Firebase
         async function waitForFirebase() {
@@ -1759,6 +1803,13 @@
             // ========== عناصر لوحة الأدمن ==========
             const menuItems = document.querySelectorAll('.menu-item');
             const sections = document.querySelectorAll('.section');
+
+            // ========== عناصر التقارير اليومية ==========
+            const dailyReportStartDate = document.getElementById('dailyReportStartDate');
+            const dailyReportEndDate = document.getElementById('dailyReportEndDate');
+            const generateDailyReportBtn = document.getElementById('generateDailyReportBtn');
+            const showTodayReportBtn = document.getElementById('showTodayReportBtn');
+            const exportDailyReportBtn = document.getElementById('exportDailyReport');
 
             // ========== دوال إدارة الصفحات ==========
             function showMainPage() {
@@ -1826,6 +1877,197 @@
                 });
             });
 
+            // ========== دوال التقارير اليومية ==========
+            // تهيئة تواريخ التقارير اليومية
+            function initializeDailyReports() {
+                const today = new Date().toISOString().split('T')[0];
+                dailyReportStartDate.value = today;
+                dailyReportEndDate.value = today;
+            }
+
+            // تحميل التقرير اليومي
+            async function loadDailyReport(startDate, endDate) {
+                try {
+                    const attendanceSnapshot = await get(ref(db, 'attendance'));
+                    const membersSnapshot = await get(ref(db, 'members'));
+                    const weeksSnapshot = await get(ref(db, 'weeks'));
+
+                    if (!attendanceSnapshot.exists() || !membersSnapshot.exists()) {
+                        document.getElementById('dailyAttendanceList').innerHTML = '<p class="text-center text-muted">لا توجد بيانات لعرضها</p>';
+                        return;
+                    }
+
+                    const attendance = attendanceSnapshot.val();
+                    const members = membersSnapshot.val();
+                    const weeks = weeksSnapshot.exists() ? weeksSnapshot.val() : {};
+
+                    let dailyAttendance = [];
+                    let memberSet = new Set();
+                    let firstTime = null;
+                    let lastTime = null;
+
+                    // جمع بيانات الحضور للفترة المحددة
+                    for (const [weekId, weekAttendance] of Object.entries(attendance)) {
+                        for (const [memberId, attendanceData] of Object.entries(weekAttendance)) {
+                            const attendanceDate = attendanceData.date;
+                            
+                            if (attendanceDate >= startDate && attendanceDate <= endDate) {
+                                const member = members[memberId];
+                                if (member) {
+                                    memberSet.add(memberId);
+                                    
+                                    // الحصول على اسم الأسبوع بدلاً من الـ ID - التعديل هنا
+                                    let weekName = `الأسبوع ${weekId}`; // القيمة الافتراضية
+                                    if (weeks[weekId] && weeks[weekId].name) {
+                                        weekName = weeks[weekId].name;
+                                    } else {
+                                        // إذا لم يكن هناك اسم محفوظ، نستخدم ترقيم متسلسل
+                                        const weekIds = Object.keys(weeks);
+                                        const weekIndex = weekIds.indexOf(weekId);
+                                        weekName = `الأسبوع ${weekIndex + 1}`;
+                                    }
+                                    
+                                    dailyAttendance.push({
+                                        memberName: member.name,
+                                        date: attendanceDate,
+                                        time: attendanceData.time,
+                                        weekName: weekName,
+                                        timestamp: attendanceData.timestamp
+                                    });
+
+                                    // تحديث أول وآخر تسجيل
+                                    if (!firstTime || attendanceData.timestamp < firstTime.timestamp) {
+                                        firstTime = attendanceData;
+                                    }
+                                    if (!lastTime || attendanceData.timestamp > lastTime.timestamp) {
+                                        lastTime = attendanceData;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // ترتيب الحضور حسب الوقت
+                    dailyAttendance.sort((a, b) => a.timestamp - b.timestamp);
+
+                    // تحديث الإحصائيات
+                    document.getElementById('totalAttendanceToday').textContent = dailyAttendance.length;
+                    document.getElementById('uniqueMembersToday').textContent = memberSet.size;
+                    document.getElementById('firstAttendanceTime').textContent = firstTime ? firstTime.time : '--:--';
+                    document.getElementById('lastAttendanceTime').textContent = lastTime ? lastTime.time : '--:--';
+
+                    // عرض قائمة الحضور
+                    const attendanceList = document.getElementById('dailyAttendanceList');
+                    if (dailyAttendance.length > 0) {
+                        attendanceList.innerHTML = dailyAttendance.map(att => `
+                            <div class="attendance-item">
+                                <div class="attendance-info">
+                                    <div class="attendance-member">${att.memberName}</div>
+                                    <div class="attendance-time">${att.date} - ${att.time}</div>
+                                </div>
+                                <div class="attendance-week">${att.weekName}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        attendanceList.innerHTML = '<p class="text-center text-muted">لا توجد سجلات حضور للفترة المحددة</p>';
+                    }
+
+                } catch (error) {
+                    console.error('Error loading daily report:', error);
+                    document.getElementById('dailyAttendanceList').innerHTML = '<p class="text-center text-muted">حدث خطأ في تحميل البيانات</p>';
+                }
+            }
+
+            // تصدير التقرير اليومي
+            async function exportDailyReport() {
+                try {
+                    const startDate = dailyReportStartDate.value;
+                    const endDate = dailyReportEndDate.value;
+                    
+                    if (!startDate || !endDate) {
+                        alert('يرجى اختيار نطاق التاريخ');
+                        return;
+                    }
+
+                    const attendanceSnapshot = await get(ref(db, 'attendance'));
+                    const membersSnapshot = await get(ref(db, 'members'));
+                    const weeksSnapshot = await get(ref(db, 'weeks'));
+
+                    if (!attendanceSnapshot.exists() || !membersSnapshot.exists()) {
+                        alert('لا توجد بيانات للتصدير');
+                        return;
+                    }
+
+                    const attendance = attendanceSnapshot.val();
+                    const members = membersSnapshot.val();
+                    const weeks = weeksSnapshot.exists() ? weeksSnapshot.val() : {};
+
+                    let csvContent = "اسم العضو,التاريخ,الوقت,الأسبوع,تاريخ التسجيل\n";
+                    
+                    for (const [weekId, weekAttendance] of Object.entries(attendance)) {
+                        for (const [memberId, attendanceData] of Object.entries(weekAttendance)) {
+                            const attendanceDate = attendanceData.date;
+                            
+                            if (attendanceDate >= startDate && attendanceDate <= endDate) {
+                                const member = members[memberId];
+                                if (member) {
+                                    // الحصول على اسم الأسبوع بدلاً من الـ ID - التعديل هنا
+                                    let weekName = `الأسبوع ${weekId}`; // القيمة الافتراضية
+                                    if (weeks[weekId] && weeks[weekId].name) {
+                                        weekName = weeks[weekId].name;
+                                    } else {
+                                        // إذا لم يكن هناك اسم محفوظ، نستخدم ترقيم متسلسل
+                                        const weekIds = Object.keys(weeks);
+                                        const weekIndex = weekIds.indexOf(weekId);
+                                        weekName = `الأسبوع ${weekIndex + 1}`;
+                                    }
+                                    
+                                    csvContent += `"${member.name}","${attendanceDate}","${attendanceData.time}","${weekName}","${new Date(attendanceData.timestamp).toLocaleString()}"\n`;
+                                }
+                            }
+                        }
+                    }
+
+                    // إنشاء ملف وتنزيله
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `تقرير_الحضور_اليومي_${startDate}_إلى_${endDate}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    alert('تم تصدير التقرير اليومي بنجاح');
+                } catch (error) {
+                    console.error('Error exporting daily report:', error);
+                    alert('حدث خطأ أثناء تصدير التقرير');
+                }
+            }
+
+            // ========== أحداث التقارير اليومية ==========
+            generateDailyReportBtn.addEventListener('click', () => {
+                const startDate = dailyReportStartDate.value;
+                const endDate = dailyReportEndDate.value;
+                
+                if (!startDate || !endDate) {
+                    alert('يرجى اختيار تاريخ البداية والنهاية');
+                    return;
+                }
+
+                loadDailyReport(startDate, endDate);
+            });
+
+            showTodayReportBtn.addEventListener('click', () => {
+                const today = new Date().toISOString().split('T')[0];
+                dailyReportStartDate.value = today;
+                dailyReportEndDate.value = today;
+                loadDailyReport(today, today);
+            });
+
+            exportDailyReportBtn.addEventListener('click', exportDailyReport);
+
             // ========== دوال الصفحة الرئيسية ==========
             // تحميل الأعضاء من Firebase
             async function loadMembers() {
@@ -1870,7 +2112,8 @@
                         weeks.forEach(([id, week]) => {
                             const option = document.createElement('option');
                             option.value = id;
-                            option.textContent = week.name;
+                            // استخدام اسم الأسبوع بدلاً من الـ ID
+                            option.textContent = week.name || `الأسبوع ${id}`;
                             weekSelect.appendChild(option);
                         });
                     } else {
@@ -1963,13 +2206,21 @@
                                         <h4>${product.name}</h4>
                                         <p>${product.description}</p>
                                         <div class="product-price">${product.price} Talanton</div>
-                                        <button class="btn btn-warning w-100" onclick="purchaseProduct('${id}')">
+                                        <button class="btn btn-warning w-100 purchase-btn" data-product-id="${id}">
                                             <i class="fas fa-shopping-cart"></i> شراء
                                         </button>
                                     </div>
                                 `).join('')}
                             </div>
                         `;
+
+                        // إضافة event listeners لأزرار الشراء
+                        document.querySelectorAll('.purchase-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const productId = this.getAttribute('data-product-id');
+                                purchaseProduct(productId);
+                            });
+                        });
                     } else {
                         storeContent.innerHTML = '<p>لا توجد منتجات متاحة حالياً</p>';
                     }
@@ -1980,7 +2231,7 @@
             }
 
             // شراء منتج
-            window.purchaseProduct = async function(productId) {
+            async function purchaseProduct(productId) {
                 const currentMemberId = memberSelect.value;
                 if (!currentMemberId) {
                     alert('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور');
@@ -2007,9 +2258,10 @@
                     if (confirm(`هل تريد شراء ${product.name} بسعر ${product.price} Talanton؟`)) {
                         const newBalance = balance - product.price;
                         
-                        // تحديث الرصيد
+                        // تحديث الرصيد - الإصلاح هنا
                         await set(ref(db, `talanton/${currentMemberId}`), {
-                            balance: newBalance
+                            balance: newBalance,
+                            lastUpdated: Date.now()
                         });
 
                         // تسجيل عملية الشراء
@@ -2031,7 +2283,7 @@
                     console.error('Error purchasing product:', error);
                     alert('حدث خطأ أثناء عملية الشراء');
                 }
-            };
+            }
 
             // تحميل التقارير
             async function loadReports() {
@@ -2134,31 +2386,43 @@
                             }
                             
                             competitionsHTML += `
-                                <div class="competition-card">
-                                    <span class="competition-status ${statusClass}">${statusText}</span>
-                                    <h4>${competition.name}</h4>
-                                    <p>${competition.description || 'لا يوجد وصف'}</p>
-                                    <div class="competition-date">
-                                        <i class="fas fa-calendar"></i> 
-                                        من ${new Date(competition.startDate).toLocaleDateString('ar-EG')} 
-                                        إلى ${new Date(competition.endDate).toLocaleDateString('ar-EG')}
+                                <div class="card mb-3">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">${competition.name}</h5>
+                                        <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'}">${statusText}</span>
                                     </div>
-                                    <div class="competition-prize">
-                                        <i class="fas fa-gift"></i> الجائزة: ${competition.prize}
-                                    </div>
-                                    <div class="competition-prize">
-                                        <i class="fas fa-coins"></i> النقاط: ${competition.points} Talanton
-                                    </div>
-                                    ${pointsEarned > 0 ? `
-                                        <div class="points-earned">
-                                            <i class="fas fa-trophy"></i> لقد حصلت على ${pointsEarned} نقطة
+                                    <div class="card-body">
+                                        <p class="card-text">${competition.description || 'لا يوجد وصف'}</p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar"></i> 
+                                                    من ${new Date(competition.startDate).toLocaleDateString('ar-EG')} 
+                                                    إلى ${new Date(competition.endDate).toLocaleDateString('ar-EG')}
+                                                </small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-gift"></i> الجائزة: ${competition.prize}
+                                                </small>
+                                            </div>
                                         </div>
-                                    ` : ''}
-                                    ${isActive && memberId ? `
-                                        <button class="btn btn-success w-100 mt-3" onclick="joinCompetition('${id}', '${competition.name}')">
-                                            <i class="fas fa-user-plus"></i> الانضمام للمسابقة
-                                        </button>
-                                    ` : ''}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-coins"></i> النقاط: ${competition.points} Talanton
+                                            </small>
+                                        </div>
+                                        ${pointsEarned > 0 ? `
+                                            <div class="alert alert-success mt-2">
+                                                <i class="fas fa-trophy"></i> لقد حصلت على ${pointsEarned} نقطة
+                                            </div>
+                                        ` : ''}
+                                        ${isActive && memberId ? `
+                                            <button class="btn btn-success w-100 mt-3 join-competition-btn" data-competition-id="${id}" data-competition-name="${competition.name}">
+                                                <i class="fas fa-user-plus"></i> الانضمام للمسابقة
+                                            </button>
+                                        ` : ''}
+                                    </div>
                                 </div>
                             `;
                         }
@@ -2167,11 +2431,16 @@
                             competitionsHTML = '<p class="text-center text-muted">لا توجد مسابقات حالياً</p>';
                         }
                         
-                        competitionsContent.innerHTML = `
-                            <div class="competition-grid">
-                                ${competitionsHTML}
-                            </div>
-                        `;
+                        competitionsContent.innerHTML = competitionsHTML;
+
+                        // إضافة event listeners لأزرار الانضمام للمسابقات
+                        document.querySelectorAll('.join-competition-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const competitionId = this.getAttribute('data-competition-id');
+                                const competitionName = this.getAttribute('data-competition-name');
+                                joinCompetition(competitionId, competitionName);
+                            });
+                        });
                     } else {
                         competitionsContent.innerHTML = '<p class="text-center text-muted">لا توجد مسابقات حالياً</p>';
                     }
@@ -2182,7 +2451,7 @@
             }
 
             // الانضمام للمسابقة
-            window.joinCompetition = async function(competitionId, competitionName) {
+            async function joinCompetition(competitionId, competitionName) {
                 const memberId = memberSelect.value;
                 if (!memberId) {
                     alert('يرجى اختيار اسمك أولاً من تبويب تسجيل الحضور');
@@ -2206,7 +2475,7 @@
                     }
 
                     if (confirm(`هل تريد الانضمام لمسابقة "${competitionName}"؟\n\nستحصل على ${competition.points} نقطة إذا فزت!`)) {
-                        // تسجيل انضمام العضو للمسابقة
+                        // تسجيل انضمام العضو للمسابقة - الإصلاح هنا
                         await set(ref(db, `memberCompetitions/${memberId}/${competitionId}`), {
                             joinedAt: Date.now(),
                             competitionName: competition.name,
@@ -2221,7 +2490,7 @@
                     console.error('Error joining competition:', error);
                     alert('حدث خطأ أثناء الانضمام للمسابقة');
                 }
-            };
+            }
 
             // تسجيل الحضور
             attendanceBtn.addEventListener('click', () => {
@@ -2273,7 +2542,7 @@
                         return;
                     }
 
-                    // تسجيل الحضور
+                    // تسجيل الحضور - الإصلاح هنا
                     const attendanceData = {
                         attended: true,
                         timestamp: Date.now(),
@@ -2289,7 +2558,7 @@
 
                     await set(ref(db, `attendance/${currentWeekId}/${currentMemberId}`), attendanceData);
 
-                    // تحديث رصيد Talanton
+                    // تحديث رصيد Talanton - الإصلاح هنا
                     const talantonRef = ref(db, `talanton/${currentMemberId}`);
                     const currentBalanceSnapshot = await get(talantonRef);
                     const currentBalance = currentBalanceSnapshot.exists() ? currentBalanceSnapshot.val().balance : 0;
@@ -2349,31 +2618,6 @@
                 btn.addEventListener('click', function() {
                     this.closest('.modal').classList.remove('show');
                 });
-            });
-
-            // أحداث الأزرار
-            document.getElementById('addMemberBtn').addEventListener('click', () => {
-                editMember();
-            });
-
-            document.getElementById('addAttendanceBtn').addEventListener('click', () => {
-                editAttendance();
-            });
-
-            document.getElementById('addWeekBtn').addEventListener('click', () => {
-                editWeek();
-            });
-
-            document.getElementById('addCompetitionBtn').addEventListener('click', () => {
-                editCompetition();
-            });
-
-            document.getElementById('addPointsBtn').addEventListener('click', () => {
-                alert('اختر العضو من جدول Talanton ثم انقر على زر تعديل النقاط');
-            });
-
-            document.getElementById('addProductBtn').addEventListener('click', () => {
-                editProduct();
             });
 
             // ========== دوال الأدمن الأساسية ==========
@@ -2458,6 +2702,9 @@
                     case 'store':
                         await loadAdminProducts();
                         break;
+                    case 'dailyReports':
+                        await initializeDailyReports();
+                        break;
                     case 'security':
                         await loadSecurityManagement();
                         break;
@@ -2532,16 +2779,31 @@
                                 </td>
                                 <td>${lastAuthText}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-warning btn-sm" onclick="resetSecurity('${id}')">
+                                    <button class="btn btn-warning btn-sm reset-security-btn" data-member-id="${id}">
                                         <i class="fas fa-redo"></i> إعادة تعيين
                                     </button>
-                                    <button class="btn btn-info btn-sm" onclick="viewSecurityLogs('${id}')">
+                                    <button class="btn btn-info btn-sm view-security-logs-btn" data-member-id="${id}">
                                         <i class="fas fa-history"></i> السجلات
                                     </button>
                                 </td>
                             `;
                             tbody.appendChild(tr);
                         }
+
+                        // إضافة event listeners لأزرار الأمان
+                        document.querySelectorAll('.reset-security-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-member-id');
+                                resetSecurity(memberId);
+                            });
+                        });
+
+                        document.querySelectorAll('.view-security-logs-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-member-id');
+                                viewSecurityLogs(memberId);
+                            });
+                        });
                     } else {
                         tbody.innerHTML = '<tr><td colspan="7" class="text-center">لا توجد بيانات</td></tr>';
                     }
@@ -2553,7 +2815,7 @@
             }
 
             // دالة إعادة تعيين الأمان
-            window.resetSecurity = async function(memberId) {
+            async function resetSecurity(memberId) {
                 if (confirm('هل أنت متأكد من إعادة تعيين إعدادات الأمان لهذا العضو؟')) {
                     try {
                         // هنا يمكنك إضافة منطق إعادة التعيين
@@ -2565,10 +2827,10 @@
                         alert('حدث خطأ أثناء إعادة التعيين');
                     }
                 }
-            };
+            }
 
             // دالة عرض سجلات الأمان
-            window.viewSecurityLogs = async function(memberId) {
+            async function viewSecurityLogs(memberId) {
                 try {
                     const memberSnapshot = await get(ref(db, `members/${memberId}`));
                     const attendanceSnapshot = await get(ref(db, 'attendance'));
@@ -2607,23 +2869,31 @@
                             <div class="modal-content" style="max-width: 800px;">
                                 <div class="modal-header">
                                     <h3>سجلات الأمان</h3>
-                                    <button class="close-modal" onclick="this.closest('.modal').remove()">&times;</button>
+                                    <button class="close-modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
                                     ${logsHTML}
                                 </div>
                                 <div class="modal-footer">
-                                    <button class="btn btn-primary" onclick="this.closest('.modal').remove()">إغلاق</button>
+                                    <button class="btn btn-primary close-security-logs">إغلاق</button>
                                 </div>
                             </div>
                         `;
                         document.body.appendChild(modal);
+
+                        // إضافة event listeners للإغلاق
+                        modal.querySelector('.close-modal').addEventListener('click', () => {
+                            modal.remove();
+                        });
+                        modal.querySelector('.close-security-logs').addEventListener('click', () => {
+                            modal.remove();
+                        });
                     }
                 } catch (error) {
                     console.error('Error viewing security logs:', error);
                     alert('حدث خطأ في عرض السجلات');
                 }
-            };
+            }
 
             async function loadAdminMembers() {
                 try {
@@ -2648,16 +2918,31 @@
                                 <td>${new Date(member.joinedDate || Date.now()).toLocaleDateString('ar-EG')}</td>
                                 <td>${balance}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-warning btn-sm" onclick="editMember('${id}')">
+                                    <button class="btn btn-warning btn-sm edit-member-btn" data-member-id="${id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteMember('${id}')">
+                                    <button class="btn btn-danger btn-sm delete-member-btn" data-member-id="${id}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             `;
                             tbody.appendChild(tr);
                         }
+
+                        // إضافة event listeners للأزرار
+                        document.querySelectorAll('.edit-member-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-member-id');
+                                editMember(memberId);
+                            });
+                        });
+
+                        document.querySelectorAll('.delete-member-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-member-id');
+                                deleteMember(memberId);
+                            });
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading members:', error);
@@ -2699,10 +2984,10 @@
                                             </span>
                                         </td>
                                         <td class="action-buttons">
-                                            <button class="btn btn-warning btn-sm" onclick="editAttendance('${weekId}', '${memberId}')">
+                                            <button class="btn btn-warning btn-sm edit-attendance-btn" data-week-id="${weekId}" data-member-id="${memberId}">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button class="btn btn-danger btn-sm" onclick="deleteAttendance('${weekId}', '${memberId}')">
+                                            <button class="btn btn-danger btn-sm delete-attendance-btn" data-week-id="${weekId}" data-member-id="${memberId}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
@@ -2711,6 +2996,23 @@
                                 }
                             }
                         }
+
+                        // إضافة event listeners للأزرار
+                        document.querySelectorAll('.edit-attendance-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const weekId = this.getAttribute('data-week-id');
+                                const memberId = this.getAttribute('data-member-id');
+                                editAttendance(weekId, memberId);
+                            });
+                        });
+
+                        document.querySelectorAll('.delete-attendance-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const weekId = this.getAttribute('data-week-id');
+                                const memberId = this.getAttribute('data-member-id');
+                                deleteAttendance(weekId, memberId);
+                            });
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading attendance:', error);
@@ -2740,16 +3042,31 @@
                                 <td>${new Date(week.endDate).toLocaleDateString('ar-EG')}</td>
                                 <td>${attendanceCount}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-warning btn-sm" onclick="editWeek('${id}')">
+                                    <button class="btn btn-warning btn-sm edit-week-btn" data-week-id="${id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteWeek('${id}')">
+                                    <button class="btn btn-danger btn-sm delete-week-btn" data-week-id="${id}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             `;
                             tbody.appendChild(tr);
                         }
+
+                        // إضافة event listeners للأزرار
+                        document.querySelectorAll('.edit-week-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const weekId = this.getAttribute('data-week-id');
+                                editWeek(weekId);
+                            });
+                        });
+
+                        document.querySelectorAll('.delete-week-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const weekId = this.getAttribute('data-week-id');
+                                deleteWeek(weekId);
+                            });
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading weeks:', error);
@@ -2776,16 +3093,31 @@
                                 <td>${competition.prize}</td>
                                 <td>${new Date(competition.endDate) > new Date() ? '🟢 نشطة' : '🔴 منتهية'}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-warning btn-sm" onclick="editCompetition('${id}')">
+                                    <button class="btn btn-warning btn-sm edit-competition-btn" data-competition-id="${id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteCompetition('${id}')">
+                                    <button class="btn btn-danger btn-sm delete-competition-btn" data-competition-id="${id}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             `;
                             tbody.appendChild(tr);
                         }
+
+                        // إضافة event listeners للأزرار
+                        document.querySelectorAll('.edit-competition-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const competitionId = this.getAttribute('data-competition-id');
+                                editCompetition(competitionId);
+                            });
+                        });
+
+                        document.querySelectorAll('.delete-competition-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const competitionId = this.getAttribute('data-competition-id');
+                                deleteCompetition(competitionId);
+                            });
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading competitions:', error);
@@ -2813,16 +3145,31 @@
                                 <td>${data.balance || 0}</td>
                                 <td>${data.lastUpdated ? new Date(data.lastUpdated).toLocaleDateString('ar-EG') : '--'}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-info btn-sm" onclick="adjustPoints('${id}')">
+                                    <button class="btn btn-info btn-sm adjust-points-btn" data-member-id="${id}">
                                         <i class="fas fa-edit"></i> تعديل النقاط
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteTalanton('${id}')">
+                                    <button class="btn btn-danger btn-sm delete-talanton-btn" data-member-id="${id}">
                                         <i class="fas fa-trash"></i> حذف
                                     </button>
                                 </td>
                             `;
                             tbody.appendChild(tr);
                         }
+
+                        // إضافة event listeners للأزرار
+                        document.querySelectorAll('.adjust-points-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-member-id');
+                                adjustPoints(memberId);
+                            });
+                        });
+
+                        document.querySelectorAll('.delete-talanton-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const memberId = this.getAttribute('data-member-id');
+                                deleteTalanton(memberId);
+                            });
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading talanton:', error);
@@ -2849,16 +3196,31 @@
                                 <td>${product.price}</td>
                                 <td>${product.stock || 'غير محدود'}</td>
                                 <td class="action-buttons">
-                                    <button class="btn btn-warning btn-sm" onclick="editProduct('${id}')">
+                                    <button class="btn btn-warning btn-sm edit-product-btn" data-product-id="${id}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${id}')">
+                                    <button class="btn btn-danger btn-sm delete-product-btn" data-product-id="${id}">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             `;
                             tbody.appendChild(tr);
                         }
+
+                        // إضافة event listeners للأزرار
+                        document.querySelectorAll('.edit-product-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const productId = this.getAttribute('data-product-id');
+                                editProduct(productId);
+                            });
+                        });
+
+                        document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const productId = this.getAttribute('data-product-id');
+                                deleteProduct(productId);
+                            });
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading products:', error);
@@ -3003,9 +3365,16 @@
                                         attendanceCount++;
                                         attendanceWeeks.push(weekId);
                                         
-                                        // الحصول على اسم الأسبوع
-                                        const weekName = weeksSnapshot.exists() && weeksSnapshot.val()[weekId] ? 
-                                            weeksSnapshot.val()[weekId].name : `الأسبوع ${weekId}`;
+                                        // الحصول على اسم الأسبوع - التعديل هنا
+                                        let weekName = `الأسبوع ${weekId}`; // القيمة الافتراضية
+                                        if (weeksSnapshot.exists() && weeksSnapshot.val()[weekId] && weeksSnapshot.val()[weekId].name) {
+                                            weekName = weeksSnapshot.val()[weekId].name;
+                                        } else {
+                                            // إذا لم يكن هناك اسم محفوظ، نستخدم ترقيم متسلسل
+                                            const weekIds = Object.keys(weeksSnapshot.val() || {});
+                                            const weekIndex = weekIds.indexOf(weekId);
+                                            weekName = `الأسبوع ${weekIndex + 1}`;
+                                        }
                                         
                                         weeklyAttendance.push({
                                             weekId: weekId,
@@ -3034,10 +3403,10 @@
                                         <p class="text-muted">تاريخ الانضمام: ${new Date(member.joinedDate || Date.now()).toLocaleDateString('ar-EG')}</p>
                                     </div>
                                     <div class="action-buttons">
-                                        <button class="btn btn-warning btn-sm" onclick="editMember('${id}')">
+                                        <button class="btn btn-warning btn-sm edit-member-report-btn" data-member-id="${id}">
                                             <i class="fas fa-edit"></i> تعديل
                                         </button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteMemberReport('${id}')">
+                                        <button class="btn btn-danger btn-sm delete-member-report-btn" data-member-id="${id}">
                                             <i class="fas fa-trash"></i> حذف
                                         </button>
                                     </div>
@@ -3082,7 +3451,7 @@
                                                             <td>${att.date}</td>
                                                             <td>${att.time}</td>
                                                             <td>
-                                                                <button class="btn btn-danger btn-sm" onclick="deleteAttendance('${att.weekId}', '${id}')">
+                                                                <button class="btn btn-danger btn-sm delete-attendance-report-btn" data-week-id="${att.weekId}" data-member-id="${id}">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
                                                             </td>
@@ -3099,6 +3468,29 @@
 
                     detailsDiv.innerHTML = reportHTML;
 
+                    // إضافة event listeners للأزرار في التقرير
+                    document.querySelectorAll('.edit-member-report-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const memberId = this.getAttribute('data-member-id');
+                            editMember(memberId);
+                        });
+                    });
+
+                    document.querySelectorAll('.delete-member-report-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const memberId = this.getAttribute('data-member-id');
+                            deleteMemberReport(memberId);
+                        });
+                    });
+
+                    document.querySelectorAll('.delete-attendance-report-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const weekId = this.getAttribute('data-week-id');
+                            const memberId = this.getAttribute('data-member-id');
+                            deleteAttendance(weekId, memberId);
+                        });
+                    });
+
                 } catch (error) {
                     console.error('Error generating report:', error);
                     detailsDiv.innerHTML = '<div class="alert alert-danger text-center">حدث خطأ أثناء توليد التقرير</div>';
@@ -3106,7 +3498,7 @@
             }
 
             // ========== دوال التعديل والحذف ==========
-            window.editMember = async function(id = null) {
+            async function editMember(id = null) {
                 const modal = document.getElementById('memberModal');
                 const form = document.getElementById('memberForm');
                 const title = document.getElementById('memberModalTitle');
@@ -3130,9 +3522,9 @@
                 }
                 
                 modal.classList.add('show');
-            };
+            }
 
-            window.editCompetition = async function(id = null) {
+            async function editCompetition(id = null) {
                 const modal = document.getElementById('competitionModal');
                 const form = document.getElementById('competitionForm');
                 const title = document.getElementById('competitionModalTitle');
@@ -3157,9 +3549,9 @@
                 }
                 
                 modal.classList.add('show');
-            };
+            }
 
-            window.editAttendance = async function(weekId, memberId) {
+            async function editAttendance(weekId, memberId) {
                 const modal = document.getElementById('attendanceModal');
                 const form = document.getElementById('attendanceForm');
                 const title = document.getElementById('attendanceModalTitle');
@@ -3213,9 +3605,9 @@
                 }
                 
                 modal.classList.add('show');
-            };
+            }
 
-            window.editWeek = async function(id = null) {
+            async function editWeek(id = null) {
                 const modal = document.getElementById('weekModal');
                 const form = document.getElementById('weekForm');
                 const title = document.getElementById('weekModalTitle');
@@ -3238,9 +3630,9 @@
                 }
                 
                 modal.classList.add('show');
-            };
+            }
 
-            window.editProduct = async function(id = null) {
+            async function editProduct(id = null) {
                 const modal = document.getElementById('productModal');
                 const form = document.getElementById('productForm');
                 const title = document.getElementById('productModalTitle');
@@ -3264,9 +3656,9 @@
                 }
                 
                 modal.classList.add('show');
-            };
+            }
 
-            window.adjustPoints = async function(memberId) {
+            async function adjustPoints(memberId) {
                 const modal = document.getElementById('pointsModal');
                 const form = document.getElementById('pointsForm');
                 
@@ -3283,9 +3675,9 @@
                     
                     modal.classList.add('show');
                 }
-            };
+            }
 
-            window.deleteMember = async function(id) {
+            async function deleteMember(id) {
                 if (confirm('هل أنت متأكد من حذف هذا العضو؟')) {
                     try {
                         await remove(ref(db, `members/${id}`));
@@ -3297,9 +3689,9 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
-            window.deleteCompetition = async function(id) {
+            async function deleteCompetition(id) {
                 if (confirm('هل أنت متأكد من حذف هذه المسابقة؟')) {
                     try {
                         await remove(ref(db, `competitions/${id}`));
@@ -3309,9 +3701,9 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
-            window.deleteAttendance = async function(weekId, memberId) {
+            async function deleteAttendance(weekId, memberId) {
                 if (confirm('هل أنت متأكد من حذف هذا الحضور؟')) {
                     try {
                         await remove(ref(db, `attendance/${weekId}/${memberId}`));
@@ -3321,9 +3713,9 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
-            window.deleteWeek = async function(id) {
+            async function deleteWeek(id) {
                 if (confirm('هل أنت متأكد من حذف هذا الأسبوع؟')) {
                     try {
                         await remove(ref(db, `weeks/${id}`));
@@ -3334,9 +3726,9 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
-            window.deleteProduct = async function(id) {
+            async function deleteProduct(id) {
                 if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
                     try {
                         await remove(ref(db, `store/products/${id}`));
@@ -3346,9 +3738,9 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
-            window.deleteTalanton = async function(id) {
+            async function deleteTalanton(id) {
                 if (confirm('هل أنت متأكد من حذف سجل Talanton لهذا العضو؟')) {
                     try {
                         await remove(ref(db, `talanton/${id}`));
@@ -3358,9 +3750,9 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
-            window.deleteMemberReport = async function(memberId) {
+            async function deleteMemberReport(memberId) {
                 if (confirm('هل أنت متأكد من حذف هذا العضو وجميع بياناته؟')) {
                     try {
                         await remove(ref(db, `members/${memberId}`));
@@ -3383,9 +3775,10 @@
                         alert('حدث خطأ أثناء الحذف');
                     }
                 }
-            };
+            }
 
             // ========== دوال الحفظ ==========
+            // إصلاح دوال الحفظ - استخدام بناء الجملة الصحيح
             document.getElementById('memberForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -3629,8 +4022,16 @@
                         
                         if (attendanceSnapshot.exists()) {
                             for (const [weekId, weekAttendance] of Object.entries(attendanceSnapshot.val())) {
-                                const weekName = weeksSnapshot.exists() && weeksSnapshot.val()[weekId] ? 
-                                    weeksSnapshot.val()[weekId].name : `الأسبوع ${weekId}`;
+                                // الحصول على اسم الأسبوع - التعديل هنا
+                                let weekName = `الأسبوع ${weekId}`; // القيمة الافتراضية
+                                if (weeksSnapshot.exists() && weeksSnapshot.val()[weekId] && weeksSnapshot.val()[weekId].name) {
+                                    weekName = weeksSnapshot.val()[weekId].name;
+                                } else {
+                                    // إذا لم يكن هناك اسم محفوظ، نستخدم ترقيم متسلسل
+                                    const weekIds = Object.keys(weeksSnapshot.val() || {});
+                                    const weekIndex = weekIds.indexOf(weekId);
+                                    weekName = `الأسبوع ${weekIndex + 1}`;
+                                }
                                 
                                 for (const [memberId, attendance] of Object.entries(weekAttendance)) {
                                     const memberName = members[memberId] ? members[memberId].name : 'غير معروف';
@@ -3695,6 +4096,31 @@
                     alert('حدث خطأ أثناء تصدير البيانات');
                 }
             }
+
+            // ========== أحداث الأزرار في لوحة الأدمن ==========
+            document.getElementById('addMemberBtn').addEventListener('click', () => {
+                editMember();
+            });
+
+            document.getElementById('addAttendanceBtn').addEventListener('click', () => {
+                editAttendance();
+            });
+
+            document.getElementById('addWeekBtn').addEventListener('click', () => {
+                editWeek();
+            });
+
+            document.getElementById('addCompetitionBtn').addEventListener('click', () => {
+                editCompetition();
+            });
+
+            document.getElementById('addPointsBtn').addEventListener('click', () => {
+                alert('اختر العضو من جدول Talanton ثم انقر على زر تعديل النقاط');
+            });
+
+            document.getElementById('addProductBtn').addEventListener('click', () => {
+                editProduct();
+            });
 
             // ========== التحميل الأولي ==========
             async function initialize() {

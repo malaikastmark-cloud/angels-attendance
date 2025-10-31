@@ -1297,6 +1297,59 @@
             background: linear-gradient(135deg, #FFA500, #FF8C00);
             transform: translateY(-2px);
         }
+
+        /* ========== STYLES FOR NOTIFICATIONS ========== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 10000;
+            transition: all 0.3s ease;
+            min-width: 300px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .dark-mode .notification {
+            background: var(--sidebar-bg);
+            color: var(--text-dark);
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification-success {
+            border-left-color: var(--success);
+        }
+
+        .notification-error {
+            border-left-color: var(--danger);
+        }
+
+        .notification-warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* ========== STYLES FOR EDIT WINNER MODAL ========== */
+        .edit-winner-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -1745,7 +1798,7 @@
                 <div class="section-header">
                     <h3>إدارة الحضور</h3>
                     <button class="btn btn-primary" id="addAttendanceBtn">
-                        <i class="fas fa-plus"></i> إضافة حضور
+                        <i class="fas fa-plus"></i> إضافة حضور يدوي
                     </button>
                 </div>
                 <div class="table-container">
@@ -2258,6 +2311,83 @@
         </div>
     </div>
 
+    <!-- مودال تعديل الفائز -->
+    <div class="modal" id="editWinnerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="editWinnerModalTitle">تعديل بيانات الفائز</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="editWinnerForm">
+                <input type="hidden" id="editWinnerId">
+                <input type="hidden" id="editWinnerCompetitionId">
+                <div class="form-group">
+                    <label class="form-label">اسم العضو</label>
+                    <input type="text" class="form-control" id="editWinnerMemberName" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">المسابقة</label>
+                    <input type="text" class="form-control" id="editWinnerCompetitionName" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">عدد النقاط الممنوحة</label>
+                    <input type="number" class="form-control" id="editWinnerPoints" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-save"></i> حفظ التعديلات
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال إضافة حضور يدوي - الجديد -->
+    <div class="modal" id="addAttendanceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> إضافة حضور يدوي</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="addAttendanceForm">
+                <div class="form-group">
+                    <label class="form-label">اختر العضو</label>
+                    <select class="form-control" id="addAttendanceMemberSelect" required>
+                        <option value="">جاري تحميل الأعضاء...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">اختر الأسبوع</label>
+                    <select class="form-control" id="addAttendanceWeekSelect" required>
+                        <option value="">جاري تحميل الأسابيع...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">تاريخ الحضور</label>
+                    <input type="date" class="form-control" id="addAttendanceDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">وقت الحضور</label>
+                    <input type="time" class="form-control" id="addAttendanceTime" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">نوع المصادقة</label>
+                    <select class="form-control" id="addAttendanceAuthType" required>
+                        <option value="admin">إداري</option>
+                        <option value="password">كلمة مرور</option>
+                        <option value="face">بصمة وجه</option>
+                        <option value="fingerprint">بصمة إصبع</option>
+                    </select>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>ملاحظة:</strong> سيتم منح العضو نقطة Talanton واحدة تلقائياً عند إضافة الحضور.
+                </div>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-save"></i> إضافة الحضور
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // الانتظار حتى يتم تحميل Firebase
         async function waitForFirebase() {
@@ -2348,6 +2478,16 @@
             const detailedMemberReport = document.getElementById('detailedMemberReport');
             const attendanceChartCanvas = document.getElementById('attendanceChart');
 
+            // ========== عناصر إضافة الحضور اليدوي - الجديدة ==========
+            const addAttendanceBtn = document.getElementById('addAttendanceBtn');
+            const addAttendanceModal = document.getElementById('addAttendanceModal');
+            const addAttendanceForm = document.getElementById('addAttendanceForm');
+            const addAttendanceMemberSelect = document.getElementById('addAttendanceMemberSelect');
+            const addAttendanceWeekSelect = document.getElementById('addAttendanceWeekSelect');
+            const addAttendanceDate = document.getElementById('addAttendanceDate');
+            const addAttendanceTime = document.getElementById('addAttendanceTime');
+            const addAttendanceAuthType = document.getElementById('addAttendanceAuthType');
+
             // ========== عناصر لوحة الأدمن ==========
             const menuItems = document.querySelectorAll('.menu-item');
             const sections = document.querySelectorAll('.section');
@@ -2428,6 +2568,31 @@
                 });
             });
 
+            // ========== نظام الإشعارات ==========
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}-circle"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+
             // ========== نظام البحث عن الأعضاء مع القائمة المنسدلة ==========
             let allMembers = [];
             let selectedMemberId = null;
@@ -2479,11 +2644,17 @@
 
                 const filteredMembers = allMembers.filter(member =>
                     member.name.toLowerCase().includes(searchTerm) || 
-                    member.displayName.toLowerCase().includes(searchTerm)
+                    member.displayName.toLowerCase().includes(searchTerm) ||
+                    removeAccents(member.name).toLowerCase().includes(removeAccents(searchTerm))
                 );
 
                 displaySearchResults(filteredMembers);
             });
+
+            // دالة لإزالة التشكيل والحروف الخاصة
+            function removeAccents(str) {
+                return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            }
 
             // عرض نتائج البحث
             function displaySearchResults(members) {
@@ -2610,6 +2781,145 @@
                 }
             }
 
+            // ========== نظام إضافة الحضور اليدوي - الجديد ==========
+            async function loadMembersForManualAttendance() {
+                try {
+                    addAttendanceMemberSelect.innerHTML = '<option value="">جاري تحميل الأعضاء...</option>';
+                    const snapshot = await get(ref(db, 'members'));
+                    
+                    if (snapshot.exists()) {
+                        const members = Object.entries(snapshot.val())
+                            .sort((a, b) => a[1].name.localeCompare(b[1].name, 'ar'));
+                        
+                        addAttendanceMemberSelect.innerHTML = '<option value="">اختر العضو</option>';
+                        
+                        members.forEach(([id, member]) => {
+                            const option = document.createElement('option');
+                            option.value = id;
+                            const emoji = member.gender === 'male' ? '👦' : '👧';
+                            option.textContent = `${member.name} ${emoji}`;
+                            addAttendanceMemberSelect.appendChild(option);
+                        });
+                    } else {
+                        addAttendanceMemberSelect.innerHTML = '<option value="">لا يوجد أعضاء</option>';
+                    }
+                } catch (error) {
+                    console.error('Error loading members for manual attendance:', error);
+                    addAttendanceMemberSelect.innerHTML = '<option value="">خطأ في التحميل</option>';
+                }
+            }
+
+            async function loadWeeksForManualAttendance() {
+                try {
+                    addAttendanceWeekSelect.innerHTML = '<option value="">جاري تحميل الأسابيع...</option>';
+                    const snapshot = await get(ref(db, 'weeks'));
+                    
+                    if (snapshot.exists()) {
+                        const weeks = Object.entries(snapshot.val())
+                            .sort((a, b) => new Date(b[1].startDate) - new Date(a[1].startDate));
+                        
+                        addAttendanceWeekSelect.innerHTML = '<option value="">اختر الأسبوع</option>';
+                        
+                        weeks.forEach(([id, week]) => {
+                            const option = document.createElement('option');
+                            option.value = id;
+                            const weekName = week.name || `الأسبوع ${id}`;
+                            option.textContent = weekName.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
+                            addAttendanceWeekSelect.appendChild(option);
+                        });
+                    } else {
+                        addAttendanceWeekSelect.innerHTML = '<option value="">لا توجد أسابيع</option>';
+                    }
+                } catch (error) {
+                    console.error('Error loading weeks for manual attendance:', error);
+                    addAttendanceWeekSelect.innerHTML = '<option value="">خطأ في التحميل</option>';
+                }
+            }
+
+            // فتح مودال إضافة الحضور اليدوي
+            addAttendanceBtn.addEventListener('click', async () => {
+                await loadMembersForManualAttendance();
+                await loadWeeksForManualAttendance();
+                
+                // تعيين التاريخ والوقت الحاليين
+                const now = new Date();
+                addAttendanceDate.value = now.toISOString().split('T')[0];
+                addAttendanceTime.value = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                
+                addAttendanceModal.classList.add('show');
+            });
+
+            // إضافة الحضور اليدوي
+            addAttendanceForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const memberId = addAttendanceMemberSelect.value;
+                const weekId = addAttendanceWeekSelect.value;
+                const date = addAttendanceDate.value;
+                const time = addAttendanceTime.value;
+                const authType = addAttendanceAuthType.value;
+
+                if (!memberId || !weekId || !date || !time) {
+                    showNotification('يرجى ملء جميع الحقول', 'error');
+                    return;
+                }
+
+                try {
+                    // التحقق من عدم وجود حضور مسبق
+                    const existingAttendance = await checkExistingAttendance(memberId, weekId);
+                    if (existingAttendance) {
+                        showNotification('هذا العضو لديه حضور مسبق في هذا الأسبوع', 'warning');
+                        return;
+                    }
+
+                    // جلب بيانات العضو
+                    const memberSnapshot = await get(ref(db, `members/${memberId}`));
+                    if (!memberSnapshot.exists()) {
+                        showNotification('العضو غير موجود', 'error');
+                        return;
+                    }
+
+                    const member = memberSnapshot.val();
+
+                    // تسجيل الحضور
+                    const attendanceData = {
+                        attended: true,
+                        timestamp: Date.now(),
+                        date: date,
+                        time: time,
+                        authType: authType,
+                        addedBy: 'admin',
+                        adminAdded: true
+                    };
+
+                    await set(ref(db, `attendance/${weekId}/${memberId}`), attendanceData);
+
+                    // تحديث رصيد Talanton
+                    const talantonRef = ref(db, `talanton/${memberId}`);
+                    const currentBalanceSnapshot = await get(talantonRef);
+                    const currentBalance = currentBalanceSnapshot.exists() ? currentBalanceSnapshot.val().balance : 0;
+                    const newBalance = currentBalance + ATTENDANCE_POINTS;
+
+                    await set(talantonRef, {
+                        balance: newBalance,
+                        lastUpdated: Date.now()
+                    });
+
+                    // إغلاق المودال
+                    addAttendanceModal.classList.remove('show');
+                    
+                    // إعادة تحميل بيانات الحضور
+                    await loadAttendanceManagement();
+                    await loadAttendanceHistory();
+                    
+                    showNotification(`تم إضافة حضور ${member.name} بنجاح! +${ATTENDANCE_POINTS} Talanton`, 'success');
+
+                } catch (error) {
+                    console.error('Error adding manual attendance:', error);
+                    showNotification('حدث خطأ أثناء إضافة الحضور', 'error');
+                }
+            });
+
             // ========== نظام الفائزين المتعدد ==========
             async function loadWinnersSystem() {
                 await loadCompetitionsForWinners();
@@ -2638,7 +2948,9 @@
                         competitions.forEach(([id, competition]) => {
                             const option = document.createElement('option');
                             option.value = id;
-                            option.textContent = `${competition.name} (${new Date(competition.endDate).toLocaleDateString('ar-EG')})`;
+                            // تنظيف اسم المسابقة من الرموز الغريبة
+                            const cleanCompetitionName = competition.name.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
+                            option.textContent = `${cleanCompetitionName} (${new Date(competition.endDate).toLocaleDateString('ar-EG')})`;
                             option.setAttribute('data-points', competition.points);
                             winnerCompetitionSelect.appendChild(option);
                         });
@@ -2698,44 +3010,67 @@
                 const points = parseInt(winnerPoints.value);
 
                 if (!currentCompetitionId) {
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">يرجى اختيار المسابقة أولاً</div>';
+                    showNotification('يرجى اختيار المسابقة أولاً', 'error');
                     return;
                 }
 
                 if (!memberId) {
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">يرجى اختيار العضو الفائز</div>';
+                    showNotification('يرجى اختيار العضو الفائز', 'error');
                     return;
                 }
 
                 if (!points || points < 1) {
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">يرجى إدخال عدد نقاط صحيح</div>';
+                    showNotification('يرجى إدخال عدد نقاط صحيح', 'error');
                     return;
                 }
 
-                // التحقق من عدم إضافة العضو مسبقاً
-                const existingWinner = currentWinners.find(winner => winner.memberId === memberId);
+                // التحقق من عدم إضافة العضو مسبقاً لنفس المسابقة
+                const existingWinner = currentWinners.find(winner => 
+                    winner.memberId === memberId && winner.competitionId === currentCompetitionId
+                );
                 if (existingWinner) {
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-warning">هذا العضو مضاف مسبقاً إلى قائمة الفائزين</div>';
+                    showNotification('هذا العضو مضاف مسبقاً إلى قائمة الفائزين لهذه المسابقة', 'warning');
                     return;
                 }
 
-                // إضافة الفائز إلى القائمة
-                const memberName = winnerMemberSelect.options[winnerMemberSelect.selectedIndex].textContent;
-                currentWinners.push({
-                    memberId,
-                    memberName,
-                    points
-                });
+                // التحقق من عدم فوز العضو مسبقاً في هذه المسابقة في قاعدة البيانات
+                checkExistingWinner(memberId, currentCompetitionId).then(exists => {
+                    if (exists) {
+                        showNotification('هذا العضو فائز مسبقاً في هذه المسابقة في قاعدة البيانات', 'error');
+                        return;
+                    }
 
-                updateCurrentWinnersList();
-                winnerAnnouncementStatus.innerHTML = '<div class="alert alert-success">تم إضافة الفائز إلى القائمة</div>';
-                
-                // إعادة تعيين الحقول
-                winnerMemberSelect.value = '';
-                setTimeout(() => {
-                    winnerAnnouncementStatus.innerHTML = '';
-                }, 2000);
+                    // إضافة الفائز إلى القائمة
+                    const memberName = winnerMemberSelect.options[winnerMemberSelect.selectedIndex].textContent;
+                    const competitionName = winnerCompetitionSelect.options[winnerCompetitionSelect.selectedIndex].textContent;
+                    
+                    currentWinners.push({
+                        memberId,
+                        memberName,
+                        competitionId: currentCompetitionId,
+                        competitionName,
+                        points
+                    });
+
+                    updateCurrentWinnersList();
+                    showNotification('تم إضافة الفائز إلى القائمة', 'success');
+                    
+                    // إعادة تعيين الحقول
+                    winnerMemberSelect.value = '';
+                });
             });
+
+            // التحقق من وجود فائز مسبق في قاعدة البيانات
+            async function checkExistingWinner(memberId, competitionId) {
+                try {
+                    const winnerId = `${competitionId}_${memberId}`;
+                    const snapshot = await get(ref(db, `winners/${winnerId}`));
+                    return snapshot.exists();
+                } catch (error) {
+                    console.error('Error checking existing winner:', error);
+                    return false;
+                }
+            }
 
             // تحديث قائمة الفائزين الحاليين
             function updateCurrentWinnersList() {
@@ -2748,9 +3083,15 @@
                     <div class="winner-item">
                         <div class="winner-item-info">
                             <div class="winner-item-name">${winner.memberName}</div>
-                            <div class="winner-item-details">${winner.points} نقطة</div>
+                            <div class="winner-item-details">
+                                <span>${winner.competitionName}</span> | 
+                                <span>${winner.points} نقطة</span>
+                            </div>
                         </div>
                         <div class="winner-item-actions">
+                            <button class="btn btn-warning btn-sm edit-winner-btn" data-index="${index}">
+                                <i class="fas fa-edit"></i> تعديل
+                            </button>
                             <button class="btn btn-danger btn-sm remove-winner-btn" data-index="${index}">
                                 <i class="fas fa-trash"></i> حذف
                             </button>
@@ -2764,19 +3105,60 @@
                         const index = parseInt(this.getAttribute('data-index'));
                         currentWinners.splice(index, 1);
                         updateCurrentWinnersList();
+                        showNotification('تم حذف الفائز من القائمة', 'success');
+                    });
+                });
+
+                // إضافة event listeners لأزرار التعديل
+                document.querySelectorAll('.edit-winner-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        editCurrentWinner(index);
                     });
                 });
             }
 
+            // تعديل فائز في القائمة الحالية
+            function editCurrentWinner(index) {
+                const winner = currentWinners[index];
+                const modal = document.getElementById('editWinnerModal');
+                const form = document.getElementById('editWinnerForm');
+                
+                document.getElementById('editWinnerId').value = index;
+                document.getElementById('editWinnerMemberName').value = winner.memberName;
+                document.getElementById('editWinnerCompetitionName').value = winner.competitionName;
+                document.getElementById('editWinnerPoints').value = winner.points;
+                
+                modal.classList.add('show');
+            }
+
+            // حفظ تعديل الفائز
+            document.getElementById('editWinnerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const index = document.getElementById('editWinnerId').value;
+                const points = parseInt(document.getElementById('editWinnerPoints').value);
+                
+                if (points < 1) {
+                    showNotification('يرجى إدخال عدد نقاط صحيح', 'error');
+                    return;
+                }
+                
+                currentWinners[index].points = points;
+                updateCurrentWinnersList();
+                document.getElementById('editWinnerModal').classList.remove('show');
+                showNotification('تم تعديل بيانات الفائز بنجاح', 'success');
+            });
+
             // إعلان جميع الفائزين
             announceAllWinnersBtn.addEventListener('click', async () => {
                 if (!currentCompetitionId) {
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">يرجى اختيار المسابقة أولاً</div>';
+                    showNotification('يرجى اختيار المسابقة أولاً', 'error');
                     return;
                 }
 
                 if (currentWinners.length === 0) {
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">يرجى إضافة فائزين على الأقل</div>';
+                    showNotification('يرجى إضافة فائزين على الأقل', 'error');
                     return;
                 }
 
@@ -2784,7 +3166,7 @@
                     // جلب بيانات المسابقة
                     const competitionSnapshot = await get(ref(db, `competitions/${currentCompetitionId}`));
                     if (!competitionSnapshot.exists()) {
-                        winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">بيانات المسابقة غير موجودة</div>';
+                        showNotification('بيانات المسابقة غير موجودة', 'error');
                         return;
                     }
 
@@ -2799,11 +3181,11 @@
                     for (const winner of currentWinners) {
                         try {
                             // إنشاء معرف فريد لكل فائز
-                            const winnerId = `${currentCompetitionId}_${winner.memberId}`;
+                            const winnerId = `${winner.competitionId}_${winner.memberId}`;
                             
                             // تسجيل الفائز
                             const winnerData = {
-                                competitionId: currentCompetitionId,
+                                competitionId: winner.competitionId,
                                 competitionName: competition.name,
                                 memberId: winner.memberId,
                                 memberName: winner.memberName,
@@ -2836,7 +3218,7 @@
                                 memberName: winner.memberName,
                                 type: 'competition_win',
                                 points: winner.points,
-                                competitionId: currentCompetitionId,
+                                competitionId: winner.competitionId,
                                 competitionName: competition.name,
                                 timestamp: Date.now(),
                                 description: `فوز في مسابقة: ${competition.name}`
@@ -2860,20 +3242,16 @@
                     });
 
                     // عرض نتيجة الإعلان
-                    let message = `<div class="alert alert-success">
-                        <h5>🎉 تم إعلان الفائزين بنجاح!</h5>
-                        <p><strong>المسابقة:</strong> ${competition.name}</p>
-                        <p><strong>عدد الفائزين:</strong> ${successCount}</p>
-                        <p><strong>الفائزين:</strong> ${currentWinners.map(w => w.memberName).join('، ')}</p>
-                    </div>`;
+                    let message = `🎉 تم إعلان الفائزين بنجاح!<br>
+                    <strong>المسابقة:</strong> ${competition.name}<br>
+                    <strong>عدد الفائزين:</strong> ${successCount}<br>
+                    <strong>الفائزين:</strong> ${currentWinners.map(w => w.memberName).join('، ')}`;
+
+                    showNotification(message, 'success');
 
                     if (errorCount > 0) {
-                        message += `<div class="alert alert-warning mt-2">
-                            <strong>ملاحظة:</strong> حدث خطأ في معالجة ${errorCount} فائز
-                        </div>`;
+                        showNotification(`ملاحظة: حدث خطأ في معالجة ${errorCount} فائز`, 'warning');
                     }
-
-                    winnerAnnouncementStatus.innerHTML = message;
 
                     // إعادة تعيين البيانات
                     currentWinners = [];
@@ -2888,14 +3266,9 @@
                     await loadAdminCompetitions();
                     await loadAdminTalanton();
 
-                    // إعادة تعيين الرسالة بعد 5 ثواني
-                    setTimeout(() => {
-                        winnerAnnouncementStatus.innerHTML = '';
-                    }, 5000);
-
                 } catch (error) {
                     console.error('Error announcing winners:', error);
-                    winnerAnnouncementStatus.innerHTML = '<div class="alert alert-danger">حدث خطأ أثناء إعلان الفائزين</div>';
+                    showNotification('حدث خطأ أثناء إعلان الفائزين', 'error');
                 }
             });
 
@@ -2927,12 +3300,182 @@
                                 ${new Date(winner.timestamp).toLocaleDateString('ar-EG')} - 
                                 ${winner.announcementTime}
                             </div>
+                            <div class="winner-item-actions mt-2">
+                                <button class="btn btn-warning btn-sm edit-winner-db-btn" data-winner-id="${winnerId}">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </button>
+                                <button class="btn btn-danger btn-sm delete-winner-db-btn" data-winner-id="${winnerId}">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
                         </div>
                     `).join('');
+
+                    // إضافة event listeners لأزرار التعديل والحذف في قاعدة البيانات
+                    document.querySelectorAll('.edit-winner-db-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const winnerId = this.getAttribute('data-winner-id');
+                            editWinnerInDatabase(winnerId);
+                        });
+                    });
+
+                    document.querySelectorAll('.delete-winner-db-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const winnerId = this.getAttribute('data-winner-id');
+                            deleteWinnerFromDatabase(winnerId);
+                        });
+                    });
 
                 } catch (error) {
                     console.error('Error loading winners list:', error);
                     winnersList.innerHTML = '<div class="alert alert-danger">حدث خطأ في تحميل قائمة الفائزين</div>';
+                }
+            }
+
+            // تعديل فائز في قاعدة البيانات
+            async function editWinnerInDatabase(winnerId) {
+                try {
+                    const snapshot = await get(ref(db, `winners/${winnerId}`));
+                    if (snapshot.exists()) {
+                        const winner = snapshot.val();
+                        const modal = document.getElementById('editWinnerModal');
+                        const form = document.getElementById('editWinnerForm');
+                        
+                        document.getElementById('editWinnerId').value = winnerId;
+                        document.getElementById('editWinnerCompetitionId').value = winner.competitionId;
+                        document.getElementById('editWinnerMemberName').value = winner.memberName;
+                        document.getElementById('editWinnerCompetitionName').value = winner.competitionName;
+                        document.getElementById('editWinnerPoints').value = winner.points;
+                        
+                        modal.classList.add('show');
+                    }
+                } catch (error) {
+                    console.error('Error loading winner for edit:', error);
+                    showNotification('حدث خطأ في تحميل بيانات الفائز', 'error');
+                }
+            }
+
+            // حفظ تعديل الفائز في قاعدة البيانات
+            document.getElementById('editWinnerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const winnerId = document.getElementById('editWinnerId').value;
+                const competitionId = document.getElementById('editWinnerCompetitionId').value;
+                const points = parseInt(document.getElementById('editWinnerPoints').value);
+                
+                if (points < 1) {
+                    showNotification('يرجى إدخال عدد نقاط صحيح', 'error');
+                    return;
+                }
+                
+                try {
+                    // جلب البيانات الحالية
+                    const snapshot = await get(ref(db, `winners/${winnerId}`));
+                    if (snapshot.exists()) {
+                        const currentWinner = snapshot.val();
+                        const oldPoints = currentWinner.points;
+                        const pointsDifference = points - oldPoints;
+                        
+                        // تحديث بيانات الفائز
+                        await update(ref(db, `winners/${winnerId}`), {
+                            ...currentWinner,
+                            points: points
+                        });
+                        
+                        // تحديث نقاط العضو إذا اختلفت النقاط
+                        if (pointsDifference !== 0) {
+                            const talantonRef = ref(db, `talanton/${currentWinner.memberId}`);
+                            const currentBalanceSnapshot = await get(talantonRef);
+                            const currentBalance = currentBalanceSnapshot.exists() ? currentBalanceSnapshot.val().balance : 0;
+                            const competitionPoints = currentBalanceSnapshot.exists() ? (currentBalanceSnapshot.val().competitionPoints || 0) : 0;
+                            
+                            const newBalance = currentBalance + pointsDifference;
+                            const newCompetitionPoints = competitionPoints + pointsDifference;
+                            
+                            await set(talantonRef, {
+                                balance: newBalance,
+                                competitionPoints: newCompetitionPoints,
+                                lastUpdated: Date.now()
+                            });
+                            
+                            // تسجيل معاملة التعديل
+                            const transactionData = {
+                                memberId: currentWinner.memberId,
+                                memberName: currentWinner.memberName,
+                                type: 'competition_win_adjustment',
+                                points: pointsDifference,
+                                competitionId: competitionId,
+                                competitionName: currentWinner.competitionName,
+                                timestamp: Date.now(),
+                                description: `تعديل نقاط الفوز في مسابقة: ${currentWinner.competitionName}`
+                            };
+                            
+                            await push(ref(db, 'pointsTransactions'), transactionData);
+                        }
+                        
+                        document.getElementById('editWinnerModal').classList.remove('show');
+                        await loadWinnersList();
+                        await loadWinnersStats();
+                        await loadAdminTalanton();
+                        showNotification('تم تعديل بيانات الفائز بنجاح', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error updating winner:', error);
+                    showNotification('حدث خطأ أثناء تعديل بيانات الفائز', 'error');
+                }
+            });
+
+            // حذف فائز من قاعدة البيانات
+            async function deleteWinnerFromDatabase(winnerId) {
+                if (!confirm('هل أنت متأكد من حذف هذا الفائز؟ سيتم خصم النقاط الممنوحة له.')) {
+                    return;
+                }
+                
+                try {
+                    const snapshot = await get(ref(db, `winners/${winnerId}`));
+                    if (snapshot.exists()) {
+                        const winner = snapshot.val();
+                        
+                        // خصم النقاط من العضو
+                        const talantonRef = ref(db, `talanton/${winner.memberId}`);
+                        const currentBalanceSnapshot = await get(talantonRef);
+                        const currentBalance = currentBalanceSnapshot.exists() ? currentBalanceSnapshot.val().balance : 0;
+                        const competitionPoints = currentBalanceSnapshot.exists() ? (currentBalanceSnapshot.val().competitionPoints || 0) : 0;
+                        
+                        const newBalance = Math.max(0, currentBalance - winner.points);
+                        const newCompetitionPoints = Math.max(0, competitionPoints - winner.points);
+                        
+                        await set(talantonRef, {
+                            balance: newBalance,
+                            competitionPoints: newCompetitionPoints,
+                            lastUpdated: Date.now()
+                        });
+                        
+                        // تسجيل معاملة الخصم
+                        const transactionData = {
+                            memberId: winner.memberId,
+                            memberName: winner.memberName,
+                            type: 'competition_win_reversal',
+                            points: -winner.points,
+                            competitionId: winner.competitionId,
+                            competitionName: winner.competitionName,
+                            timestamp: Date.now(),
+                            description: `إلغاء فوز في مسابقة: ${winner.competitionName}`
+                        };
+                        
+                        await push(ref(db, 'pointsTransactions'), transactionData);
+                        
+                        // حذف الفائز
+                        await remove(ref(db, `winners/${winnerId}`));
+                        
+                        await loadWinnersList();
+                        await loadWinnersStats();
+                        await loadAdminTalanton();
+                        showNotification('تم حذف الفائز بنجاح', 'success');
+                    }
+                } catch (error) {
+                    console.error('Error deleting winner:', error);
+                    showNotification('حدث خطأ أثناء حذف الفائز', 'error');
                 }
             }
 
@@ -3005,7 +3548,7 @@
                                 // الحصول على اسم الأسبوع بشكل صحيح - الإصلاح هنا
                                 let weekName = weeks[weekId]?.name || `الأسبوع ${weekId}`;
                                 // إزالة الرموز الغريبة من اسم الأسبوع
-                                weekName = weekName.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                                weekName = weekName.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
 
                                 const record = {
                                     memberName: member.name,
@@ -3124,7 +3667,7 @@
                             option.value = id;
                             // عرض اسم الأسبوع فقط بدون الرموز الغريبة
                             const weekName = week.name || `الأسبوع ${id}`;
-                            option.textContent = weekName.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                            option.textContent = weekName.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                             weekSelect.appendChild(option);
                         });
 
@@ -3134,7 +3677,7 @@
                             const option = document.createElement('option');
                             option.value = id;
                             const weekName = week.name || `الأسبوع ${id}`;
-                            option.textContent = weekName.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                            option.textContent = weekName.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                             historyWeekSelect.appendChild(option);
                         });
                     } else {
@@ -3265,7 +3808,7 @@
             async function purchaseProduct(productId) {
                 const currentMemberId = selectedMemberId;
                 if (!currentMemberId) {
-                    alert('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور');
+                    showNotification('يرجى اختيار عضو أولاً من تبويب تسجيل الحضور', 'error');
                     return;
                 }
 
@@ -3274,7 +3817,7 @@
                     const memberSnapshot = await get(ref(db, `talanton/${currentMemberId}`));
                     
                     if (!productSnapshot.exists()) {
-                        alert('المنتج غير موجود');
+                        showNotification('المنتج غير موجود', 'error');
                         return;
                     }
 
@@ -3282,7 +3825,7 @@
                     const balance = memberSnapshot.exists() ? memberSnapshot.val().balance : 0;
 
                     if (balance < product.price) {
-                        alert('رصيدك غير كافي لشراء هذا المنتج');
+                        showNotification('رصيدك غير كافي لشراء هذا المنتج', 'error');
                         return;
                     }
 
@@ -3305,13 +3848,13 @@
 
                         await push(ref(db, 'purchases'), purchaseData);
                         
-                        alert(`تم شراء ${product.name} بنجاح!`);
+                        showNotification(`تم شراء ${product.name} بنجاح!`, 'success');
                         loadTalantonBalance(currentMemberId);
                         loadStore();
                     }
                 } catch (error) {
                     console.error('Error purchasing product:', error);
-                    alert('حدث خطأ أثناء عملية الشراء');
+                    showNotification('حدث خطأ أثناء عملية الشراء', 'error');
                 }
             }
 
@@ -3534,14 +4077,14 @@
             async function joinCompetition(competitionId, competitionName) {
                 const memberId = selectedMemberId;
                 if (!memberId) {
-                    alert('يرجى اختيار اسمك أولاً من تبويب تسجيل الحضور');
+                    showNotification('يرجى اختيار اسمك أولاً من تبويب تسجيل الحضور', 'error');
                     return;
                 }
 
                 try {
                     const competitionSnapshot = await get(ref(db, `competitions/${competitionId}`));
                     if (!competitionSnapshot.exists()) {
-                        alert('المسابقة غير موجودة');
+                        showNotification('المسابقة غير موجودة', 'error');
                         return;
                     }
 
@@ -3550,7 +4093,7 @@
                     // التحقق إذا كان العضو قد انضم مسبقاً
                     const existingJoinSnapshot = await get(ref(db, `memberCompetitions/${memberId}/${competitionId}`));
                     if (existingJoinSnapshot.exists()) {
-                        alert('لقد انضممت لهذه المسابقة مسبقاً');
+                        showNotification('لقد انضممت لهذه المسابقة مسبقاً', 'warning');
                         return;
                     }
 
@@ -3562,12 +4105,12 @@
                             status: 'joined'
                         });
 
-                        alert('تم الانضمام للمسابقة بنجاح! سيتم منحك النقاط عند انتهاء المسابقة إذا كنت من الفائزين.');
+                        showNotification('تم الانضمام للمسابقة بنجاح! سيتم منحك النقاط عند انتهاء المسابقة إذا كنت من الفائزين.', 'success');
                         loadCompetitions();
                     }
                 } catch (error) {
                     console.error('Error joining competition:', error);
-                    alert('حدث خطأ أثناء الانضمام للمسابقة');
+                    showNotification('حدث خطأ أثناء الانضمام للمسابقة', 'error');
                 }
             }
 
@@ -3577,7 +4120,7 @@
                 const currentWeekId = weekSelect.value;
                 
                 if (!currentMemberId || !currentWeekId) {
-                    alert('يرجى اختيار الاسم والأسبوع');
+                    showNotification('يرجى اختيار الاسم والأسبوع', 'error');
                     return;
                 }
 
@@ -3706,7 +4249,7 @@
                     const weeksSnapshot = await get(ref(db, 'weeks'));
 
                     if (!attendanceSnapshot.exists() || !membersSnapshot.exists()) {
-                        alert('لا توجد بيانات للتصدير');
+                        showNotification('لا توجد بيانات للتصدير', 'warning');
                         return;
                     }
 
@@ -3722,7 +4265,7 @@
                             if (member) {
                                 // الحصول على اسم الأسبوع بدون الرموز الغريبة
                                 let weekName = weeks[weekId]?.name || `الأسبوع ${weekId}`;
-                                weekName = weekName.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                                weekName = weekName.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                                 
                                 csvContent += `"${member.name}","${weekName}","${attendanceData.date}","${attendanceData.time}","${attendanceData.authType}","${new Date(attendanceData.timestamp).toLocaleString()}"\n`;
                             }
@@ -3740,10 +4283,10 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    alert('تم تصدير سجل الحضور بنجاح');
+                    showNotification('تم تصدير سجل الحضور بنجاح', 'success');
                 } catch (error) {
                     console.error('Error exporting attendance history:', error);
-                    alert('حدث خطأ أثناء تصدير البيانات');
+                    showNotification('حدث خطأ أثناء تصدير البيانات', 'error');
                 }
             }
 
@@ -3754,6 +4297,7 @@
                 if (password === 'admin123') {
                     adminLoginModal.classList.remove('show');
                     showAdminPanel();
+                    showNotification('تم تسجيل الدخول بنجاح', 'success');
                 } else {
                     adminLoginStatus.innerHTML = '<div class="alert alert-danger">كلمة المرور خاطئة</div>';
                 }
@@ -3762,6 +4306,7 @@
             // تسجيل خروج الأدمن
             adminLogoutBtn.addEventListener('click', () => {
                 showMainPage();
+                showNotification('تم تسجيل الخروج بنجاح', 'success');
             });
 
             // العودة للصفحة الرئيسية
@@ -3951,9 +4496,10 @@
                         await remove(ref(db, `talanton/${id}`));
                         await loadAdminMembers();
                         await loadMembers();
+                        showNotification('تم حذف العضو بنجاح', 'success');
                     } catch (error) {
                         console.error('Error deleting member:', error);
-                        alert('حدث خطأ أثناء الحذف');
+                        showNotification('حدث خطأ أثناء الحذف', 'error');
                     }
                 }
             }
@@ -4047,9 +4593,10 @@
                         await remove(ref(db, `weeks/${id}`));
                         await loadAdminWeeks();
                         await loadWeeks();
+                        showNotification('تم حذف الأسبوع بنجاح', 'success');
                     } catch (error) {
                         console.error('Error deleting week:', error);
-                        alert('حدث خطأ أثناء الحذف');
+                        showNotification('حدث خطأ أثناء الحذف', 'error');
                     }
                 }
             }
@@ -4149,9 +4696,10 @@
                     try {
                         await remove(ref(db, `competitions/${id}`));
                         await loadAdminCompetitions();
+                        showNotification('تم حذف المسابقة بنجاح', 'success');
                     } catch (error) {
                         console.error('Error deleting competition:', error);
-                        alert('حدث خطأ أثناء الحذف');
+                        showNotification('حدث خطأ أثناء الحذف', 'error');
                     }
                 }
             }
@@ -4234,9 +4782,10 @@
                     try {
                         await remove(ref(db, `talanton/${id}`));
                         await loadAdminTalanton();
+                        showNotification('تم حذف سجل النقاط بنجاح', 'success');
                     } catch (error) {
                         console.error('Error deleting talanton:', error);
-                        alert('حدث خطأ أثناء الحذف');
+                        showNotification('حدث خطأ أثناء الحذف', 'error');
                     }
                 }
             }
@@ -4324,9 +4873,10 @@
                     try {
                         await remove(ref(db, `store/products/${id}`));
                         await loadAdminProducts();
+                        showNotification('تم حذف المنتج بنجاح', 'success');
                     } catch (error) {
                         console.error('Error deleting product:', error);
-                        alert('حدث خطأ أثناء الحذف');
+                        showNotification('حدث خطأ أثناء الحذف', 'error');
                     }
                 }
             }
@@ -4362,7 +4912,7 @@
                                 hasRecords = true;
                                 // الإصلاح: عرض اسم الأسبوع فقط بدون الرموز الغريبة
                                 const weekName = week ? week.name : `الأسبوع ${weekId}`;
-                                const cleanWeekName = weekName.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                                const cleanWeekName = weekName.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                                 
                                 const tr = document.createElement('tr');
                                 tr.innerHTML = `
@@ -4456,7 +5006,7 @@
                         const attendanceData = attendanceSnapshot.val();
                         const member = memberSnapshot.val();
                         const oldWeek = oldWeekSnapshot.exists() ? oldWeekSnapshot.val() : { name: `الأسبوع ${oldWeekId}` };
-                        const cleanOldWeekName = oldWeek.name.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                        const cleanOldWeekName = oldWeek.name.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                         
                         // تعبئة البيانات في المودال
                         document.getElementById('changeWeekAttendanceWeekId').value = oldWeekId;
@@ -4473,7 +5023,7 @@
                                 if (weekId !== oldWeekId) {
                                     const option = document.createElement('option');
                                     option.value = weekId;
-                                    const cleanWeekName = week.name.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                                    const cleanWeekName = week.name.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                                     option.textContent = cleanWeekName;
                                     newWeekSelect.appendChild(option);
                                 }
@@ -4482,11 +5032,11 @@
                         
                         modal.classList.add('show');
                     } else {
-                        alert('لم يتم العثور على بيانات الحضور');
+                        showNotification('لم يتم العثور على بيانات الحضور', 'error');
                     }
                 } catch (error) {
                     console.error('Error loading data for week change:', error);
-                    alert('حدث خطأ أثناء تحميل البيانات');
+                    showNotification('حدث خطأ أثناء تحميل البيانات', 'error');
                 }
             }
 
@@ -4499,12 +5049,12 @@
                 const newWeekId = document.getElementById('changeWeekNewWeek').value;
 
                 if (!newWeekId) {
-                    alert('يرجى اختيار أسبوع جديد');
+                    showNotification('يرجى اختيار أسبوع جديد', 'error');
                     return;
                 }
 
                 if (oldWeekId === newWeekId) {
-                    alert('لا يمكن نقل الحضور لنفس الأسبوع');
+                    showNotification('لا يمكن نقل الحضور لنفس الأسبوع', 'error');
                     return;
                 }
 
@@ -4535,11 +5085,11 @@
                         
                         document.getElementById('changeWeekModal').classList.remove('show');
                         await loadAttendanceManagement();
-                        alert('تم نقل الحضور إلى الأسبوع الجديد بنجاح');
+                        showNotification('تم نقل الحضور إلى الأسبوع الجديد بنجاح', 'success');
                     }
                 } catch (error) {
                     console.error('Error changing attendance week:', error);
-                    alert('حدث خطأ أثناء تغيير الأسبوع');
+                    showNotification('حدث خطأ أثناء تغيير الأسبوع', 'error');
                 }
             });
 
@@ -4557,7 +5107,7 @@
                         const attendanceData = attendanceSnapshot.val();
                         const member = memberSnapshot.val();
                         const week = weekSnapshot.exists() ? weekSnapshot.val() : { name: `الأسبوع ${weekId}` };
-                        const cleanWeekName = week.name.replace(/[-_][a-zA-Z0-9]{10,}/g, '').trim();
+                        const cleanWeekName = week.name.replace(/[-_][a-zA-Z0-9]{20,}/g, '').trim();
                         
                         document.getElementById('editAttendanceWeekId').value = weekId;
                         document.getElementById('editAttendanceMemberId').value = memberId;
@@ -4569,11 +5119,11 @@
                         
                         modal.classList.add('show');
                     } else {
-                        alert('لم يتم العثور على بيانات الحضور');
+                        showNotification('لم يتم العثور على بيانات الحضور', 'error');
                     }
                 } catch (error) {
                     console.error('Error loading attendance for edit:', error);
-                    alert('حدث خطأ أثناء تحميل البيانات');
+                    showNotification('حدث خطأ أثناء تحميل البيانات', 'error');
                 }
             }
 
@@ -4582,10 +5132,10 @@
                     try {
                         await remove(ref(db, `attendance/${weekId}/${memberId}`));
                         await loadAttendanceManagement();
-                        alert('تم حذف الحضور بنجاح');
+                        showNotification('تم حذف الحضور بنجاح', 'success');
                     } catch (error) {
                         console.error('Error deleting attendance:', error);
-                        alert('حدث خطأ أثناء الحذف');
+                        showNotification('حدث خطأ أثناء الحذف', 'error');
                     }
                 }
             }
@@ -4605,14 +5155,6 @@
 
             document.getElementById('addProductBtn').addEventListener('click', () => {
                 editProduct();
-            });
-
-            document.getElementById('addAttendanceBtn').addEventListener('click', () => {
-                alert('لإضافة حضور يدوي، استخدم قسم "سجل الحضور الكامل" أو انتظر تسجيل العضو تلقائياً');
-            });
-
-            document.getElementById('addPointsBtn').addEventListener('click', () => {
-                alert('استخدم أزرار "تعديل النقاط" في الجدول لإضافة أو خصم نقاط');
             });
 
             // ========== دوال الحفظ للمودالات ==========
@@ -4641,9 +5183,10 @@
                     document.getElementById('memberModal').classList.remove('show');
                     await loadAdminMembers();
                     await loadMembers();
+                    showNotification('تم حفظ بيانات العضو بنجاح', 'success');
                 } catch (error) {
                     console.error('Error saving member:', error);
-                    alert('حدث خطأ أثناء حفظ البيانات');
+                    showNotification('حدث خطأ أثناء حفظ البيانات', 'error');
                 }
             });
 
@@ -4671,9 +5214,10 @@
                     document.getElementById('weekModal').classList.remove('show');
                     await loadAdminWeeks();
                     await loadWeeks();
+                    showNotification('تم حفظ بيانات الأسبوع بنجاح', 'success');
                 } catch (error) {
                     console.error('Error saving week:', error);
-                    alert('حدث خطأ أثناء حفظ البيانات');
+                    showNotification('حدث خطأ أثناء حفظ البيانات', 'error');
                 }
             });
 
@@ -4701,9 +5245,10 @@
                     
                     document.getElementById('competitionModal').classList.remove('show');
                     await loadAdminCompetitions();
+                    showNotification('تم حفظ بيانات المسابقة بنجاح', 'success');
                 } catch (error) {
                     console.error('Error saving competition:', error);
-                    alert('حدث خطأ أثناء حفظ البيانات');
+                    showNotification('حدث خطأ أثناء حفظ البيانات', 'error');
                 }
             });
 
@@ -4730,9 +5275,10 @@
                     
                     document.getElementById('productModal').classList.remove('show');
                     await loadAdminProducts();
+                    showNotification('تم حفظ بيانات المنتج بنجاح', 'success');
                 } catch (error) {
                     console.error('Error saving product:', error);
-                    alert('حدث خطأ أثناء حفظ البيانات');
+                    showNotification('حدث خطأ أثناء حفظ البيانات', 'error');
                 }
             });
 
@@ -4765,9 +5311,10 @@
                     
                     document.getElementById('pointsModal').classList.remove('show');
                     await loadAdminTalanton();
+                    showNotification('تم تعديل النقاط بنجاح', 'success');
                 } catch (error) {
                     console.error('Error adjusting points:', error);
-                    alert('حدث خطأ أثناء تعديل النقاط');
+                    showNotification('حدث خطأ أثناء تعديل النقاط', 'error');
                 }
             });
 
@@ -4796,11 +5343,11 @@
                         
                         document.getElementById('editAttendanceModal').classList.remove('show');
                         await loadAttendanceManagement();
-                        alert('تم تعديل الحضور بنجاح');
+                        showNotification('تم تعديل الحضور بنجاح', 'success');
                     }
                 } catch (error) {
                     console.error('Error updating attendance:', error);
-                    alert('حدث خطأ أثناء تعديل البيانات');
+                    showNotification('حدث خطأ أثناء تعديل البيانات', 'error');
                 }
             });
 
